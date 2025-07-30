@@ -1,0 +1,18 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+
+    paths:
+        - app/
+
+    # Level of rule strictness (0-9, 9 being the strictest)
+    level: 5
+
+    excludePaths:
+        - ./*/*/FileToBeExcluded.php
+
+    checkOctaneCompatibility: true
+    checkModelProperties: true
+

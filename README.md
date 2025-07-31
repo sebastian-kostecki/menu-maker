@@ -1,61 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Menu Maker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An AI-powered web application that helps families effortlessly plan weekly meals, accurately scale recipe ingredients, and generate a single PDF containing both the meal plan and a consolidated shopping list.
 
-## About Laravel
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. [Project Description](#1-project-description)
+2. [Tech Stack](#2-tech-stack)
+3. [Getting Started Locally](#3-getting-started-locally)
+4. [Available Scripts](#4-available-scripts)
+5. [Project Scope](#5-project-scope)
+6. [Project Status](#6-project-status)
+7. [License](#7-license)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 1. Project Description
 
-## Learning Laravel
+Menu Maker automates family meal planning by letting users save their own recipes, store an ingredient dictionary, and instantly produce a seven-day meal plan (three meals per day). The system leverages artificial intelligence to scale ingredient quantities based on recipe calories, serving size, and each family member’s profile (age and gender). It outputs a single PDF that first lists the meal plan and then a consolidated, unit-converted shopping list.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 2. Tech Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Backend**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.2+
+- Laravel 12.0+
+- Inertia.js Laravel 2.0+
+- MySQL
+- Redis
 
-## Laravel Sponsors
+**Frontend**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Node.js 22
+- Vue.js 3.4+
+- Inertia.js Vue3 2.0+
+- TailwindCSS 3.2.1+
+- Shadcn-vue 2.2.0+
 
-### Premium Partners
+**Tooling & Testing**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Vite 7
+- Laravel Sail (Docker environment)
+- Laravel Pint (code style)
+- Larastan (static analysis)
+- PHPUnit (test runner)
 
-## Contributing
+## 3. Getting Started Locally
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prerequisites
 
-## Code of Conduct
+- PHP 8.2+
+- Composer
+- Node.js 22 & npm
+- Docker & Docker Compose (for Laravel Sail)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Setup
 
-## Security Vulnerabilities
+```bash
+# 1. Clone the repository
+$ git clone <repository-url>
+$ cd menu-maker
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 2. Install PHP dependencies
+$ composer install
 
-## License
+# 3. Install JavaScript dependencies
+$ npm install
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 4. Configure environment
+$ cp .env.example .env
+$ php artisan key:generate
+
+# 5. (Optional) start the Docker environment via Sail
+$ ./vendor/bin/sail up -d
+
+# 6. Run database migrations & seeders
+$ php artisan migrate --seed
+
+# 7. Start development servers
+$ npm run dev           # Vite dev server with HMR
+$ php artisan serve      # Or use Sail: ./vendor/bin/sail artisan serve
+```
+
+## 4. Available Scripts
+
+### NPM
+
+| Command         | Description                                |
+| --------------- | ------------------------------------------ |
+| `npm run dev`   | Start the Vite development server with HMR |
+| `npm run build` | Compile and bundle assets for production   |
+
+### Composer / Artisan
+
+| Command                     | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `composer dev`              | Convenience script: web server, queue listener, logs & Vite together |
+| `composer test`             | Clear config cache and run the PHPUnit test suite                    |
+| `composer pint`             | Fix code style issues using Laravel Pint                             |
+| `composer pint-test`        | Check code style without fixing                                      |
+| `composer phpstan`          | Run static analysis with Larastan                                    |
+| `composer phpstan-baseline` | Generate baseline for static analysis                                |
+| `composer phpstan-verbose`  | Static analysis with verbose output                                  |
+
+## 5. Project Scope
+
+### Included in MVP
+
+- Email-based authentication (registration, login, password reset)
+- Family profile management (name, birth date, gender)
+- Recipe CRUD with mandatory fields (name, category, ingredients, instructions, calories, servings)
+- Weekly meal plan generation (7 days × 3 meals) with no duplications and unlimited regenerations
+- AI-driven scaling of ingredient quantities per family profile
+- Consolidated shopping list with automatic unit conversion (>1000 g → kg, >1000 ml → l) and rounding to two decimals
+- Single PDF export containing the meal plan followed by the shopping list
+
+### Out of Scope for MVP
+
+- Importing recipes from external URLs
+- Multimedia support (images or videos)
+- Sharing recipes with other users / social features
+- Back-ups and advanced hosting infrastructure
+- Editing generated meal plans or shopping lists
+
+## 6. Project Status
+
+🚧 **MVP development in progress** – see the [project board](https://github.com/<org-or-user>/<repo>/projects/1) for up-to-date milestones.
+
+## 7. License
+
+This project is licensed under the **MIT License**. See the [`LICENSE`](LICENSE) file for details.

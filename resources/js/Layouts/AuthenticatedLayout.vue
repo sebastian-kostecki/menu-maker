@@ -47,6 +47,7 @@ const getUserInitials = (name) => {
                   >
                     <Avatar size="sm">
                       <AvatarImage
+                        v-if="$page.props.auth.user.avatar"
                         :src="$page.props.auth.user.avatar"
                         :alt="$page.props.auth.user.name"
                       />

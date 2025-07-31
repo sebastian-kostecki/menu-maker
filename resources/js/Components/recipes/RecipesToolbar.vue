@@ -52,22 +52,22 @@ const emit = defineEmits(['update:modelValue', 'search', 'category-change', 'res
 
 // Local state
 const searchValue = ref(props.modelValue.search || '');
-const categoryValue = ref(props.modelValue.category || '');
+const categoryValue = ref(props.modelValue.category || 'all');
 
 // Computed
 const categoriesWithAll = computed(() => [
-  { value: '', label: 'All Categories' },
+  { value: 'all', label: 'All Categories' },
   ...props.categories
 ]);
 
 const hasActiveFilters = computed(() => {
-  return searchValue.value !== '' || categoryValue.value !== '';
+  return searchValue.value !== '' || (categoryValue.value !== '' && categoryValue.value !== 'all');
 });
 
 // Watch for changes from parent
 watch(() => props.modelValue, (newValue) => {
   searchValue.value = newValue.search || '';
-  categoryValue.value = newValue.category || '';
+  categoryValue.value = newValue.category || 'all';
 }, { deep: true });
 
 // Event handlers
@@ -89,7 +89,7 @@ const handleCategoryChange = (value) => {
 
 const handleReset = () => {
   searchValue.value = '';
-  categoryValue.value = '';
+  categoryValue.value = 'all';
   updateModelValue();
   emit('reset');
 };

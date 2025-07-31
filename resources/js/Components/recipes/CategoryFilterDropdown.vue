@@ -10,7 +10,7 @@
       <SelectItem
         v-for="option in options"
         :key="option.value || 'all'"
-        :value="option.value"
+        :value="option.value || 'all'"
       >
         {{ option.label }}
       </SelectItem>
@@ -51,8 +51,8 @@ const emit = defineEmits(['update:modelValue']);
 
 // Event handlers
 const handleChange = (value) => {
-  // Convert empty string back to actual null for "All Categories"
-  const actualValue = value === '' ? null : value;
+  // Convert "all" back to actual null for "All Categories"
+  const actualValue = value === 'all' ? null : value;
   emit('update:modelValue', actualValue);
 };
 </script>

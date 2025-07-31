@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecipeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('family-members', FamilyMemberController::class)
         ->except(['show'])
         ->names('family-members');
+
+    Route::resource('recipes', RecipeController::class);
 });
 
 Route::middleware('auth')->group(function () {

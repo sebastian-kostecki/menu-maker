@@ -253,7 +253,7 @@ class RecipePolicy
 
 ### 1. Model Setup
 - [x] Recipe model z relationships
-- [ ] Recipe migration with proper indexes
+- [x] Recipe migration with proper indexes
 - [ ] Model factories for testing
 - [ ] Soft deletes configuration
 

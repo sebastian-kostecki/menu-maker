@@ -1,0 +1,63 @@
+---
+description: Project structure, file organization, and code quality guidelines
+globs:
+alwaysApply: false
+---
+
+# Project Structure & Organization
+
+## File Structure & Organization
+- Follow Laravel's directory structure and conventions
+- Group related functionality in modules/domains when appropriate
+- Use Laravel's service providers for binding interfaces
+- Organize Vue components in logical directories under `resources/js/components/`
+- Keep components small and focused on single responsibility
+- Use consistent naming across the application
+
+## Component Organization
+- Structure Vue components by feature/domain
+- Use subdirectories for related components
+- Implement proper component hierarchy
+- Keep shared/common components in dedicated folders
+- Use index files for easier imports
+
+## Code Quality Standards
+- Use Laravel Pint for automated code formatting (PSR-12 compliance)
+- Run Larastan for static analysis and type checking
+- Write comprehensive tests with PHPUnit
+- Use meaningful commit messages following conventional commits
+- Document complex business logic with inline comments
+- Regular code reviews and refactoring sessions
+- Follow SOLID principles where applicable
+
+## Error Handling Architecture
+- Use Laravel's exception handling system consistently
+- Create custom exceptions for business logic errors
+- Implement proper error pages with Inertia.js
+- Log errors appropriately with contextual information
+- Return user-friendly error messages
+- Handle validation errors gracefully in Vue components
+
+## Development Workflow
+- Use feature branches for development
+- Implement proper CI/CD pipeline with GitHub Actions
+- Use Laravel Sail for consistent development environment
+- Leverage Docker for containerized deployment
+- Implement proper environment configuration management
+- Use Laravel's scheduler for recurring tasks
+- Implement proper backup and deployment strategies
+
+## Documentation Standards
+- Maintain up-to-date README files
+- Document API endpoints and their usage
+- Keep architectural decisions recorded
+- Document deployment and setup procedures
+- Maintain coding standards documentation
+- Use inline documentation for complex algorithms
+
+## Dependency Management
+- Keep dependencies up to date with security patches
+- Use Composer for PHP dependencies
+- Use npm/yarn for Node.js dependencies
+- Regular dependency audits for security vulnerabilities
+- Document any custom modifications to vendor packages

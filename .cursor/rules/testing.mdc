@@ -1,0 +1,59 @@
+---
+description: Testing best practices with PHPUnit and Laravel testing tools
+globs: "**/tests/**/*.php", "**/*Test.php", "**/phpunit.xml"
+alwaysApply: false
+---
+
+# Testing Best Practices
+
+## Test Structure
+- Write Feature tests for HTTP endpoints and user workflows
+- Write Unit tests for business logic and isolated components
+- Follow AAA pattern: Arrange, Act, Assert
+- Use descriptive test method names that explain what is being tested
+- Group related tests in logical test classes
+
+## Laravel Testing Tools
+- Use Laravel's testing helpers:
+  - `actingAs()` for authentication
+  - `assertStatus()`, `assertJson()` for HTTP responses
+  - `assertDatabaseHas()`, `assertDatabaseMissing()` for database assertions
+  - `assertRedirect()`, `assertViewIs()` for navigation testing
+- Leverage Laravel's HTTP testing features
+- Use `RefreshDatabase` trait for database tests
+
+## Test Data Management
+- Use model factories for test data generation
+- Create realistic test data that represents actual use cases
+- Use factory states for different data variations
+- Clean up test data appropriately with database transactions
+- Use database seeders for complex test scenarios
+
+## Mocking and Dependencies
+- Mock external services and APIs to avoid external dependencies
+- Use Laravel's built-in mocking features
+- Mock only what is necessary to isolate the system under test
+- Verify mock interactions when testing behavior
+- Use dependency injection to make testing easier
+
+## Test Coverage
+- Test both happy path and edge cases
+- Include validation error testing
+- Test authorization and permission scenarios
+- Cover error handling and exception scenarios
+- Test different user roles and access levels
+
+## Performance Testing
+- Test query performance with large datasets
+- Verify caching behavior
+- Test rate limiting functionality
+- Monitor test execution time
+- Use database queries counting in tests
+
+## Best Practices
+- Keep tests independent and isolated
+- Use descriptive assertion messages
+- Write tests before fixing bugs (TDD approach)
+- Maintain test readability and simplicity
+- Regular test maintenance and refactoring
+- Use continuous integration for automated testing

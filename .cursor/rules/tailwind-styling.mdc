@@ -1,0 +1,53 @@
+---
+description: TailwindCSS and Shadcn-vue styling guidelines
+globs: "**/*.vue", "**/*.css", "**/tailwind.config.js", "**/postcss.config.js"
+alwaysApply: false
+---
+
+# TailwindCSS & Styling Guidelines
+
+## TailwindCSS Best Practices
+- Always use Tailwind classes for styling; avoid custom CSS unless absolutely necessary
+- Use Tailwind's responsive design utilities (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
+- Implement consistent spacing and typography using Tailwind's design tokens
+- Use Tailwind's dark mode utilities when needed (`dark:`)
+- Organize classes logically: layout, spacing, colors, typography, effects
+
+## Class Organization
+Organize Tailwind classes in this order:
+1. Layout (display, position, top, right, bottom, left)
+2. Flexbox/Grid (flex, grid, justify, align, etc.)
+3. Spacing (margin, padding)
+4. Sizing (width, height, max-width, etc.)
+5. Typography (font, text, leading, tracking)
+6. Colors (text-color, bg-color, border-color)
+7. Borders (border, rounded)
+8. Effects (shadow, opacity, transform)
+9. Transitions and animations
+
+## Custom CSS Guidelines
+- Use @apply directive sparingly, prefer utility classes
+- When custom CSS is needed, use CSS custom properties for theming
+- Leverage Tailwind's component extraction for reusable patterns
+- Keep custom styles scoped to components
+
+## Shadcn-vue Integration
+- Use Shadcn-vue components for consistent UI patterns
+- Customize components through Tailwind classes when needed
+- Follow Shadcn-vue's composition patterns
+- Implement proper accessibility features provided by Shadcn-vue
+- Use Shadcn-vue's theming system for consistent design
+- Leverage the component library's built-in variants
+
+## Responsive Design
+- Use mobile-first approach with Tailwind's responsive prefixes
+- Test on multiple screen sizes and devices
+- Use appropriate breakpoints for content layout
+- Ensure touch targets are minimum 44px for mobile devices
+
+## Accessibility
+- Maintain sufficient color contrast ratios
+- Use semantic HTML elements with appropriate Tailwind classes
+- Implement focus states for interactive elements
+- Ensure keyboard navigation works properly
+- Use aria-labels and other accessibility attributes as needed

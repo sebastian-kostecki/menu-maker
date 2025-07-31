@@ -1,0 +1,67 @@
+---
+description: Security and performance optimization guidelines for Laravel applications
+globs:
+alwaysApply: false
+---
+
+# Security & Performance Guidelines
+
+## Security Best Practices
+
+### Input Validation & Sanitization
+- Use Laravel's CSRF protection for all forms
+- Implement proper input validation and sanitization
+- Use Laravel's validation rules comprehensively
+- Sanitize user input before database operations
+- Validate file uploads and restrict file types
+
+### Authentication & Authorization
+- Use Laravel's built-in authentication features
+- Implement proper authorization with policies and gates
+- Use role-based access control (RBAC) when appropriate
+- Secure API endpoints with proper authentication
+- Implement proper session management
+
+### Data Protection
+- Use Laravel's encryption features for sensitive data
+- Hash passwords with Laravel's Hash facade
+- Implement proper rate limiting for APIs and forms
+- Use HTTPS for all production environments
+- Secure database credentials and API keys
+
+### Security Headers & Configuration
+- Configure proper security headers
+- Use Laravel's built-in XSS protection
+- Implement Content Security Policy (CSP)
+- Configure proper CORS settings
+- Regular security updates and dependency management
+
+## Performance Optimization
+
+### Database Performance
+- Use Redis for caching and session storage
+- Optimize database queries with proper indexing
+- Implement eager loading to prevent N+1 queries
+- Use database query optimization techniques
+- Consider database connection pooling
+
+### Application Performance
+- Use Laravel's cache system effectively
+- Implement proper queue system for heavy operations
+- Optimize asset loading and compilation
+- Use CDN for static assets
+- Implement proper logging strategies
+
+### Memory & Resource Management
+- Monitor memory usage in long-running processes
+- Use appropriate data structures for large datasets
+- Implement pagination for large result sets
+- Optimize image and file handling
+- Use background processing for resource-intensive tasks
+
+### Monitoring & Profiling
+- Implement application performance monitoring
+- Use Laravel Telescope for debugging
+- Monitor database query performance
+- Track application errors and exceptions
+- Regular performance audits and optimization

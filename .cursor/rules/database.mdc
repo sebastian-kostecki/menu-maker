@@ -1,0 +1,60 @@
+---
+description: Database, Eloquent ORM, and migration best practices
+globs: "**/database/**/*.php", "**/app/Models/**/*.php", "**/*Migration*.php", "**/*Seeder*.php", "**/*Factory*.php"
+alwaysApply: false
+---
+
+# Database & Eloquent Best Practices
+
+## Eloquent Relationships
+- Use Eloquent relationships properly: `hasMany`, `belongsTo`, `belongsToMany`, etc.
+- Define inverse relationships for bidirectional access
+- Use proper foreign key naming conventions (e.g., `user_id`)
+- Implement polymorphic relationships when appropriate
+- Use pivot tables for many-to-many relationships
+
+## Query Optimization
+- Write efficient queries with eager loading (`with()`)
+- Select specific columns when not all data is needed
+- Use Laravel's query builder for complex queries
+- Implement proper indexing for performance
+- Avoid N+1 query problems with eager loading
+- Use `chunk()` or `cursor()` for processing large datasets
+
+## Migrations
+- Use descriptive migration names with timestamps
+- Always include both `up()` and `down()` methods
+- Use Laravel's schema builder methods
+- Add proper indexes for foreign keys and frequently queried columns
+- Use appropriate column types for data
+- Include default values where appropriate
+
+## Models
+- Follow Laravel naming conventions (singular, PascalCase)
+- Define fillable or guarded properties
+- Implement custom accessors and mutators when needed
+- Use model events (creating, created, updating, updated) appropriately
+- Define proper casts for attributes
+- Implement soft deletes when appropriate (`SoftDeletes` trait)
+
+## Database Design
+- Use proper data types for efficiency
+- Implement foreign key constraints
+- Design normalized tables to reduce redundancy
+- Use appropriate indexing strategies
+- Consider database-specific features (JSON columns, full-text search)
+- Plan for scalability and performance
+
+## Seeders and Factories
+- Use database seeders for initial data setup
+- Create model factories for testing and development data
+- Use realistic fake data in factories
+- Organize seeders logically (users before posts, etc.)
+- Use factory states for different data variations
+
+## Redis Integration
+- Use Redis for caching frequently accessed data
+- Implement session storage with Redis
+- Use Redis for queue jobs and background processing
+- Set appropriate TTL values for cached data
+- Use Redis for rate limiting and temporary storage

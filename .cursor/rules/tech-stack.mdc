@@ -1,0 +1,34 @@
+---
+description: Technology stack overview and version requirements
+globs:
+alwaysApply: true
+---
+
+# Tech Stack Overview
+
+## Backend
+- **PHP 8.2+** - Server-side programming language
+- **Laravel 12.0+** - PHP web application framework
+- **Inertia.js Laravel 2.0+** - Server-side adapter for SPA-like experience
+- **MySQL** - Relational database management system
+- **Redis** - In-memory data structure store for caching and queues
+
+## Frontend
+- **Node.js 22** - JavaScript runtime for building and development tools
+- **Vue.js 3.4.0+** - Progressive JavaScript framework
+- **Inertia.js Vue3 2.0.0+** - Client-side adapter for SPA-like experience
+- **TailwindCSS 3.2.1+** - Utility-first CSS framework
+- **Shadcn-vue 2.2.0+** - Vue component library
+
+## Development Tools
+- **Laravel Pint** - Code style fixer (PSR-12 compliance)
+- **Laravel Sail** - Docker development environment
+- **Larastan** - Static analysis tool for Laravel
+- **PHPUnit** - Testing framework for PHP
+- **OpenRouter.ai** - AI model access for development assistance
+
+## Infrastructure
+- **GitHub Actions** - CI/CD pipeline automation
+- **DigitalOcean** - Application hosting via Docker containers
+
+Always ensure compatibility with these specific versions and leverage the full capabilities of each technology in the stack.

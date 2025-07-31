@@ -1,0 +1,50 @@
+---
+description: PHP and Laravel coding standards and best practices
+globs: "**/*.php"
+alwaysApply: false
+---
+
+# PHP & Laravel Best Practices
+
+## Code Standards
+- Follow PSR-12 coding standards
+- Use strict types declaration: `<?php declare(strict_types=1);`
+- Use type hints for method parameters and return types
+- Write descriptive docblocks for classes and methods
+- Prefer dependency injection over static calls
+
+## Laravel Conventions
+- Use Laravel's built-in features: Eloquent ORM, Artisan commands, Service Container
+- Implement proper validation using Form Requests
+- Use Resource classes for API responses
+- Use Laravel's helper functions when available
+- Use Laravel's config system instead of hardcoded values
+
+## Naming Conventions
+- **Controllers**: PascalCase with "Controller" suffix (e.g., `UserController`)
+- **Models**: PascalCase, singular (e.g., `User`)
+- **Database tables**: snake_case, plural (e.g., `users`)
+- **Migrations**: descriptive names with timestamps
+- **Routes**: kebab-case for URI segments
+- **Methods**: camelCase with descriptive verbs
+
+## Error Handling
+- Use Laravel's exception handling system
+- Create custom exceptions for business logic errors
+- Implement proper error handling with custom exceptions
+- Use Laravel's built-in authentication and authorization features
+- Log errors appropriately with context
+
+## File Structure
+- Follow Laravel's directory structure
+- Group related functionality in modules/domains
+- Use Laravel's service providers for binding interfaces
+- Keep controllers thin, move business logic to services
+- Use dedicated classes for complex operations
+
+## Development Workflow
+- Use Laravel Sail for consistent development environment
+- Leverage Laravel's Artisan commands for code generation
+- Use Laravel's built-in debugging tools: dd(), dump(), telescope
+- Implement proper environment configuration
+- Use Laravel's scheduler for recurring tasks

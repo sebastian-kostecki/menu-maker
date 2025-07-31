@@ -1,0 +1,60 @@
+---
+description: Vue.js and Inertia.js frontend development best practices
+globs: "**/*.vue", "**/*.js", "**/*.ts", "**/resources/js/**/*"
+alwaysApply: false
+---
+
+# Vue.js & Inertia.js Best Practices
+
+## Component Structure
+- Use Composition API with `<script setup>` syntax
+- Implement proper component structure:
+  - Props definition with types
+  - Emits definition
+  - Descriptive component names (PascalCase)
+- Structure components logically:
+  - Template
+  - Script setup
+  - Style (scoped when needed)
+
+## Reactivity System
+- Use Vue's reactivity system correctly:
+  - `ref()` for primitive values
+  - `reactive()` for objects
+  - `computed()` for derived state
+- Avoid unnecessary reactive wrappers
+- Use `nextTick()` when DOM updates are needed
+
+## Naming Conventions
+- **Components**: PascalCase (e.g., `UserProfile.vue`)
+- **Variables**: camelCase with descriptive names
+- **Functions**: camelCase starting with verbs
+- **Event handlers**: prefix with "handle" (e.g., `handleSubmit`, `handleClick`)
+- **Constants**: UPPER_SNAKE_CASE
+
+## Inertia.js Integration
+- Use Inertia.js forms for handling form submissions
+- Implement proper error handling with Inertia's error bags
+- Use Inertia's built-in progress indicators
+- Leverage Inertia's visit() method for navigation
+- Handle loading states appropriately
+
+## Code Quality
+- Follow Vue.js style guide for component naming and organization
+- Use descriptive variable and function names
+- Use early returns for better readability
+- Implement accessibility features: aria-labels, tabindex, keyboard navigation
+- Keep components small and focused on single responsibility
+- Prefer composition over inheritance
+
+## TypeScript Integration
+- Use TypeScript for type safety when available
+- Define proper interfaces for props and data structures
+- Leverage Vue's built-in TypeScript support
+- Use generic types for reusable components
+
+## Performance
+- Use v-memo for expensive computations
+- Implement proper key attributes in v-for loops
+- Lazy load components when appropriate
+- Optimize bundle size with tree shaking

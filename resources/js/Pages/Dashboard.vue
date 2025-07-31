@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import Button from '@/Components/ui/Button.vue'
+import { Button } from '@/Components/ui/button'
 import { Head, Link } from '@inertiajs/vue3'
 import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
 </script>
@@ -75,18 +75,18 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
                 Szybkie akcje
             </h2>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Link href="/recipes/create" class="inline-flex">
-                    <Button size="lg" class="w-full justify-start">
+                <Button size="lg" class="w-full justify-start" as-child>
+                    <Link href="/recipes/create">
                         <Plus class="mr-2 h-5 w-5" />
                         Dodaj przepis
-                    </Button>
-                </Link>
-                <Link href="/meal-plans/create" class="inline-flex">
-                    <Button variant="outline" size="lg" class="w-full justify-start">
+                    </Link>
+                </Button>
+                <Button variant="outline" size="lg" class="w-full justify-start" as-child>
+                    <Link href="/meal-plans/create">
                         <Calendar class="mr-2 h-5 w-5" />
                         Wygeneruj jadłospis
-                    </Button>
-                </Link>
+                    </Link>
+                </Button>
             </div>
         </div>
 

@@ -3,9 +3,7 @@ import { ref } from 'vue'
 import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
 import Sidebar from '@/Components/Sidebar.vue'
-import Avatar from '@/Components/ui/Avatar.vue'
-import AvatarFallback from '@/Components/ui/AvatarFallback.vue'
-import AvatarImage from '@/Components/ui/AvatarImage.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar'
 import { User, LogOut } from 'lucide-vue-next'
 
 // Get user initials for avatar fallback

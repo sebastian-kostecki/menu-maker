@@ -10,8 +10,8 @@ import {
   Menu,
   X
 } from 'lucide-vue-next'
-import Button from '@/Components/ui/Button.vue'
-import Separator from '@/Components/ui/Separator.vue'
+import { Button } from '@/Components/ui/button'
+import { Separator } from '@/Components/ui/separator'
 
 const isCollapsed = ref(false)
 const isMobileMenuOpen = ref(false)

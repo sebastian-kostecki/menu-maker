@@ -16,6 +16,7 @@ alwaysApply: false
   - Template
   - Script setup
   - Style (scoped when needed)
+- Use Shadcn-vue 2.2.0 components where it possible
 
 ## Reactivity System
 - Use Vue's reactivity system correctly:

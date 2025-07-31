@@ -1,7 +1,7 @@
 # Dokument wymagań produktu (PRD) - Menu Maker
 
 ## 1. Przegląd produktu
-Menu Maker to aplikacja webowa wspierająca rodziny w planowaniu posiłków na cały tydzień. Umożliwia użytkownikom zapisywanie własnych przepisów kulinarnych, przechowywanie słownika składników oraz automatyczne generowanie tygodniowego jadłospisu dopasowanego do profilu rodziny. System wykorzystuje sztuczną inteligencję do skalowania ilości składników na podstawie kaloryczności przepisu, liczby porcji i danych o członkach rodziny. Wynikiem generacji jest pojedynczy plik PDF zawierający jadłospis oraz skonsolidowaną listę zakupów.
+Menu Maker to aplikacja webowa wspierająca rodziny w planowaniu posiłków na cały tydzień. Umożliwia użytkownikom zapisywanie własnych przepisów kulinarnych, automatyczne generowanie tygodniowego jadłospisu dopasowanego do profilu rodziny. System wykorzystuje sztuczną inteligencję do skalowania ilości składników na podstawie kaloryczności przepisu, liczby porcji i danych o członkach rodziny. Wynikiem generacji jest pojedynczy plik PDF zawierający jadłospis oraz skonsolidowaną listę zakupów.
 
 ## 2. Problem użytkownika
 Rodziny często posiadają ograniczony czas na planowanie posiłków oraz trudności w dostosowywaniu przepisów do liczby domowników i ich indywidualnych potrzeb kalorycznych. Ręczne obliczenia składników i tworzenie listy zakupów są czasochłonne, podatne na błędy i prowadzą do nadmiarowych zakupów. Użytkownicy potrzebują narzędzia, które zautomatyzuje proces planowania, uprości zakupy i zredukuje marnotrawstwo żywności.

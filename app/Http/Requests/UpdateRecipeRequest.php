@@ -26,7 +26,7 @@ class UpdateRecipeRequest extends FormRequest
         // Same rules as StoreRecipeRequest but all fields optional for PATCH
         return [
             'name' => 'sometimes|required|string|max:255',
-            'category' => 'sometimes|required|in:breakfast,supper,dinner',
+            'category' => 'sometimes|required|in:breakfast,lunch,dinner',
             'instructions' => 'sometimes|required|string',
             'calories' => 'sometimes|required|numeric|min:0',
             'servings' => 'sometimes|required|integer|min:1',

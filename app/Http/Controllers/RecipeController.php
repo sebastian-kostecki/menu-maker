@@ -7,7 +7,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
+use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,12 +64,15 @@ class RecipeController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Recipes/Create', [
+        return Inertia::render('Recipes/Form', [
+            'recipe' => null,
             'categories' => [
                 ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
+                ['value' => 'lunch', 'label' => 'Lunch'],
                 ['value' => 'dinner', 'label' => 'Dinner'],
             ],
+            'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
+            'units' => Unit::orderBy('code')->get(['id', 'code']),
         ]);
     }
 
@@ -120,13 +125,15 @@ class RecipeController extends Controller
     {
         $recipe->load(['recipeIngredients.ingredient', 'recipeIngredients.unit']);
 
-        return Inertia::render('Recipes/Edit', [
+        return Inertia::render('Recipes/Form', [
             'recipe' => new RecipeResource($recipe),
             'categories' => [
                 ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
+                ['value' => 'lunch', 'label' => 'Lunch'],
                 ['value' => 'dinner', 'label' => 'Dinner'],
             ],
+            'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
+            'units' => Unit::orderBy('code')->get(['id', 'code']),
         ]);
     }
 

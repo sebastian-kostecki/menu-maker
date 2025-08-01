@@ -25,7 +25,15 @@ class RecipeResource extends JsonResource
             'servings' => $this->servings,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'ingredients' => RecipeIngredientResource::collection($this->whenLoaded('recipeIngredients')),
+            'ingredients' => $this->whenLoaded('recipeIngredients', function () {
+                return $this->recipeIngredients->map(function ($recipeIngredient) {
+                    return [
+                        'ingredient_id' => $recipeIngredient->ingredient_id,
+                        'quantity' => $recipeIngredient->quantity,
+                        'unit_id' => $recipeIngredient->unit_id,
+                    ];
+                });
+            }),
         ];
     }
 }

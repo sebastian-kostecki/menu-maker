@@ -25,7 +25,7 @@ class StoreRecipeRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:breakfast,supper,dinner',
+            'category' => 'required|in:breakfast,lunch,dinner',
             'instructions' => 'required|string',
             'calories' => 'required|numeric|min:0',
             'servings' => 'required|integer|min:1',

@@ -68,7 +68,7 @@ class RecipeController extends Controller
             'recipe' => null,
             'categories' => [
                 ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'lunch', 'label' => 'Lunch'],
+                ['value' => 'supper', 'label' => 'Super'],
                 ['value' => 'dinner', 'label' => 'Dinner'],
             ],
             'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
@@ -129,7 +129,7 @@ class RecipeController extends Controller
             'recipe' => new RecipeResource($recipe),
             'categories' => [
                 ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'lunch', 'label' => 'Lunch'],
+                ['value' => 'supper', 'label' => 'Supper'],
                 ['value' => 'dinner', 'label' => 'Dinner'],
             ],
             'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),

@@ -117,7 +117,7 @@ interface UnitResource {
 interface RecipeResource {
   id: number;
   name: string;
-  category: 'breakfast' | 'lunch' | 'dinner';
+  category: 'breakfast' | 'supper' | 'dinner';
   instructions: string;
   calories: number;
   servings: number;
@@ -143,7 +143,7 @@ interface IngredientViewModel {
 // Główny model widoku dla całego formularza przepisu
 interface RecipeFormViewModel {
   name: string;
-  category: 'breakfast' | 'lunch' | 'dinner' | null;
+  category: 'breakfast' | 'supper' | 'dinner' | null;
   instructions: string;
   calories: number | string;
   servings: number | string;

@@ -25,7 +25,7 @@ class StoreRecipeRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:breakfast,lunch,dinner',
+            'category' => 'required|in:breakfast,supper,dinner',
             'instructions' => 'required|string',
             'calories' => 'required|numeric|min:0',
             'servings' => 'required|integer|min:1',
@@ -47,7 +47,7 @@ class StoreRecipeRequest extends FormRequest
             'name.required' => 'Recipe name is required.',
             'name.max' => 'Recipe name cannot exceed 255 characters.',
             'category.required' => 'Recipe category is required.',
-            'category.in' => 'Recipe category must be breakfast, lunch, or dinner.',
+            'category.in' => 'Recipe category must be breakfast, supper, or dinner.',
             'instructions.required' => 'Recipe instructions are required.',
             'calories.required' => 'Calories field is required.',
             'calories.numeric' => 'Calories must be a number.',

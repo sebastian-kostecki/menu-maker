@@ -60,7 +60,7 @@ Already provided by Laravel default migration (`0001_01_01_000000_create_users_t
 | id           | BIGINT UNSIGNED                    | PK, auto-increment        |
 | user_id      | BIGINT UNSIGNED                    | FK → `users.id`, NOT NULL |
 | name         | VARCHAR(255)                       | NOT NULL                  |
-| category     | ENUM('breakfast','lunch','dinner') | NOT NULL                  |
+| category     | ENUM('breakfast','supper','dinner')| NOT NULL                  |
 | instructions | TEXT                               | NOT NULL                  |
 | calories     | DECIMAL(10,2)                      | NOT NULL — total kcal     |
 | servings     | INT UNSIGNED                       | NOT NULL                  |
@@ -109,7 +109,7 @@ UNIQUE(user_id, start_date)
 | meal_plan_id  | BIGINT UNSIGNED                    | FK → `meal_plans.id`, NOT NULL                                          |
 | recipe_id     | BIGINT UNSIGNED                    | FK → `recipes.id`, NOT NULL                                             |
 | meal_date     | DATE                               | NOT NULL (between start_date & end_date, enforced in application logic) |
-| meal_category | ENUM('breakfast','lunch','dinner') | NOT NULL                                                                |
+| meal_category | ENUM('breakfast','supper','dinner')| NOT NULL                                                                |
 | created_at    | TIMESTAMP                          | —                                                                       |
 | updated_at    | TIMESTAMP                          | —                                                                       |
 

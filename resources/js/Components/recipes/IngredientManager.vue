@@ -12,6 +12,7 @@
         :errors="getIngredientErrors(index)"
         @update="handleUpdateIngredient"
         @remove="handleRemoveIngredient"
+        @add-ingredient="handleAddNewIngredient"
       />
     </div>
 
@@ -67,7 +68,7 @@ const props = defineProps({
 })
 
 // Define emits for v-model support
-const emit = defineEmits(['update:ingredients'])
+const emit = defineEmits(['update:ingredients', 'add-new-ingredient'])
 
 // Handle adding new ingredient
 const handleAddIngredient = () => {
@@ -93,6 +94,12 @@ const handleUpdateIngredient = (index, updatedIngredient) => {
 const handleRemoveIngredient = (index) => {
   const newIngredients = props.ingredients.filter((_, i) => i !== index)
   emit('update:ingredients', newIngredients)
+}
+
+// Handle adding new ingredient from combobox
+const handleAddNewIngredient = (ingredientName) => {
+  // Emit event to parent component to handle creating new ingredient
+  emit('add-new-ingredient', ingredientName)
 }
 
 // Get errors for specific ingredient

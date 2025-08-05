@@ -12,9 +12,11 @@ use Tests\TestCase;
 
 class RecipeControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     protected User $user;
+
     protected User $otherUser;
 
     protected function setUp(): void
@@ -34,8 +36,7 @@ class RecipeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->component('Recipes/Index')
+            fn ($page) => $page->component('Recipes/Index')
                 ->has('recipes.data', 3) // Only user's recipes
         );
     }
@@ -55,8 +56,7 @@ class RecipeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->component('Recipes/Show')
+            fn ($page) => $page->component('Recipes/Show')
                 ->where('recipe.id', $recipe->id)
         );
     }
@@ -187,8 +187,7 @@ class RecipeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->has('recipes.data', 1)
+            fn ($page) => $page->has('recipes.data', 1)
         );
     }
 
@@ -201,8 +200,7 @@ class RecipeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->has('recipes.data', 2)
+            fn ($page) => $page->has('recipes.data', 2)
         );
     }
 
@@ -213,13 +211,12 @@ class RecipeControllerTest extends TestCase
 
         $response = $this->actingAs($this->user)->get(route('recipes.index', [
             'sort' => 'name',
-            'direction' => 'asc'
+            'direction' => 'asc',
         ]));
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->where('recipes.data.0.name', 'A Recipe')
+            fn ($page) => $page->where('recipes.data.0.name', 'A Recipe')
         );
     }
 }

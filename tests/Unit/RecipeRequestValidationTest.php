@@ -24,7 +24,7 @@ class RecipeRequestValidationTest extends TestCase
             'servings' => 2,
         ];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->passes());
@@ -34,7 +34,7 @@ class RecipeRequestValidationTest extends TestCase
     {
         $data = [];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -55,7 +55,7 @@ class RecipeRequestValidationTest extends TestCase
             'servings' => 2,
         ];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -72,7 +72,7 @@ class RecipeRequestValidationTest extends TestCase
             'servings' => 2,
         ];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -89,7 +89,7 @@ class RecipeRequestValidationTest extends TestCase
             'servings' => 0,
         ];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -106,7 +106,7 @@ class RecipeRequestValidationTest extends TestCase
             'servings' => 2,
         ];
 
-        $request = new StoreRecipeRequest();
+        $request = new StoreRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -119,7 +119,7 @@ class RecipeRequestValidationTest extends TestCase
             'name' => 'Updated Recipe Name',
         ];
 
-        $request = new UpdateRecipeRequest();
+        $request = new UpdateRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->passes());
@@ -131,7 +131,7 @@ class RecipeRequestValidationTest extends TestCase
             'category' => 'invalid_category',
         ];
 
-        $request = new UpdateRecipeRequest();
+        $request = new UpdateRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -144,7 +144,7 @@ class RecipeRequestValidationTest extends TestCase
             'calories' => -50,
         ];
 
-        $request = new UpdateRecipeRequest();
+        $request = new UpdateRecipeRequest;
         $validator = Validator::make($data, $request->rules());
 
         $this->assertTrue($validator->fails());
@@ -164,7 +164,7 @@ class RecipeRequestValidationTest extends TestCase
                 'servings' => 2,
             ];
 
-            $request = new StoreRecipeRequest();
+            $request = new StoreRecipeRequest;
             $validator = Validator::make($data, $request->rules());
 
             $this->assertTrue($validator->passes(), "Category '{$category}' should be valid");

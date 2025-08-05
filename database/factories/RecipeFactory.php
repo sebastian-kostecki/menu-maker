@@ -36,7 +36,7 @@ class RecipeFactory extends Factory
      */
     public function breakfast(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'category' => 'breakfast',
             'calories' => $this->faker->numberBetween(200, 500),
         ]);
@@ -47,7 +47,7 @@ class RecipeFactory extends Factory
      */
     public function supper(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'category' => 'supper',
             'calories' => $this->faker->numberBetween(300, 600),
         ]);
@@ -58,7 +58,7 @@ class RecipeFactory extends Factory
      */
     public function dinner(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'category' => 'dinner',
             'calories' => $this->faker->numberBetween(400, 800),
         ]);
@@ -69,7 +69,7 @@ class RecipeFactory extends Factory
      */
     public function lowCalorie(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'calories' => $this->faker->numberBetween(100, 300),
         ]);
     }
@@ -79,7 +79,7 @@ class RecipeFactory extends Factory
      */
     public function highCalorie(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'calories' => $this->faker->numberBetween(600, 1000),
         ]);
     }

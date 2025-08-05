@@ -95,7 +95,7 @@ class RecipeController extends Controller
             ]);
 
             // Sync ingredients if provided
-            if (!empty($ingredients)) {
+            if (! empty($ingredients)) {
                 $this->syncRecipeIngredients($recipe, $ingredients);
             }
 
@@ -175,10 +175,6 @@ class RecipeController extends Controller
 
     /**
      * Sync recipe ingredients with the provided data.
-     *
-     * @param Recipe $recipe
-     * @param array $ingredients
-     * @return void
      */
     private function syncRecipeIngredients(Recipe $recipe, array $ingredients): void
     {

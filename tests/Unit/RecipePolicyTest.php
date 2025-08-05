@@ -15,15 +15,18 @@ class RecipePolicyTest extends TestCase
     use RefreshDatabase;
 
     protected RecipePolicy $policy;
+
     protected User $user;
+
     protected User $otherUser;
+
     protected Recipe $recipe;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->policy = new RecipePolicy();
+        $this->policy = new RecipePolicy;
         $this->user = User::factory()->create();
         $this->otherUser = User::factory()->create();
         $this->recipe = Recipe::factory()->for($this->user)->create();

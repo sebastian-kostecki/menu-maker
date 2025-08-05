@@ -12,9 +12,11 @@ use Tests\TestCase;
 
 class FamilyMemberTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     private User $user;
+
     private User $otherUser;
 
     protected function setUp(): void
@@ -35,8 +37,7 @@ class FamilyMemberTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->component('FamilyMembers/Index')
+            fn ($page) => $page->component('FamilyMembers/Index')
                 ->has('familyMembers.data', 3)
         );
     }
@@ -48,8 +49,7 @@ class FamilyMemberTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->component('FamilyMembers/Create')
+            fn ($page) => $page->component('FamilyMembers/Create')
                 ->has('genders')
                 ->where('genders', ['male', 'female'])
         );
@@ -86,8 +86,7 @@ class FamilyMemberTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) =>
-            $page->component('FamilyMembers/Edit')
+            fn ($page) => $page->component('FamilyMembers/Edit')
                 ->has('familyMember')
                 ->has('genders')
                 ->where('familyMember.id', $familyMember->id)

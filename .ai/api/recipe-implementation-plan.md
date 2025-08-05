@@ -24,7 +24,7 @@ Implementacja kontrolera `RecipeController` jako resource controller dla zarząd
 1. **StoreRecipeRequest**
    ```php
    'name' => 'required|string|max:255',
-   'category' => 'required|in:breakfast,lunch,dinner',
+   'category' => 'required|in:breakfast,supper,dinner',
    'instructions' => 'required|string',
    'calories' => 'required|numeric|min:0',
    'servings' => 'required|integer|min:1',
@@ -91,7 +91,7 @@ public function index(Request $request): Response
     return Inertia::render('Recipes/Index', [
         'recipes' => RecipeResource::collection($recipes),
         'filters' => $request->only(['search', 'category']),
-        'categories' => ['breakfast', 'lunch', 'dinner']
+        'categories' => ['breakfast', 'suppr', 'dinner']
     ]);
 }
 ```

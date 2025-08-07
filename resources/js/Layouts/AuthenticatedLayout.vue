@@ -4,6 +4,7 @@ import Dropdown from '@/Components/Dropdown.vue'
 import DropdownLink from '@/Components/DropdownLink.vue'
 import Sidebar from '@/Components/Sidebar.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar'
+import { Toaster } from '@/Components/ui/sonner'
 import { User, LogOut } from 'lucide-vue-next'
 
 // Get user initials for avatar fallback
@@ -119,5 +120,8 @@ const getUserInitials = (name) => {
         </main>
       </div>
     </Sidebar>
+
+    <!-- Toast notifications -->
+    <Toaster />
   </div>
 </template>

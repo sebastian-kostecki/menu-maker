@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Models\MealPlan;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -56,18 +55,20 @@ class RegenerateMealPlanRequest extends FormRequest
             // Check if meal plan is currently processing
             if ($mealPlan->status === 'processing') {
                 $validator->errors()->add('status', 'Cannot regenerate meal plan while it is being processed.');
+
                 return;
             }
 
             // Only allow regeneration if status is 'done' or 'error'
-            if (!in_array($mealPlan->status, ['done', 'error'])) {
+            if (! in_array($mealPlan->status, ['done', 'error'])) {
                 $validator->errors()->add('status', 'Can only regenerate completed or failed meal plans.');
+
                 return;
             }
 
             // Check rate limit unless force flag is set
-            if (!$this->input('force')) {
-                $key = 'regenerate-meal-plan:' . $this->user()->id;
+            if (! $this->input('force')) {
+                $key = 'regenerate-meal-plan:'.$this->user()->id;
 
                 if (RateLimiter::tooManyAttempts($key, 5)) {
                     $seconds = RateLimiter::availableIn($key);
@@ -85,8 +86,8 @@ class RegenerateMealPlanRequest extends FormRequest
     protected function passedValidation(): void
     {
         // Hit the rate limiter unless force flag is set
-        if (!$this->input('force')) {
-            $key = 'regenerate-meal-plan:' . $this->user()->id;
+        if (! $this->input('force')) {
+            $key = 'regenerate-meal-plan:'.$this->user()->id;
             RateLimiter::hit($key, 3600); // 1 hour
         }
     }

@@ -19,6 +19,7 @@ class MealPlanControllerTest extends TestCase
     use WithFaker;
 
     protected User $user;
+
     protected User $otherUser;
 
     protected function setUp(): void
@@ -38,7 +39,7 @@ class MealPlanControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) => $page->component('MealPlans/Index', false)
+            fn ($page) => $page->component('MealPlans/Index', false)
                 ->has('mealPlans.data', 3) // Only user's meal plans
         );
     }
@@ -60,7 +61,7 @@ class MealPlanControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) => $page->has('mealPlans.data', 2)
+            fn ($page) => $page->has('mealPlans.data', 2)
         );
     }
 
@@ -72,7 +73,7 @@ class MealPlanControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(
-            fn($page) => $page->component('MealPlans/Show', false)
+            fn ($page) => $page->component('MealPlans/Show', false)
                 ->has('mealPlan')
                 ->where('mealPlan.id', $mealPlan->id)
         );
@@ -116,7 +117,7 @@ class MealPlanControllerTest extends TestCase
         ]);
 
         Queue::assertPushed(GenerateMealPlanJob::class, function ($job) {
-            return $job->mealPlan->user_id === $this->user->id && !$job->regenerate;
+            return $job->mealPlan->user_id === $this->user->id && ! $job->regenerate;
         });
     }
 

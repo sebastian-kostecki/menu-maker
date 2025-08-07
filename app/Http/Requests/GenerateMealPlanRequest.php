@@ -50,7 +50,7 @@ class GenerateMealPlanRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             // Check rate limit - 5 requests per hour per user
-            $key = 'generate-meal-plan:' . $this->user()->id;
+            $key = 'generate-meal-plan:'.$this->user()->id;
 
             if (RateLimiter::tooManyAttempts($key, 5)) {
                 $seconds = RateLimiter::availableIn($key);
@@ -76,7 +76,7 @@ class GenerateMealPlanRequest extends FormRequest
     protected function passedValidation(): void
     {
         // Hit the rate limiter
-        $key = 'generate-meal-plan:' . $this->user()->id;
+        $key = 'generate-meal-plan:'.$this->user()->id;
         RateLimiter::hit($key, 3600); // 1 hour
     }
 

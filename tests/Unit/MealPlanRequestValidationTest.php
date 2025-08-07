@@ -24,8 +24,8 @@ class MealPlanRequestValidationTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
-        RateLimiter::clear('generate-meal-plan:' . $this->user->id);
-        RateLimiter::clear('regenerate-meal-plan:' . $this->user->id);
+        RateLimiter::clear('generate-meal-plan:'.$this->user->id);
+        RateLimiter::clear('regenerate-meal-plan:'.$this->user->id);
     }
 
     public function test_generate_meal_plan_request_validates_start_date(): void
@@ -128,7 +128,7 @@ class MealPlanRequestValidationTest extends TestCase
 
         // Hit rate limit 5 times
         for ($i = 0; $i < 5; $i++) {
-            RateLimiter::hit('generate-meal-plan:' . $this->user->id, 3600);
+            RateLimiter::hit('generate-meal-plan:'.$this->user->id, 3600);
         }
 
         $validator = Validator::make(['start_date' => now()->format('Y-m-d')], $request->rules());
@@ -199,8 +199,10 @@ class MealPlanRequestValidationTest extends TestCase
             return $this->user;
         });
         $request->setRouteResolver(function () use ($mealPlan) {
-            return new class($mealPlan) {
+            return new class($mealPlan)
+            {
                 public function __construct(private MealPlan $mealPlan) {}
+
                 public function parameter(string $key)
                 {
                     return $this->mealPlan;
@@ -225,8 +227,10 @@ class MealPlanRequestValidationTest extends TestCase
             return $this->user;
         });
         $request->setRouteResolver(function () use ($mealPlan) {
-            return new class($mealPlan) {
+            return new class($mealPlan)
+            {
                 public function __construct(private MealPlan $mealPlan) {}
+
                 public function parameter(string $key)
                 {
                     return $this->mealPlan;
@@ -249,8 +253,10 @@ class MealPlanRequestValidationTest extends TestCase
             return $this->user;
         });
         $request->setRouteResolver(function () use ($mealPlan) {
-            return new class($mealPlan) {
+            return new class($mealPlan)
+            {
                 public function __construct(private MealPlan $mealPlan) {}
+
                 public function parameter(string $key)
                 {
                     return $this->mealPlan;

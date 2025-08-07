@@ -15,8 +15,11 @@ class MealPlanPolicyTest extends TestCase
     use RefreshDatabase;
 
     protected MealPlanPolicy $policy;
+
     protected User $user;
+
     protected User $otherUser;
+
     protected MealPlan $mealPlan;
 
     protected function setUp(): void

@@ -26,6 +26,11 @@
         @click="handleReset"
       />
     </div>
+
+    <!-- Create Recipe Button -->
+    <div class="w-full sm:w-auto">
+      <CreateRecipeButton />
+    </div>
   </div>
 </template>
 
@@ -34,6 +39,7 @@ import { ref, computed, watch } from 'vue';
 import SearchInput from './SearchInput.vue';
 import CategoryFilterDropdown from './CategoryFilterDropdown.vue';
 import ResetFiltersButton from './ResetFiltersButton.vue';
+import CreateRecipeButton from './CreateRecipeButton.vue';
 
 // Props
 const props = defineProps({

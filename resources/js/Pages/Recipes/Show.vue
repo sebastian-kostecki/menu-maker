@@ -16,11 +16,24 @@
         </h2>
 
         <!-- Action Bar -->
-        <ActionBar
-          :can-edit="canEdit"
-          @edit="handleEdit"
-          @delete-request="handleDeleteRequest"
-        />
+        <div class="flex items-center space-x-3">
+          <!-- Back to List Button -->
+          <Link
+            href="/recipes"
+            class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Recipes
+          </Link>
+
+          <ActionBar
+            :can-edit="canEdit"
+            @edit="handleEdit"
+            @delete-request="handleDeleteRequest"
+          />
+        </div>
       </div>
     </template>
 

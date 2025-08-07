@@ -28,12 +28,16 @@ class RecipeResource extends JsonResource
             'ingredients' => $this->whenLoaded('recipeIngredients', function () {
                 return $this->recipeIngredients->map(function ($recipeIngredient) {
                     return [
-                        'ingredient_id' => $recipeIngredient->ingredient_id,
-                        'quantity' => $recipeIngredient->quantity,
-                        'unit_id' => $recipeIngredient->unit_id,
+                        'id' => $recipeIngredient->ingredient->id ?? null,
+                        'name' => $recipeIngredient->ingredient->name ?? 'Unknown ingredient',
+                        'quantity' => $recipeIngredient->quantity ?? 0,
+                        'unit' => [
+                            'id' => $recipeIngredient->unit->id ?? null,
+                            'code' => $recipeIngredient->unit->code ?? 'pcs',
+                        ],
                     ];
                 });
-            }),
+            }, []),
         ];
     }
 }

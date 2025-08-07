@@ -22,7 +22,6 @@ class RecipeIngredientResource extends JsonResource
             'quantity' => $this->quantity,
             'unit_id' => $this->unit_id,
             'unit_code' => $this->unit->code,
-            'unit_name' => $this->unit->name,
         ];
     }
 }

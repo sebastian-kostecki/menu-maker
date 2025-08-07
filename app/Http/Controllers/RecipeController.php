@@ -109,12 +109,13 @@ class RecipeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Recipe $recipe): Response
+    public function show(Request $request, Recipe $recipe): Response
     {
         $recipe->load(['recipeIngredients.ingredient', 'recipeIngredients.unit']);
 
         return Inertia::render('Recipes/Show', [
             'recipe' => new RecipeResource($recipe),
+            'canEdit' => $request->user()->can('update', $recipe),
         ]);
     }
 

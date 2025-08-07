@@ -24,12 +24,38 @@
       {{ formatDate(recipe.created_at) }}
     </TableCell>
     <TableCell>
-      <RowActionDropdown
-        :recipe-id="recipe.id"
-        @show="handleShowRecipe"
-        @edit="handleEditRecipe"
-        @delete="handleDeleteRecipe"
-      />
+      <div class="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          @click="handleShowRecipe"
+          class="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+          title="View recipe"
+        >
+          <Eye class="h-4 w-4" />
+          <span class="sr-only">View recipe</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          @click="handleEditRecipe"
+          class="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600"
+          title="Edit recipe"
+        >
+          <Edit class="h-4 w-4" />
+          <span class="sr-only">Edit recipe</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          @click="handleDeleteRecipe"
+          class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+          title="Delete recipe"
+        >
+          <Trash2 class="h-4 w-4" />
+          <span class="sr-only">Delete recipe</span>
+        </Button>
+      </div>
     </TableCell>
   </TableRow>
 </template>
@@ -37,8 +63,9 @@
 <script setup>
 import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { Eye, Edit, Trash2 } from 'lucide-vue-next';
 import { TableCell, TableRow } from '@/Components/ui/table';
-import RowActionDropdown from './RowActionDropdown.vue';
+import { Button } from '@/Components/ui/button';
 
 // Props
 const props = defineProps({

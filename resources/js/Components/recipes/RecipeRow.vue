@@ -1,5 +1,5 @@
 <template>
-  <TableRow class="hover:bg-gray-50">
+  <TableRow class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
     <TableCell class="font-medium">
       <button
         type="button"
@@ -14,46 +14,43 @@
         {{ recipe.category }}
       </span>
     </TableCell>
-    <TableCell>
+    <TableCell class="text-gray-600 dark:text-gray-300">
       {{ formatCalories(recipe.calories) }}
     </TableCell>
-    <TableCell>
+    <TableCell class="text-gray-600 dark:text-gray-300">
       {{ recipe.servings }}
     </TableCell>
-    <TableCell>
+    <TableCell class="text-gray-600 dark:text-gray-300">
       {{ formatDate(recipe.created_at) }}
     </TableCell>
-    <TableCell>
-      <div class="flex items-center gap-1">
+    <TableCell class="text-right">
+      <div class="flex items-center justify-end gap-2">
         <Button
           variant="ghost"
           size="sm"
           @click="handleShowRecipe"
-          class="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
-          title="View recipe"
+          class="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
+          :aria-label="`View ${recipe.name}`"
         >
           <Eye class="h-4 w-4" />
-          <span class="sr-only">View recipe</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
           @click="handleEditRecipe"
-          class="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600"
-          title="Edit recipe"
+          class="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
+          :aria-label="`Edit ${recipe.name}`"
         >
           <Edit class="h-4 w-4" />
-          <span class="sr-only">Edit recipe</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
           @click="handleDeleteRecipe"
-          class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
-          title="Delete recipe"
+          class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+          :aria-label="`Delete ${recipe.name}`"
         >
           <Trash2 class="h-4 w-4" />
-          <span class="sr-only">Delete recipe</span>
         </Button>
       </div>
     </TableCell>
@@ -89,17 +86,15 @@ const emit = defineEmits(['delete-requested']);
 
 // Computed
 const categoryClasses = computed(() => {
-  const baseClasses = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize';
-
   switch (props.recipe.category) {
     case 'breakfast':
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
     case 'dinner':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
     case 'supper':
-      return 'bg-purple-100 text-purple-800';
+      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300';
   }
 });
 

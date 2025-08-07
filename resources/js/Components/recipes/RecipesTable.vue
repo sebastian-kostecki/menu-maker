@@ -1,62 +1,65 @@
 <template>
-  <div class="rounded-md border">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead class="w-[300px]">
-            <SortableHeader
-              field="name"
-              :current-sort="sort"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Name
-            </SortableHeader>
-          </TableHead>
-          <TableHead class="w-[120px]">
-            <SortableHeader
-              field="category"
-              :current-sort="sort"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Category
-            </SortableHeader>
-          </TableHead>
-          <TableHead class="w-[100px]">
-            <SortableHeader
-              field="calories"
-              :current-sort="sort"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Calories
-            </SortableHeader>
-          </TableHead>
-          <TableHead class="w-[100px]">Servings</TableHead>
-          <TableHead class="w-[120px]">
-            <SortableHeader
-              field="created_at"
-              :current-sort="sort"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Created
-            </SortableHeader>
-          </TableHead>
-          <TableHead class="w-[80px]">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <RecipeRow
-          v-for="recipe in recipes"
-          :key="recipe.id"
-          :recipe="recipe"
-          @delete-requested="$emit('delete-requested', recipe)"
-        />
-        <TableRow v-if="recipes.length === 0">
-          <TableCell :colspan="6" class="text-center py-8 text-gray-500">
-            No recipes found
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+  <div class="space-y-4">
+    <!-- Table -->
+    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+      <Table>
+        <TableHeader>
+          <TableRow class="bg-gray-50 dark:bg-gray-800">
+            <TableHead class="w-[300px] font-semibold">
+              <SortableHeader
+                field="name"
+                :current-sort="sort"
+                @sort-change="$emit('sort-change', $event)"
+              >
+                Name
+              </SortableHeader>
+            </TableHead>
+            <TableHead class="w-[120px] font-semibold">
+              <SortableHeader
+                field="category"
+                :current-sort="sort"
+                @sort-change="$emit('sort-change', $event)"
+              >
+                Category
+              </SortableHeader>
+            </TableHead>
+            <TableHead class="w-[100px] font-semibold">
+              <SortableHeader
+                field="calories"
+                :current-sort="sort"
+                @sort-change="$emit('sort-change', $event)"
+              >
+                Calories
+              </SortableHeader>
+            </TableHead>
+            <TableHead class="w-[100px] font-semibold">Servings</TableHead>
+            <TableHead class="w-[120px] font-semibold">
+              <SortableHeader
+                field="created_at"
+                :current-sort="sort"
+                @sort-change="$emit('sort-change', $event)"
+              >
+                Created
+              </SortableHeader>
+            </TableHead>
+            <TableHead class="w-[120px] text-right font-semibold">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <RecipeRow
+            v-for="recipe in recipes"
+            :key="recipe.id"
+            :recipe="recipe"
+            @delete-requested="$emit('delete-requested', recipe)"
+          />
+          <TableRow v-if="recipes.length === 0">
+            <TableCell :colspan="6" class="text-center py-8 text-gray-500 dark:text-gray-400">
+              No recipes found
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   </div>
 </template>
 

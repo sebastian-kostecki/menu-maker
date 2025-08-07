@@ -5,7 +5,7 @@
         <div class="p-6 bg-white border-b border-gray-200">
           <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold text-gray-900">
-              {{ recipe ? 'Edit Recipe' : 'Create Recipe' }}
+              {{ recipe?.data ? 'Edit Recipe' : 'Create Recipe' }}
             </h1>
           </div>
 
@@ -14,7 +14,7 @@
             :categories="categories"
             :ingredients="ingredients"
             :units="units"
-            :is-editing="!!recipe"
+            :is-editing="!!recipe?.data"
             @submit="handleSubmit"
             @cancel="handleCancel"
           />
@@ -50,15 +50,15 @@ const props = defineProps({
 
 // Initialize form with useForm hook
 const form = useForm({
-  name: props.recipe?.name ?? '',
-  category: props.recipe?.category ?? null,
-  instructions: props.recipe?.instructions ?? '',
-  calories: props.recipe?.calories ?? '',
-  servings: props.recipe?.servings ?? '',
-  ingredients: props.recipe?.ingredients?.map(ingredient => ({
-    ingredient_id: ingredient.ingredient_id,
+  name: props.recipe?.data?.name ?? '',
+  category: props.recipe?.data?.category ?? null,
+  instructions: props.recipe?.data?.instructions ?? '',
+  calories: props.recipe?.data?.calories ?? '',
+  servings: props.recipe?.data?.servings ?? '',
+  ingredients: props.recipe?.data?.ingredients?.map(ingredient => ({
+    ingredient_id: ingredient.id,
     quantity: ingredient.quantity,
-    unit_id: ingredient.unit_id,
+    unit_id: ingredient.unit.id,
   })) ?? []
 })
 
@@ -66,7 +66,7 @@ const form = useForm({
 const handleSubmit = () => {
   if (props.recipe) {
     // Update existing recipe
-    form.put(`/recipes/${props.recipe.id}`, {
+    form.put(`/recipes/${props.recipe.data.id}`, {
       onSuccess: () => {
         // Success handled by redirect from controller
       }

@@ -96,7 +96,7 @@ const { deleteRecipe, isLoading: deleteLoading } = useDeleteRecipe();
 
 // Event handlers
 function handleEdit() {
-  router.visit(`/recipes/${props.recipe.id}/edit`);
+  router.visit(`/recipes/${props.recipe.data.id}/edit`);
 }
 
 function handleDeleteRequest() {
@@ -109,7 +109,7 @@ function handleDeleteCancel() {
 
 async function handleDeleteConfirm() {
   try {
-    await deleteRecipe(props.recipe.id);
+    await deleteRecipe(props.recipe.data.id);
     showDeleteDialog.value = false;
     // Redirect is handled by the hook
   } catch (error) {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FamilyMemberController;
+use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->names('family-members');
 
     Route::resource('recipes', RecipeController::class);
+
+    Route::resource('meal-plans', MealPlanController::class)
+        ->only(['index', 'show', 'store', 'update', 'destroy']);
 });
 
 Route::middleware('auth')->group(function () {
@@ -34,4 +38,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

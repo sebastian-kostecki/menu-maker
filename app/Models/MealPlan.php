@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MealPlan extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'start_date',
@@ -38,5 +44,13 @@ class MealPlan extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(LogsMealPlan::class);
+    }
+
+    /**
+     * Scope query to only include meal plans owned by the given user.
+     */
+    public function scopeOwnedBy(Builder $query, User $user): Builder
+    {
+        return $query->where('user_id', $user->id);
     }
 }

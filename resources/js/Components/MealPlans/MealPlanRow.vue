@@ -1,54 +1,60 @@
 <template>
-  <tr class="hover:bg-gray-50 transition-colors">
+  <TableRow>
     <!-- Date Range -->
-    <td class="px-6 py-4 whitespace-nowrap">
-      <div class="text-sm font-medium text-gray-900">
+    <TableCell class="font-medium">
+      <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
         {{ formatDateRange(item.start_date, item.end_date) }}
       </div>
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
         {{ formatDuration(item.start_date, item.end_date) }}
       </div>
-    </td>
+    </TableCell>
 
     <!-- Status -->
-    <td class="px-6 py-4 whitespace-nowrap">
+    <TableCell>
       <StatusTag :value="item.status" />
-    </td>
+    </TableCell>
 
     <!-- Meals Count -->
-    <td class="px-6 py-4 whitespace-nowrap">
+    <TableCell class="text-gray-600 dark:text-gray-300">
       <div class="flex items-center gap-2">
-        <ChefHat class="h-4 w-4 text-gray-400" />
-        <span class="text-sm text-gray-900">
+        <ChefHat class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+        <span class="text-sm">
           {{ item.meals_count }}
         </span>
       </div>
-    </td>
+    </TableCell>
 
     <!-- Logs Count -->
-    <td class="px-6 py-4 whitespace-nowrap">
+    <TableCell class="text-gray-600 dark:text-gray-300">
       <div class="flex items-center gap-2">
-        <FileText class="h-4 w-4 text-gray-400" />
-        <span class="text-sm text-gray-900">
+        <FileText class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+        <span class="text-sm">
           {{ item.logs_count }}
         </span>
       </div>
-    </td>
+    </TableCell>
 
     <!-- Created At -->
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-      {{ formatDateTime(item.created_at) }}
-    </td>
+    <TableCell class="text-gray-600 dark:text-gray-300">
+      <div class="text-sm">
+        {{ formatDateTime(item.created_at) }}
+      </div>
+    </TableCell>
 
     <!-- Actions -->
-    <td class="px-6 py-4 whitespace-nowrap text-right">
+    <TableCell class="text-right">
       <ActionDropdown :item="item" />
-    </td>
-  </tr>
+    </TableCell>
+  </TableRow>
 </template>
 
 <script setup lang="ts">
 import { ChefHat, FileText } from 'lucide-vue-next'
+import { TableRow, TableCell } from '@/Components/ui/table'
+import StatusTag from '@/Components/MealPlans/StatusTag.vue'
+import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
+
 // Local type definition
 interface MealPlanListItem {
   id: number
@@ -63,8 +69,6 @@ interface MealPlanListItem {
     self: string
   }
 }
-import StatusTag from '@/Components/MealPlans/StatusTag.vue'
-import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 
 interface Props {
   item: MealPlanListItem

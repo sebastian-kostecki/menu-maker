@@ -154,6 +154,34 @@ class MealPlanController extends Controller
     }
 
     /**
+     * Download the PDF file for the specified meal plan.
+     */
+    public function downloadPdf(MealPlan $mealPlan): Response
+    {
+        // Check if meal plan is in done status
+        if ($mealPlan->status !== 'done') {
+            abort(404, 'PDF is not available for this meal plan.');
+        }
+
+        // Check if PDF file exists
+        if (!$mealPlan->pdf_path || !Storage::exists($mealPlan->pdf_path)) {
+            abort(404, 'PDF file not found.');
+        }
+
+        // Get the file content
+        $fileContent = Storage::get($mealPlan->pdf_path);
+        $fileName = sprintf(
+            'meal-plan-%s-%s.pdf',
+            $mealPlan->start_date,
+            $mealPlan->end_date
+        );
+
+        return response($fileContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+    }
+
+    /**
      * Remove the specified meal plan from storage.
      */
     public function destroy(MealPlan $mealPlan): Response

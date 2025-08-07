@@ -30,6 +30,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('meal-plans', MealPlanController::class)
         ->only(['index', 'show', 'store', 'update', 'destroy']);
+
+    // Additional meal plan routes
+    Route::get('/meal-plans/{meal_plan}/pdf', [MealPlanController::class, 'downloadPdf'])
+        ->name('meal-plans.pdf');
 });
 
 Route::middleware('auth')->group(function () {
@@ -38,4 +42,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

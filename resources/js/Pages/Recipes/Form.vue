@@ -26,6 +26,7 @@
 
 <script setup>
 import { useForm } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import RecipeForm from '@/Components/recipes/RecipeForm.vue'
 
 // Define props interface
@@ -81,8 +82,8 @@ const handleSubmit = () => {
   }
 }
 
-// Handle cancel action
+// Handle cancel action - navigate to recipes list
 const handleCancel = () => {
-  window.history.back()
+  router.visit('/recipes')
 }
 </script>

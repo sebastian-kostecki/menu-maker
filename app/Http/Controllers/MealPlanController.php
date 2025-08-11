@@ -164,7 +164,7 @@ class MealPlanController extends Controller
         }
 
         // Check if PDF file exists
-        if (!$mealPlan->pdf_path || !Storage::exists($mealPlan->pdf_path)) {
+        if (! $mealPlan->pdf_path || ! Storage::exists($mealPlan->pdf_path)) {
             abort(404, 'PDF file not found.');
         }
 
@@ -178,7 +178,7 @@ class MealPlanController extends Controller
 
         return response($fileContent)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
     }
 
     /**

@@ -1,17 +1,17 @@
 <template>
-  <Head title="Recipes" />
+  <Head title="Przepisy" />
 
   <AuthenticatedLayout>
     <template #header>
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Recipes
+            Przepisy
           </h1>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Manage your recipe collection
+            Zarządzaj swoją kolekcją przepisów
             <span v-if="recipes.meta.total > 0" class="ml-2">
-              ({{ recipes.meta.total }} {{ recipes.meta.total === 1 ? 'recipe' : 'recipes' }})
+              ({{ recipes.meta.total }} {{ recipes.meta.total === 1 ? 'przepis' : recipes.meta.total < 5 ? 'przepisy' : 'przepisów' }})
             </span>
           </p>
         </div>
@@ -19,7 +19,7 @@
     </template>
 
     <div class="mx-auto max-w-7xl">
-      <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+      <div class="overflow-hidden sm:rounded-lg bg-white dark:bg-gray-800 shadow-sm">
         <div class="p-6">
           <div class="space-y-6">
             <!-- Toolbar with filters and search -->
@@ -40,17 +40,17 @@
             />
 
             <!-- Empty state when no recipes -->
-            <div v-if="recipes.data.length === 0" class="text-center py-12">
+            <div v-if="recipes.data.length === 0" class="py-12 text-center">
               <div class="mx-auto h-12 w-12 text-gray-400">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
-                No recipes found
+                Brak przepisów
               </h3>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Get started by creating your first recipe.
+                Rozpocznij od dodania pierwszego przepisu.
               </p>
             </div>
 

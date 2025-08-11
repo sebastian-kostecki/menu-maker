@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FamilyMemberController;
+use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->names('family-members');
 
     Route::resource('recipes', RecipeController::class);
+
+    Route::resource('meal-plans', MealPlanController::class)
+        ->only(['index', 'show', 'store', 'update', 'destroy']);
+
+    // Additional meal plan routes
+    Route::get('/meal-plans/{meal_plan}/pdf', [MealPlanController::class, 'downloadPdf'])
+        ->name('meal-plans.pdf');
 });
 
 Route::middleware('auth')->group(function () {

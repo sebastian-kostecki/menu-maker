@@ -1,66 +1,70 @@
 <template>
-  <Head title="Meal Plans" />
+  <Head title="Jadłospisy" />
 
   <AuthenticatedLayout>
     <template #header>
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Meal Plans
+            Jadłospisy
           </h1>
           <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            View and manage your generated meal plans
+            Przeglądaj i zarządzaj wygenerowanymi jadłospisami
             <span v-if="mealPlans.meta.total > 0" class="ml-2">
-              ({{ mealPlans.meta.total }} {{ mealPlans.meta.total === 1 ? 'plan' : 'plans' }})
+              ({{ mealPlans.meta.total }} {{ mealPlans.meta.total === 1 ? 'jadłospis' : mealPlans.meta.total < 5 ? 'jadłospisy' : 'jadłospisów' }})
             </span>
           </p>
         </div>
-
-        <div class="flex items-center space-x-3">
-          <a
-            :href="route('meal-plans.store')"
-            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Generate New Meal Plan
-          </a>
+        <div class="flex items-center gap-2">
+          <Button as-child>
+            <Link :href="route('meal-plans.store')" class="flex items-center gap-2">
+              <Plus class="h-4 w-4" />
+              Wygeneruj nowy jadłospis
+            </Link>
+          </Button>
         </div>
       </div>
     </template>
 
-    <div class="space-y-6">
-      <!-- Filters Bar -->
-      <FiltersBar
-        v-model:value="localFilters"
-        :statuses="statuses"
-        :results-count="mealPlans.meta.total"
-        @update:value="handleFiltersChange"
-      />
+    <div class="mx-auto max-w-7xl">
+      <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+        <div class="p-6">
+          <div class="space-y-6">
+            <!-- Filters Bar -->
+            <FiltersBar
+              v-model:value="localFilters"
+              :statuses="statuses"
+              :results-count="mealPlans.meta.total"
+              @update:value="handleFiltersChange"
+            />
 
-      <!-- Meal Plan Table -->
-      <MealPlanTable
-        :items="mealPlans.data"
-        :sort="localFilters.sort"
-        :direction="localFilters.direction"
-        @sort-change="handleSortChange"
-      />
+            <!-- Meal Plan Table -->
+            <MealPlanTable
+              :items="mealPlans.data"
+              :sort="localFilters.sort"
+              :direction="localFilters.direction"
+              @sort-change="handleSortChange"
+            />
 
-      <!-- Pagination -->
-      <ServerPagination
-        :links="mealPlans.links"
-        :meta="mealPlans.meta"
-      />
+            <!-- Pagination -->
+            <ServerPagination
+              :links="mealPlans.links"
+              :meta="mealPlans.meta"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </AuthenticatedLayout>
 </template>
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import { ref, computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Button } from '@/Components/ui/button'
+import { Plus } from 'lucide-vue-next'
 // Types for MealPlan components and API responses
 type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
 

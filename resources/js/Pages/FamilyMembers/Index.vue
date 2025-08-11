@@ -87,7 +87,7 @@ const handleDialogClose = () => {
     </template>
 
     <div class="mx-auto max-w-7xl">
-      <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+      <div class="overflow-hidden sm:rounded-lg bg-white dark:bg-gray-800 shadow-sm">
         <div class="p-6">
           <!-- Family Members Table -->
           <FamilyMemberTable
@@ -97,7 +97,7 @@ const handleDialogClose = () => {
           />
 
           <!-- Empty state when no members -->
-          <div v-if="members.length === 0" class="text-center py-12">
+          <div v-if="members.length === 0" class="py-12 text-center">
             <div class="mx-auto h-12 w-12 text-gray-400">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.196-2.196M17 20H7m10 0v-2c0-5.523-4.477-10-10-10s-10 4.477-10 10v2m10 0V9a3 3 0 114 2.83V20M7 20H2v-2a3 3 0 015.196-2.196M7 20v-2m6-6a3 3 0 11-6 0 3 3 0 016 0z" />

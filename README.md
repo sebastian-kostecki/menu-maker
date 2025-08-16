@@ -7,13 +7,24 @@ An AI-powered web application that helps families effortlessly plan weekly meals
 
 ## Table of Contents
 
-1. [Project Description](#1-project-description)
-2. [Tech Stack](#2-tech-stack)
-3. [Getting Started Locally](#3-getting-started-locally)
-4. [Available Scripts](#4-available-scripts)
-5. [Project Scope](#5-project-scope)
-6. [Project Status](#6-project-status)
-7. [License](#7-license)
+- [Menu Maker](#menu-maker)
+  - [Table of Contents](#table-of-contents)
+  - [1. Project Description](#1-project-description)
+  - [2. Tech Stack](#2-tech-stack)
+  - [3. Getting Started Locally](#3-getting-started-locally)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+  - [4. Available Scripts](#4-available-scripts)
+    - [NPM](#npm)
+    - [Composer / Artisan](#composer--artisan)
+  - [5. Testing \& Quality](#5-testing--quality)
+    - [Backend (Pest via Sail)](#backend-pest-via-sail)
+    - [Frontend (Vitest) \& E2E (Playwright)](#frontend-vitest--e2e-playwright)
+  - [5. Project Scope](#5-project-scope)
+    - [Included in MVP](#included-in-mvp)
+    - [Out of Scope for MVP](#out-of-scope-for-mvp)
+  - [7. Project Status](#7-project-status)
+  - [8. License](#8-license)
 
 ## 1. Project Description
 
@@ -43,7 +54,7 @@ Menu Maker automates family meal planning by letting users save their own recipe
 - Laravel Sail (Docker environment)
 - Laravel Pint (code style)
 - Larastan (static analysis)
-- PHPUnit (test runner)
+- Pest (test runner) + PHPUnit
 
 ## 3. Getting Started Locally
 
@@ -65,31 +76,37 @@ $ cd menu-maker
 $ composer install
 
 # 3. Install JavaScript dependencies
-$ npm install
+$ npm ci
 
 # 4. Configure environment
 $ cp .env.example .env
-$ php artisan key:generate
 
-# 5. (Optional) start the Docker environment via Sail
+# 5. Start the Docker environment via Sail (recommended)
 $ ./vendor/bin/sail up -d
 
-# 6. Run database migrations & seeders
-$ php artisan migrate --seed
+# 6. Generate application key (inside Sail)
+$ ./vendor/bin/sail artisan key:generate
 
-# 7. Start development servers
-$ npm run dev           # Vite dev server with HMR
-$ php artisan serve      # Or use Sail: ./vendor/bin/sail artisan serve
+# 7. Run database migrations & seeders (inside Sail)
+$ ./vendor/bin/sail artisan migrate --seed
+
+# 8. Start development servers
+$ npm run dev            # Vite dev server with HMR
+# If needed, you can also start Laravel's server inside Sail:
+$ ./vendor/bin/sail artisan serve
 ```
 
 ## 4. Available Scripts
 
 ### NPM
 
-| Command         | Description                                |
-| --------------- | ------------------------------------------ |
-| `npm run dev`   | Start the Vite development server with HMR |
-| `npm run build` | Compile and bundle assets for production   |
+| Command             | Description                                |
+| ------------------- | ------------------------------------------ |
+| `npm run dev`       | Start the Vite development server with HMR |
+| `npm run build`     | Compile and bundle assets for production   |
+| `npm run test:unit` | Run Vue unit tests with Vitest             |
+| `npm run test:e2e`  | Run E2E tests with Playwright              |
+| `npm run lint`      | Lint frontend code (ESLint/Prettier)       |
 
 ### Composer / Artisan
 
@@ -102,6 +119,51 @@ $ php artisan serve      # Or use Sail: ./vendor/bin/sail artisan serve
 | `composer phpstan`          | Run static analysis with Larastan                                    |
 | `composer phpstan-baseline` | Generate baseline for static analysis                                |
 | `composer phpstan-verbose`  | Static analysis with verbose output                                  |
+
+Note: For backend commands, prefer running them via Sail:
+
+```bash
+./vendor/bin/sail composer test
+./vendor/bin/sail composer pint-test
+./vendor/bin/sail composer phpstan
+```
+
+## 5. Testing & Quality
+
+### Backend (Pest via Sail)
+
+```bash
+# Start containers
+./vendor/bin/sail up -d
+
+# Run test suite (Pest)
+./vendor/bin/sail composer test
+
+# Code style (Laravel Pint)
+./vendor/bin/sail composer pint-test
+
+# Static analysis (Larastan)
+./vendor/bin/sail composer phpstan
+```
+
+### Frontend (Vitest) & E2E (Playwright)
+
+```bash
+# Install dependencies (first time)
+npm ci
+
+# Install Playwright browsers/drivers (first time)
+npx playwright install --with-deps
+
+# Unit tests (Vue + Vitest)
+npm run test:unit
+
+# E2E tests (Playwright)
+E2E_BASE_URL=http://localhost npm run test:e2e
+
+# Lint frontend code
+npm run lint
+```
 
 ## 5. Project Scope
 
@@ -123,10 +185,10 @@ $ php artisan serve      # Or use Sail: ./vendor/bin/sail artisan serve
 - Back-ups and advanced hosting infrastructure
 - Editing generated meal plans or shopping lists
 
-## 6. Project Status
+## 7. Project Status
 
 🚧 **MVP development in progress** – see the [project board](https://github.com/<org-or-user>/<repo>/projects/1) for up-to-date milestones.
 
-## 7. License
+## 8. License
 
 This project is licensed under the **MIT License**. See the [`LICENSE`](LICENSE) file for details.

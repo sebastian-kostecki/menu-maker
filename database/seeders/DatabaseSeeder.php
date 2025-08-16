@@ -13,7 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Core test data for MVP
+        $this->call([
+            UnitSeeder::class,
+            IngredientSeeder::class,
+        ]);
 
         User::factory()->create([
             'name' => 'Test User',

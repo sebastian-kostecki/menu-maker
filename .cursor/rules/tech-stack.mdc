@@ -9,6 +9,7 @@ alwaysApply: true
 ## Backend
 - **PHP 8.2+** - Server-side programming language
 - **Laravel 12.0+** - PHP web application framework
+- **Laravel Sail** - Docker development environment
 - **Inertia.js Laravel 2.0+** - Server-side adapter for SPA-like experience
 - **MySQL** - Relational database management system
 - **Redis** - In-memory data structure store for caching and queues

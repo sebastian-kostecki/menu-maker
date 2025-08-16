@@ -1,0 +1,57 @@
+---
+description: Frontend testing best practices for Vue 3 (Vitest + Vue Test Utils) and E2E with Playwright, aligned with Menu Maker test plan
+globs: "**/tests/unit-frontend/**/*.spec.ts", "**/*.spec.ts", "playwright.config.*"
+alwaysApply: false
+---
+
+# Frontend Testing (Vue 3 + Vitest) and E2E (Playwright)
+
+Align frontend tests with the project test plan. Use Vitest + Vue Test Utils for unit tests, ESLint/Prettier for linting/formatting, and Playwright for critical E2E flows.
+
+## Environment & Commands
+- Install dependencies and Playwright browsers:
+  - `npm ci`
+  - `npx playwright install --with-deps`
+- Run unit tests: `npm run test:unit`
+- Run E2E tests: `E2E_BASE_URL=http://localhost npm run test:e2e`
+
+## Unit Tests (Vitest + VTU)
+- Test Vue components: render, props, emitted events, v-model, slots, conditional branches.
+- Test composables and utility functions: input/output, edge cases, error handling.
+- Validate form logic and client-side validation messages; ensure i18n strings are present and correct (EN scope).
+- Prefer shallow‑ish rendering with stubs/mocks for heavy children; test integration at a higher level if needed.
+- Use factories/builders for complex props to keep tests readable.
+
+## Inertia Integration
+- For pages using Inertia, verify props shape and key interactions triggered by user actions.
+- When mocking Inertia requests, assert payload format matches backend expectations.
+
+## E2E (Playwright)
+- Cover critical flows:
+  - Login
+  - Recipe CRUD
+  - Meal plan generate/regenerate
+  - PDF download
+- Add smoke tests for navigation and authorization redirects.
+- Use `storageState` for pre-auth where appropriate to speed up runs.
+
+## Performance & Stability
+- Keep tests deterministic; avoid reliance on network flakiness.
+- Use test IDs/selectors stable across UI refactors.
+- Limit waits; use expect-based waiting on locators.
+
+## Linting & Formatting
+- Enforce ESLint and Prettier (or Biome) with project rules: `npm run lint`.
+
+## CI & Reporting
+- Produce Playwright JUnit reports and `lcov` coverage for unit tests.
+- CI must fail on any stage failure: unit, lint, build, or E2E.
+
+## Suggested Structure
+- Unit: `tests/unit-frontend/**/*.spec.ts`
+- E2E: `tests/e2e/*.spec.ts`
+
+## Best Practices
+- Keep tests focused and readable; prefer explicit assertions.
+- Mock only what is necessary; test behavior, not implementation details.
+- Maintain accessibility expectations (roles/labels, focus management) where feasible in unit tests.

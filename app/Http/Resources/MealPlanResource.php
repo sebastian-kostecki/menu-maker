@@ -7,6 +7,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\MealPlan
+ */
 class MealPlanResource extends JsonResource
 {
     /**
@@ -30,7 +33,10 @@ class MealPlanResource extends JsonResource
 
             // Relationships
             'meals' => $this->whenLoaded('meals', function () {
-                return $this->meals->sortBy('meal_date')->map(function ($meal) {
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Meal> $meals */
+                $meals = $this->meals;
+
+                return $meals->sortBy('meal_date')->map(function (\App\Models\Meal $meal) {
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
@@ -43,7 +49,9 @@ class MealPlanResource extends JsonResource
                                 'calories' => $meal->recipe->calories,
                                 'servings' => $meal->recipe->servings,
                                 'ingredients' => $this->when($meal->recipe->relationLoaded('recipeIngredients'), function () use ($meal) {
-                                    return $meal->recipe->recipeIngredients->map(function ($recipeIngredient) {
+                                    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecipeIngredient> $ingredients */
+                                    $ingredients = $meal->recipe->recipeIngredients;
+                                    return $ingredients->map(function (\App\Models\RecipeIngredient $recipeIngredient) {
                                         return [
                                             'id' => $recipeIngredient->ingredient->id ?? null,
                                             'name' => $recipeIngredient->ingredient->name ?? 'Unknown ingredient',
@@ -62,15 +70,21 @@ class MealPlanResource extends JsonResource
             }, []),
 
             'logs' => $this->whenLoaded('logs', function () {
-                return $this->logs->sortByDesc('created_at')->map(function ($log) {
-                    return [
-                        'id' => $log->id,
-                        'started_at' => $log->started_at,
-                        'finished_at' => $log->finished_at,
-                        'status' => $log->status,
-                        'created_at' => $log->created_at,
-                    ];
-                });
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\LogsMealPlan> $logs */
+                $logs = $this->logs;
+                return $logs
+                    ->sortByDesc('created_at')
+                    ->map(function (\App\Models\LogsMealPlan $log): array {
+                        return [
+                            'id' => $log->id,
+                            'started_at' => $log->started_at,
+                            'finished_at' => $log->finished_at,
+                            'status' => $log->status,
+                            'created_at' => $log->created_at,
+                        ];
+                    })
+                    ->values()
+                    ->all();
             }, []),
 
             // Helper attributes

@@ -26,7 +26,7 @@ it('authenticated user can view meal plan index', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('MealPlans/Index', false)
+        fn ($page) => $page->component('MealPlans/Index', false)
             ->has('mealPlans.data', 3)
     );
 });
@@ -46,7 +46,7 @@ it('index can filter by status', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->has('mealPlans.data', 2)
+        fn ($page) => $page->has('mealPlans.data', 2)
     );
 });
 
@@ -57,7 +57,7 @@ it('user can view own meal plan', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('MealPlans/Show', false)
+        fn ($page) => $page->component('MealPlans/Show', false)
             ->has('mealPlan')
             ->where('mealPlan.id', $mealPlan->id)
     );

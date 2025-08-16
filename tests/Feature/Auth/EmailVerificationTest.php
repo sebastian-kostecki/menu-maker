@@ -31,7 +31,7 @@ it('verifies email with valid link', function (): void {
 
     Event::assertDispatched(Verified::class);
     $this->assertTrue($user->fresh()->hasVerifiedEmail());
-    $response->assertRedirect(route('dashboard', absolute: false) . '?verified=1');
+    $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 });
 
 it('does not verify email with invalid hash', function (): void {

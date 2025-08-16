@@ -7,6 +7,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin \App\Models\RecipeIngredient
+ */
 class RecipeIngredientResource extends JsonResource
 {
     /**
@@ -18,10 +21,10 @@ class RecipeIngredientResource extends JsonResource
     {
         return [
             'ingredient_id' => $this->ingredient_id,
-            'ingredient_name' => $this->ingredient->name,
+            'ingredient_name' => optional($this->ingredient)->name,
             'quantity' => $this->quantity,
             'unit_id' => $this->unit_id,
-            'unit_code' => $this->unit->code,
+            'unit_code' => optional($this->unit)->code,
         ];
     }
 }

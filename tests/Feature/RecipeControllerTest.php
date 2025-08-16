@@ -23,7 +23,7 @@ it('authenticated user can view recipe index', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('Recipes/Index')
+        fn ($page) => $page->component('Recipes/Index')
             ->has('recipes.data', 3)
     );
 });
@@ -41,7 +41,7 @@ it('user can view own recipe', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('Recipes/Show')
+        fn ($page) => $page->component('Recipes/Show')
             ->where('recipe.id', $recipe->id)
     );
 });
@@ -163,7 +163,7 @@ it('recipes index can be filtered by search', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->has('recipes.data', 1)
+        fn ($page) => $page->has('recipes.data', 1)
     );
 });
 
@@ -175,7 +175,7 @@ it('recipes index can be filtered by category', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->has('recipes.data', 2)
+        fn ($page) => $page->has('recipes.data', 2)
     );
 });
 
@@ -190,6 +190,6 @@ it('recipes index can be sorted', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->where('recipes.data.0.name', 'A Recipe')
+        fn ($page) => $page->where('recipes.data.0.name', 'A Recipe')
     );
 });

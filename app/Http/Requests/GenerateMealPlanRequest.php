@@ -49,7 +49,7 @@ class GenerateMealPlanRequest extends FormRequest
     public function withValidator($validator): void
     {
         // Eager rate-limit check to match test expectations
-        $key = 'generate-meal-plan:' . $this->user()->id;
+        $key = 'generate-meal-plan:'.$this->user()->id;
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
@@ -78,7 +78,7 @@ class GenerateMealPlanRequest extends FormRequest
     protected function passedValidation(): void
     {
         // Hit the rate limiter
-        $key = 'generate-meal-plan:' . $this->user()->id;
+        $key = 'generate-meal-plan:'.$this->user()->id;
         RateLimiter::hit($key, 3600); // 1 hour
     }
 

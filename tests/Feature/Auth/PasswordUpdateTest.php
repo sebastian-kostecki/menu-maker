@@ -7,37 +7,37 @@ use Illuminate\Support\Facades\Hash;
 uses(RefreshDatabase::class);
 
 it('updates password with correct current password', function (): void {
-	$user = User::factory()->create();
+    $user = User::factory()->create();
 
-	$response = $this
-		->actingAs($user)
-		->from('/profile')
-		->put('/password', [
-			'current_password' => 'password',
-			'password' => 'new-password',
-			'password_confirmation' => 'new-password',
-		]);
+    $response = $this
+        ->actingAs($user)
+        ->from('/profile')
+        ->put('/password', [
+            'current_password' => 'password',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ]);
 
-	$response
-		->assertSessionHasNoErrors()
-		->assertRedirect('/profile');
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/profile');
 
-	$this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
 });
 
 it('requires correct current password to update password', function (): void {
-	$user = User::factory()->create();
+    $user = User::factory()->create();
 
-	$response = $this
-		->actingAs($user)
-		->from('/profile')
-		->put('/password', [
-			'current_password' => 'wrong-password',
-			'password' => 'new-password',
-			'password_confirmation' => 'new-password',
-		]);
+    $response = $this
+        ->actingAs($user)
+        ->from('/profile')
+        ->put('/password', [
+            'current_password' => 'wrong-password',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ]);
 
-	$response
-		->assertSessionHasErrors('current_password')
-		->assertRedirect('/profile');
+    $response
+        ->assertSessionHasErrors('current_password')
+        ->assertRedirect('/profile');
 });

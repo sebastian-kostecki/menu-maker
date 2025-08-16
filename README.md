@@ -113,7 +113,7 @@ $ ./vendor/bin/sail artisan serve
 | Command                     | Description                                                          |
 | --------------------------- | -------------------------------------------------------------------- |
 | `composer dev`              | Convenience script: web server, queue listener, logs & Vite together |
-| `composer test`             | Clear config cache and run the PHPUnit test suite                    |
+| `composer test`             | Clear config cache and run the Pest test suite                       |
 | `composer pint`             | Fix code style issues using Laravel Pint                             |
 | `composer pint-test`        | Check code style without fixing                                      |
 | `composer phpstan`          | Run static analysis with Larastan                                    |

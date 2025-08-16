@@ -63,7 +63,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "vendor/bin/pest"
         ],
         "test:pest": [
             "@php artisan config:clear --ansi",

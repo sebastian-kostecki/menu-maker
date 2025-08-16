@@ -100,5 +100,8 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "devDependencies": {
+        "@playwright/test": "^1.54.2"
+    }
 }

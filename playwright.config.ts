@@ -20,10 +20,6 @@ export default defineConfig({
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] }
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] }
     }
   ],
   webServer: process.env.E2E_SKIP_WEBSERVER

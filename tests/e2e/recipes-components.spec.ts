@@ -706,3 +706,4 @@ test.describe('Recipe Components E2E Tests', () => {
     });
   });
 });
+

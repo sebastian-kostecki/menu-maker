@@ -434,3 +434,4 @@ export const checkColorContrast = async (page: Page, element: any): Promise<{ co
     };
   });
 };
+

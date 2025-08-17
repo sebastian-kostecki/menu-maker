@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: [['list']],
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://localhost',
+    baseURL: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8000',
     headless: true,
     trace: 'on-first-retry',
     locale: 'en-US'
@@ -25,8 +25,8 @@ export default defineConfig({
   webServer: process.env.E2E_SKIP_WEBSERVER
     ? undefined
     : {
-        command: 'true',
-        url: process.env.E2E_BASE_URL ?? 'http://localhost',
+        command: 'php artisan serve --host=127.0.0.1 --port=8000',
+        url: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:8000',
         reuseExistingServer: true,
         timeout: 120_000
       }

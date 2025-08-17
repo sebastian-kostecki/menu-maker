@@ -15,9 +15,40 @@ permissions:
   contents: read
 
 jobs:
+  # Pierwszy krok - budowanie frontend assets
+  frontend-build:
+    name: Frontend - Build Assets
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      NODE_ENV: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Upload built assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-assets
+          path: public/build
+          retention-days: 1
+
   backend:
     name: Backend - Tests and Static Analysis
     runs-on: ubuntu-latest
+    needs: frontend-build  # Czeka na zbudowanie assets
     env:
       APP_ENV: testing
       CI: true
@@ -44,14 +75,25 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      # Pobieranie zbudowanych assets
+      - name: Download frontend assets
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-assets
+          path: public/build
+
       - name: Prepare application environment
         run: |
-          if [ -f .env.example ]; then cp .env.example .env; else printf "APP_ENV=testing\nAPP_DEBUG=false\nAPP_KEY=\nDB_CONNECTION=sqlite\nDB_DATABASE=${{ github.workspace }}/database/database.sqlite\n" > .env; fi
+          cat > .env << EOF
+          APP_ENV=testing
+          APP_DEBUG=false
+          APP_KEY=
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          VITE_APP_NAME="Menu Maker"
+          EOF
           php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
           php artisan key:generate --ansi
-          # Use SQLite for CI to avoid external DB services
-          sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/" .env || true
-          if grep -q '^DB_DATABASE=' .env; then sed -i "s|^DB_DATABASE=.*|DB_DATABASE=${{ github.workspace }}/database/database.sqlite|" .env; else echo "DB_DATABASE=${{ github.workspace }}/database/database.sqlite" >> .env; fi
 
       - name: Run database migrations
         run: php artisan migrate --graceful --no-interaction -v
@@ -68,12 +110,12 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-  frontend:
-    name: Frontend - Production Build
+  # Opcjonalny job dla E2E testów
+  e2e-tests:
+    name: E2E Tests
     runs-on: ubuntu-latest
-    env:
-      CI: true
-      NODE_ENV: production
+    needs: [frontend-build, backend]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -84,20 +126,42 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, pdo, sqlite, pdo_sqlite
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install npm dependencies
         run: npm ci
 
-      - name: Build for production
-        run: npm run build
-
-      - name: Upload built assets
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Download frontend assets
+        uses: actions/download-artifact@v4
         with:
-          name: frontend-build
-          path: |
-            public/build
-            dist
-          if-no-files-found: ignore
+          name: frontend-assets
+          path: public/build
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Prepare test environment
+        run: |
+          cat > .env << EOF
+          APP_ENV=testing
+          APP_DEBUG=false
+          APP_KEY=
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          VITE_APP_NAME="Menu Maker"
+          EOF
+          php artisan key:generate --ansi
+          touch database/database.sqlite
+          php artisan migrate --graceful --no-interaction -v
+
+      - name: Run E2E tests
+        run: npm run test:e2e
 
 

@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
-      NODE_ENV: production
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -33,10 +32,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --include=dev
 
       - name: Build for production
-        run: npm run build
+        run: NODE_ENV=production npm run build
 
       - name: Upload built assets
         uses: actions/upload-artifact@v4

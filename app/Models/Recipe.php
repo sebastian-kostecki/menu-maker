@@ -33,7 +33,7 @@ class Recipe extends Model
     /**
      * Default relationships to eager load.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $with = [];
 

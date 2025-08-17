@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Meal> $meals
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LogsMealPlan> $logs
+ */
 class MealPlan extends Model
 {
     use HasFactory;

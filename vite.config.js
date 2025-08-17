@@ -27,4 +27,12 @@ export default defineConfig({
             '@/lib': path.resolve(__dirname, 'resources/js/lib'),
         },
     },
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        setupFiles: ['resources/js/tests/setupTests.ts'],
+        coverage: {
+            provider: 'v8',
+        },
+    },
 });

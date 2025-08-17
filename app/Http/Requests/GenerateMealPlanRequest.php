@@ -48,20 +48,25 @@ class GenerateMealPlanRequest extends FormRequest
      */
     public function withValidator($validator): void
     {
+        // Eager rate-limit check to match test expectations
+        $key = 'generate-meal-plan:' . $this->user()->id;
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            throw ValidationException::withMessages([
+                'rate_limit' => "Too many meal plan generation attempts. Try again in {$seconds} seconds.",
+            ]);
+        }
+
         $validator->after(function ($validator) {
-            // Check rate limit - 5 requests per hour per user
-            $key = 'generate-meal-plan:'.$this->user()->id;
-
-            if (RateLimiter::tooManyAttempts($key, 5)) {
-                $seconds = RateLimiter::availableIn($key);
-                throw ValidationException::withMessages([
-                    'rate_limit' => "Too many meal plan generation attempts. Try again in {$seconds} seconds.",
-                ]);
-            }
-
             // Check for unique start_date constraint
+            $data = method_exists($validator, 'getData') ? $validator->getData() : [];
+            $startDate = $data['start_date'] ?? $this->input('start_date');
+
+            // Normalize the date to ensure proper comparison
+            $normalizedDate = \Carbon\Carbon::parse($startDate)->format('Y-m-d');
+
             $existingPlan = MealPlan::where('user_id', $this->user()->id)
-                ->where('start_date', $this->input('start_date'))
+                ->whereDate('start_date', $normalizedDate)
                 ->exists();
 
             if ($existingPlan) {
@@ -76,7 +81,7 @@ class GenerateMealPlanRequest extends FormRequest
     protected function passedValidation(): void
     {
         // Hit the rate limiter
-        $key = 'generate-meal-plan:'.$this->user()->id;
+        $key = 'generate-meal-plan:' . $this->user()->id;
         RateLimiter::hit($key, 3600); // 1 hour
     }
 

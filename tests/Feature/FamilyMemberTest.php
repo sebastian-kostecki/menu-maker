@@ -2,219 +2,193 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
-
 use App\Models\FamilyMember;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 
-class FamilyMemberTest extends TestCase
-{
-    use RefreshDatabase;
-    use WithFaker;
+uses(RefreshDatabase::class);
+uses(WithFaker::class);
 
-    private User $user;
+beforeEach(function (): void {
+    $this->user = User::factory()->create();
+    $this->otherUser = User::factory()->create();
+});
 
-    private User $otherUser;
+it('user can view family members index', function (): void {
+    FamilyMember::factory()->count(3)->create(['user_id' => $this->user->id]);
+    FamilyMember::factory()->count(2)->create(['user_id' => $this->otherUser->id]);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+    $response = $this->actingAs($this->user)
+        ->get(route('family-members.index'));
 
-        $this->user = User::factory()->create();
-        $this->otherUser = User::factory()->create();
-    }
+    $response->assertStatus(200);
+    $response->assertInertia(
+        fn($page) => $page->component('FamilyMembers/Index')
+            ->has('familyMembers.data', 3)
+    );
+});
 
-    public function test_user_can_view_family_members_index(): void
-    {
-        FamilyMember::factory()->count(3)->create(['user_id' => $this->user->id]);
-        FamilyMember::factory()->count(2)->create(['user_id' => $this->otherUser->id]);
+it('user can view create form', function (): void {
+    $response = $this->actingAs($this->user)
+        ->get(route('family-members.create'));
 
-        $response = $this->actingAs($this->user)
-            ->get(route('family-members.index'));
+    $response->assertStatus(200);
+    $response->assertInertia(
+        fn($page) => $page->component('FamilyMembers/Create', false)
+            ->has('genders')
+            ->where('genders', ['male', 'female'])
+    );
+});
 
-        $response->assertStatus(200);
-        $response->assertInertia(
-            fn ($page) => $page->component('FamilyMembers/Index')
-                ->has('familyMembers.data', 3)
-        );
-    }
+it('user can store family member', function (): void {
+    $data = [
+        'first_name' => 'John',
+        'birth_date' => '1990-01-01',
+        'gender' => 'male',
+    ];
 
-    public function test_user_can_view_create_form(): void
-    {
-        $response = $this->actingAs($this->user)
-            ->get(route('family-members.create'));
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data);
 
-        $response->assertStatus(200);
-        $response->assertInertia(
-            fn ($page) => $page->component('FamilyMembers/Create')
-                ->has('genders')
-                ->where('genders', ['male', 'female'])
-        );
-    }
+    $response->assertRedirect(route('family-members.index'));
+    $response->assertSessionHas('success', 'Family member created successfully.');
 
-    public function test_user_can_store_family_member(): void
-    {
-        $data = [
-            'first_name' => 'John',
-            'birth_date' => '1990-01-01',
-            'gender' => 'male',
-        ];
+    $this->assertDatabaseHas('family_members', [
+        'user_id' => $this->user->id,
+        'first_name' => 'John',
+        'birth_date' => '1990-01-01 00:00:00',
+        'gender' => 'male',
+    ]);
+});
 
-        $response = $this->actingAs($this->user)
-            ->post(route('family-members.store'), $data);
+it('user can view edit form', function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
 
-        $response->assertRedirect(route('family-members.index'));
-        $response->assertSessionHas('success', 'Family member created successfully.');
+    $response = $this->actingAs($this->user)
+        ->get(route('family-members.edit', $familyMember));
 
-        $this->assertDatabaseHas('family_members', [
-            'user_id' => $this->user->id,
-            'first_name' => 'John',
-            'birth_date' => '1990-01-01',
-            'gender' => 'male',
-        ]);
-    }
+    $response->assertStatus(200);
+    $response->assertInertia(
+        fn($page) => $page->component('FamilyMembers/Edit', false)
+            ->has('familyMember')
+            ->has('genders')
+            ->where('familyMember.id', $familyMember->id)
+    );
+});
 
-    public function test_user_can_view_edit_form(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
+it('user can update family member', function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
 
-        $response = $this->actingAs($this->user)
-            ->get(route('family-members.edit', $familyMember));
+    $data = [
+        'first_name' => 'Jane',
+        'birth_date' => '1995-05-05',
+        'gender' => 'female',
+    ];
 
-        $response->assertStatus(200);
-        $response->assertInertia(
-            fn ($page) => $page->component('FamilyMembers/Edit')
-                ->has('familyMember')
-                ->has('genders')
-                ->where('familyMember.id', $familyMember->id)
-        );
-    }
+    $response = $this->actingAs($this->user)
+        ->put(route('family-members.update', $familyMember), $data);
 
-    public function test_user_can_update_family_member(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
+    $response->assertRedirect(route('family-members.index'));
+    $response->assertSessionHas('success', 'Family member updated successfully.');
 
-        $data = [
-            'first_name' => 'Jane',
-            'birth_date' => '1995-05-05',
-            'gender' => 'female',
-        ];
+    $this->assertDatabaseHas('family_members', [
+        'id' => $familyMember->id,
+        'first_name' => 'Jane',
+        'birth_date' => '1995-05-05 00:00:00',
+        'gender' => 'female',
+    ]);
+});
 
-        $response = $this->actingAs($this->user)
-            ->put(route('family-members.update', $familyMember), $data);
+it('user can delete family member', function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
 
-        $response->assertRedirect(route('family-members.index'));
-        $response->assertSessionHas('success', 'Family member updated successfully.');
+    $response = $this->actingAs($this->user)
+        ->delete(route('family-members.destroy', $familyMember));
 
-        $this->assertDatabaseHas('family_members', [
-            'id' => $familyMember->id,
-            'first_name' => 'Jane',
-            'birth_date' => '1995-05-05',
-            'gender' => 'female',
-        ]);
-    }
+    $response->assertRedirect(route('family-members.index'));
+    $response->assertSessionHas('success', 'Family member deleted successfully.');
 
-    public function test_user_can_delete_family_member(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
+    $this->assertDatabaseMissing('family_members', [
+        'id' => $familyMember->id,
+    ]);
+});
 
-        $response = $this->actingAs($this->user)
-            ->delete(route('family-members.destroy', $familyMember));
+it('applies validation rules on store', function (): void {
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), []);
 
-        $response->assertRedirect(route('family-members.index'));
-        $response->assertSessionHas('success', 'Family member deleted successfully.');
+    $response->assertSessionHasErrors(['first_name', 'birth_date', 'gender']);
+});
 
-        $this->assertDatabaseMissing('family_members', [
-            'id' => $familyMember->id,
-        ]);
-    }
+it('requires birth date to be before today', function (): void {
+    $data = [
+        'first_name' => 'John',
+        'birth_date' => now()->addDay()->format('Y-m-d'),
+        'gender' => 'male',
+    ];
 
-    public function test_validation_rules_are_applied(): void
-    {
-        $response = $this->actingAs($this->user)
-            ->post(route('family-members.store'), []);
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data);
 
-        $response->assertSessionHasErrors(['first_name', 'birth_date', 'gender']);
-    }
+    $response->assertSessionHasErrors(['birth_date']);
+});
 
-    public function test_birth_date_must_be_before_today(): void
-    {
-        $data = [
-            'first_name' => 'John',
-            'birth_date' => now()->addDay()->format('Y-m-d'),
-            'gender' => 'male',
-        ];
+it('rejects invalid gender', function (): void {
+    $data = [
+        'first_name' => 'John',
+        'birth_date' => '1990-01-01',
+        'gender' => 'invalid',
+    ];
 
-        $response = $this->actingAs($this->user)
-            ->post(route('family-members.store'), $data);
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data);
 
-        $response->assertSessionHasErrors(['birth_date']);
-    }
+    $response->assertSessionHasErrors(['gender']);
+});
 
-    public function test_invalid_gender_is_rejected(): void
-    {
-        $data = [
-            'first_name' => 'John',
-            'birth_date' => '1990-01-01',
-            'gender' => 'invalid',
-        ];
+it("user cannot edit other user's family member", function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
 
-        $response = $this->actingAs($this->user)
-            ->post(route('family-members.store'), $data);
+    $response = $this->actingAs($this->user)
+        ->get(route('family-members.edit', $familyMember));
 
-        $response->assertSessionHasErrors(['gender']);
-    }
+    $response->assertStatus(403);
+});
 
-    public function test_user_cannot_edit_other_users_family_member(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
+it("user cannot update other user's family member", function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
 
-        $response = $this->actingAs($this->user)
-            ->get(route('family-members.edit', $familyMember));
+    $data = [
+        'first_name' => 'Hacker',
+        'birth_date' => '1990-01-01',
+        'gender' => 'male',
+    ];
 
-        $response->assertStatus(403);
-    }
+    $response = $this->actingAs($this->user)
+        ->put(route('family-members.update', $familyMember), $data);
 
-    public function test_user_cannot_update_other_users_family_member(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
+    $response->assertStatus(403);
+});
 
-        $data = [
-            'first_name' => 'Hacker',
-            'birth_date' => '1990-01-01',
-            'gender' => 'male',
-        ];
+it("user cannot delete other user's family member", function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
 
-        $response = $this->actingAs($this->user)
-            ->put(route('family-members.update', $familyMember), $data);
+    $response = $this->actingAs($this->user)
+        ->delete(route('family-members.destroy', $familyMember));
 
-        $response->assertStatus(403);
-    }
+    $response->assertStatus(403);
+});
 
-    public function test_user_cannot_delete_other_users_family_member(): void
-    {
-        $familyMember = FamilyMember::factory()->create(['user_id' => $this->otherUser->id]);
+it('guest cannot access family members', function (): void {
+    $response = $this->get(route('family-members.index'));
+    $response->assertRedirect(route('login'));
 
-        $response = $this->actingAs($this->user)
-            ->delete(route('family-members.destroy', $familyMember));
+    $response = $this->get(route('family-members.create'));
+    $response->assertRedirect(route('login'));
 
-        $response->assertStatus(403);
-    }
+    $familyMember = FamilyMember::factory()->create();
 
-    public function test_guest_cannot_access_family_members(): void
-    {
-        $response = $this->get(route('family-members.index'));
-        $response->assertRedirect(route('login'));
-
-        $response = $this->get(route('family-members.create'));
-        $response->assertRedirect(route('login'));
-
-        $familyMember = FamilyMember::factory()->create();
-
-        $response = $this->get(route('family-members.edit', $familyMember));
-        $response->assertRedirect(route('login'));
-    }
-}
+    $response = $this->get(route('family-members.edit', $familyMember));
+    $response->assertRedirect(route('login'));
+});

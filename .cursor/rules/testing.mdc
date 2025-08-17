@@ -1,59 +1,82 @@
 ---
-description: Testing best practices with PHPUnit and Laravel testing tools
+description: Backend testing best practices for Laravel (Pest) aligned with Menu Maker test plan
 globs: "**/tests/**/*.php", "**/*Test.php", "**/phpunit.xml"
 alwaysApply: false
 ---
 
-# Testing Best Practices
+# Backend Testing (Laravel + Pest)
+
+These rules align backend tests with the project test plan. Use Pest for PHP tests, Laravel Sail for commands, and keep tests deterministic and readable.
 
 ## Test Structure
-- Write Feature tests for HTTP endpoints and user workflows
-- Write Unit tests for business logic and isolated components
-- Follow AAA pattern: Arrange, Act, Assert
-- Use descriptive test method names that explain what is being tested
-- Group related tests in logical test classes
+- Write Unit tests for isolated business logic (model scopes, casts, helpers).
+- Write Feature tests for HTTP endpoints, validation, policies, pagination/sorting/filtering, and Inertia responses.
+- Use AAA: Arrange, Act, Assert. Prefer short, focused tests with descriptive names.
+- Group tests logically; mirror app structure (e.g. `Auth`, `Profile`, `Recipes`, `MealPlans`, `Policies`, `Jobs`).
 
-## Laravel Testing Tools
-- Use Laravel's testing helpers:
-  - `actingAs()` for authentication
-  - `assertStatus()`, `assertJson()` for HTTP responses
-  - `assertDatabaseHas()`, `assertDatabaseMissing()` for database assertions
-  - `assertRedirect()`, `assertViewIs()` for navigation testing
-- Leverage Laravel's HTTP testing features
-- Use `RefreshDatabase` trait for database tests
+## Environment & Commands
+- Run everything via Sail:
+  - Start: `./vendor/bin/sail up -d`
+  - Migrate & seed (testing): `./vendor/bin/sail artisan migrate:fresh --seed --env=testing`
+  - Run tests: `./vendor/bin/sail composer test`
+  - Code style / static analysis: `./vendor/bin/sail composer pint-test`, `./vendor/bin/sail composer phpstan`
+- Enable Pest parallelization for speed where applicable.
 
-## Test Data Management
-- Use model factories for test data generation
-- Create realistic test data that represents actual use cases
-- Use factory states for different data variations
-- Clean up test data appropriately with database transactions
-- Use database seeders for complex test scenarios
+## Database Strategy
+- Use `RefreshDatabase` for Feature tests.
+- Prefer SQLite in‑memory for pure Unit tests where possible.
+- Use MySQL for Feature/HTTP tests to preserve constraints, collation, and pagination behavior.
+- Ensure `testing` environment is configured in `phpunit.xml`.
 
-## Mocking and Dependencies
-- Mock external services and APIs to avoid external dependencies
-- Use Laravel's built-in mocking features
-- Mock only what is necessary to isolate the system under test
-- Verify mock interactions when testing behavior
-- Use dependency injection to make testing easier
+## Laravel Testing Helpers
+- Authentication: `actingAs($user)`.
+- HTTP assertions: `assertStatus()`, `assertJson()`, `assertRedirect()`, `assertViewIs()` when relevant.
+- Database assertions: `assertDatabaseHas()`, `assertDatabaseMissing()`.
+- Inertia responses: assert component name and props shape; also cover JSON variant with `expectsJson()` when applicable.
 
-## Test Coverage
-- Test both happy path and edge cases
-- Include validation error testing
-- Test authorization and permission scenarios
-- Cover error handling and exception scenarios
-- Test different user roles and access levels
+## Queues, Jobs, and Determinism
+- Execute queues in `sync` mode for backend tests.
+- In controller/dispatch tests: use `Bus::fake()` / `Queue::fake()` and assert dispatch.
+- In job tests: execute real logic (no fakes) to validate end‑to‑end behavior.
+- Use `Carbon::setTestNow()` for time‑dependent logic.
 
-## Performance Testing
-- Test query performance with large datasets
-- Verify caching behavior
-- Test rate limiting functionality
-- Monitor test execution time
-- Use database queries counting in tests
+## Rate Limiting
+- Clear limits before/after scenarios using `RateLimiter::clear($key)`.
+- Test threshold behavior (e.g., 5/hour) and the `force=true` bypass where defined.
+
+## PDF Access
+- Current implementation retrieves files via `Storage`. In tests, verify:
+  - 404 for non‑`done` meal plans or when file is missing.
+  - Correct `Content-Type` and download filename for successful responses.
+
+## Data & Factories
+- Use factories for: `User`, `Recipe`, `Ingredient`, `Unit`, `MealPlan`, `Meal`, `LogsMealPlan`.
+- Seed minimal dictionaries for realistic scenarios when needed (e.g., `Unit` with `g`, `kg`, `ml`, `l`, `pcs`).
+- Avoid duplicate ingredients per recipe in test data.
+
+## Coverage & Scope
+- Cover happy paths and edge cases: validation errors, authorization/policies, rate limiting, pagination, sorting, and filters.
+- Verify relations and pivot synchronization (e.g., `recipe_ingredients`).
+
+## File Layout (suggested)
+- `tests/Feature/Auth/AuthenticationTest.php`
+- `tests/Feature/Profile/ProfileTest.php`
+- `tests/Feature/FamilyMember/FamilyMemberCrudTest.php`
+- `tests/Feature/Recipes/RecipeCrudTest.php`
+- `tests/Feature/MealPlans/MealPlanIndexTest.php`
+- `tests/Feature/MealPlans/MealPlanShowTest.php`
+- `tests/Feature/MealPlans/MealPlanLifecycleTest.php`
+- `tests/Feature/MealPlans/MealPlanPdfTest.php`
+- `tests/Feature/Policies/AuthorizationTest.php`
+- `tests/Unit/Models/RecipeScopesTest.php`
+- `tests/Unit/Models/MealPlanScopesTest.php`
+- `tests/Unit/Jobs/GenerateMealPlanJobTest.php`
+
+## CI & Reporting
+- Ensure no critical Pint or Larastan errors.
+- Generate JUnit and coverage (`clover.xml` via PCOV/Xdebug) as configured.
 
 ## Best Practices
-- Keep tests independent and isolated
-- Use descriptive assertion messages
-- Write tests before fixing bugs (TDD approach)
-- Maintain test readability and simplicity
-- Regular test maintenance and refactoring
-- Use continuous integration for automated testing
+- Keep tests independent and readable; avoid deep nesting.
+- Mock external services only when necessary; prefer real application flows in Feature tests.
+- Use expressive custom helpers/factory states to reduce duplication.

@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Pierwszy krok - budowanie frontend assets
+  frontend-build:
+    name: Frontend - Build Assets
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --include=dev
+
+      - name: Build for production
+        run: NODE_ENV=production npm run build
+
+      - name: Upload built assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-assets
+          path: public/build
+          retention-days: 1
+
+  backend:
+    name: Backend - Tests and Static Analysis
+    runs-on: ubuntu-latest
+    needs: frontend-build  # Czeka na zbudowanie assets
+    env:
+      APP_ENV: testing
+      CI: true
+      COMPOSER_NO_INTERACTION: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, pdo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Pobieranie zbudowanych assets
+      - name: Download frontend assets
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-assets
+          path: public/build
+
+      - name: Prepare application environment
+        run: |
+          cat > .env << EOF
+          APP_ENV=testing
+          APP_DEBUG=false
+          APP_KEY=
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          VITE_APP_NAME="Menu Maker"
+          EOF
+          php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+          php artisan key:generate --ansi
+
+      - name: Run database migrations
+        run: php artisan migrate --graceful --no-interaction -v
+
+      - name: Static analysis (Larastan)
+        run: composer phpstan
+
+      - name: Run test suite (Pest)
+        run: composer test
+
+      - name: Validate production caches
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+  # Opcjonalny job dla E2E testów
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [frontend-build, backend]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, pdo, sqlite, pdo_sqlite
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download frontend assets
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-assets
+          path: public/build
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Prepare test environment
+        run: |
+          cat > .env << EOF
+          APP_ENV=testing
+          APP_DEBUG=false
+          APP_KEY=
+          DB_CONNECTION=sqlite
+          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          VITE_APP_NAME="Menu Maker"
+          EOF
+          php artisan key:generate --ansi
+          touch database/database.sqlite
+          php artisan migrate --graceful --no-interaction -v
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+

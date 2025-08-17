@@ -89,7 +89,7 @@ class MealPlanController extends Controller
         }
 
         return Inertia::render('MealPlans/Show', [
-            'mealPlan' => $data,
+            'mealPlan' => $data->resolve(),
         ]);
     }
 
@@ -178,7 +178,7 @@ class MealPlanController extends Controller
 
         return response($fileContent)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 
     /**

@@ -19,8 +19,8 @@ An AI-powered web application that helps families effortlessly plan weekly meals
     - [Composer / Artisan](#composer--artisan)
   - [5. Testing \& Quality](#5-testing--quality)
     - [Backend (Pest via Sail)](#backend-pest-via-sail)
-    - [Frontend (Vitest) \& E2E (Playwright)](#frontend-vitest--e2e-playwright)
-  - [5. Project Scope](#5-project-scope)
+    - [Frontend (E2E - Playwright)](#frontend-e2e--playwright)
+  - [6. Project Scope](#6-project-scope)
     - [Included in MVP](#included-in-mvp)
     - [Out of Scope for MVP](#out-of-scope-for-mvp)
   - [7. Project Status](#7-project-status)
@@ -100,13 +100,14 @@ $ ./vendor/bin/sail artisan serve
 
 ### NPM
 
-| Command             | Description                                |
-| ------------------- | ------------------------------------------ |
-| `npm run dev`       | Start the Vite development server with HMR |
-| `npm run build`     | Compile and bundle assets for production   |
-| `npm run test:unit` | Run Vue unit tests with Vitest             |
-| `npm run test:e2e`  | Run E2E tests with Playwright              |
-| `npm run lint`      | Lint frontend code (ESLint/Prettier)       |
+| Command                   | Description                                |
+| ------------------------- | ------------------------------------------ |
+| `npm run dev`             | Start the Vite development server with HMR |
+| `npm run build`           | Compile and bundle assets for production   |
+| `npm run test:e2e`        | Run E2E tests with Playwright              |
+| `npm run test:e2e:headed` | Run E2E tests in headed mode               |
+| `npm run test:e2e:ui`     | Run E2E tests in Playwright UI             |
+| `npm run pw:install`      | Install Playwright browsers/drivers        |
 
 ### Composer / Artisan
 
@@ -146,26 +147,20 @@ Note: For backend commands, prefer running them via Sail:
 ./vendor/bin/sail composer phpstan
 ```
 
-### Frontend (Vitest) & E2E (Playwright)
+### Frontend (E2E - Playwright)
 
 ```bash
 # Install dependencies (first time)
 npm ci
 
 # Install Playwright browsers/drivers (first time)
-npx playwright install --with-deps
-
-# Unit tests (Vue + Vitest)
-npm run test:unit
+npm run pw:install
 
 # E2E tests (Playwright)
 E2E_BASE_URL=http://localhost npm run test:e2e
-
-# Lint frontend code
-npm run lint
 ```
 
-## 5. Project Scope
+## 6. Project Scope
 
 ### Included in MVP
 

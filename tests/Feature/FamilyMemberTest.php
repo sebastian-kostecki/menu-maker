@@ -24,7 +24,7 @@ it('user can view family members index', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn ($page) => $page->component('FamilyMembers/Index')
+        fn($page) => $page->component('FamilyMembers/Index')
             ->has('familyMembers.data', 3)
     );
 });
@@ -35,7 +35,7 @@ it('user can view create form', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn ($page) => $page->component('FamilyMembers/Create', false)
+        fn($page) => $page->component('FamilyMembers/Create', false)
             ->has('genders')
             ->where('genders', ['male', 'female'])
     );
@@ -57,7 +57,7 @@ it('user can store family member', function (): void {
     $this->assertDatabaseHas('family_members', [
         'user_id' => $this->user->id,
         'first_name' => 'John',
-        'birth_date' => '1990-01-01',
+        'birth_date' => '1990-01-01 00:00:00',
         'gender' => 'male',
     ]);
 });
@@ -70,7 +70,7 @@ it('user can view edit form', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn ($page) => $page->component('FamilyMembers/Edit', false)
+        fn($page) => $page->component('FamilyMembers/Edit', false)
             ->has('familyMember')
             ->has('genders')
             ->where('familyMember.id', $familyMember->id)
@@ -95,7 +95,7 @@ it('user can update family member', function (): void {
     $this->assertDatabaseHas('family_members', [
         'id' => $familyMember->id,
         'first_name' => 'Jane',
-        'birth_date' => '1995-05-05',
+        'birth_date' => '1995-05-05 00:00:00',
         'gender' => 'female',
     ]);
 });

@@ -18,7 +18,9 @@ return new class extends Migration
 
             // Indexes
             $table->index('name');
-            $table->fullText('name');
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText('name');
+            }
         });
     }
 

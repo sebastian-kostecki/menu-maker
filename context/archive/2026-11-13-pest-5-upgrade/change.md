@@ -1,10 +1,10 @@
 ---
 change_id: pest-5-upgrade
 title: Upgrade to Pest 5 and PHPUnit 13
-status: impl_reviewed
+status: archived
 created: 2026-11-13
 updated: 2026-11-13
-archived_at: null
+archived_at: 2026-11-13T10:55:16Z
 ---
 
 ## Notes

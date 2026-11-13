@@ -12,6 +12,7 @@ use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -97,7 +98,7 @@ class MealPlanController extends Controller
     /**
      * Generate a new meal plan.
      */
-    public function store(GenerateMealPlanRequest $request): JsonResponse
+    public function store(GenerateMealPlanRequest $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
 
@@ -116,6 +117,10 @@ class MealPlanController extends Controller
         // Dispatch generation job
         GenerateMealPlanJob::dispatch($mealPlan, false); // regenerate = false
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
+
         $data = new MealPlanResource($mealPlan);
 
         return response()->json([
@@ -127,16 +132,8 @@ class MealPlanController extends Controller
     /**
      * Regenerate an existing meal plan.
      */
-    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse
+    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
     {
-        // Guard: Check if already processing (should be caught by policy/validation but double-check)
-        if ($mealPlan->status === 'processing') {
-            return response()->json([
-                'message' => 'Cannot regenerate meal plan while it is being processed.',
-                'error' => 'meal_plan_processing',
-            ], 409);
-        }
-
         // Reset status and clear generation metadata
         $mealPlan->update([
             'status' => 'pending',
@@ -145,6 +142,10 @@ class MealPlanController extends Controller
 
         // Dispatch regeneration job
         GenerateMealPlanJob::dispatch($mealPlan, true); // regenerate = true
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
 
         $data = new MealPlanResource($mealPlan->fresh());
 
@@ -185,7 +186,7 @@ class MealPlanController extends Controller
     /**
      * Remove the specified meal plan from storage.
      */
-    public function destroy(MealPlan $mealPlan): Response
+    public function destroy(Request $request, MealPlan $mealPlan): Response|RedirectResponse
     {
         // Delete PDF file if exists
         if ($mealPlan->pdf_path && Storage::exists($mealPlan->pdf_path)) {
@@ -194,6 +195,10 @@ class MealPlanController extends Controller
 
         // Delete meal plan (cascade delete handles meals & logs via DB constraints)
         $mealPlan->delete();
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.index');
+        }
 
         return response()->noContent();
     }

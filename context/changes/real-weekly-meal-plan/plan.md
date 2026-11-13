@@ -448,9 +448,9 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [x] 1.1 Generator and job tests pass
-- [x] 1.2 Larastan passes without baseline changes
-- [x] 1.3 Pint passes
+- [x] 1.1 Generator and job tests pass — 26d8538
+- [x] 1.2 Larastan passes without baseline changes — 26d8538
+- [x] 1.3 Pint passes — 26d8538
 
 #### Manual
 
@@ -460,10 +460,10 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [ ] 2.1 Meal-plan feature and request tests pass
-- [ ] 2.2 Full suite passes
-- [ ] 2.3 Larastan passes without baseline changes
-- [ ] 2.4 Pint passes
+- [x] 2.1 Meal-plan feature and request tests pass
+- [x] 2.2 Full suite passes
+- [x] 2.3 Larastan passes without baseline changes
+- [x] 2.4 Pint passes
 
 #### Manual
 

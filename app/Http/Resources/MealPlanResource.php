@@ -8,6 +8,7 @@ use App\Models\LogsMealPlan;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\RecipeIngredient;
+use App\Services\MealPlanGenerator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -41,13 +42,18 @@ class MealPlanResource extends JsonResource
                 /** @var Collection<int, Meal> $meals */
                 $meals = $this->meals;
 
-                return $meals->sortBy('meal_date')->map(function (Meal $meal) {
+                return $meals->sortBy([
+                    fn (Meal $a, Meal $b): int => $a->meal_date <=> $b->meal_date,
+                    fn (Meal $a, Meal $b): int => array_search($a->meal_category, MealPlanGenerator::CATEGORIES, true)
+                        <=> array_search($b->meal_category, MealPlanGenerator::CATEGORIES, true),
+                ])->values()->map(function (Meal $meal) {
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
                         'meal_category' => $meal->meal_category,
-                        'recipe' => $this->when($meal->relationLoaded('recipe'), function () use ($meal) {
+                        'recipe' => $this->when($meal->relationLoaded('recipe') && $meal->recipe !== null, function () use ($meal) {
                             return [
+                                'deleted' => $meal->recipe->trashed(),
                                 'id' => $meal->recipe->id,
                                 'name' => $meal->recipe->name,
                                 'category' => $meal->recipe->category,

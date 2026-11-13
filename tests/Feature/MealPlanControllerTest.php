@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -73,6 +75,7 @@ it("user cannot view other user's meal plan", function (): void {
 
 it('user can generate meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlanData = [
         'start_date' => now()->addDays(7)->format('Y-m-d'),
@@ -126,7 +129,7 @@ it('prevents duplicate start dates per user', function (): void {
 });
 
 it('respects rate limiting on generation', function (): void {
-    $startDate = now()->addDays(7)->format('Y-m-d');
+    seedFullWeekOfRecipes($this->user);
 
     for ($i = 1; $i <= 5; $i++) {
         $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
@@ -144,6 +147,7 @@ it('respects rate limiting on generation', function (): void {
 
 it('user can regenerate completed meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
@@ -169,6 +173,7 @@ it('user can regenerate completed meal plan', function (): void {
 
 it('user can regenerate failed meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlan = MealPlan::factory()->error()->for($this->user)->create();
 
@@ -280,4 +285,96 @@ it('responds with JSON when expected', function (): void {
     $response->assertJsonStructure([
         'data' => ['id', 'start_date', 'end_date', 'status', 'links'],
     ]);
+});
+
+it('refuses generation when a category is short', function (): void {
+    Queue::fake();
+    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
+    Recipe::factory()->count(7)->supper()->for($this->user)->create();
+    Recipe::factory()->count(4)->dinner()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['recipes']);
+    expect($response->json('errors.recipes.0'))->toContain('Kolacja')->toContain('Dodaj jeszcze 3');
+    $this->assertDatabaseCount('meal_plans', 0);
+    Queue::assertNothingPushed();
+});
+
+it('does not consume a rate limit attempt on shortfall', function (): void {
+    RateLimiter::clear('generate-meal-plan:'.$this->user->id);
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ])->assertJsonValidationErrors(['recipes']);
+
+    expect(RateLimiter::attempts('generate-meal-plan:'.$this->user->id))->toBe(0);
+});
+
+it('refuses regeneration when a category is short', function (): void {
+    Queue::fake();
+    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
+    Recipe::factory()->count(7)->supper()->for($this->user)->create();
+    Recipe::factory()->count(2)->dinner()->for($this->user)->create();
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['recipes']);
+    Queue::assertNothingPushed();
+});
+
+it('allows many regenerations in a row', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    for ($i = 0; $i < 7; $i++) {
+        MealPlan::whereKey($mealPlan->id)->update(['status' => 'done']);
+
+        $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+            'regenerate' => true,
+        ])->assertStatus(202);
+    }
+
+    Queue::assertPushed(GenerateMealPlanJob::class, 7);
+});
+
+it('redirects to the plan view after an Inertia generate', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+
+    $response = $this->actingAs($this->user)->post(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ]);
+
+    $mealPlan = MealPlan::where('user_id', $this->user->id)->firstOrFail();
+    $response->assertRedirect(route('meal-plans.show', $mealPlan));
+});
+
+it('redirects to the plan view after an Inertia regenerate', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->put(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertRedirect(route('meal-plans.show', $mealPlan));
+});
+
+it('redirects to the index after an Inertia delete', function (): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->delete(route('meal-plans.destroy', $mealPlan));
+
+    $response->assertRedirect(route('meal-plans.index'));
+    $this->assertDatabaseMissing('meal_plans', ['id' => $mealPlan->id]);
 });

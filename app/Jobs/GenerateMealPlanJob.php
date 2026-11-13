@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 
 class GenerateMealPlanJob implements ShouldQueue
@@ -35,6 +36,8 @@ class GenerateMealPlanJob implements ShouldQueue
      */
     public function handle(): void
     {
+        Context::add('meal_plan_id', $this->mealPlan->id);
+
         $log = $this->createLog();
 
         try {
@@ -84,12 +87,6 @@ class GenerateMealPlanJob implements ShouldQueue
 
             $this->finishLog($log, 'error');
 
-            Log::error('Meal plan generation failed', [
-                'meal_plan_id' => $this->mealPlan->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             // Re-throw to mark job as failed
             throw $e;
         }
@@ -123,10 +120,7 @@ class GenerateMealPlanJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('GenerateMealPlanJob failed permanently', [
-            'meal_plan_id' => $this->mealPlan->id,
-            'exception' => $exception->getMessage(),
-        ]);
+        Context::add('meal_plan_id', $this->mealPlan->id);
 
         // Update meal plan status to error if not already done
         if ($this->mealPlan->fresh()->status === 'processing') {

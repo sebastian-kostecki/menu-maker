@@ -7,6 +7,8 @@ use App\Models\LogsMealPlan;
 use App\Models\MealPlan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Context;
+use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
@@ -49,4 +51,21 @@ it('failed() marks meal plan as error when still processing', function (): void 
         ->and($mealPlan->generation_meta)
         ->toBeArray()
         ->and(($mealPlan->generation_meta['error_message'] ?? null))->toBe('forced failure');
+});
+
+it('failed() adds meal_plan_id to the log context and writes no error entry itself', function (): void {
+    Log::spy();
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->processing()->create([
+        'start_date' => now()->startOfDay(),
+        'end_date' => now()->startOfDay()->copy()->addDays(6),
+    ]);
+
+    (new GenerateMealPlanJob($mealPlan, false))->failed(new RuntimeException('forced failure'));
+
+    expect(Context::get('meal_plan_id'))->toBe($mealPlan->id)
+        ->and($mealPlan->fresh()->status)->toBe('error');
+
+    Log::shouldNotHaveReceived('error');
 });

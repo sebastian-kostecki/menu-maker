@@ -5,19 +5,17 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 ## Hard Rules
 
 - Every query on user data is scoped to the owner (`Recipe::forUser()`, `where('user_id', ...)`), and every resource controller calls `authorizeResource()` with a policy in `app/Policies/`. A new resource needs both, plus a policy test in `tests/Unit/`.
-- Code must run on PHP 8.2: `composer.json` requires `^8.2` and CI uses 8.2, even though local PHP is 8.4.
+- Run every `php`, `composer` and `artisan` command through `vendor/bin/sail` (PHP 8.5 in Docker, `@docker/8.5/Dockerfile`). Host PHP is a different version: do not use it.
 - Do not add errors to `phpstan-baseline.neon`; fix them (Larastan level 5, `app/` only).
 - `app/Jobs/GenerateMealPlanJob.php` is a placeholder (TODO): it does no recipe selection, AI scaling, shopping list or PDF yet. Do not treat its output as real.
 
 ## Commands
 
-- `composer test`: Pest suite; one test with `vendor/bin/pest --filter=<name>`.
-- `composer phpstan`, `composer pint-test` (fix with `composer pint`).
-- `npm run build`: client and SSR bundles; CI fails if it breaks.
-- `npm run test:e2e`: Playwright; starts `php artisan serve` on :8000 itself.
-- `composer dev`: server, queue, logs and Vite together.
-
-Run artisan with local `php`. `.env` uses SQLite, so Sail is optional.
+- `vendor/bin/sail up -d`: start the containers (required by everything below and by the Boost MCP server).
+- `vendor/bin/sail composer test`: Pest suite; one test with `vendor/bin/sail pest --filter=<name>`.
+- `vendor/bin/sail composer phpstan`, `vendor/bin/sail composer pint-test` (fix with `composer pint`).
+- `vendor/bin/sail npm run build`: client and SSR bundles; CI fails if it breaks.
+- `npm run test:e2e`: Playwright, see `@playwright.config.ts` for the base URL.
 
 ## Structure & Conventions
 

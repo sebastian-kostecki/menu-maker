@@ -1,10 +1,10 @@
 ---
 change_id: laravel-13-upgrade
 title: Upgrade to Laravel 13 with Boost 2 and Tinker 3
-status: impl_reviewed
+status: archived
 created: 2026-11-13
 updated: 2026-11-13
-archived_at: null
+archived_at: 2026-11-13T10:49:14Z
 ---
 
 ## Notes

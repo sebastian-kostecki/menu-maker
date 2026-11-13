@@ -1,7 +1,7 @@
 ---
 change_id: recipe-required-ingredients
 title: Recipe required ingredients
-status: implementing
+status: implemented
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null

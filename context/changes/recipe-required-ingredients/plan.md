@@ -309,4 +309,4 @@ Not deployed yet, so only dev data is affected. The migration converts legacy un
 #### Automated
 
 - [ ] 4.1 E2E passes against Sail: `vendor/bin/sail npm run build && vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [x] 4.2 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 4.2 Full Pest suite passes: `vendor/bin/sail composer test` — fec6996

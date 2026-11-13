@@ -21,7 +21,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 
 - Validation in Form Requests (`app/Http/Requests/`), JSON in API Resources (`app/Http/Resources/`).
 - New PHP files start with `declare(strict_types=1);` (half of `app/` still lacks it; add it when touching a file).
-- Inertia pages: `resources/js/Pages/<Feature>/{Index,Show,Form}.vue`. Feature components go in `resources/js/Components/<Feature>/`, shadcn-vue primitives in `resources/js/Components/ui/` (config: `@components.json`).
+- Inertia pages: `resources/js/Pages/<Feature>/{Index,Show,Form}.vue`. Feature components go in `resources/js/Components/<Feature>/`, shadcn-vue primitives in `resources/js/Components/ui/` (config: `@components.json`). The shadcn-vue CLI is not installed; add components with `vendor/bin/sail npx shadcn-vue@2 add <component>`.
 - Default locale is `pl` (`config/app.php`), with translations in `lang/pl/`.
 
 ## Testing

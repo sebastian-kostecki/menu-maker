@@ -284,31 +284,31 @@ Rollback is per phase via `git revert <sha>` followed by `sail composer install`
 
 #### Automated
 
-- [x] 2.1 Tests pass
-- [x] 2.2 Larastan clean
-- [x] 2.3 No Composer advisories
-- [x] 2.4 Boost block reports PHP 8.5 and Pest v4
-- [x] 2.5 Boost MCP server lists its tools through Sail
-- [x] 2.6 E2E passes in Chromium and Firefox
+- [x] 2.1 Tests pass — 1772e0e
+- [x] 2.2 Larastan clean — 1772e0e
+- [x] 2.3 No Composer advisories — 1772e0e
+- [x] 2.4 Boost block reports PHP 8.5 and Pest v4 — 1772e0e
+- [x] 2.5 Boost MCP server lists its tools through Sail — 1772e0e
+- [x] 2.6 E2E passes in Chromium and Firefox — 1772e0e
 
 #### Manual
 
-- [x] 2.7 CLAUDE.md diff touches only the Boost block
+- [x] 2.7 CLAUDE.md diff touches only the Boost block — 1772e0e
 
 ### Phase 3: npm refresh
 
 #### Automated
 
-- [ ] 3.1 shadcn-vue is not installed
-- [ ] 3.2 Build succeeds
-- [ ] 3.3 No in-range-fixable npm vulnerabilities
-- [ ] 3.4 Playwright browsers refreshed
-- [ ] 3.5 E2E passes in Chromium and Firefox
-- [ ] 3.6 Tests pass
+- [x] 3.1 shadcn-vue is not installed
+- [x] 3.2 Build succeeds
+- [x] 3.3 No in-range-fixable npm vulnerabilities
+- [x] 3.4 Playwright browsers refreshed
+- [x] 3.5 E2E passes in Chromium and Firefox
+- [x] 3.6 Tests pass
 
 #### Manual
 
-- [ ] 3.7 Recipes, family members and meal plans pages render correctly
+- [x] 3.7 Recipes, family members and meal plans pages render correctly
 
 ### Phase 4: Pint fix and CI gate
 

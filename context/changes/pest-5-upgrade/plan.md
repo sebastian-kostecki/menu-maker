@@ -57,7 +57,7 @@ Upgrade via Composer and make the Pest suite pass with no skipped or risky tests
 #### Automated Verification:
 
 - Packages installed at pest 5, plugin-laravel 5, phpunit 13: `vendor/bin/sail composer show pestphp/pest pestphp/pest-plugin-laravel phpunit/phpunit`
-- Suite passes with >= 129 tests: `vendor/bin/sail composer test`
+- Suite passes with >= 129 tests and 0 skipped/risky/warnings: `vendor/bin/sail composer test`
 - Larastan clean: `vendor/bin/sail composer phpstan`
 
 #### Manual Verification:
@@ -118,7 +118,7 @@ Rollback: `git revert` the upgrade commit (composer.json + lock).
 #### Automated
 
 - [ ] 1.1 Packages installed at pest 5, plugin-laravel 5, phpunit 13
-- [ ] 1.2 Suite passes with at least 129 tests
+- [ ] 1.2 Suite passes with at least 129 tests and no skipped, risky or warning results
 - [ ] 1.3 Larastan clean
 
 #### Manual

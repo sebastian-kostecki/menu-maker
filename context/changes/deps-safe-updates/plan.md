@@ -314,11 +314,11 @@ Rollback is per phase via `git revert <sha>` followed by `sail composer install`
 
 #### Automated
 
-- [x] 4.1 Style clean
-- [x] 4.2 Tests pass
-- [x] 4.3 Larastan clean
-- [x] 4.4 Workflow contains the Pint step
+- [x] 4.1 Style clean — 15ccdd0
+- [x] 4.2 Tests pass — 15ccdd0
+- [x] 4.3 Larastan clean — 15ccdd0
+- [x] 4.4 Workflow contains the Pint step — 15ccdd0
 
 #### Manual
 
-- [x] 4.5 Formatting commit diff contains style changes only
+- [x] 4.5 Formatting commit diff contains style changes only — 15ccdd0

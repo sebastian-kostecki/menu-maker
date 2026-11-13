@@ -1,10 +1,10 @@
 ---
 change_id: error-tracking-baseline
 title: Error reporting through daily logs and mail alerts
-status: impl_reviewed
+status: archived
 created: 2026-11-13
 updated: 2026-11-13
-archived_at: null
+archived_at: 2026-11-13T13:13:50Z
 ---
 
 ## Notes

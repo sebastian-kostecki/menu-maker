@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use RuntimeException;
 
 /**
- * Re-runnable fixtures for the meal-plan Playwright spec: one planner user per browser project.
+ * Re-runnable fixtures for the Playwright specs: one planner user and one recipe-author (cook) user per browser project.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -24,6 +24,14 @@ class E2eMealPlanSeeder extends Seeder
     public const EMAILS = [
         'e2e-planner-chromium@example.com',
         'e2e-planner-firefox@example.com',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    public const COOK_EMAILS = [
+        'e2e-cook-chromium@example.com',
+        'e2e-cook-firefox@example.com',
     ];
 
     public const PASSWORD = 'Password123!';
@@ -59,6 +67,19 @@ class E2eMealPlanSeeder extends Seeder
             }
 
             RateLimiter::clear('generate-meal-plan:'.$user->id);
+        }
+
+        foreach (self::COOK_EMAILS as $email) {
+            $cook = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'E2E Cook',
+                    'password' => Hash::make(self::PASSWORD),
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            $cook->recipes()->withTrashed()->forceDelete();
         }
     }
 }

@@ -294,19 +294,19 @@ Not deployed yet, so only dev data is affected. The migration converts legacy un
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 3.2 Full suite still passes: `vendor/bin/sail composer test`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 3e0ab0c
+- [x] 3.2 Full suite still passes: `vendor/bin/sail composer test` — 3e0ab0c
 
 #### Manual
 
-- [x] 3.3 Creating a recipe with a new ingredient name, then editing it, shows the name, quantity and unit preserved
-- [x] 3.4 Typing „mą” suggests „Mąka”; another user's custom ingredient is not suggested
-- [x] 3.5 Submit stays disabled with no ingredient row or an incomplete one; a duplicate name shows the Polish error on that row
-- [x] 3.6 An old recipe without ingredients opens in edit and cannot be saved until an ingredient is added
+- [x] 3.3 Creating a recipe with a new ingredient name, then editing it, shows the name, quantity and unit preserved — 3e0ab0c
+- [x] 3.4 Typing „mą” suggests „Mąka”; another user's custom ingredient is not suggested — 3e0ab0c
+- [x] 3.5 Submit stays disabled with no ingredient row or an incomplete one; a duplicate name shows the Polish error on that row — 3e0ab0c
+- [x] 3.6 An old recipe without ingredients opens in edit and cannot be saved until an ingredient is added — 3e0ab0c
 
 ### Phase 4: E2E — create a recipe with an ingredient
 
 #### Automated
 
 - [ ] 4.1 E2E passes against Sail: `vendor/bin/sail npm run build && vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [ ] 4.2 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 4.2 Full Pest suite passes: `vendor/bin/sail composer test`

@@ -24,7 +24,7 @@
         Kategoria *
       </label>
       <Select v-model="form.category" :disabled="form.processing">
-        <SelectTrigger :class="{ 'border-red-500': form.errors.category }">
+        <SelectTrigger id="category" :class="{ 'border-red-500': form.errors.category }">
           <SelectValue placeholder="Wybierz kategorię" />
         </SelectTrigger>
         <SelectContent>

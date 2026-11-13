@@ -315,11 +315,11 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [x] 2.1 Suite runs on pgsql and passes
-- [x] 2.2 New search tests pass
+- [x] 2.1 Suite runs on pgsql and passes — 31f8188
+- [x] 2.2 New search tests pass — 31f8188
 - [x] 2.3 Migration is reversible
-- [x] 2.4 Larastan clean
-- [x] 2.5 Style clean
+- [x] 2.4 Larastan clean — 31f8188
+- [x] 2.5 Style clean — 31f8188
 
 #### Manual
 
@@ -329,8 +329,8 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [ ] 3.1 No SQLite left in the workflow
-- [ ] 3.2 Workflow is valid YAML
+- [x] 3.1 No SQLite left in the workflow
+- [x] 3.2 Workflow is valid YAML
 
 #### Manual
 

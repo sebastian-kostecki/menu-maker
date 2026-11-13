@@ -48,6 +48,20 @@ jobs:
     name: Backend - Tests and Static Analysis
     runs-on: ubuntu-latest
     needs: frontend-build  # Czeka na zbudowanie assets
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_USER: sail
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sail -d testing"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       APP_ENV: testing
       CI: true
@@ -60,7 +74,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, dom, fileinfo, pdo, sqlite, pdo_sqlite
+          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql
           coverage: none
 
       - name: Cache Composer dependencies
@@ -87,11 +101,14 @@ jobs:
           APP_ENV=testing
           APP_DEBUG=false
           APP_KEY=
-          DB_CONNECTION=sqlite
-          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          DB_CONNECTION=pgsql
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=testing
+          DB_USERNAME=sail
+          DB_PASSWORD=password
           VITE_APP_NAME="Menu Maker"
           EOF
-          php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
           php artisan key:generate --ansi
 
       - name: Run database migrations
@@ -118,6 +135,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: [frontend-build, backend]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_USER: sail
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sail -d testing"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -132,7 +163,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, dom, fileinfo, pdo, sqlite, pdo_sqlite
+          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -155,12 +186,15 @@ jobs:
           APP_ENV=testing
           APP_DEBUG=false
           APP_KEY=
-          DB_CONNECTION=sqlite
-          DB_DATABASE=${{ github.workspace }}/database/database.sqlite
+          DB_CONNECTION=pgsql
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=testing
+          DB_USERNAME=sail
+          DB_PASSWORD=password
           VITE_APP_NAME="Menu Maker"
           EOF
           php artisan key:generate --ansi
-          touch database/database.sqlite
           php artisan migrate --graceful --no-interaction -v
 
       - name: Run E2E tests

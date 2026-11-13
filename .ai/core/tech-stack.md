@@ -24,4 +24,4 @@
 
 ## CI/CD i Hosting:
 - **Github Actions** do tworzenia pipeline’ów CI/CD
-- **DigitalOcean** do hostowania aplikacji za pośrednictwem obrazu docker
+- **Mikrus** (VPS) do hostowania aplikacji; konfiguracja serwera i wdrożenia w osobnym repo `kostecki-infra`

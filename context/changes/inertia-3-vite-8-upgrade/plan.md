@@ -187,9 +187,9 @@ Rollback: revert the phase commits and `composer install` / `npm ci`.
 
 #### Automated
 
-- [x] 3.1 Full gate (test, phpstan, pint, build)
-- [x] 3.2 E2E passes 6/6
-- [x] 3.3 SSR login page contains server-rendered HTML
+- [x] 3.1 Full gate (test, phpstan, pint, build) — 7a7b4fa
+- [x] 3.2 E2E passes 6/6 — 7a7b4fa
+- [x] 3.3 SSR login page contains server-rendered HTML — 7a7b4fa
 
 #### Manual
 

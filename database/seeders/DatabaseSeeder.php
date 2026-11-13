@@ -13,12 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Core test data for MVP
-        $this->call([
-            UnitSeeder::class,
-            IngredientSeeder::class,
-        ]);
-
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

@@ -191,10 +191,10 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [x] 1.1 Client and SSR build passes
-- [x] 1.2 No leftover v3 config files
-- [x] 1.3 Pest suite passes
-- [x] 1.5 E2E passes
+- [x] 1.1 Client and SSR build passes — 0b6aab8
+- [x] 1.2 No leftover v3 config files — 0b6aab8
+- [x] 1.3 Pest suite passes — 0b6aab8
+- [x] 1.5 E2E passes — 0b6aab8
 
 #### Manual
 
@@ -204,9 +204,9 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [x] 2.1 Build passes
-- [x] 2.2 Pest passes
-- [x] 2.3 E2E passes
+- [x] 2.1 Build passes — 0065880
+- [x] 2.2 Pest passes — 0065880
+- [x] 2.3 E2E passes — 0065880
 
 #### Manual
 
@@ -216,9 +216,9 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Concurrently runs
-- [x] 3.3 Pest passes
+- [x] 3.1 Build passes — 3380aad
+- [x] 3.2 Concurrently runs — 3380aad
+- [x] 3.3 Pest passes — 3380aad
 
 #### Manual
 
@@ -228,10 +228,10 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [x] 4.1 Larastan passes
-- [x] 4.2 Pint passes
-- [x] 4.3 Pest passes
-- [x] 4.4 Build passes
+- [x] 4.1 Larastan passes — b3a281e
+- [x] 4.2 Pint passes — b3a281e
+- [x] 4.3 Pest passes — b3a281e
+- [x] 4.4 Build passes — b3a281e
 
 #### Manual
 

@@ -1,7 +1,7 @@
 ---
 change_id: tailwind-4-upgrade
 title: Upgrade to Tailwind 4 and refresh shadcn-vue components
-status: implementing
+status: implemented
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null

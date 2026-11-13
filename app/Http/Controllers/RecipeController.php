@@ -10,6 +10,7 @@ use App\Http\Resources\RecipeResource;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\Unit;
+use App\Services\MealPlanGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,11 +52,7 @@ class RecipeController extends Controller
         return Inertia::render('Recipes/Index', [
             'recipes' => RecipeResource::collection($recipes),
             'filters' => $request->only(['search', 'category', 'sort', 'direction']),
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
+            'categories' => $this->categoryOptions(),
         ]);
     }
 
@@ -66,11 +63,7 @@ class RecipeController extends Controller
     {
         return Inertia::render('Recipes/Form', [
             'recipe' => null,
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Super'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
+            'categories' => $this->categoryOptions(),
             'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
             'units' => Unit::orderBy('code')->get(['id', 'code']),
         ]);
@@ -125,11 +118,7 @@ class RecipeController extends Controller
 
         return Inertia::render('Recipes/Form', [
             'recipe' => new RecipeResource($recipe),
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
+            'categories' => $this->categoryOptions(),
             'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
             'units' => Unit::orderBy('code')->get(['id', 'code']),
         ]);
@@ -184,5 +173,21 @@ class RecipeController extends Controller
         });
 
         $recipe->ingredients()->sync($pivotData);
+    }
+
+    /**
+     * Category options with Polish labels, in display order.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    private function categoryOptions(): array
+    {
+        return array_map(
+            fn (string $category): array => [
+                'value' => $category,
+                'label' => MealPlanGenerator::CATEGORY_LABELS[$category],
+            ],
+            MealPlanGenerator::CATEGORIES,
+        );
     }
 }

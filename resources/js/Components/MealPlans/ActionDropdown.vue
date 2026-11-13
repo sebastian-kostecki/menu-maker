@@ -3,14 +3,14 @@
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
         <MoreHorizontal class="h-4 w-4" />
-        <span class="sr-only">Open menu</span>
+        <span class="sr-only">Otwórz menu</span>
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-56">
       <!-- View Details -->
       <DropdownMenuItem @click="handleViewDetails">
         <Eye class="mr-2 h-4 w-4" />
-        View Details
+        Szczegóły
       </DropdownMenuItem>
 
       <!-- Download PDF -->
@@ -19,7 +19,7 @@
         @click="handleDownloadPdf"
       >
         <Download class="mr-2 h-4 w-4" />
-        Download PDF
+        Pobierz PDF
       </DropdownMenuItem>
 
       <DropdownMenuSeparator />
@@ -30,7 +30,7 @@
         @click="handleRegenerateClick"
       >
         <RefreshCw class="mr-2 h-4 w-4" />
-        Regenerate
+        Regeneruj
       </DropdownMenuItem>
 
       <!-- Delete -->
@@ -40,7 +40,7 @@
         class="text-red-600 focus:text-red-600 focus:bg-red-50"
       >
         <Trash2 class="mr-2 h-4 w-4" />
-        Delete
+        Usuń
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
@@ -48,18 +48,18 @@
   <!-- Confirm Dialogs -->
   <ConfirmDialog
     v-if="showRegenerateDialog"
-    title="Regenerate Meal Plan"
-    description="This will create a new meal plan with different recipes. The current meals will be replaced. Are you sure you want to continue?"
-    confirm-text="Regenerate"
+    title="Regeneruj jadłospis"
+    description="Obecne posiłki zostaną zastąpione nowym losowaniem przepisów. Czy chcesz kontynuować?"
+    confirm-text="Regeneruj"
     @confirm="handleRegenerateConfirm"
     @cancel="showRegenerateDialog = false"
   />
 
   <ConfirmDialog
     v-if="showDeleteDialog"
-    title="Delete Meal Plan"
-    description="This action cannot be undone. This will permanently delete the meal plan and all associated data."
-    confirm-text="Delete"
+    title="Usuń jadłospis"
+    description="Tej operacji nie można cofnąć. Jadłospis zostanie trwale usunięty."
+    confirm-text="Usuń"
     variant="destructive"
     @confirm="handleDeleteConfirm"
     @cancel="showDeleteDialog = false"
@@ -95,6 +95,7 @@ interface MealPlanListItem {
   updated_at: string
   meals_count: number
   logs_count: number
+  pdf_path?: string | null
   links: {
     self: string
   }
@@ -113,7 +114,7 @@ const showRegenerateDialog = ref(false)
 const showDeleteDialog = ref(false)
 
 // Action availability based on status
-const canDownloadPdf = computed(() => props.item.status === 'done')
+const canDownloadPdf = computed(() => props.item.status === 'done' && !!props.item.pdf_path)
 const canRegenerate = computed(() =>
   props.item.status === 'done' || props.item.status === 'error'
 )
@@ -149,23 +150,17 @@ const handleRegenerateConfirm = async () => {
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success('Meal plan regeneration started successfully.')
+          toast.success('Regeneracja jadłospisu rozpoczęta.')
         },
         onError: (errors) => {
-          console.error('Regeneration failed:', errors)
-
-          // Handle specific error cases
-          if (errors.message) {
-            toast.error(errors.message)
-          } else {
-            toast.error('Failed to regenerate meal plan. Please try again.')
-          }
+          const message = errors.status ?? errors.recipes ?? errors.regenerate ?? errors.message
+          toast.error(message || 'Nie udało się zregenerować jadłospisu. Spróbuj ponownie.')
         }
       }
     )
   } catch (error) {
     console.error('Regeneration error:', error)
-    toast.error('An unexpected error occurred. Please try again.')
+    toast.error('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.')
   }
 }
 
@@ -185,7 +180,7 @@ const handleDeleteConfirm = async () => {
       {
         preserveScroll: true,
         onSuccess: () => {
-          toast.success('Meal plan deleted successfully.')
+          toast.success('Jadłospis został usunięty.')
         },
         onError: (errors) => {
           console.error('Delete failed:', errors)
@@ -193,14 +188,14 @@ const handleDeleteConfirm = async () => {
           if (errors.message) {
             toast.error(errors.message)
           } else {
-            toast.error('Failed to delete meal plan. Please try again.')
+            toast.error('Nie udało się usunąć jadłospisu. Spróbuj ponownie.')
           }
         }
       }
     )
   } catch (error) {
     console.error('Delete error:', error)
-    toast.error('An unexpected error occurred. Please try again.')
+    toast.error('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.')
   }
 }
 </script>

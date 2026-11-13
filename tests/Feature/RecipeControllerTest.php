@@ -210,6 +210,19 @@ it('recipes index can be filtered by category', function (): void {
     );
 });
 
+it('recipe form and index expose Polish category labels in display order', function (): void {
+    $expected = [
+        ['value' => 'breakfast', 'label' => 'Śniadanie'],
+        ['value' => 'supper', 'label' => 'Obiad'],
+        ['value' => 'dinner', 'label' => 'Kolacja'],
+    ];
+
+    $this->actingAs($this->user)->get(route('recipes.index'))
+        ->assertInertia(fn ($page) => $page->where('categories', $expected));
+    $this->actingAs($this->user)->get(route('recipes.create'))
+        ->assertInertia(fn ($page) => $page->where('categories', $expected));
+});
+
 it('recipes index can be sorted', function (): void {
     Recipe::factory()->for($this->user)->create(['name' => 'Z Recipe']);
     Recipe::factory()->for($this->user)->create(['name' => 'A Recipe']);

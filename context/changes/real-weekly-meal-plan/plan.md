@@ -460,10 +460,10 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [x] 2.1 Meal-plan feature and request tests pass
-- [x] 2.2 Full suite passes
-- [x] 2.3 Larastan passes without baseline changes
-- [x] 2.4 Pint passes
+- [x] 2.1 Meal-plan feature and request tests pass — 9290f03
+- [x] 2.2 Full suite passes — 9290f03
+- [x] 2.3 Larastan passes without baseline changes — 9290f03
+- [x] 2.4 Pint passes — 9290f03
 
 #### Manual
 
@@ -473,8 +473,8 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build
-- [ ] 3.2 Full Pest suite, Larastan and Pint still pass
+- [x] 3.1 Client and SSR bundles build
+- [x] 3.2 Full Pest suite, Larastan and Pint still pass
 
 #### Manual
 

@@ -12,7 +12,7 @@
 
     <div
       v-if="isOpen"
-      class="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+      class="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black/5 focus:outline-hidden z-10"
       @click.stop
     >
       <div class="py-1" role="menu">

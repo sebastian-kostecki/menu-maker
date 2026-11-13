@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use Notifiable;
@@ -49,16 +50,25 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return HasMany<FamilyMember, $this>
+     */
     public function familyMembers(): HasMany
     {
         return $this->hasMany(FamilyMember::class);
     }
 
+    /**
+     * @return HasMany<Recipe, $this>
+     */
     public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }
 
+    /**
+     * @return HasMany<MealPlan, $this>
+     */
     public function mealPlans(): HasMany
     {
         return $this->hasMany(MealPlan::class);

@@ -39,7 +39,7 @@ alwaysApply: false
 ## Performance Optimization
 
 ### Database Performance
-- Use Redis for caching and session storage
+- Use the `database` driver for caching and session storage
 - Optimize database queries with proper indexing
 - Implement eager loading to prevent N+1 queries
 - Use database query optimization techniques

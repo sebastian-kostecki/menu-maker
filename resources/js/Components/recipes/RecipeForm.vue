@@ -2,7 +2,7 @@
   <form @submit.prevent="$emit('submit')" class="space-y-6">
     <!-- Recipe Name -->
     <div class="space-y-2">
-      <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <label for="name" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         Recipe Name *
       </label>
       <Input
@@ -20,7 +20,7 @@
 
     <!-- Category -->
     <div class="space-y-2">
-      <label for="category" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <label for="category" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         Category *
       </label>
       <Select v-model="form.category" :disabled="form.processing">
@@ -44,7 +44,7 @@
 
     <!-- Instructions -->
     <div class="space-y-2">
-      <label for="instructions" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <label for="instructions" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         Instructions *
       </label>
       <Textarea
@@ -64,7 +64,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Calories -->
       <div class="space-y-2">
-        <label for="calories" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label for="calories" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           Calories *
         </label>
         <Input
@@ -83,7 +83,7 @@
 
       <!-- Servings -->
       <div class="space-y-2">
-        <label for="servings" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label for="servings" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           Servings *
         </label>
         <Input

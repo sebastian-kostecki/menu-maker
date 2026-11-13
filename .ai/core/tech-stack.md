@@ -4,8 +4,7 @@
 - **PHP** (^8.2) - Server-side programming language
 - **Laravel** (^12.0) - PHP web application framework
 - **Inertia.js Laravel** (^2.0) - Server-side adapter for SPA-like experience
-- **MySQL** - Relational database management system
-- **Redis** - In-memory data structure store for caching and queues
+- **PostgreSQL 18** - Relational database management system (Sail)
 
 ## Frontend
 - **Node.js** (22) - JavaScript runtime for building and development tools

@@ -177,7 +177,7 @@ All foreign keys use `ON DELETE CASCADE` to ensure full cleanup when a parent re
 
 1. All timestamps are stored in the `Europe/Warsaw` timezone without UTC conversion, matching application logic.
 2. `generation_meta` in `meal_plans` keeps auxiliary data (e.g., AI parameters, progress) without fragmenting the schema; if query-ability of `started_at` / `finished_at` becomes critical, consider separate columns plus indexed views.
-3. `CHECK (end_date = start_date + INTERVAL 6 DAY)` ensures every meal plan covers exactly seven consecutive days; MySQL 8.0 allows check constraints.
+3. `CHECK (end_date = start_date + INTERVAL '6 days')` ensures every meal plan covers exactly seven consecutive days; PostgreSQL supports check constraints. Not yet implemented in migrations.
 4. The schema is normalized to 3NF; no soft-delete columns are used as per requirements.
 5. PDF files are stored in the filesystem; only metadata (`pdf_path`, `pdf_size`) resides in the database.
 6. All enumerations are fixed; if future extensibility is required, convert enums to lookup tables.

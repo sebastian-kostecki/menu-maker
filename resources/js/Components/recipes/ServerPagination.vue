@@ -38,7 +38,7 @@
       </div>
 
       <div>
-        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        <nav class="relative z-0 inline-flex rounded-md shadow-xs -space-x-px" aria-label="Pagination">
           <!-- Previous button -->
           <Button
             :disabled="!links.prev"

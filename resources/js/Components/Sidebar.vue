@@ -139,7 +139,7 @@ const closeMobileMenu = () => {
           :class="cn(
             'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors',
             'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white',
-            'focus:bg-gray-100 focus:text-gray-900 focus:outline-none dark:focus:bg-gray-800 dark:focus:text-white',
+            'focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden dark:focus:bg-gray-800 dark:focus:text-white',
             {
               'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white': item.current(),
               'text-gray-600 dark:text-gray-400': !item.current(),
@@ -149,7 +149,7 @@ const closeMobileMenu = () => {
           )"
           :aria-current="item.current() ? 'page' : undefined"
         >
-          <component :is="item.icon" class="h-5 w-5 flex-shrink-0" />
+          <component :is="item.icon" class="h-5 w-5 shrink-0" />
           <span
             v-if="!isCollapsed || isMobileMenuOpen"
             class="truncate"

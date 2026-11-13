@@ -43,7 +43,7 @@ const getUserInitials = (name) => {
                 <template #trigger>
                   <button
                     type="button"
-                    class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+                    class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100 focus:bg-gray-100 focus:outline-hidden dark:hover:bg-gray-700 dark:focus:bg-gray-700"
                     aria-label="Menu użytkownika"
                   >
                     <Avatar size="sm">

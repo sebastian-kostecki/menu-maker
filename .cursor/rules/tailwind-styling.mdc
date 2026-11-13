@@ -1,6 +1,6 @@
 ---
 description: TailwindCSS and Shadcn-vue styling guidelines
-globs: "**/*.vue", "**/*.css", "**/tailwind.config.js", "**/postcss.config.js"
+globs: "**/*.vue", "**/*.css"
 alwaysApply: false
 ---
 

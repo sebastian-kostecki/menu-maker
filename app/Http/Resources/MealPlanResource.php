@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Models\LogsMealPlan;
+use App\Models\Meal;
+use App\Models\MealPlan;
+use App\Models\RecipeIngredient;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\MealPlan
+ * @mixin MealPlan
  */
 class MealPlanResource extends JsonResource
 {
@@ -33,10 +38,10 @@ class MealPlanResource extends JsonResource
 
             // Relationships
             'meals' => $this->whenLoaded('meals', function () {
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Meal> $meals */
+                /** @var Collection<int, Meal> $meals */
                 $meals = $this->meals;
 
-                return $meals->sortBy('meal_date')->map(function (\App\Models\Meal $meal) {
+                return $meals->sortBy('meal_date')->map(function (Meal $meal) {
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
@@ -49,9 +54,10 @@ class MealPlanResource extends JsonResource
                                 'calories' => $meal->recipe->calories,
                                 'servings' => $meal->recipe->servings,
                                 'ingredients' => $this->when($meal->recipe->relationLoaded('recipeIngredients'), function () use ($meal) {
-                                    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecipeIngredient> $ingredients */
+                                    /** @var Collection<int, RecipeIngredient> $ingredients */
                                     $ingredients = $meal->recipe->recipeIngredients;
-                                    return $ingredients->map(function (\App\Models\RecipeIngredient $recipeIngredient) {
+
+                                    return $ingredients->map(function (RecipeIngredient $recipeIngredient) {
                                         return [
                                             'id' => $recipeIngredient->ingredient->id ?? null,
                                             'name' => $recipeIngredient->ingredient->name ?? 'Unknown ingredient',
@@ -70,11 +76,12 @@ class MealPlanResource extends JsonResource
             }, []),
 
             'logs' => $this->whenLoaded('logs', function () {
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\LogsMealPlan> $logs */
+                /** @var Collection<int, LogsMealPlan> $logs */
                 $logs = $this->logs;
+
                 return $logs
                     ->sortByDesc('created_at')
-                    ->map(function (\App\Models\LogsMealPlan $log): array {
+                    ->map(function (LogsMealPlan $log): array {
                         return [
                             'id' => $log->id,
                             'started_at' => $log->started_at,

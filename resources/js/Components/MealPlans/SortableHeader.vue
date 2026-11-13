@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="group inline-flex items-center justify-start w-full text-left font-semibold text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:underline transition-colors"
+    class="group inline-flex items-center justify-start w-full text-left font-semibold text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-hidden focus:underline transition-colors"
     @click="handleSort"
   >
     <slot />

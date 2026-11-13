@@ -87,7 +87,7 @@ const handleDialogClose = () => {
     </template>
 
     <div class="mx-auto max-w-7xl">
-      <div class="overflow-hidden sm:rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+      <div class="overflow-hidden sm:rounded-lg bg-white dark:bg-gray-800 shadow-xs">
         <div class="p-6">
           <!-- Family Members Table -->
           <FamilyMemberTable

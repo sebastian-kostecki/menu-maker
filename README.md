@@ -34,11 +34,10 @@ Menu Maker automates family meal planning by letting users save their own recipe
 
 **Backend**
 
-- PHP 8.2+
+- PHP 8.5+
 - Laravel 12.0+
 - Inertia.js Laravel 2.0+
-- MySQL
-- Redis
+- PostgreSQL 18 (via Sail; `unaccent` extension for accent-insensitive search)
 
 **Frontend**
 
@@ -60,7 +59,7 @@ Menu Maker automates family meal planning by letting users save their own recipe
 
 ### Prerequisites
 
-- PHP 8.2+
+- PHP 8.5+
 - Composer
 - Node.js 22 & npm
 - Docker & Docker Compose (for Laravel Sail)

@@ -24,7 +24,7 @@ it('user can view family members index', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('FamilyMembers/Index')
+        fn ($page) => $page->component('FamilyMembers/Index')
             ->has('familyMembers.data', 3)
     );
 });
@@ -35,7 +35,7 @@ it('user can view create form', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('FamilyMembers/Create', false)
+        fn ($page) => $page->component('FamilyMembers/Create', false)
             ->has('genders')
             ->where('genders', ['male', 'female'])
     );
@@ -70,7 +70,7 @@ it('user can view edit form', function (): void {
 
     $response->assertStatus(200);
     $response->assertInertia(
-        fn($page) => $page->component('FamilyMembers/Edit', false)
+        fn ($page) => $page->component('FamilyMembers/Edit', false)
             ->has('familyMember')
             ->has('genders')
             ->where('familyMember.id', $familyMember->id)

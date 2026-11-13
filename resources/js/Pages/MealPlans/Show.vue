@@ -23,10 +23,10 @@
     <div class="space-y-6">
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <ChefHat class="h-6 w-6 text-gray-400" />
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -43,10 +43,10 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <FileText class="h-6 w-6 text-gray-400" />
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -63,10 +63,10 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <Calendar class="h-6 w-6 text-gray-400" />
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -83,10 +83,10 @@
           </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-sm rounded-lg">
           <div class="p-5">
             <div class="flex items-center">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <Clock class="h-6 w-6 text-gray-400" />
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -105,7 +105,7 @@
       </div>
 
       <!-- Meals Section -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md" v-if="mealPlan.meals && mealPlan.meals.length > 0">
+      <div class="bg-white shadow-sm overflow-hidden sm:rounded-md" v-if="mealPlan.meals && mealPlan.meals.length > 0">
         <div class="px-4 py-5 sm:px-6">
           <h3 class="text-lg leading-6 font-medium text-gray-900">Meals</h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
@@ -120,7 +120,7 @@
                   <h4 class="text-sm font-medium text-gray-900">
                     {{ meal.recipe.title }}
                   </h4>
-                  <div class="ml-2 flex-shrink-0 flex">
+                  <div class="ml-2 shrink-0 flex">
                     <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                       {{ meal.meal_type }}
                     </p>
@@ -129,11 +129,11 @@
                 <div class="mt-2 flex justify-between">
                   <div class="sm:flex">
                     <p class="flex items-center text-sm text-gray-500">
-                      <Calendar class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                      <Calendar class="shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                       {{ formatDate(meal.planned_date) }}
                     </p>
                     <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6" v-if="meal.recipe.prep_time">
-                      <Clock class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                      <Clock class="shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                       {{ meal.recipe.prep_time }} min prep
                     </p>
                   </div>
@@ -145,7 +145,7 @@
       </div>
 
       <!-- Generation Logs Section -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md" v-if="mealPlan.logs && mealPlan.logs.length > 0">
+      <div class="bg-white shadow-sm overflow-hidden sm:rounded-md" v-if="mealPlan.logs && mealPlan.logs.length > 0">
         <div class="px-4 py-5 sm:px-6">
           <h3 class="text-lg leading-6 font-medium text-gray-900">Generation Logs</h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
@@ -155,7 +155,7 @@
         <ul class="divide-y divide-gray-200">
           <li v-for="log in mealPlan.logs" :key="log.id" class="px-4 py-4">
             <div class="flex space-x-3">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <div class="h-8 w-8 rounded-full flex items-center justify-center"
                      :class="getLogTypeClass(log.level)">
                   <component :is="getLogIcon(log.level)" class="h-4 w-4" />
@@ -187,7 +187,7 @@
       <!-- Back to List -->
       <div class="flex justify-start">
         <Link :href="route('meal-plans.index')"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-xs text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Meal Plans
         </Link>

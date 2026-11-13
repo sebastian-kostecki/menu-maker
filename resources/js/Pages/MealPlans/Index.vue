@@ -27,7 +27,7 @@
     </template>
 
     <div class="mx-auto max-w-7xl">
-      <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
+      <div class="overflow-hidden bg-white shadow-xs sm:rounded-lg dark:bg-gray-800">
         <div class="p-6">
           <div class="space-y-6">
             <!-- Filters Bar -->

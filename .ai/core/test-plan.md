@@ -13,7 +13,7 @@
 - PDF: obecnie kontroler pobiera z dysku przez `Storage`; generowanie PDF w jobie jest placeholderem.
 
 ### Środowisko testowe
-- **Wymagane usługi**: MySQL (test DB), Redis (opcjonalnie dla cache/queues), przeglądarki Playwright.
+- **Wymagane usługi**: PostgreSQL (baza `testing`), przeglądarki Playwright.
 - **Komendy (backend)**:
   - Uruchomienie środowiska:
     ```bash
@@ -88,8 +88,8 @@
 ### Równoległość i strategia baz danych
 - Uruchamianie testów backendu z `--parallel` (Pest).
 - Strategia DB:
-  - Unit: SQLite in‑memory (tam gdzie możliwe) dla szybkości.
-  - Feature/HTTP: MySQL (zachowanie constraintów, kolacji i paginacji).
+  - Unit: ta sama baza PostgreSQL `testing` (RefreshDatabase).
+  - Feature/HTTP: PostgreSQL (zachowanie constraintów, kolacji i paginacji).
 - Izolacja danych: reset migracji i seed dla środowiska `testing` przed kluczowymi zestawami.
 
 ### Kryteria wejścia/wyjścia

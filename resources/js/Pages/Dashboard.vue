@@ -18,7 +18,7 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
             <!-- Recipes Count -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
                         <ChefHat class="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -35,7 +35,7 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
             </div>
 
             <!-- Meal Plans Count -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-green-100 dark:bg-green-900">
                         <Calendar class="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -52,7 +52,7 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
             </div>
 
             <!-- Last Generated PDF -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+            <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900">
                         <FileText class="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -70,7 +70,7 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
         </div>
 
         <!-- Quick Actions -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+        <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Szybkie akcje
             </h2>
@@ -91,7 +91,7 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
         </div>
 
         <!-- Welcome Message -->
-        <div class="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800">
+        <div class="mt-8 bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800">
             <h3 class="text-lg font-medium text-blue-900 dark:text-blue-100">
                 Witaj w Menu Maker! 👋
             </h3>

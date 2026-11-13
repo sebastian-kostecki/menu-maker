@@ -54,13 +54,15 @@ class Recipe extends Model
     }
 
     /**
-     * Scope for searching by name and instructions.
+     * Scope for searching by name and instructions, ignoring case and diacritics (PostgreSQL unaccent).
      */
     public function scopeSearch($query, string $search)
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-                ->orWhere('instructions', 'like', "%{$search}%");
+        $pattern = "%{$search}%";
+
+        return $query->where(function ($q) use ($pattern) {
+            $q->whereRaw('unaccent(name) ILIKE unaccent(?)', [$pattern])
+                ->orWhereRaw('unaccent(instructions) ILIKE unaccent(?)', [$pattern]);
         });
     }
 

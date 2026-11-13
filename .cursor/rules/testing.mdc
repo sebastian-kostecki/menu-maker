@@ -24,8 +24,8 @@ These rules align backend tests with the project test plan. Use Pest for PHP tes
 
 ## Database Strategy
 - Use `RefreshDatabase` for Feature tests.
-- Prefer SQLite in‑memory for pure Unit tests where possible.
-- Use MySQL for Feature/HTTP tests to preserve constraints, collation, and pagination behavior.
+- Unit tests also run on the PostgreSQL `testing` database.
+- Use PostgreSQL for Feature/HTTP tests to preserve constraints, collation, and pagination behavior.
 - Ensure `testing` environment is configured in `phpunit.xml`.
 
 ## Laravel Testing Helpers

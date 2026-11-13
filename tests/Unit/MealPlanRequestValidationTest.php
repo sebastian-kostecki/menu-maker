@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class MealPlanRequestValidationTest extends TestCase
@@ -133,7 +134,7 @@ class MealPlanRequestValidationTest extends TestCase
 
         $validator = Validator::make(['start_date' => now()->format('Y-m-d')], $request->rules());
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Too many meal plan generation attempts');
         $request->withValidator($validator);
     }

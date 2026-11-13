@@ -16,3 +16,4 @@ Unattended decisions (user: "follow the recommendations"):
 - Plan approved automatically with 3 phases (bump, Boost guidelines, final gate).
 - Pest/PHPUnit/Inertia/Vite/Tailwind stay out of scope; session serialization untouched.
 - Plan review: verdict SOUND, one low observation (verify Boost 2 command name) applied.
+- Archive: continued despite 3 pending manual rows (recommended path).

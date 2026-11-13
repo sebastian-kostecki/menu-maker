@@ -41,11 +41,11 @@ Menu Maker pomaga rodzinom zaplanować posiłki na cały tydzień: użytkownik z
 
 | ID   | Change ID                      | Outcome (user can …)                                                                        | Prerequisites | PRD refs                              | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------------------------------------- | ------------- | ------------------------------------- | -------- |
-| F-01 | error-tracking-baseline        | (foundation) błędy aplikacji i zadań w kolejce trafiają do śledzenia błędów z kontekstem   | —             | §6 (0 krytycznych błędów)             | ready    |
-| F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | proposed |
+| F-01 | error-tracking-baseline        | (foundation) błędy aplikacji i zadań w kolejce trafiają do śledzenia błędów z kontekstem   | —             | §6 (0 krytycznych błędów)             | done     |
+| F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | ready    |
 | S-01 | polish-auth-with-24h-session   | zarejestrować się, zalogować i zresetować hasło po polsku; sesja trwa 24 h                  | —             | US-001, US-002, US-003, FR-001, FR-008 | ready    |
 | S-02 | recipe-required-ingredients    | zapisać przepis tylko z kompletem pól, w tym składnikami w g/kg/ml/l/szt.                  | —             | US-005, US-006, FR-003, FR-008        | ready    |
-| S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | proposed |
+| S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | ready    |
 | S-04 | ai-ingredient-scaling          | zobaczyć składniki jadłospisu przeliczone do swojej rodziny i dopracowane przez AI         | S-03          | US-012, US-004, FR-005, FR-002        | proposed |
 | S-05 | shopping-list                  | zobaczyć przy jadłospisie zsumowaną, posortowaną listę zakupów z konwersją jednostek        | S-02, S-03    | US-011, FR-006                        | proposed |
 | S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | proposed |
@@ -89,7 +89,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Które narzędzie śledzenia błędów (żadne nie jest wskazane w `.ai/core/tech-stack.md`)? — Owner: user. Block: no.
 - **Risk:** Stoi przed generacją, bo cel to jakość, a generacja jest asynchroniczna; zakres ma pozostać minimalny (zgłaszanie błędów i kontekst), bez metryk i dashboardów.
-- **Status:** ready
+- **Status:** done
 
 ### F-02: Publiczne wdrożenie z workerem kolejki
 
@@ -103,7 +103,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Jakiego artefaktu i kontraktu oczekuje `kostecki-infra` (obraz w rejestrze, plik compose, zmienne środowiskowe, wyzwalacz z CI)? Repo nie jest dostępne w tym workspace — podaj ścieżkę lub URL przy `/10x-plan`. — Owner: user. Block: no.
 - **Risk:** Bez workera kolejki w produkcji żaden jadłospis się nie wygeneruje, więc wdrożenie musi obejmować worker od pierwszego dnia; Mikrus to mały VPS, więc pamięć workera i renderowania PDF trzeba sprawdzić na serwerze, nie lokalnie.
-- **Status:** proposed
+- **Status:** ready
 
 ## Slices
 
@@ -145,7 +145,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Co pokazać, gdy w kategorii jest mniej niż 7 przepisów i reguła „bez powtórzeń” jest niewykonalna (blokada z komunikatem czy dopuszczenie powtórzeń)? — Owner: user. Block: no (rozstrzygnąć na początku `/10x-plan`).
 - **Risk:** To wycinek, który dowodzi produktu; obejmuje też zepsute wejścia do generacji (przycisk bez POST, martwy link z dashboardu), więc test E2E musi przejść całą ścieżkę od kliknięcia do widoku tygodnia. Dobór przepisów ma się mieścić w <10 s (US-008; rozstrzygnięte 2026-11-13).
-- **Status:** proposed
+- **Status:** ready
 
 ### S-04: Składniki skalowane przez AI do rodziny
 
@@ -193,11 +193,11 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 
 | Roadmap ID | Change ID                       | Suggested issue title                                         | Ready for `/10x-plan` | Notes |
 | ---------- | ------------------------------- | ------------------------------------------------------------- | --------------------- | ----- |
-| F-01       | error-tracking-baseline         | Śledzenie błędów dla żądań i zadań w kolejce                  | yes                   | Odblokowuje north star S-03. Run `/10x-plan error-tracking-baseline` |
-| F-02       | public-deploy-with-queue-worker | Publiczne wdrożenie na Mikrusie z workerem kolejki           | no                    | Po F-01; przy planowaniu podaj repo `kostecki-infra` |
+| F-01       | error-tracking-baseline         | Śledzenie błędów dla żądań i zadań w kolejce                  | done                  | Zarchiwizowane 2026-11-13 |
+| F-02       | public-deploy-with-queue-worker | Publiczne wdrożenie na Mikrusie z workerem kolejki           | yes                   | Przy planowaniu podaj repo `kostecki-infra`. Run `/10x-plan public-deploy-with-queue-worker` |
 | S-01       | polish-auth-with-24h-session    | Konto po polsku: sesja 24 h, działający e-mail resetu         | yes                   | Run `/10x-plan polish-auth-with-24h-session` |
 | S-02       | recipe-required-ingredients     | Przepis wymaga składników w jednostkach g/kg/ml/l/szt.        | yes                   | Run `/10x-plan recipe-required-ingredients` |
-| S-03       | real-weekly-meal-plan           | Generacja prawdziwego jadłospisu 7×3 bez powtórzeń            | no                    | Po F-01 |
+| S-03       | real-weekly-meal-plan           | Generacja prawdziwego jadłospisu 7×3 bez powtórzeń            | yes                   | North star. Run `/10x-plan real-weekly-meal-plan` |
 | S-04       | ai-ingredient-scaling           | Skalowanie składników do profilu rodziny z dopracowaniem AI   | no                    | Po S-03; potrzebny klucz API OpenRouter; dopiąć test `FamilyMemberPolicy` |
 | S-05       | shopping-list                   | Zsumowana lista zakupów z konwersją jednostek                 | no                    | Po S-02 i S-03 |
 | S-06       | meal-plan-pdf-export            | Eksport jadłospisu i listy zakupów do jednego PDF             | no                    | Po S-05 |
@@ -221,3 +221,5 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 ## Milestone History
 
 ## Done
+
+- **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.

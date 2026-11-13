@@ -10,6 +10,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\MaxAttemptsExceededException;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
@@ -121,6 +122,12 @@ class GenerateMealPlanJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Context::add('meal_plan_id', $this->mealPlan->id);
+
+        // The worker reports exceptions thrown out of handle() itself. Timeouts (a subclass of
+        // MaxAttemptsExceededException) and exceeded attempts only reach failed(), so report those here exactly once.
+        if ($exception instanceof MaxAttemptsExceededException) {
+            report($exception);
+        }
 
         // Update meal plan status to error if not already done
         if ($this->mealPlan->fresh()->status === 'processing') {

@@ -24,7 +24,7 @@ createInertiaApp({
             reportClientError({
                 message: error?.message ?? String(error),
                 stack: error?.stack,
-                url: window.location.href,
+                url: window.location.pathname,
                 source: 'vue',
             });
         };
@@ -35,7 +35,7 @@ createInertiaApp({
                 reportClientError({
                     message: reason?.message ?? String(reason),
                     stack: reason?.stack,
-                    url: window.location.href,
+                    url: window.location.pathname,
                     source: 'promise',
                 });
             });
@@ -44,7 +44,7 @@ createInertiaApp({
                 reportClientError({
                     message: event.message || event.error?.message,
                     stack: event.error?.stack,
-                    url: window.location.href,
+                    url: window.location.pathname,
                     source: 'window',
                 });
             });

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Logging\CreateMailAlertLogger;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -80,6 +82,8 @@ return [
             'to' => env('LOG_ALERT_MAIL_TO'),
             'level' => 'error',
             'dedup_seconds' => 3600,
+            'max_per_window' => 20,
+            'cache_store' => 'file',
         ],
 
         'slack' => [

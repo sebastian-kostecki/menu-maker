@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\ClientErrorController;
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\MealPlanController;

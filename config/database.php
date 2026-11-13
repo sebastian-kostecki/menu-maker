@@ -95,6 +95,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
+            'mask_bindings_in_exception_messages' => true,
             'sslmode' => 'prefer',
         ],
 

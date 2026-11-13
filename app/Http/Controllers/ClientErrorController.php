@@ -15,7 +15,8 @@ class ClientErrorController extends Controller
      */
     public function __invoke(StoreClientErrorRequest $request): Response
     {
-        Log::warning('Client error: '.$request->validated('message'), [
+        Log::warning('Client error', [
+            'message' => $request->validated('message'),
             'url' => $request->validated('url'),
             'stack' => $request->validated('stack'),
             'source' => $request->validated('source'),

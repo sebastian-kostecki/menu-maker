@@ -266,6 +266,10 @@ There are no data migrations. Deployment (F-02) must set `LOG_STACK=daily,mail_a
 - Context processor wiring: `vendor/laravel/framework/src/Illuminate/Log/LogManager.php:140-150`
 - Throttle pattern: `routes/auth.php:43,47`
 
+## Review Addendum (2026-11-13)
+
+`reviews/impl-review.md` found that the Phase 2 design (a buffering `DeduplicationHandler` built from stock Monolog handlers) does not send alerts from long-running queue workers. The `mail_alert` channel is now built from `App\Logging\MailAlertHandler`, which sends immediately, deduplicates through the `file` cache store (exception class + file:line, 3600 s), caps alerts at 20 per window and resolves the mail transport at send time. The `dedup_store` config key no longer exists; `cache_store` and `max_per_window` replace it. Other review fixes: browser reports are path-only and sanitised (limits message 500, stack 2000, url 1000), `GenerateMealPlanJob::failed()` reports timeouts and exceeded attempts, and pgsql masks bindings in exception messages.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

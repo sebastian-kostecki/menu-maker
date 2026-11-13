@@ -117,9 +117,9 @@ Rollback: `git revert` the upgrade commit (composer.json + lock).
 
 #### Automated
 
-- [ ] 1.1 Packages installed at pest 5, plugin-laravel 5, phpunit 13
-- [ ] 1.2 Suite passes with at least 129 tests and no skipped, risky or warning results
-- [ ] 1.3 Larastan clean
+- [x] 1.1 Packages installed at pest 5, plugin-laravel 5, phpunit 13
+- [x] 1.2 Suite passes with at least 129 tests and no skipped, risky or warning results
+- [x] 1.3 Larastan clean
 
 #### Manual
 

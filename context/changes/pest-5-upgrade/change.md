@@ -1,7 +1,7 @@
 ---
 change_id: pest-5-upgrade
 title: Upgrade to Pest 5 and PHPUnit 13
-status: plan_reviewed
+status: implementing
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null

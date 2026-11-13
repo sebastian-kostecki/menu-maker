@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property-read \App\Models\Recipe|null $recipe
+ * @property-read Recipe|null $recipe
  */
 class Meal extends Model
 {

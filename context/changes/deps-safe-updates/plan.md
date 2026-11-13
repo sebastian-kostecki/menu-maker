@@ -299,26 +299,26 @@ Rollback is per phase via `git revert <sha>` followed by `sail composer install`
 
 #### Automated
 
-- [x] 3.1 shadcn-vue is not installed
-- [x] 3.2 Build succeeds
-- [x] 3.3 No in-range-fixable npm vulnerabilities
-- [x] 3.4 Playwright browsers refreshed
-- [x] 3.5 E2E passes in Chromium and Firefox
-- [x] 3.6 Tests pass
+- [x] 3.1 shadcn-vue is not installed — 8c5f80d
+- [x] 3.2 Build succeeds — 8c5f80d
+- [x] 3.3 No in-range-fixable npm vulnerabilities — 8c5f80d
+- [x] 3.4 Playwright browsers refreshed — 8c5f80d
+- [x] 3.5 E2E passes in Chromium and Firefox — 8c5f80d
+- [x] 3.6 Tests pass — 8c5f80d
 
 #### Manual
 
-- [x] 3.7 Recipes, family members and meal plans pages render correctly
+- [x] 3.7 Recipes, family members and meal plans pages render correctly — 8c5f80d
 
 ### Phase 4: Pint fix and CI gate
 
 #### Automated
 
-- [ ] 4.1 Style clean
-- [ ] 4.2 Tests pass
-- [ ] 4.3 Larastan clean
-- [ ] 4.4 Workflow contains the Pint step
+- [x] 4.1 Style clean
+- [x] 4.2 Tests pass
+- [x] 4.3 Larastan clean
+- [x] 4.4 Workflow contains the Pint step
 
 #### Manual
 
-- [ ] 4.5 Formatting commit diff contains style changes only
+- [x] 4.5 Formatting commit diff contains style changes only

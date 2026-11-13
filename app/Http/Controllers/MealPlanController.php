@@ -10,6 +10,7 @@ use App\Http\Resources\MealPlanCollection;
 use App\Http\Resources\MealPlanResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -101,7 +102,7 @@ class MealPlanController extends Controller
         $validated = $request->validated();
 
         // Calculate end_date (start_date + 6 days for 7-day plan)
-        $startDate = \Carbon\Carbon::parse($validated['start_date']);
+        $startDate = Carbon::parse($validated['start_date']);
         $endDate = $startDate->copy()->addDays(6);
 
         // Create meal plan with pending status
@@ -178,7 +179,7 @@ class MealPlanController extends Controller
 
         return response($fileContent)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
     }
 
     /**

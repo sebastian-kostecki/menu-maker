@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator as PaginatorContract;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
 
 class MealPlanCollection extends ResourceCollection
 {
@@ -26,7 +27,7 @@ class MealPlanCollection extends ResourceCollection
     public function toArray(Request $request): array
     {
         /** @var LengthAwarePaginator|PaginatorContract|null $paginator */
-        $paginator = $this->resource instanceof \Illuminate\Support\Collection ? null : $this->resource;
+        $paginator = $this->resource instanceof Collection ? null : $this->resource;
 
         $meta = [];
         $links = [];

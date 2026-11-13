@@ -97,6 +97,9 @@ jobs:
       - name: Run database migrations
         run: php artisan migrate --graceful --no-interaction -v
 
+      - name: Code style (Pint)
+        run: composer pint-test
+
       - name: Static analysis (Larastan)
         run: composer phpstan
 

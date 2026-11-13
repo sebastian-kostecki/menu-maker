@@ -117,9 +117,9 @@ Rollback: `git revert` the upgrade commit (composer.json + lock).
 
 #### Automated
 
-- [x] 1.1 Packages installed at pest 5, plugin-laravel 5, phpunit 13
-- [x] 1.2 Suite passes with at least 129 tests and no skipped, risky or warning results
-- [x] 1.3 Larastan clean
+- [x] 1.1 Packages installed at pest 5, plugin-laravel 5, phpunit 13 — 9905290
+- [x] 1.2 Suite passes with at least 129 tests and no skipped, risky or warning results — 9905290
+- [x] 1.3 Larastan clean — 9905290
 
 #### Manual
 
@@ -129,10 +129,10 @@ Rollback: `git revert` the upgrade commit (composer.json + lock).
 
 #### Automated
 
-- [ ] 2.1 Pint clean
-- [ ] 2.2 Build ok
-- [ ] 2.3 E2E passes
-- [ ] 2.4 Suite still green
+- [x] 2.1 Pint clean
+- [x] 2.2 Build ok
+- [x] 2.3 E2E passes
+- [x] 2.4 Suite still green
 
 #### Manual
 

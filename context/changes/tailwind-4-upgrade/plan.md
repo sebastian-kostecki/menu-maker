@@ -204,9 +204,9 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Pest passes
-- [ ] 2.3 E2E passes
+- [x] 2.1 Build passes
+- [x] 2.2 Pest passes
+- [x] 2.3 E2E passes
 
 #### Manual
 

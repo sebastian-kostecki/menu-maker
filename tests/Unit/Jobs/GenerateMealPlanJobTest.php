@@ -58,7 +58,7 @@ it('failed() marks meal plan as error when still processing', function (): void 
     expect($mealPlan->status)->toBe('error')
         ->and($mealPlan->generation_meta)
         ->toBeArray()
-        ->and(($mealPlan->generation_meta['error_message'] ?? null))->toBe('forced failure');
+        ->and(($mealPlan->generation_meta['error_message'] ?? null))->toBe(GenerateMealPlanJob::GENERIC_ERROR_MESSAGE);
 });
 
 it('failed() adds meal_plan_id to the log context and writes no error entry itself', function (): void {
@@ -97,7 +97,8 @@ it('handle() adds meal_plan_id to the log context, rethrows and writes no error 
     expect(fn () => (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class)))
         ->toThrow(RuntimeException::class, 'forced failure inside handle')
         ->and(Context::get('meal_plan_id'))->toBe($mealPlan->id)
-        ->and($mealPlan->fresh()->status)->toBe('error');
+        ->and($mealPlan->fresh()->status)->toBe('error')
+        ->and($mealPlan->fresh()->generation_meta['error_message'])->toBe(GenerateMealPlanJob::GENERIC_ERROR_MESSAGE);
 
     Log::shouldNotHaveReceived('error');
 });

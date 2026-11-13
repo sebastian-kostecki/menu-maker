@@ -15,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 
 class GenerateMealPlanRequest extends FormRequest
 {
+    public const DUPLICATE_START_DATE_MESSAGE = 'Masz już jadłospis zaczynający się tego dnia.';
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -73,7 +75,7 @@ class GenerateMealPlanRequest extends FormRequest
                 ->exists();
 
             if ($existingPlan) {
-                $validator->errors()->add('start_date', 'Masz już jadłospis zaczynający się tego dnia.');
+                $validator->errors()->add('start_date', self::DUPLICATE_START_DATE_MESSAGE);
             }
 
             $generator = app(MealPlanGenerator::class);

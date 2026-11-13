@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\MealCategory;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\MealPlanGenerator;
@@ -45,7 +46,7 @@ class E2eMealPlanSeeder extends Seeder
 
             $user->mealPlans()->delete();
 
-            foreach (MealPlanGenerator::CATEGORIES as $category) {
+            foreach (MealCategory::values() as $category) {
                 $missing = MealPlanGenerator::MEALS_PER_CATEGORY
                     - Recipe::where('user_id', $user->id)->where('category', $category)->count();
 

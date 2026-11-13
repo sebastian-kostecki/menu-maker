@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\MealCategory;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
@@ -11,24 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class MealPlanGenerator
 {
-    /**
-     * Categories in display order.
-     *
-     * @var list<string>
-     */
-    public const CATEGORIES = ['breakfast', 'supper', 'dinner'];
-
-    /**
-     * Polish display label per category.
-     *
-     * @var array<string, string>
-     */
-    public const CATEGORY_LABELS = [
-        'breakfast' => 'Śniadanie',
-        'supper' => 'Obiad',
-        'dinner' => 'Kolacja',
-    ];
-
     public const MEALS_PER_CATEGORY = 7;
 
     /**
@@ -40,7 +23,7 @@ class MealPlanGenerator
     {
         $missing = [];
 
-        foreach (self::CATEGORIES as $category) {
+        foreach (MealCategory::values() as $category) {
             $have = Recipe::forUser($userId)->byCategory($category)->count();
 
             if ($have < self::MEALS_PER_CATEGORY) {
@@ -64,7 +47,7 @@ class MealPlanGenerator
         foreach ($missing as $category => $lacking) {
             $messages[] = sprintf(
                 'Za mało przepisów w kategorii %s: masz %d, potrzeba %d. Dodaj jeszcze %d.',
-                self::CATEGORY_LABELS[$category] ?? $category,
+                MealCategory::tryFrom($category)?->label() ?? $category,
                 self::MEALS_PER_CATEGORY - $lacking,
                 self::MEALS_PER_CATEGORY,
                 $lacking,
@@ -93,12 +76,22 @@ class MealPlanGenerator
         DB::transaction(function () use ($mealPlan): void {
             $mealPlan->meals()->delete();
 
-            foreach (self::CATEGORIES as $category) {
+            foreach (MealCategory::values() as $category) {
                 $recipes = Recipe::forUser($mealPlan->user_id)
                     ->byCategory($category)
                     ->inRandomOrder()
                     ->limit(self::MEALS_PER_CATEGORY)
                     ->get();
+
+                // Recipes deleted after the check above: roll back instead of saving a week with gaps.
+                if ($recipes->count() < self::MEALS_PER_CATEGORY) {
+                    $missing = [$category => self::MEALS_PER_CATEGORY - $recipes->count()];
+
+                    throw new InsufficientRecipesException(
+                        $missing,
+                        implode(' ', $this->shortfallMessages($missing)),
+                    );
+                }
 
                 foreach ($recipes->values() as $offset => $recipe) {
                     Meal::create([

@@ -209,3 +209,11 @@ jobs:
         run: npm run test:e2e
 
 
+
+      - name: Upload Laravel and queue logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-laravel-logs
+          path: storage/logs/*.log
+          if-no-files-found: ignore

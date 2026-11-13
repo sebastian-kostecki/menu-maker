@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Enums\MealCategory;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\InsufficientRecipesException;
 use App\Services\MealPlanGenerator;
+use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -29,7 +32,7 @@ it('creates 21 meals, 7 per category', function (): void {
 
     expect(Meal::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(21);
 
-    foreach (MealPlanGenerator::CATEGORIES as $category) {
+    foreach (MealCategory::values() as $category) {
         expect($mealPlan->meals()->where('meal_category', $category)->count())->toBe(7);
     }
 });
@@ -41,7 +44,7 @@ it('uses 7 distinct recipes of the matching category and covers each day once pe
 
     app(MealPlanGenerator::class)->generate($mealPlan);
 
-    foreach (MealPlanGenerator::CATEGORIES as $category) {
+    foreach (MealCategory::values() as $category) {
         $meals = $mealPlan->meals()->where('meal_category', $category)->get();
 
         expect($meals->pluck('recipe_id')->unique())->toHaveCount(7)
@@ -131,4 +134,25 @@ it('throws on shortfall and leaves existing meals untouched', function (): void 
     }
 
     expect($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($before);
+});
+
+it('rolls back and throws when a recipe is deleted between the check and the draw', function (): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    $mealPlan = planFor($user);
+    $generator = app(MealPlanGenerator::class);
+    $generator->generate($mealPlan);
+    $before = $mealPlan->meals()->pluck('id')->sort()->values()->all();
+
+    $deleted = false;
+    Event::listen(TransactionBeginning::class, function () use ($user, &$deleted): void {
+        if (! $deleted) {
+            $deleted = true;
+            Recipe::forUser($user->id)->byCategory('supper')->first()->delete();
+        }
+    });
+
+    expect(fn () => $generator->generate($mealPlan))
+        ->toThrow(InsufficientRecipesException::class, 'Obiad')
+        ->and($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($before);
 });

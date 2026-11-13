@@ -1,7 +1,7 @@
 ---
 change_id: real-weekly-meal-plan
 title: Real weekly 7×3 meal plan from the user's own recipes
-status: implemented
+status: impl_reviewed
 created: 2026-11-13
 updated: 2026-11-13
 ---

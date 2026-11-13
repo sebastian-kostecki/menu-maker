@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\MealCategory;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\Unit;
-use App\Services\MealPlanGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -183,11 +183,11 @@ class RecipeController extends Controller
     private function categoryOptions(): array
     {
         return array_map(
-            fn (string $category): array => [
-                'value' => $category,
-                'label' => MealPlanGenerator::CATEGORY_LABELS[$category],
+            fn (MealCategory $category): array => [
+                'value' => $category->value,
+                'label' => $category->label(),
             ],
-            MealPlanGenerator::CATEGORIES,
+            MealCategory::cases(),
         );
     }
 }

@@ -11,12 +11,15 @@ use App\Http\Resources\MealPlanResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
 use Carbon\Carbon;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -63,10 +66,10 @@ class MealPlanController extends Controller
             'mealPlans' => $data,
             'filters' => $request->only(['filter.status', 'sort', 'direction', 'perPage']),
             'statuses' => [
-                ['value' => 'pending', 'label' => 'Pending'],
-                ['value' => 'processing', 'label' => 'Processing'],
-                ['value' => 'done', 'label' => 'Done'],
-                ['value' => 'error', 'label' => 'Error'],
+                ['value' => 'pending', 'label' => 'Oczekuje'],
+                ['value' => 'processing', 'label' => 'Generowanie'],
+                ['value' => 'done', 'label' => 'Gotowy'],
+                ['value' => 'error', 'label' => 'Błąd'],
             ],
         ]);
     }
@@ -76,22 +79,23 @@ class MealPlanController extends Controller
      */
     public function show(MealPlan $mealPlan): InertiaResponse|JsonResponse
     {
-        $mealPlan->load([
-            'meals.recipe.recipeIngredients.ingredient',
-            'meals.recipe.recipeIngredients.unit',
-            'logs' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            },
-        ]);
-
-        $data = new MealPlanResource($mealPlan);
-
         if (request()->expectsJson()) {
-            return response()->json(['data' => $data]);
+            $mealPlan->load([
+                'meals.recipe.recipeIngredients.ingredient',
+                'meals.recipe.recipeIngredients.unit',
+                'logs' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                },
+            ]);
+
+            return response()->json(['data' => new MealPlanResource($mealPlan)]);
         }
 
+        // The week view (polled every 3 s while generating) needs only the recipe names, kcal and servings.
+        $mealPlan->load('meals.recipe');
+
         return Inertia::render('MealPlans/Show', [
-            'mealPlan' => $data->resolve(),
+            'mealPlan' => (new MealPlanResource($mealPlan))->resolve(),
         ]);
     }
 
@@ -106,13 +110,21 @@ class MealPlanController extends Controller
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = $startDate->copy()->addDays(6);
 
-        // Create meal plan with pending status
-        $mealPlan = MealPlan::create([
-            'user_id' => $validated['user_id'],
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'status' => 'pending',
-        ]);
+        // Create meal plan with pending status. The request already checks the date; a concurrent
+        // submit (second tab) can still hit the unique key, which gets the same validation error.
+        try {
+            // Own transaction (a savepoint when nested), so a violation never poisons an outer one.
+            $mealPlan = DB::transaction(fn (): MealPlan => MealPlan::create([
+                'user_id' => $validated['user_id'],
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => 'pending',
+            ]));
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE,
+            ]);
+        }
 
         // Dispatch generation job
         GenerateMealPlanJob::dispatch($mealPlan, false); // regenerate = false
@@ -134,11 +146,24 @@ class MealPlanController extends Controller
      */
     public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
     {
-        // Reset status and clear generation metadata
-        $mealPlan->update([
-            'status' => 'pending',
-            'generation_meta' => null,
-        ]);
+        // Reset status and clear generation metadata in one conditional update, so two concurrent
+        // requests that both passed validation cannot both queue a job.
+        $claimed = MealPlan::query()
+            ->whereKey($mealPlan->getKey())
+            ->whereIn('status', RegenerateMealPlanRequest::REGENERATABLE_STATUSES)
+            ->update([
+                'status' => 'pending',
+                'generation_meta' => null,
+                'updated_at' => now(),
+            ]);
+
+        if ($claimed === 0) {
+            throw ValidationException::withMessages([
+                'status' => RegenerateMealPlanRequest::NOT_REGENERATABLE_MESSAGE,
+            ]);
+        }
+
+        $mealPlan->refresh();
 
         // Dispatch regeneration job
         GenerateMealPlanJob::dispatch($mealPlan, true); // regenerate = true

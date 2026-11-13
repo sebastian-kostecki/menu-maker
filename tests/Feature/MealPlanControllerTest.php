@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Requests\GenerateMealPlanRequest;
+use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
 use App\Models\Recipe;
@@ -377,4 +379,45 @@ it('redirects to the index after an Inertia delete', function (): void {
 
     $response->assertRedirect(route('meal-plans.index'));
     $this->assertDatabaseMissing('meal_plans', ['id' => $mealPlan->id]);
+});
+
+it('refuses a regeneration that lost the race to a concurrent one', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    // Another request claims the plan after this one passed validation.
+    $this->app->afterResolving(RegenerateMealPlanRequest::class, function () use ($mealPlan): void {
+        MealPlan::query()->whereKey($mealPlan->id)->update(['status' => 'pending']);
+    });
+
+    $response = $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertStatus(422)->assertJsonValidationErrors(['status']);
+    Queue::assertNothingPushed();
+});
+
+it('turns a concurrent duplicate start date into a validation error', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $startDate = now()->addDays(7)->format('Y-m-d');
+
+    // A second tab creates the same week after this request passed validation.
+    $this->app->afterResolving(GenerateMealPlanRequest::class, function () use ($startDate): void {
+        MealPlan::factory()->for($this->user)->create([
+            'start_date' => $startDate,
+            'end_date' => now()->addDays(13)->format('Y-m-d'),
+        ]);
+    });
+
+    $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => $startDate,
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE]);
+    expect(MealPlan::where('user_id', $this->user->id)->count())->toBe(1);
+    Queue::assertNothingPushed();
 });

@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,11 @@ class GenerateMealPlanJob implements ShouldQueue
     public bool $deleteWhenMissingModels = true;
 
     /**
+     * Shown to the user for app failures; the real exception goes to the logs and the error tracker only.
+     */
+    public const GENERIC_ERROR_MESSAGE = 'Nie udało się wygenerować jadłospisu. Spróbuj ponownie za chwilę.';
+
+    /**
      * Create a new job instance.
      */
     public function __construct(
@@ -37,6 +43,19 @@ class GenerateMealPlanJob implements ShouldQueue
         public bool $regenerate = false
     ) {
         //
+    }
+
+    /**
+     * Never run two generations of the same plan at once. A duplicate is dropped (not released),
+     * because with `--tries=1` a release would end as a reported MaxAttemptsExceededException.
+     *
+     * @return list<object>
+     */
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping((string) $this->mealPlan->id))->dontRelease()->expireAfter(300),
+        ];
     }
 
     /**
@@ -92,7 +111,7 @@ class GenerateMealPlanJob implements ShouldQueue
                 'status' => 'error',
                 'generation_meta' => [
                     'error_at' => now(),
-                    'error_message' => $e->getMessage(),
+                    'error_message' => self::GENERIC_ERROR_MESSAGE,
                     'regenerate' => $this->regenerate,
                 ],
             ]);
@@ -146,7 +165,7 @@ class GenerateMealPlanJob implements ShouldQueue
                 'status' => 'error',
                 'generation_meta' => [
                     'failed_at' => now(),
-                    'error_message' => $exception->getMessage(),
+                    'error_message' => self::GENERIC_ERROR_MESSAGE,
                 ],
             ]);
         }

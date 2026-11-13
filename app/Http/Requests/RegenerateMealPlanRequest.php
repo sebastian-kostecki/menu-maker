@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Gate;
 class RegenerateMealPlanRequest extends FormRequest
 {
     /**
+     * Statuses a plan may be regenerated from.
+     *
+     * @var list<string>
+     */
+    public const REGENERATABLE_STATUSES = ['done', 'error'];
+
+    public const NOT_REGENERATABLE_MESSAGE = 'Regenerować można tylko gotowy lub nieudany jadłospis.';
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -47,8 +56,8 @@ class RegenerateMealPlanRequest extends FormRequest
                 return;
             }
 
-            if (! in_array($mealPlan->status, ['done', 'error'])) {
-                $validator->errors()->add('status', 'Regenerować można tylko gotowy lub nieudany jadłospis.');
+            if (! in_array($mealPlan->status, self::REGENERATABLE_STATUSES, true)) {
+                $validator->errors()->add('status', self::NOT_REGENERATABLE_MESSAGE);
 
                 return;
             }

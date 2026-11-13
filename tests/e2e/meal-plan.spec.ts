@@ -26,5 +26,7 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   await page.getByRole('button', { name: 'Regeneruj' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
 
+  // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
+  await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
 });

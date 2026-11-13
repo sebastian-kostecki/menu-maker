@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Enums\MealCategory;
 use App\Models\LogsMealPlan;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\RecipeIngredient;
-use App\Services\MealPlanGenerator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -44,8 +44,8 @@ class MealPlanResource extends JsonResource
 
                 return $meals->sortBy([
                     fn (Meal $a, Meal $b): int => $a->meal_date <=> $b->meal_date,
-                    fn (Meal $a, Meal $b): int => array_search($a->meal_category, MealPlanGenerator::CATEGORIES, true)
-                        <=> array_search($b->meal_category, MealPlanGenerator::CATEGORIES, true),
+                    fn (Meal $a, Meal $b): int => MealCategory::displayIndex($a->meal_category)
+                        <=> MealCategory::displayIndex($b->meal_category),
                 ])->values()->map(function (Meal $meal) {
                     return [
                         'id' => $meal->id,

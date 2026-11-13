@@ -301,11 +301,11 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [x] 1.1 Only app and pgsql run
-- [x] 1.2 Both databases exist
-- [x] 1.3 Schema and seed apply
-- [x] 1.4 App uses pgsql
-- [x] 1.5 E2E passes in Chromium and Firefox
+- [x] 1.1 Only app and pgsql run — cecec37
+- [x] 1.2 Both databases exist — cecec37
+- [x] 1.3 Schema and seed apply — cecec37
+- [x] 1.4 App uses pgsql — cecec37
+- [x] 1.5 E2E passes in Chromium and Firefox — cecec37
 
 #### Manual
 
@@ -315,11 +315,11 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [ ] 2.1 Suite runs on pgsql and passes
-- [ ] 2.2 New search tests pass
-- [ ] 2.3 Migration is reversible
-- [ ] 2.4 Larastan clean
-- [ ] 2.5 Style clean
+- [x] 2.1 Suite runs on pgsql and passes
+- [x] 2.2 New search tests pass
+- [x] 2.3 Migration is reversible
+- [x] 2.4 Larastan clean
+- [x] 2.5 Style clean
 
 #### Manual
 

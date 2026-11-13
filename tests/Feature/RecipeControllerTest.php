@@ -167,6 +167,37 @@ it('recipes index can be filtered by search', function (): void {
     );
 });
 
+it('recipes search ignores case and diacritics', function (string $term): void {
+    Recipe::factory()->for($this->user)->create(['name' => 'Żurek']);
+    Recipe::factory()->for($this->user)->create(['name' => 'Pierogi']);
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['search' => $term]));
+
+    $response->assertStatus(200);
+    $response->assertInertia(
+        fn ($page) => $page->has('recipes.data', 1)->where('recipes.data.0.name', 'Żurek')
+    );
+})->with(['zurek', 'ŻUREK', 'żurek']);
+
+it('recipes search matches instructions only terms', function (): void {
+    Recipe::factory()->for($this->user)->create(['name' => 'Soup', 'instructions' => 'Dodaj śmietanę']);
+    Recipe::factory()->for($this->user)->create(['name' => 'Bread', 'instructions' => 'Bake']);
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['search' => 'smietane']));
+
+    $response->assertInertia(
+        fn ($page) => $page->has('recipes.data', 1)->where('recipes.data.0.name', 'Soup')
+    );
+});
+
+it("recipes search never returns another user's recipes", function (): void {
+    Recipe::factory()->for($this->otherUser)->create(['name' => 'Żurek']);
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['search' => 'zurek']));
+
+    $response->assertInertia(fn ($page) => $page->has('recipes.data', 0));
+});
+
 it('recipes index can be filtered by category', function (): void {
     Recipe::factory()->for($this->user)->breakfast()->count(2)->create();
     Recipe::factory()->for($this->user)->dinner()->count(3)->create();

@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Install the extension used by accent-insensitive recipe search.
+     */
+    public function up(): void
+    {
+        DB::statement('CREATE EXTENSION IF NOT EXISTS unaccent');
+    }
+
+    public function down(): void
+    {
+        DB::statement('DROP EXTENSION IF EXISTS unaccent');
+    }
+};

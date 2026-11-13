@@ -19,7 +19,7 @@ async function shot(name, url) {
   await page.waitForTimeout(300);
   for (const mode of ['light', 'dark']) {
     await page.evaluate((m) => document.documentElement.classList.toggle('dark', m === 'dark'), mode);
-    await page.waitForTimeout(150);
+    await page.waitForTimeout(700);
     await page.screenshot({ path: `${out}${name}.${mode}.png`, fullPage: true });
   }
   await page.evaluate(() => document.documentElement.classList.remove('dark'));

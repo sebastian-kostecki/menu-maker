@@ -15,3 +15,5 @@ Auto decisions (unattended): complexity MEDIUM accepted; 0 interview questions (
 
 Plan review: SOUND, 1 warning (SSR fallback) addressed; check Sail node version in phase 2.
 Impl review: APPROVED (1 observation: config pages.paths case, import.meta.dirname, x-inertia::head adaptations accepted).
+
+Archive (auto): continued despite pending manual row 3.4 (visual click-through); no SHA repoint needed.

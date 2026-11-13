@@ -164,9 +164,9 @@ Do not change session `serialization` (keeps sessions valid). Rollback = revert 
 
 #### Automated
 
-- [x] 3.1 Client and SSR build passes
-- [x] 3.2 E2E passes 6/6
-- [x] 3.3 Full suite, phpstan and pint pass
+- [x] 3.1 Client and SSR build passes — d78dc77
+- [x] 3.2 E2E passes 6/6 — d78dc77
+- [x] 3.3 Full suite, phpstan and pint pass — d78dc77
 
 #### Manual
 

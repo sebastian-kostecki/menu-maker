@@ -6,6 +6,8 @@ namespace App\Jobs;
 
 use App\Models\LogsMealPlan;
 use App\Models\MealPlan;
+use App\Services\InsufficientRecipesException;
+use App\Services\MealPlanGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,6 +25,11 @@ class GenerateMealPlanJob implements ShouldQueue
     use SerializesModels;
 
     /**
+     * Drop the job silently when the plan was deleted before processing.
+     */
+    public bool $deleteWhenMissingModels = true;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(
@@ -35,7 +42,7 @@ class GenerateMealPlanJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(MealPlanGenerator $generator): void
     {
         Context::add('meal_plan_id', $this->mealPlan->id);
 
@@ -45,28 +52,19 @@ class GenerateMealPlanJob implements ShouldQueue
             // Update status to processing
             $this->mealPlan->update(['status' => 'processing']);
 
-            // TODO: Implement actual meal plan generation logic
-            // This is a placeholder implementation that should be replaced with:
-            // - MealPlanGeneratorService implementation
-            // - Recipe selection logic
-            // - Meal creation
-            // - PDF generation
-
             Log::info('Meal plan generation started', [
                 'meal_plan_id' => $this->mealPlan->id,
                 'regenerate' => $this->regenerate,
             ]);
 
-            // Simulate processing time (remove in production)
-            sleep(2);
+            $generator->generate($this->mealPlan);
 
-            // For now, just update status to done
             $this->mealPlan->update([
                 'status' => 'done',
                 'generation_meta' => [
                     'generated_at' => now(),
                     'regenerate' => $this->regenerate,
-                    'version' => 'placeholder',
+                    'version' => 'random-v1',
                 ],
             ]);
 
@@ -75,6 +73,19 @@ class GenerateMealPlanJob implements ShouldQueue
             Log::info('Meal plan generation completed', [
                 'meal_plan_id' => $this->mealPlan->id,
             ]);
+        } catch (InsufficientRecipesException $e) {
+            // User data shortfall, not an app fault: record it on the plan and do not report.
+            $this->mealPlan->update([
+                'status' => 'error',
+                'generation_meta' => [
+                    'error_at' => now(),
+                    'error_message' => $e->getMessage(),
+                    'missing' => $e->missing,
+                    'regenerate' => $this->regenerate,
+                ],
+            ]);
+
+            $this->finishLog($log, 'error');
         } catch (\Exception $e) {
             // Update status to error
             $this->mealPlan->update([

@@ -274,9 +274,9 @@ There are no data migrations. Deployment (F-02) must set `LOG_STACK=daily,mail_a
 
 #### Automated
 
-- [x] 1.1 Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.2 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan`
-- [x] 1.3 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Pest suite passes: `vendor/bin/sail composer test` — ed37e29
+- [x] 1.2 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan` — ed37e29
+- [x] 1.3 Pint passes: `vendor/bin/sail composer pint-test` — ed37e29
 
 #### Manual
 
@@ -286,9 +286,9 @@ There are no data migrations. Deployment (F-02) must set `LOG_STACK=daily,mail_a
 
 #### Automated
 
-- [ ] 2.1 Pest suite passes: `vendor/bin/sail composer test`
-- [ ] 2.2 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan`
-- [ ] 2.3 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.1 Pest suite passes: `vendor/bin/sail composer test`
+- [x] 2.2 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan`
+- [x] 2.3 Pint passes: `vendor/bin/sail composer pint-test`
 
 #### Manual
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\CreateMailAlertLogger;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -71,6 +72,14 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+        ],
+
+        'mail_alert' => [
+            'driver' => 'custom',
+            'via' => CreateMailAlertLogger::class,
+            'to' => env('LOG_ALERT_MAIL_TO'),
+            'level' => 'error',
+            'dedup_seconds' => 3600,
         ],
 
         'slack' => [

@@ -2,69 +2,42 @@
   <div
     class="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-border rounded-lg bg-card"
     role="group"
-    :aria-label="`Ingredient ${index + 1}`"
+    :aria-label="`Składnik ${index + 1}`"
   >
-    <!-- Ingredient Selection -->
+    <!-- Ingredient name -->
     <div class="md:col-span-2 space-y-1">
       <label
-        :for="`ingredient-${index}`"
+        :for="`ingredient-name-${index}`"
         class="block text-sm font-medium leading-6 text-foreground"
       >
-        Ingredient *
+        Składnik *
       </label>
-                  <Select
-        v-model="localIngredient.ingredient_id"
-        :open="isSelectOpen"
-        @update:open="handleSelectOpenChange"
-      >
-        <SelectTrigger
-          :class="{ 'border-red-500': errors.ingredient_id }"
-          :aria-invalid="!!errors.ingredient_id"
-          :aria-describedby="errors.ingredient_id ? `ingredient-error-${index}` : undefined"
-        >
-          <SelectValue placeholder="Select ingredient..." />
-        </SelectTrigger>
-        <SelectContent>
-          <div class="p-2">
-            <Input
-              v-model="searchTerm"
-              placeholder="Search or add ingredient..."
-              class="mb-2"
-              @keydown.escape="isSelectOpen = false"
-              @keydown.enter.prevent="handleEnterKey"
-            />
-          </div>
-          <SelectItem
-            v-for="ingredient in filteredIngredients"
-            :key="ingredient.id"
-            :value="ingredient.id"
-            @click="handleIngredientSelect"
-          >
-            {{ ingredient.name }}
-          </SelectItem>
-          <div v-if="searchTerm && !exactMatch && filteredIngredients.length === 0" class="p-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              @click="handleAddNewIngredient"
-              class="w-full"
-            >
-              Add "{{ searchTerm }}"
-            </Button>
-          </div>
-          <div v-else-if="filteredIngredients.length === 0" class="p-2 text-sm text-muted-foreground">
-            No ingredients found.
-          </div>
-        </SelectContent>
-      </Select>
+      <Input
+        :id="`ingredient-name-${index}`"
+        :model-value="ingredient.name"
+        type="text"
+        :list="`ingredient-options-${index}`"
+        autocomplete="off"
+        placeholder="np. mąka"
+        :class="{ 'border-red-500': errors.name }"
+        :aria-invalid="!!errors.name"
+        :aria-describedby="errors.name ? `ingredient-error-${index}` : undefined"
+        @update:model-value="updateField('name', $event)"
+      />
+      <datalist :id="`ingredient-options-${index}`">
+        <option
+          v-for="option in availableIngredients"
+          :key="option.id"
+          :value="option.name"
+        />
+      </datalist>
       <div
-        v-if="errors.ingredient_id"
+        v-if="errors.name"
         :id="`ingredient-error-${index}`"
         class="text-xs text-red-600"
         role="alert"
       >
-        {{ errors.ingredient_id }}
+        {{ errors.name }}
       </div>
     </div>
 
@@ -74,19 +47,19 @@
         :for="`quantity-${index}`"
         class="block text-sm font-medium leading-6 text-foreground"
       >
-        Quantity *
+        Ilość *
       </label>
       <Input
         :id="`quantity-${index}`"
-        v-model="localIngredient.quantity"
+        :model-value="ingredient.quantity"
         type="number"
         step="0.01"
         min="0.01"
-        placeholder="e.g. 2"
+        placeholder="np. 2"
         :class="{ 'border-red-500': errors.quantity }"
         :aria-invalid="!!errors.quantity"
         :aria-describedby="errors.quantity ? `quantity-error-${index}` : undefined"
-        aria-label="Ingredient quantity"
+        @update:model-value="updateField('quantity', $event)"
       />
       <div
         v-if="errors.quantity"
@@ -104,18 +77,19 @@
         :for="`unit-${index}`"
         class="block text-sm font-medium leading-6 text-foreground"
       >
-        Unit *
+        Jednostka *
       </label>
       <Select
-        v-model="localIngredient.unit_id"
-        :id="`unit-${index}`"
+        :model-value="ingredient.unit_id"
+        @update:model-value="updateField('unit_id', $event)"
       >
         <SelectTrigger
+          :id="`unit-${index}`"
           :class="{ 'border-red-500': errors.unit_id }"
           :aria-invalid="!!errors.unit_id"
           :aria-describedby="errors.unit_id ? `unit-error-${index}` : undefined"
         >
-          <SelectValue placeholder="Unit" />
+          <SelectValue placeholder="Jednostka" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem
@@ -123,7 +97,7 @@
             :key="unit.id"
             :value="unit.id"
           >
-            {{ unit.code }}
+            {{ unitLabel(unit) }}
           </SelectItem>
         </SelectContent>
       </Select>
@@ -143,19 +117,18 @@
         type="button"
         variant="outline"
         size="sm"
-        @click="handleRemoveIngredient"
+        @click="emit('remove', index)"
         class="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-        :aria-label="`Remove ingredient ${index + 1}`"
+        :aria-label="`Usuń składnik ${index + 1}`"
       >
         <Trash2 class="w-4 h-4" />
-        <span class="sr-only">Remove ingredient</span>
+        <span class="sr-only">Usuń składnik</span>
       </Button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
 import { Input } from '@/Components/ui/input'
 import { Button } from '@/Components/ui/button'
@@ -167,7 +140,6 @@ import {
   SelectValue,
 } from '@/Components/ui/select'
 
-// Define props
 const props = defineProps({
   ingredient: {
     type: Object,
@@ -191,101 +163,11 @@ const props = defineProps({
   }
 })
 
-// Define emits
-const emit = defineEmits(['update', 'remove', 'add-ingredient'])
+const emit = defineEmits(['update', 'remove'])
 
-// Local reactive copy of ingredient
-const localIngredient = ref({ ...props.ingredient })
-
-// Search term for filtering ingredients
-const searchTerm = ref('')
-
-// Control Select open state
-const isSelectOpen = ref(false)
-
-// Flag to prevent infinite watcher loops
-const isUpdatingFromParent = ref(false)
-
-// Watch for changes in props.ingredient and update local copy
-watch(() => props.ingredient, (newIngredient) => {
-  isUpdatingFromParent.value = true
-  localIngredient.value = { ...newIngredient }
-  // Reset flag after nextTick to allow DOM updates
-  nextTick(() => {
-    isUpdatingFromParent.value = false
-  })
-}, { deep: true })
-
-// Watch for changes in local ingredient and emit updates
-watch(localIngredient, (newIngredient) => {
-  // Don't emit if we're updating from parent to prevent infinite loops
-  if (!isUpdatingFromParent.value) {
-    emit('update', props.index, { ...newIngredient })
-  }
-}, { deep: true, immediate: false })
-
-// Computed properties
-const selectedIngredient = computed(() => {
-  return props.availableIngredients.find(
-    ing => ing.id === localIngredient.value.ingredient_id
-  )
-})
-
-const filteredIngredients = computed(() => {
-  if (!searchTerm.value) {
-    return props.availableIngredients
-  }
-
-  return props.availableIngredients.filter(ingredient =>
-    ingredient.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-  )
-})
-
-// Check if search term exactly matches an existing ingredient
-const exactMatch = computed(() => {
-  return props.availableIngredients.some(
-    ingredient => ingredient.name.toLowerCase() === searchTerm.value.toLowerCase()
-  )
-})
-
-// Handle Select open/close
-const handleSelectOpenChange = (open) => {
-  isSelectOpen.value = open
-  // Clear search term when closing
-  if (!open) {
-    searchTerm.value = ''
-  }
+const updateField = (field, value) => {
+  emit('update', props.index, { ...props.ingredient, [field]: value })
 }
 
-// Handle ingredient selection - close select after choosing
-const handleIngredientSelect = () => {
-  isSelectOpen.value = false
-  searchTerm.value = ''
-}
-
-// Handle Enter key in search input
-const handleEnterKey = () => {
-  if (filteredIngredients.value.length === 1) {
-    // If only one ingredient matches, select it
-    localIngredient.value.ingredient_id = filteredIngredients.value[0].id
-    handleIngredientSelect()
-  } else if (searchTerm.value && !exactMatch.value && filteredIngredients.value.length === 0) {
-    // If no matches and search term exists, add new ingredient
-    handleAddNewIngredient()
-  }
-}
-
-// Handle adding new ingredient
-const handleAddNewIngredient = () => {
-  if (searchTerm.value.trim()) {
-    emit('add-ingredient', searchTerm.value.trim())
-    searchTerm.value = ''
-    isSelectOpen.value = false
-  }
-}
-
-// Handle remove ingredient
-const handleRemoveIngredient = () => {
-  emit('remove', props.index)
-}
+const unitLabel = (unit) => (unit.code === 'szt' ? 'szt.' : unit.code)
 </script>

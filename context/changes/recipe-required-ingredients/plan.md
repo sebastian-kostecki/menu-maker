@@ -285,24 +285,24 @@ Not deployed yet, so only dev data is affected. The migration converts legacy un
 
 #### Automated
 
-- [x] 2.1 Recipe tests pass: `vendor/bin/sail pest tests/Feature/RecipeControllerTest.php tests/Unit/RecipeRequestValidationTest.php`
-- [x] 2.2 Full suite passes: `vendor/bin/sail composer test`
-- [x] 2.3 Larastan passes: `vendor/bin/sail composer phpstan`
-- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.1 Recipe tests pass: `vendor/bin/sail pest tests/Feature/RecipeControllerTest.php tests/Unit/RecipeRequestValidationTest.php` — 87e2652
+- [x] 2.2 Full suite passes: `vendor/bin/sail composer test` — 87e2652
+- [x] 2.3 Larastan passes: `vendor/bin/sail composer phpstan` — 87e2652
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test` — 87e2652
 
 ### Phase 3: Frontend — Polish recipe form with free-text ingredients
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.2 Full suite still passes: `vendor/bin/sail composer test`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 3.2 Full suite still passes: `vendor/bin/sail composer test`
 
 #### Manual
 
-- [ ] 3.3 Creating a recipe with a new ingredient name, then editing it, shows the name, quantity and unit preserved
-- [ ] 3.4 Typing „mą” suggests „Mąka”; another user's custom ingredient is not suggested
-- [ ] 3.5 Submit stays disabled with no ingredient row or an incomplete one; a duplicate name shows the Polish error on that row
-- [ ] 3.6 An old recipe without ingredients opens in edit and cannot be saved until an ingredient is added
+- [x] 3.3 Creating a recipe with a new ingredient name, then editing it, shows the name, quantity and unit preserved
+- [x] 3.4 Typing „mą” suggests „Mąka”; another user's custom ingredient is not suggested
+- [x] 3.5 Submit stays disabled with no ingredient row or an incomplete one; a duplicate name shows the Polish error on that row
+- [x] 3.6 An old recipe without ingredients opens in edit and cannot be saved until an ingredient is added
 
 ### Phase 4: E2E — create a recipe with an ingredient
 

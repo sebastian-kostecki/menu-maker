@@ -473,8 +473,8 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build
-- [x] 3.2 Full Pest suite, Larastan and Pint still pass
+- [x] 3.1 Client and SSR bundles build — 1b55137
+- [x] 3.2 Full Pest suite, Larastan and Pint still pass — 1b55137
 
 #### Manual
 
@@ -488,11 +488,11 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [ ] 4.1 Sail starts the queue service
-- [ ] 4.2 Seeder runs twice without error
-- [ ] 4.3 Client and SSR bundles build
-- [ ] 4.4 E2E suite passes in both browsers
-- [ ] 4.5 Full Pest suite, Larastan and Pint pass
+- [x] 4.1 Sail starts the queue service
+- [x] 4.2 Seeder runs twice without error
+- [x] 4.3 Client and SSR bundles build
+- [x] 4.4 E2E suite passes in both browsers
+- [x] 4.5 Full Pest suite, Larastan and Pint pass
 
 #### Manual
 

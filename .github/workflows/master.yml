@@ -195,10 +195,15 @@ jobs:
           DB_DATABASE=testing
           DB_USERNAME=sail
           DB_PASSWORD=password
+          QUEUE_CONNECTION=database
           VITE_APP_NAME="Menu Maker"
           EOF
           php artisan key:generate --ansi
           php artisan migrate --graceful --no-interaction -v
+          php artisan db:seed --class=E2eMealPlanSeeder --no-interaction
+
+      - name: Start queue worker
+        run: php artisan queue:work --tries=1 > storage/logs/queue.log 2>&1 &
 
       - name: Run E2E tests
         run: npm run test:e2e

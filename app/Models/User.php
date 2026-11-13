@@ -49,16 +49,25 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return HasMany<FamilyMember, $this>
+     */
     public function familyMembers(): HasMany
     {
         return $this->hasMany(FamilyMember::class);
     }
 
+    /**
+     * @return HasMany<Recipe, $this>
+     */
     public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }
 
+    /**
+     * @return HasMany<MealPlan, $this>
+     */
     public function mealPlans(): HasMany
     {
         return $this->hasMany(MealPlan::class);

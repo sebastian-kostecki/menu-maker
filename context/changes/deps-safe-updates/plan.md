@@ -271,29 +271,29 @@ Rollback is per phase via `git revert <sha>` followed by `sail composer install`
 
 #### Automated
 
-- [x] 1.1 Containers are up
-- [x] 1.2 App answers on port 8081
-- [x] 1.3 Assets build
-- [x] 1.4 E2E passes in Chromium and Firefox
+- [x] 1.1 Containers are up — c4dd15b
+- [x] 1.2 App answers on port 8081 — c4dd15b
+- [x] 1.3 Assets build — c4dd15b
+- [x] 1.4 E2E passes in Chromium and Firefox — c4dd15b
 
 #### Manual
 
-- [x] 1.5 Login page renders with styles
+- [x] 1.5 Login page renders with styles — c4dd15b
 
 ### Phase 2: Composer refresh
 
 #### Automated
 
-- [ ] 2.1 Tests pass
-- [ ] 2.2 Larastan clean
-- [ ] 2.3 No Composer advisories
-- [ ] 2.4 Boost block reports PHP 8.5 and Pest v4
-- [ ] 2.5 Boost MCP server lists its tools through Sail
-- [ ] 2.6 E2E passes in Chromium and Firefox
+- [x] 2.1 Tests pass
+- [x] 2.2 Larastan clean
+- [x] 2.3 No Composer advisories
+- [x] 2.4 Boost block reports PHP 8.5 and Pest v4
+- [x] 2.5 Boost MCP server lists its tools through Sail
+- [x] 2.6 E2E passes in Chromium and Firefox
 
 #### Manual
 
-- [ ] 2.7 CLAUDE.md diff touches only the Boost block
+- [x] 2.7 CLAUDE.md diff touches only the Boost block
 
 ### Phase 3: npm refresh
 

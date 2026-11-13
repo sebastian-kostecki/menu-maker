@@ -89,10 +89,7 @@ class RecipeController extends Controller
             unset($validatedData['ingredients']);
 
             // Create recipe
-            $recipe = Recipe::create([
-                ...$validatedData,
-                'user_id' => Auth::id(),
-            ]);
+            $recipe = $request->user()->recipes()->create($validatedData);
 
             // Sync ingredients if provided
             if (! empty($ingredients)) {

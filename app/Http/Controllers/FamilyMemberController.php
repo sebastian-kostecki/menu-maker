@@ -47,10 +47,7 @@ class FamilyMemberController extends Controller
      */
     public function store(FamilyMemberRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        $validated['user_id'] = Auth::id();
-
-        FamilyMember::create($validated);
+        $request->user()->familyMembers()->create($request->validated());
 
         return redirect()->route('family-members.index')
             ->with('success', 'Family member created successfully.');

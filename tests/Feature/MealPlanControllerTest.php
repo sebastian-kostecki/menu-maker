@@ -225,6 +225,7 @@ it('user can delete own meal plan', function (): void {
     Storage::fake('local');
 
     $mealPlan = MealPlan::factory()
+        ->done()
         ->withPdf()
         ->for($this->user)
         ->create();

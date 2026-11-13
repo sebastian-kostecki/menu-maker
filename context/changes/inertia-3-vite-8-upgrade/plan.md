@@ -179,17 +179,17 @@ Rollback: revert the phase commits and `composer install` / `npm ci`.
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build
-- [x] 2.2 npm ls shows v3 / v8 / v3 without invalid peers
-- [x] 2.3 Pest suite still passes
+- [x] 2.1 Client and SSR bundles build — bf8f3c0
+- [x] 2.2 npm ls shows v3 / v8 / v3 without invalid peers — bf8f3c0
+- [x] 2.3 Pest suite still passes — bf8f3c0
 
 ### Phase 3: End-to-end verification, SSR check and Boost guidelines
 
 #### Automated
 
-- [ ] 3.1 Full gate (test, phpstan, pint, build)
-- [ ] 3.2 E2E passes 6/6
-- [ ] 3.3 SSR login page contains server-rendered HTML
+- [x] 3.1 Full gate (test, phpstan, pint, build)
+- [x] 3.2 E2E passes 6/6
+- [x] 3.3 SSR login page contains server-rendered HTML
 
 #### Manual
 

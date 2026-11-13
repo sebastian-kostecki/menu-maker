@@ -1,10 +1,10 @@
 ---
 change_id: postgres-migration
 title: Replace MySQL with PostgreSQL and drop Redis
-status: impl_reviewed
+status: archived
 created: 2026-11-13
 updated: 2026-11-13
-archived_at: null
+archived_at: 2026-11-13T10:43:15Z
 ---
 
 ## Notes

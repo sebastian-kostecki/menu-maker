@@ -301,11 +301,11 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [ ] 1.1 Only app and pgsql run
-- [ ] 1.2 Both databases exist
-- [ ] 1.3 Schema and seed apply
-- [ ] 1.4 App uses pgsql
-- [ ] 1.5 E2E passes in Chromium and Firefox
+- [x] 1.1 Only app and pgsql run
+- [x] 1.2 Both databases exist
+- [x] 1.3 Schema and seed apply
+- [x] 1.4 App uses pgsql
+- [x] 1.5 E2E passes in Chromium and Firefox
 
 #### Manual
 

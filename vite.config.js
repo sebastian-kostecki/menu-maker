@@ -21,10 +21,10 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'resources/js'),
-            '@/components': path.resolve(__dirname, 'resources/js/Components'),
-            '@/ui': path.resolve(__dirname, 'resources/js/Components/ui'),
-            '@/lib': path.resolve(__dirname, 'resources/js/lib'),
+            '@': path.resolve(import.meta.dirname, 'resources/js'),
+            '@/components': path.resolve(import.meta.dirname, 'resources/js/Components'),
+            '@/ui': path.resolve(import.meta.dirname, 'resources/js/Components/ui'),
+            '@/lib': path.resolve(import.meta.dirname, 'resources/js/lib'),
         },
     },
     test: {

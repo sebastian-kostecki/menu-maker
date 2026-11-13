@@ -171,17 +171,17 @@ Rollback: revert the phase commits and `composer install` / `npm ci`.
 
 #### Automated
 
-- [x] 1.1 Pest suite passes (129 tests)
-- [x] 1.2 Larastan clean
-- [x] 1.3 Pint clean
+- [x] 1.1 Pest suite passes (129 tests) — 995a8da
+- [x] 1.2 Larastan clean — 995a8da
+- [x] 1.3 Pint clean — 995a8da
 
 ### Phase 2: JS toolchain (Inertia vue3 3, laravel-vite-plugin 3, Vite 8)
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build
-- [ ] 2.2 npm ls shows v3 / v8 / v3 without invalid peers
-- [ ] 2.3 Pest suite still passes
+- [x] 2.1 Client and SSR bundles build
+- [x] 2.2 npm ls shows v3 / v8 / v3 without invalid peers
+- [x] 2.3 Pest suite still passes
 
 ### Phase 3: End-to-end verification, SSR check and Boost guidelines
 

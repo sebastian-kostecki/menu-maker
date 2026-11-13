@@ -1,7 +1,7 @@
 ---
 change_id: tailwind-4-upgrade
 title: Upgrade to Tailwind 4 and refresh shadcn-vue components
-status: implemented
+status: impl_reviewed
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null
@@ -20,3 +20,4 @@ Unattended-run decisions (made on the user's behalf, recommended options):
 - Phase 2 decision: ran shadcn-vue@2 add --overwrite for all 15 components; the current CLI emits the redesigned 'new' style (different Button/Input/Dialog looks, no shadows, ring-3) and rewrites imports to new deps (@lucide/vue, 'cn' package), downgrades @vueuse/core to ^13 and bumps reka-ui. Rejected to protect visual parity and the requested lucide-vue-next 1.0 / vueuse 15; reverted the output and kept the components migrated by @tailwindcss/upgrade (already v4 syntax, e.g. data-highlighted, outline-hidden, shadow-xs). Only components.json changed (tailwind.config set to empty string, as required for Tailwind 4).
 - Phase 3: lucide-vue-next 1.0.0, @vueuse/core 15.0.0, concurrently 10.0.7 bumped; no code changes needed (all icon imports and reactiveOmit/useVModel still exist; composer dev concurrently flags still valid).
 - Phase 4: CLAUDE.md stack line and cursor rules updated (Boost guidelines in repo did not mention Tailwind 3, no refresh needed). Further parity fixes: index.js variant files (button, badge) are not migrated by the upgrade tool, renamed shadow/outline utilities by hand; v4 auto-source scanning now generates classes from ui/*/index.js that v3 never emitted (e.g. avatar h-10 w-10 rounded-full bg-secondary, button lg px-8), so avatar circle and lg button padding now render as designed (accepted). Inline labels inside space-y containers got block leading-6 (RecipeForm, IngredientRow, FamilyMembers forms) to keep spacing.
+- 10x-impl-review: F1 (ring-opacity/bg-opacity leftovers) fixed, F2/F3 accepted.

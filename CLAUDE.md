@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ingredients to the family, and exports a PDF with the plan and a shopping list. Stack: Laravel 12 + Inertia v2 + Vue 3, Tailwind 3 with shadcn-vue, Pest, PostgreSQL 18 in Sail (no Redis).
+Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ingredients to the family, and exports a PDF with the plan and a shopping list. Stack: Laravel 13 + Inertia v2 + Vue 3, Tailwind 3 with shadcn-vue, Pest, PostgreSQL 18 in Sail (no Redis).
 
 ## Hard Rules
 

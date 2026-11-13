@@ -152,9 +152,9 @@ Do not change session `serialization` (keeps sessions valid). Rollback = revert 
 
 #### Automated
 
-- [x] 2.1 Guidelines block lists laravel/framework v13 (ADAPT: Boost 2 no longer lists package versions; block now tells agent to check composer show; PHP 8.5 stated)
-- [x] 2.2 CLAUDE.md diff confined to the boost block
-- [x] 2.3 Pest suite still passes
+- [x] 2.1 Guidelines block lists laravel/framework v13 (ADAPT: Boost 2 no longer lists package versions; block now tells agent to check composer show; PHP 8.5 stated) — 13547ac
+- [x] 2.2 CLAUDE.md diff confined to the boost block — 13547ac
+- [x] 2.3 Pest suite still passes — 13547ac
 
 #### Manual
 
@@ -164,9 +164,9 @@ Do not change session `serialization` (keeps sessions valid). Rollback = revert 
 
 #### Automated
 
-- [ ] 3.1 Client and SSR build passes
-- [ ] 3.2 E2E passes 6/6
-- [ ] 3.3 Full suite, phpstan and pint pass
+- [x] 3.1 Client and SSR build passes
+- [x] 3.2 E2E passes 6/6
+- [x] 3.3 Full suite, phpstan and pint pass
 
 #### Manual
 

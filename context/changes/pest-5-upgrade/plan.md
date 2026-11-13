@@ -129,10 +129,10 @@ Rollback: `git revert` the upgrade commit (composer.json + lock).
 
 #### Automated
 
-- [x] 2.1 Pint clean
-- [x] 2.2 Build ok
-- [x] 2.3 E2E passes
-- [x] 2.4 Suite still green
+- [x] 2.1 Pint clean — cb6b40b
+- [x] 2.2 Build ok — cb6b40b
+- [x] 2.3 E2E passes — cb6b40b
+- [x] 2.4 Suite still green — cb6b40b
 
 #### Manual
 

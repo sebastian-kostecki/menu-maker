@@ -37,9 +37,9 @@ test('user can log in with valid credentials', async ({ page, browser }, testInf
   const context = await browser.newContext();
   const page2 = await context.newPage();
   await page2.goto(`${baseURL}/login`);
-  await page2.getByLabel('Email').fill(email);
-  await page2.getByLabel('Password').fill(password);
-  await page2.getByRole('button', { name: 'Log in' }).click();
+  await page2.getByLabel('Adres e-mail').fill(email);
+  await page2.getByLabel('Hasło').fill(password);
+  await page2.getByRole('button', { name: 'Zaloguj się' }).click();
   await page2.waitForURL('**/dashboard');
   await expect(page2).toHaveURL(/dashboard/);
   await context.close();
@@ -47,13 +47,13 @@ test('user can log in with valid credentials', async ({ page, browser }, testInf
 
 test('shows error on invalid login credentials', async ({ page }) => {
   await page.goto('/login');
-  await page.getByLabel('Email').fill(generateRandomEmail());
-  await page.getByLabel('Password').fill('WrongPassword!');
-  await page.getByRole('button', { name: 'Log in' }).click();
+  await page.getByLabel('Adres e-mail').fill(generateRandomEmail());
+  await page.getByLabel('Hasło').fill('WrongPassword!');
+  await page.getByRole('button', { name: 'Zaloguj się' }).click();
 
-  // Stays on login and shows the default Laravel error message
+  // Stays on login and shows the Polish auth error message
   await expect(page).toHaveURL(/login/);
-  await expect(page.getByText('These credentials do not match our records.')).toBeVisible();
+  await expect(page.getByText('Podane dane logowania są nieprawidłowe.')).toBeVisible();
 });
 
 

@@ -488,11 +488,11 @@ No schema changes. Existing `done` plans created by the placeholder have no meal
 
 #### Automated
 
-- [x] 4.1 Sail starts the queue service
-- [x] 4.2 Seeder runs twice without error
-- [x] 4.3 Client and SSR bundles build
-- [x] 4.4 E2E suite passes in both browsers
-- [x] 4.5 Full Pest suite, Larastan and Pint pass
+- [x] 4.1 Sail starts the queue service — 3fbbeee
+- [x] 4.2 Seeder runs twice without error — 3fbbeee
+- [x] 4.3 Client and SSR bundles build — 3fbbeee
+- [x] 4.4 E2E suite passes in both browsers — 3fbbeee
+- [x] 4.5 Full Pest suite, Larastan and Pint pass — 3fbbeee
 
 #### Manual
 

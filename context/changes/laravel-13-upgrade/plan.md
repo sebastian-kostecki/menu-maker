@@ -139,10 +139,10 @@ Do not change session `serialization` (keeps sessions valid). Rollback = revert 
 
 #### Automated
 
-- [x] 1.1 Composer resolves with framework 13.x, tinker 3.x, boost 2.x
-- [x] 1.2 Pest suite passes
-- [x] 1.3 Larastan passes
-- [x] 1.4 Pint passes
+- [x] 1.1 Composer resolves with framework 13.x, tinker 3.x, boost 2.x — e8af812
+- [x] 1.2 Pest suite passes — e8af812
+- [x] 1.3 Larastan passes — e8af812
+- [x] 1.4 Pint passes — e8af812
 
 #### Manual
 

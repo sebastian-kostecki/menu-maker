@@ -45,7 +45,7 @@ Menu Maker pomaga rodzinom zaplanować posiłki na cały tydzień: użytkownik z
 | F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | ready    |
 | S-01 | polish-auth-with-24h-session   | zarejestrować się, zalogować i zresetować hasło po polsku; sesja trwa 24 h                  | —             | US-001, US-002, US-003, FR-001, FR-008 | ready    |
 | S-02 | recipe-required-ingredients    | zapisać przepis tylko z kompletem pól, w tym składnikami w g/kg/ml/l/szt.                  | —             | US-005, US-006, FR-003, FR-008        | ready    |
-| S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | ready    |
+| S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | done |
 | S-04 | ai-ingredient-scaling          | zobaczyć składniki jadłospisu przeliczone do swojej rodziny i dopracowane przez AI         | S-03          | US-012, US-004, FR-005, FR-002        | proposed |
 | S-05 | shopping-list                  | zobaczyć przy jadłospisie zsumowaną, posortowaną listę zakupów z konwersją jednostek        | S-02, S-03    | US-011, FR-006                        | proposed |
 | S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | proposed |
@@ -145,7 +145,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Co pokazać, gdy w kategorii jest mniej niż 7 przepisów i reguła „bez powtórzeń” jest niewykonalna (blokada z komunikatem czy dopuszczenie powtórzeń)? — Owner: user. Block: no (rozstrzygnąć na początku `/10x-plan`).
 - **Risk:** To wycinek, który dowodzi produktu; obejmuje też zepsute wejścia do generacji (przycisk bez POST, martwy link z dashboardu), więc test E2E musi przejść całą ścieżkę od kliknięcia do widoku tygodnia. Dobór przepisów ma się mieścić w <10 s (US-008; rozstrzygnięte 2026-11-13).
-- **Status:** ready
+- **Status:** done
 
 ### S-04: Składniki skalowane przez AI do rodziny
 
@@ -223,3 +223,4 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 ## Done
 
 - **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.
+- **S-03: Użytkownik może jednym kliknięciem wygenerować jadłospis 7 dni × 3 posiłki, w którym przepisy są losowane z jego własnych przepisów według kategorii bez powtórzeń w tygodniu, zobaczyć go w interfejsie i regenerować bez limitu.** — Archived 2026-11-13 → `context/archive/2026-11-13-real-weekly-meal-plan/`. Lesson: —.

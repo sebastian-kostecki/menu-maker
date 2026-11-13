@@ -15,7 +15,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - `vendor/bin/sail composer test`: Pest suite; one test with `vendor/bin/sail pest --filter=<name>`.
 - `vendor/bin/sail composer phpstan`, `vendor/bin/sail composer pint-test` (fix with `composer pint`).
 - `vendor/bin/sail npm run build`: client and SSR bundles; CI fails if it breaks.
-- `npm run test:e2e`: Playwright, see `@playwright.config.ts` for the base URL.
+- E2E (Playwright, from the host, against Sail): `vendor/bin/sail npm run build`, then `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`. Do not let Playwright start `php artisan serve` (host PHP). If the default ports are busy, set `APP_PORT` and `VITE_PORT` in `.env`. See `@playwright.config.ts`.
 
 ## Structure & Conventions
 

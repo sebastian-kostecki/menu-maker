@@ -271,14 +271,14 @@ Rollback is per phase via `git revert <sha>` followed by `sail composer install`
 
 #### Automated
 
-- [ ] 1.1 Containers are up
-- [ ] 1.2 App answers on port 8081
-- [ ] 1.3 Assets build
-- [ ] 1.4 E2E passes in Chromium and Firefox
+- [x] 1.1 Containers are up
+- [x] 1.2 App answers on port 8081
+- [x] 1.3 Assets build
+- [x] 1.4 E2E passes in Chromium and Firefox
 
 #### Manual
 
-- [ ] 1.5 Login page renders with styles
+- [x] 1.5 Login page renders with styles
 
 ### Phase 2: Composer refresh
 

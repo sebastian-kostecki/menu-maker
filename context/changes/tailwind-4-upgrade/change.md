@@ -1,7 +1,7 @@
 ---
 change_id: tailwind-4-upgrade
 title: Upgrade to Tailwind 4 and refresh shadcn-vue components
-status: plan_reviewed
+status: implementing
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null
@@ -16,3 +16,4 @@ Unattended-run decisions (made on the user's behalf, recommended options):
 - Baseline defect noted, out of scope: /recipes/{id} (Show.vue) renders blank with TypeError on recipe.data.name.
 - 10x-plan: complexity assessment and phase breakdown auto-approved (recommended options); 4 phases; kept HSL variables (no oklch conversion) for visual parity.
 - 10x-plan-review: quick review by main agent, both warnings fixed (E2E in phase 1, app.css diff after CLI add).
+- Phase 1 visual review: 28 screenshots compared (PIL pixel diff + Read). Intended/accepted differences: avatar circle+size now render (v3 did not scan ui/*/index.js, v4 auto-scans), red palette slightly more vivid (v4 oklch palette), header icon x-shift (same cause). Fixed: space-y vs inline label spacing (RecipeForm labels block leading-6), DeleteUserForm trailing gap (flex gap), upgrade tool wrongly renamed variant strings 'outline' -> 'outline-solid' (reverted). Dark-mode large diffs in some pairs are mid-transition capture flakes.

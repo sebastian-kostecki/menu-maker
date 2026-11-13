@@ -191,10 +191,10 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [ ] 1.1 Client and SSR build passes
-- [ ] 1.2 No leftover v3 config files
-- [ ] 1.3 Pest suite passes
-- [ ] 1.5 E2E passes
+- [x] 1.1 Client and SSR build passes
+- [x] 1.2 No leftover v3 config files
+- [x] 1.3 Pest suite passes
+- [x] 1.5 E2E passes
 
 #### Manual
 

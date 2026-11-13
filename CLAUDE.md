@@ -30,7 +30,7 @@ Pest with `RefreshDatabase` on the PostgreSQL `testing` database (`@phpunit.xml`
 
 ## Git & CI
 
-- Work on `develop`; `main` is the release branch. CI (`@.github/workflows/master.yml`) runs only on pushes to `main`: build, Larastan, Pest, config/route/view caching, then E2E.
+- Work on `develop`; `main` is the release branch. CI (`@.github/workflows/master.yml`) runs on pushes to `main` and on pull requests into `main`: build, Larastan, Pest, config/route/view caching, then E2E.
 - Commit subjects use Conventional Commits (`feat:`, `fix:`, `chore:`) in imperative English.
 
 ## Specs

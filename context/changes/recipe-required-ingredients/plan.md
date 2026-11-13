@@ -272,23 +272,23 @@ Not deployed yet, so only dev data is affected. The migration converts legacy un
 
 #### Automated
 
-- [x] 1.1 Migrations apply on a fresh DB: `vendor/bin/sail artisan migrate:fresh --no-interaction`
-- [x] 1.2 Model tests pass: `vendor/bin/sail pest tests/Unit/Models`
-- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan`
-- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Migrations apply on a fresh DB: `vendor/bin/sail artisan migrate:fresh --no-interaction` — fba933a
+- [x] 1.2 Model tests pass: `vendor/bin/sail pest tests/Unit/Models` — fba933a
+- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan` — fba933a
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test` — fba933a
 
 #### Manual
 
-- [x] 1.5 On an existing dev DB with the old 9 units, `vendor/bin/sail artisan migrate` leaves only g/kg/ml/l/szt and recipes that used tsp/tbsp/cup/pcs now show ml/szt with converted quantities
+- [x] 1.5 On an existing dev DB with the old 9 units, `vendor/bin/sail artisan migrate` leaves only g/kg/ml/l/szt and recipes that used tsp/tbsp/cup/pcs now show ml/szt with converted quantities — fba933a
 
 ### Phase 2: Backend — required ingredients saved by name
 
 #### Automated
 
-- [ ] 2.1 Recipe tests pass: `vendor/bin/sail pest tests/Feature/RecipeControllerTest.php tests/Unit/RecipeRequestValidationTest.php`
-- [ ] 2.2 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 2.3 Larastan passes: `vendor/bin/sail composer phpstan`
-- [ ] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.1 Recipe tests pass: `vendor/bin/sail pest tests/Feature/RecipeControllerTest.php tests/Unit/RecipeRequestValidationTest.php`
+- [x] 2.2 Full suite passes: `vendor/bin/sail composer test`
+- [x] 2.3 Larastan passes: `vendor/bin/sail composer phpstan`
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
 
 ### Phase 3: Frontend — Polish recipe form with free-text ingredients
 

@@ -67,6 +67,7 @@ Swap the MySQL and Redis services for PostgreSQL and point the app at it.
 
 **Contract**:
 - Service `pgsql`: `postgres:18-alpine`, port `${FORWARD_DB_PORT:-5432}:5432`, `pg_isready` healthcheck, volume `sail-pgsql:/var/lib/postgresql`.
+- Environment as in the stub: `PGPASSWORD`, `POSTGRES_DB=${DB_DATABASE}`, `POSTGRES_USER=${DB_USERNAME}`, `POSTGRES_PASSWORD=${DB_PASSWORD:-secret}`; healthcheck uses `-d ${DB_DATABASE} -U ${DB_USERNAME}`.
 - Init script mounted from `./docker/pgsql/create-testing-database.sql` (project convention, not the vendor path).
 - `laravel.test.depends_on: [pgsql]`.
 - Volumes: only `sail-pgsql`.

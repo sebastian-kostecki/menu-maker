@@ -215,7 +215,7 @@ const handleGenderChange = (value) => {
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- First Name -->
         <div class="space-y-2">
-          <Label for="first_name">Imię *</Label>
+          <Label for="first_name" class="block leading-6">Imię *</Label>
           <Input
             id="first_name"
             v-model="form.first_name"
@@ -232,7 +232,7 @@ const handleGenderChange = (value) => {
 
         <!-- Birth Date -->
         <div class="space-y-2">
-          <Label for="birth_date">Data urodzenia *</Label>
+          <Label for="birth_date" class="block leading-6">Data urodzenia *</Label>
           <Input
             id="birth_date"
             v-model="form.birth_date"
@@ -248,7 +248,7 @@ const handleGenderChange = (value) => {
 
         <!-- Gender -->
         <div class="space-y-2">
-          <Label for="gender">Płeć *</Label>
+          <Label for="gender" class="block leading-6">Płeć *</Label>
           <Select
             :model-value="form.gender"
             @update:model-value="handleGenderChange"

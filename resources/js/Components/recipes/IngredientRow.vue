@@ -8,7 +8,7 @@
     <div class="md:col-span-2 space-y-1">
       <label
         :for="`ingredient-${index}`"
-        class="text-sm font-medium text-foreground"
+        class="block text-sm font-medium leading-6 text-foreground"
       >
         Ingredient *
       </label>
@@ -72,7 +72,7 @@
     <div class="space-y-1">
       <label
         :for="`quantity-${index}`"
-        class="text-sm font-medium text-foreground"
+        class="block text-sm font-medium leading-6 text-foreground"
       >
         Quantity *
       </label>
@@ -102,7 +102,7 @@
     <div class="space-y-1">
       <label
         :for="`unit-${index}`"
-        class="text-sm font-medium text-foreground"
+        class="block text-sm font-medium leading-6 text-foreground"
       >
         Unit *
       </label>

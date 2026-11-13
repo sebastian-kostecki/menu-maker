@@ -17,7 +17,7 @@ alwaysApply: true
 - **Node.js 22** - JavaScript runtime for building and development tools
 - **Vue.js 3.4.0+** - Progressive JavaScript framework
 - **Inertia.js Vue3 2.0.0+** - Client-side adapter for SPA-like experience
-- **TailwindCSS 3.2.1+** - Utility-first CSS framework
+- **TailwindCSS 4 (CSS-first config in resources/css/app.css)** - Utility-first CSS framework
 - **Shadcn-vue 2.2.0+** - Vue component library
 
 ## Development Tools

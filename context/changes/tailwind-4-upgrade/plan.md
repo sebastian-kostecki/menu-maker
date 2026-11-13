@@ -228,10 +228,10 @@ Dev-only tooling; rollback is `git revert` of the phase commits.
 
 #### Automated
 
-- [ ] 4.1 Larastan passes
-- [ ] 4.2 Pint passes
-- [ ] 4.3 Pest passes
-- [ ] 4.4 Build passes
+- [x] 4.1 Larastan passes
+- [x] 4.2 Pint passes
+- [x] 4.3 Pest passes
+- [x] 4.4 Build passes
 
 #### Manual
 

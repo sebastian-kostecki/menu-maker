@@ -171,9 +171,9 @@ Rollback: revert the phase commits and `composer install` / `npm ci`.
 
 #### Automated
 
-- [ ] 1.1 Pest suite passes (129 tests)
-- [ ] 1.2 Larastan clean
-- [ ] 1.3 Pint clean
+- [x] 1.1 Pest suite passes (129 tests)
+- [x] 1.2 Larastan clean
+- [x] 1.3 Pint clean
 
 ### Phase 2: JS toolchain (Inertia vue3 3, laravel-vite-plugin 3, Vite 8)
 

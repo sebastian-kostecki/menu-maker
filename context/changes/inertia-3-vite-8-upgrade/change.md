@@ -1,7 +1,7 @@
 ---
 change_id: inertia-3-vite-8-upgrade
 title: Upgrade to Inertia 3, laravel-vite-plugin 3 and Vite 8
-status: plan_reviewed
+status: implementing
 created: 2026-11-13
 updated: 2026-11-13
 archived_at: null

@@ -37,8 +37,7 @@ Menu Maker automates family meal planning by letting users save their own recipe
 - PHP 8.5+
 - Laravel 12.0+
 - Inertia.js Laravel 2.0+
-- MySQL
-- Redis
+- PostgreSQL 18 (via Sail; `unaccent` extension for accent-insensitive search)
 
 **Frontend**
 

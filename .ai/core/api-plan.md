@@ -120,10 +120,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 3. **CSRF**: Domyślna ochrona Laravel + Inertia.
 4. **Rate limiting / throttling**: `RateLimiter::for('api', 60 req / 1 min)` oraz per-route limit dla generacji PDF (np. 5/h).
 5. **Caching**:
-   * Redis jako `cache` i `queue` driver.
+   * Sterownik `database` jako `cache` i `queue`.
    * Cache listy jednostek i składników (`rememberForever`).
    * Cache wyników pełnotekstowego wyszukiwania przepisów (tag `recipes`).
-6. **Kolejki**: Redis + `database` fallback; Jobs dla ciężkich zadań (AI, PDF).
+6. **Kolejki**: Sterownik `database`; Jobs dla ciężkich zadań (AI, PDF).
 7. **XSS / bezpieczeństwo danych**: Escapowanie w Vue (domyślne), `v-html` unikać; sanitizacja danych wejściowych.
 8. **SQL Injection**: Eloquent ORM, parametryzowane zapytania.
 9. **Backup i czyszczenie danych**: `prune` command usuwający stare pliki PDF.

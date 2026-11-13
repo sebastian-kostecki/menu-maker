@@ -329,8 +329,8 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [x] 3.1 No SQLite left in the workflow
-- [x] 3.2 Workflow is valid YAML
+- [x] 3.1 No SQLite left in the workflow — 2bd59dc
+- [x] 3.2 Workflow is valid YAML — 2bd59dc
 
 #### Manual
 
@@ -340,10 +340,10 @@ No data to migrate. Rollback per phase is `git revert <sha>` followed by `sail d
 
 #### Automated
 
-- [ ] 4.1 Only used runtimes left in docker/
-- [ ] 4.2 No stale stack mentions
-- [ ] 4.3 Sail still builds
-- [ ] 4.4 Tests pass
+- [x] 4.1 Only used runtimes left in docker/
+- [x] 4.2 No stale stack mentions
+- [x] 4.3 Sail still builds
+- [x] 4.4 Tests pass
 
 #### Manual
 

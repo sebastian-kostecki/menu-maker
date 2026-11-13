@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ingredients to the family, and exports a PDF with the plan and a shopping list. Stack: Laravel 12 + Inertia v2 + Vue 3, Tailwind 3 with shadcn-vue, Pest, SQLite locally.
+Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ingredients to the family, and exports a PDF with the plan and a shopping list. Stack: Laravel 12 + Inertia v2 + Vue 3, Tailwind 3 with shadcn-vue, Pest, PostgreSQL 18 in Sail (no Redis).
 
 ## Hard Rules
 
@@ -26,7 +26,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 
 ## Testing
 
-Pest with `RefreshDatabase` on in-memory SQLite (`@phpunit.xml`). `tests/Feature/` holds one file per controller, `tests/Unit/` holds policies, Form Requests, jobs and models. Build data with factories in `database/factories/`.
+Pest with `RefreshDatabase` on the PostgreSQL `testing` database (`@phpunit.xml`; created by `docker/pgsql/`). `tests/Feature/` holds one file per controller, `tests/Unit/` holds policies, Form Requests, jobs and models. Build data with factories in `database/factories/`.
 
 ## Git & CI
 

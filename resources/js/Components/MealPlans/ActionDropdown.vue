@@ -95,9 +95,9 @@ interface MealPlanListItem {
   updated_at: string
   meals_count: number
   logs_count: number
-  pdf_path?: string | null
   links: {
     self: string
+    pdf: string | null
   }
 }
 import ConfirmDialog from '@/Components/MealPlans/ConfirmDialog.vue'
@@ -114,7 +114,7 @@ const showRegenerateDialog = ref(false)
 const showDeleteDialog = ref(false)
 
 // Action availability based on status
-const canDownloadPdf = computed(() => props.item.status === 'done' && !!props.item.pdf_path)
+const canDownloadPdf = computed(() => !!props.item.links.pdf)
 const canRegenerate = computed(() =>
   props.item.status === 'done' || props.item.status === 'error'
 )
@@ -129,8 +129,7 @@ const handleViewDetails = () => {
 const handleDownloadPdf = () => {
   if (!canDownloadPdf.value) return
 
-  const pdfUrl = route('meal-plans.pdf', { meal_plan: props.item.id })
-  window.open(pdfUrl, '_blank')
+  window.open(props.item.links.pdf as string, '_blank', 'noopener')
 }
 
 // Handle regenerate confirmation dialog

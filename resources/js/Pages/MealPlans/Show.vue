@@ -14,6 +14,12 @@
         </div>
         <div class="flex items-center gap-3">
           <StatusTag :value="mealPlan.status as any" />
+          <Button v-if="mealPlan.links.pdf" variant="outline" as-child>
+            <a :href="mealPlan.links.pdf" target="_blank" rel="noopener">
+              <Download class="mr-2 h-4 w-4" />
+              Pobierz PDF
+            </a>
+          </Button>
           <Button v-if="canRegenerate" variant="outline" @click="showRegenerateDialog = true">
             <RefreshCw class="mr-2 h-4 w-4" />
             Regeneruj
@@ -114,7 +120,6 @@ interface MealPlan {
   start_date: string
   end_date: string
   status: string
-  pdf_path?: string | null
   generation_meta?: { error_message?: string } | null
   created_at: string
   updated_at: string
@@ -123,6 +128,7 @@ interface MealPlan {
   meals?: Meal[]
   links: {
     self: string
+    pdf: string | null
   }
 }
 

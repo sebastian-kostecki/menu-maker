@@ -462,13 +462,13 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 
 #### Automated
 
-- [x] 2.1 Migration applies and rolls back cleanly
-- [x] 2.2 Policy and meal-plan feature tests pass
-- [x] 2.3 No code references to the dropped columns remain
-- [x] 2.4 Full suite passes
-- [x] 2.5 Larastan passes without baseline changes
-- [x] 2.6 Pint passes
-- [x] 2.7 Client and SSR bundles build
+- [x] 2.1 Migration applies and rolls back cleanly — e215753
+- [x] 2.2 Policy and meal-plan feature tests pass — e215753
+- [x] 2.3 No code references to the dropped columns remain — e215753
+- [x] 2.4 Full suite passes — e215753
+- [x] 2.5 Larastan passes without baseline changes — e215753
+- [x] 2.6 Pint passes — e215753
+- [x] 2.7 Client and SSR bundles build — e215753
 
 #### Manual
 
@@ -482,9 +482,9 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build
-- [ ] 3.2 E2E suite passes in both browsers
-- [ ] 3.3 Full Pest suite, Larastan and Pint pass
+- [x] 3.1 Client and SSR bundles build
+- [x] 3.2 E2E suite passes in both browsers
+- [x] 3.3 Full Pest suite, Larastan and Pint pass
 
 #### Manual
 

@@ -38,11 +38,27 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   };
   await expectShoppingList();
 
+  const pdfLink = page.getByRole('link', { name: 'Pobierz PDF' });
+  const expectPdfDownload = async () => {
+    await expect(pdfLink).toBeVisible();
+    await expect(pdfLink).toHaveAttribute('target', '_blank');
+    const response = await page.request.get((await pdfLink.getAttribute('href'))!);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('application/pdf');
+    const disposition = response.headers()['content-disposition'];
+    expect(disposition).toMatch(/^inline/);
+    expect(disposition).toContain('jadlospis-');
+    expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  };
+  await expectPdfDownload();
+
   await page.getByRole('button', { name: 'Regeneruj' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
 
   // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
   await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
+  await expect(pdfLink).toBeHidden();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
   await expectShoppingList();
+  await expectPdfDownload();
 });

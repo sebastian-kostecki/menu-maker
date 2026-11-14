@@ -72,7 +72,8 @@ class MealIngredientScaler
                 : null;
 
             if ($hasFamily && $factor === null) {
-                $unscaledRecipes[$recipe->id] = $recipe->name;
+                // Keyed by name: recipe names are not unique, and the notice should name each one once.
+                $unscaledRecipes[$recipe->name] = $recipe->name;
             }
 
             foreach ($recipe->recipeIngredients->sortBy('id') as $recipeIngredient) {

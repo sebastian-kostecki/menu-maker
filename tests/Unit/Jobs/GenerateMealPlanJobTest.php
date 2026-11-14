@@ -5,13 +5,16 @@ declare(strict_types=1);
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\LogsMealPlan;
 use App\Models\Meal;
+use App\Models\MealIngredient;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Models\User;
 use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\MaxAttemptsExceededException;
 use Illuminate\Queue\TimeoutExceededException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
@@ -45,6 +48,60 @@ it('processes meal plan successfully and logs progress', function (): void {
         ->and($log->status)->toBe('done')
         ->and($log->started_at)->not->toBeNull()
         ->and($log->finished_at)->not->toBeNull();
+});
+
+it('writes scaled and refined meal ingredients for a family', function (): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    seedTwoAdultFamily($user);
+    Recipe::query()->where('user_id', $user->id)->each(fn (Recipe $recipe) => attachIngredient($recipe, 'Mąka', '100', 'g'));
+    $mealPlan = MealPlan::factory()->for($user)->pending()->create([
+        'start_date' => now()->startOfDay(),
+        'end_date' => now()->startOfDay()->copy()->addDays(6),
+    ]);
+
+    (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
+
+    $mealPlan->refresh();
+    $rows = MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->get();
+
+    expect($mealPlan->status)->toBe('done')
+        ->and($mealPlan->generation_meta['version'])->toBe('scaled-v1')
+        ->and($mealPlan->generation_meta['scaling']['status'])->toBe('refined')
+        ->and($rows)->toHaveCount(21)
+        ->and($rows->pluck('source')->unique()->all())->toBe([MealIngredient::SOURCE_AI]);
+});
+
+it('marks a pending plan as error when the job fails before handle() runs', function (): void {
+    config(['services.ingredient_refiner.driver' => 'nope']);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->pending()->create([
+        'start_date' => now()->startOfDay(),
+        'end_date' => now()->startOfDay()->copy()->addDays(6),
+    ]);
+
+    expect(fn () => GenerateMealPlanJob::dispatch($mealPlan, false))
+        ->toThrow(InvalidArgumentException::class, 'Unknown AI_SCALING_DRIVER [nope].')
+        ->and($mealPlan->fresh()->status)->toBe('error')
+        ->and($mealPlan->fresh()->generation_meta['error_message'])->toBe(GenerateMealPlanJob::GENERIC_ERROR_MESSAGE);
+});
+
+it('failed() releases the overlap lock of a killed attempt so the plan can be regenerated', function (): void {
+    Exceptions::fake();
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->processing()->create([
+        'start_date' => now()->startOfDay(),
+        'end_date' => now()->startOfDay()->copy()->addDays(6),
+    ]);
+    $job = new GenerateMealPlanJob($mealPlan, false);
+    $lockKey = $job->middleware()[0]->getLockKey($job);
+    Cache::lock($lockKey, 300)->get();
+
+    $job->failed(new TimeoutExceededException('timed out'));
+
+    expect(Cache::lock($lockKey, 300)->get())->toBeTrue();
 });
 
 it('failed() marks meal plan as error when still processing', function (): void {

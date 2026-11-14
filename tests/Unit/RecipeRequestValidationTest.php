@@ -264,14 +264,16 @@ class RecipeRequestValidationTest extends TestCase
         }
     }
 
-    public function test_zero_calories_are_rejected_and_a_hundredth_is_accepted(): void
+    public function test_calories_below_50_are_rejected_and_50_is_accepted(): void
     {
         foreach ([new StoreRecipeRequest, new UpdateRecipeRequest] as $request) {
-            $zero = $this->validate($request, ['calories' => 0] + $this->recipeWith($this->validIngredients()));
-            $tiny = $this->validate($request, ['calories' => 0.01] + $this->recipeWith($this->validIngredients()));
+            foreach ([0, 49.99] as $tooLow) {
+                $rejected = $this->validate($request, ['calories' => $tooLow] + $this->recipeWith($this->validIngredients()));
+                $this->assertSame('Kaloryczność całkowita musi wynosić co najmniej 50 kcal.', $rejected->errors()->first('calories'));
+            }
 
-            $this->assertSame('Kaloryczność musi być większa od zera.', $zero->errors()->first('calories'));
-            $this->assertFalse($tiny->errors()->has('calories'));
+            $accepted = $this->validate($request, ['calories' => 50] + $this->recipeWith($this->validIngredients()));
+            $this->assertFalse($accepted->errors()->has('calories'));
         }
     }
 }

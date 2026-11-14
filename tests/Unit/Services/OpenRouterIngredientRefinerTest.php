@@ -79,6 +79,24 @@ it('fails on an unknown, missing, duplicate or non-numeric answer', function (ar
     'non-numeric' => [[['key' => 'i1-g-203.40', 'quantity' => 'dużo'], ['key' => 'i2-szt-2.37', 'quantity' => 2]]],
 ]);
 
+it('treats a permanent 4xx as a non-retryable configuration error', function (int $status): void {
+    Http::fake(['openrouter.ai/*' => Http::response('nope', $status)]);
+
+    expect(fn () => openRouterRefiner()->refine(openRouterItems()))
+        ->toThrow(RefinementConfigurationException::class, "HTTP {$status}");
+})->with([400, 401, 402, 403, 404]);
+
+it('keeps a timeout, rate limit or server error retryable', function (int $status): void {
+    Http::fake(['openrouter.ai/*' => Http::response('busy', $status)]);
+
+    try {
+        openRouterRefiner()->refine(openRouterItems());
+        $this->fail('Expected a RefinementFailedException.');
+    } catch (RefinementFailedException $e) {
+        expect($e->isRetryable())->toBeTrue()->and($e->getMessage())->toContain("HTTP {$status}");
+    }
+})->with([408, 429, 500, 503]);
+
 it('fails on a 500 response', function (): void {
     Http::fake(['openrouter.ai/*' => Http::response('oops', 500)]);
 

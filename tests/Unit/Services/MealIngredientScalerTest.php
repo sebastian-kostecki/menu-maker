@@ -86,16 +86,18 @@ it('keeps the recipe amounts and reports as_written when the owner has no family
         ->and($row->source)->toBe(MealIngredient::SOURCE_AS_WRITTEN);
 });
 
-it('keeps a 0-kcal recipe as written and lists it once, in Polish order', function (): void {
+it('keeps a 0-kcal recipe as written and lists each name once, in Polish order', function (): void {
     $user = User::factory()->create();
     addWorkedExampleFamily($user);
     $zero = Recipe::factory()->supper()->for($user)->create(['name' => 'Żurek', 'calories' => '0']);
+    $sameName = Recipe::factory()->dinner()->for($user)->create(['name' => 'Żurek', 'calories' => '0']);
     $other = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Łazanki', 'calories' => '0']);
     attachIngredient($zero, 'Mąka', '100', 'g');
     $plan = scalerPlan($user);
     $meal = addMealOf($plan, $zero);
     addMealOf($plan, $zero, '2026-11-17');
     addMealOf($plan, $other, '2026-11-18');
+    addMealOf($plan, $sameName, '2026-11-19');
 
     $outcome = app(MealIngredientScaler::class)->scale($plan);
 

@@ -40,3 +40,9 @@ it('rejects negative and non-numeric proposals', function (): void {
         ->and(guardAccepts('g', '100.00', 'abc'))->toBeNull()
         ->and(guardAccepts('szt', '2.37', '2.0000'))->toBe('2.00');
 });
+
+it('rounds an accepted proposal half-up to 2 decimals', function (): void {
+    expect(guardAccepts('kg', '1.20', '1.2390'))->toBe('1.24')
+        ->and(guardAccepts('kg', '1.20', '1.2350'))->toBe('1.24')
+        ->and(guardAccepts('kg', '1.20', '1.2349'))->toBe('1.23');
+});

@@ -38,7 +38,7 @@ final class ScalingNotices
         }
 
         if ($unscaledRecipes !== []) {
-            $notices[] = 'Przepisy bez kaloryczności nie zostały przeliczone: '.implode(', ', $unscaledRecipes).'.';
+            $notices[] = 'Przepisy z brakującą lub zbyt niską kalorycznością nie zostały przeliczone: '.implode(', ', $unscaledRecipes).'.';
         }
 
         if ($membersWithoutBody !== []) {

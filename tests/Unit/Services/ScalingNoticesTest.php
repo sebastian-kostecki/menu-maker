@@ -45,7 +45,7 @@ it('names unscaled recipes and members without body data', function (): void {
     ]]);
 
     expect(ScalingNotices::for($plan)['notices'])->toBe([
-        'Przepisy bez kaloryczności nie zostały przeliczone: Sałatka, Zupa.',
+        'Przepisy z brakującą lub zbyt niską kalorycznością nie zostały przeliczone: Sałatka, Zupa.',
         'Uzupełnij wagę i wzrost, aby dokładniej przeliczyć porcje: Anna, Jan.',
     ]);
 });
@@ -65,7 +65,7 @@ it('orders the notices as specified', function (): void {
 
     expect(ScalingNotices::for($plan)['notices'])->toBe([
         'Nie udało się dopracować ilości przez AI — pokazujemy ilości przeliczone automatycznie.',
-        'Przepisy bez kaloryczności nie zostały przeliczone: Zupa.',
+        'Przepisy z brakującą lub zbyt niską kalorycznością nie zostały przeliczone: Zupa.',
         'Uzupełnij wagę i wzrost, aby dokładniej przeliczyć porcje: Anna.',
         OLD_PLAN_NOTICE,
     ]);

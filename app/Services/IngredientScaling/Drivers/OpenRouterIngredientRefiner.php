@@ -11,6 +11,7 @@ use App\Services\IngredientScaling\RefinementResponseParser;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use JsonException;
 
 /**
  * Refines quantities through OpenRouter's chat completions endpoint with strict JSON-schema output.
@@ -53,7 +54,9 @@ class OpenRouterIngredientRefiner implements IngredientRefiner
         } catch (ConnectionException $e) {
             throw new RefinementFailedException('OpenRouter request timed out or could not connect.', 0, $e);
         } catch (RequestException $e) {
-            throw new RefinementFailedException('OpenRouter responded with HTTP '.$e->response->status().'.', 0, $e);
+            throw RefinementFailedException::fromHttpStatus('OpenRouter', $e->response->status(), $e);
+        } catch (JsonException $e) {
+            throw new RefinementFailedException('OpenRouter request payload could not be encoded.', 0, $e);
         }
 
         $content = $response->json('choices.0.message.content');

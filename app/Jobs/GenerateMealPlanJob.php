@@ -16,6 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\MaxAttemptsExceededException;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 
@@ -59,9 +60,15 @@ class GenerateMealPlanJob implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [
-            (new WithoutOverlapping((string) $this->mealPlan->id))->dontRelease()->expireAfter(300),
-        ];
+        return [$this->overlapGuard()];
+    }
+
+    /**
+     * The overlap middleware, built in one place so failed() can release the same lock key.
+     */
+    private function overlapGuard(): WithoutOverlapping
+    {
+        return (new WithoutOverlapping((string) $this->mealPlan->id))->dontRelease()->expireAfter(300);
     }
 
     /**
@@ -166,10 +173,14 @@ class GenerateMealPlanJob implements ShouldQueue
         // MaxAttemptsExceededException) and exceeded attempts only reach failed(), so report those here exactly once.
         if ($exception instanceof MaxAttemptsExceededException) {
             report($exception);
+
+            // A killed attempt never reaches the middleware's `finally`, so its lock would outlive it and
+            // make the next regeneration of this plan be dropped as an overlap.
+            Cache::lock($this->overlapGuard()->getLockKey($this))->forceRelease();
         }
 
-        // Update meal plan status to error if not already done
-        if ($this->mealPlan->fresh()->status === 'processing') {
+        // Pending covers failures before handle() starts (e.g. a refiner driver that cannot be resolved).
+        if (in_array($this->mealPlan->fresh()->status, ['pending', 'processing'], true)) {
             $this->mealPlan->update([
                 'status' => 'error',
                 'generation_meta' => [

@@ -16,7 +16,7 @@ final readonly class ScalingOutcome
     public const STATUS_AS_WRITTEN = 'as_written';
 
     /**
-     * @param  list<string>  $unscaledRecipes  Unique names of recipes without kcal, Polish-sorted.
+     * @param  list<string>  $unscaledRecipes  Unique names of recipes without kcal or with a factor above ScalingCalculator::MAX_FACTOR, Polish-sorted.
      * @param  list<string>  $membersWithoutBody  First names of adults on the reference row.
      */
     public function __construct(

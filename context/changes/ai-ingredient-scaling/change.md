@@ -1,7 +1,7 @@
 ---
 change_id: ai-ingredient-scaling
 title: Ai ingredient scaling
-status: implemented
+status: impl_reviewed
 created: 2026-11-14
 updated: 2026-11-14
 archived_at: null

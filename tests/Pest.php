@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\FamilyMember;
 use App\Models\Ingredient;
 use App\Models\Meal;
 use App\Models\MealPlan;
@@ -61,7 +62,18 @@ function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): Me
 }
 
 /**
- * Write the plan's per-meal ingredient snapshot from its recipes as written (the owner has no family, so nothing is scaled).
+ * Give the user a man (180 cm, 75 kg) and a woman (165 cm, 65 kg) aged 42: 3000 + 2400 = 5400 kcal a day,
+ * so a 810-kcal breakfast or Kolacja and a 1080-kcal Obiad scale by exactly 2.0.
+ */
+function seedTwoAdultFamily(User $user): void
+{
+    FamilyMember::factory()->for($user)->create(['first_name' => 'Adam', 'gender' => 'male', 'birth_date' => '1984-06-01', 'height_cm' => '180', 'weight_kg' => '75']);
+    FamilyMember::factory()->for($user)->create(['first_name' => 'Ewa', 'gender' => 'female', 'birth_date' => '1984-06-01', 'height_cm' => '165', 'weight_kg' => '65']);
+}
+
+/**
+ * Write the plan's per-meal ingredient snapshot with the real scaler: as written when the owner has no family,
+ * scaled (and rounded by the fake refiner) when they do.
  */
 function snapshotMealIngredients(MealPlan $plan): MealPlan
 {

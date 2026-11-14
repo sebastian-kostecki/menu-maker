@@ -24,6 +24,14 @@ it('returns null for recipes without calories', function (): void {
         ->and($calculator->factor('7200', 'supper', '-5'))->toBeNull();
 });
 
+it('returns null when the factor would exceed the cap', function (): void {
+    $calculator = new ScalingCalculator;
+
+    // 0.30 × 5000 = 1500 kcal for breakfast: 30 kcal gives exactly 50, 29.99 a little more.
+    expect(bccomp($calculator->factor('5000', 'breakfast', '30'), ScalingCalculator::MAX_FACTOR, 6))->toBe(0)
+        ->and($calculator->factor('5000', 'breakfast', '29.99'))->toBeNull();
+});
+
 it('scales a quantity and rounds half up to 2 decimals', function (): void {
     $calculator = new ScalingCalculator;
 

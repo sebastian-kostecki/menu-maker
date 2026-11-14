@@ -17,10 +17,16 @@ final class ScalingCalculator
      */
     public const MEAL_SHARES = ['breakfast' => '0.30', 'supper' => '0.40', 'dinner' => '0.30'];
 
+    /**
+     * Above this the recipe's kcal is implausibly low for the family (e.g. kcal per serving entered as the total),
+     * and the result could overflow the decimal(12,2) snapshot columns, so the recipe stays as written.
+     */
+    public const MAX_FACTOR = '50';
+
     private const SCALE = 12;
 
     /**
-     * Factor = family kcal for the meal / recipe total kcal, or null when the recipe has no kcal.
+     * Factor = family kcal for the meal / recipe total kcal, or null when the recipe has no kcal or the factor exceeds MAX_FACTOR.
      */
     public function factor(string $familyDailyKcal, string $category, string $recipeCalories): ?string
     {
@@ -29,8 +35,9 @@ final class ScalingCalculator
         }
 
         $mealKcal = bcmul($familyDailyKcal, self::MEAL_SHARES[$category], self::SCALE);
+        $factor = bcdiv($mealKcal, $recipeCalories, self::SCALE);
 
-        return bcdiv($mealKcal, $recipeCalories, self::SCALE);
+        return bccomp($factor, self::MAX_FACTOR, self::SCALE) > 0 ? null : $factor;
     }
 
     /**

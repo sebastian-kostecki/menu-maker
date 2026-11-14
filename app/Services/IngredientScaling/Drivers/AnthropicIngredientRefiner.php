@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\IngredientScaling\Drivers;
 
+use Anthropic\Core\Exceptions\APIStatusException;
 use App\Services\IngredientScaling\IngredientRefiner;
 use App\Services\IngredientScaling\RefinementConfigurationException;
 use App\Services\IngredientScaling\RefinementFailedException;
@@ -35,6 +36,8 @@ class AnthropicIngredientRefiner implements IngredientRefiner
             );
         } catch (RefinementFailedException $e) {
             throw $e;
+        } catch (APIStatusException $e) {
+            throw RefinementFailedException::fromHttpStatus('Anthropic', $e->status, $e);
         } catch (Throwable $e) {
             throw new RefinementFailedException('Anthropic request failed ('.$e::class.').', 0, $e);
         }

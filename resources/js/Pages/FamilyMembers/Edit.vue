@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/Components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card'
 import { ArrowLeft, Save } from 'lucide-vue-next'
+import { useFamilyMemberBodyValidation } from '@/hooks/useFamilyMemberBodyValidation'
+
+const { validateBodyData } = useFamilyMemberBodyValidation()
 
 const props = defineProps({
   familyMember: {
@@ -71,34 +74,7 @@ const validateForm = () => {
   }
 
   // Body data validation (required from 19 years of age)
-  const birthForAge = form.value.birth_date ? new Date(form.value.birth_date) : null
-  let isAdult = false
-  if (birthForAge && !Number.isNaN(birthForAge.getTime())) {
-    const now = new Date()
-    let age = now.getFullYear() - birthForAge.getFullYear()
-    if (now.getMonth() < birthForAge.getMonth() || (now.getMonth() === birthForAge.getMonth() && now.getDate() < birthForAge.getDate())) {
-      age--
-    }
-    isAdult = age >= 19
-  }
-
-  const weight = String(form.value.weight_kg ?? '').trim()
-  if (weight === '') {
-    if (isAdult) {
-      newErrors.weight_kg = 'Podaj wagę (wymagana od 19 lat).'
-    }
-  } else if (Number.isNaN(Number(weight)) || Number(weight) < 30 || Number(weight) > 300) {
-    newErrors.weight_kg = 'Waga musi wynosić od 30 do 300 kg.'
-  }
-
-  const height = String(form.value.height_cm ?? '').trim()
-  if (height === '') {
-    if (isAdult) {
-      newErrors.height_cm = 'Podaj wzrost (wymagany od 19 lat).'
-    }
-  } else if (Number.isNaN(Number(height)) || Number(height) < 100 || Number(height) > 250) {
-    newErrors.height_cm = 'Wzrost musi wynosić od 100 do 250 cm.'
-  }
+  Object.assign(newErrors, validateBodyData(form.value))
 
   errors.value = newErrors
   return Object.keys(newErrors).length === 0

@@ -71,7 +71,7 @@
           id="calories"
           v-model="form.calories"
           type="number"
-          min="0"
+          min="50"
           placeholder="np. 350"
           :class="{ 'border-red-500': form.errors.calories }"
           required

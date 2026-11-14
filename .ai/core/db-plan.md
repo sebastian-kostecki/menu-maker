@@ -138,7 +138,7 @@ UNIQUE (`meal_id`, `ingredient_id`). Plans created before scaling were backfille
 ```json
 {
   "status": "refined | computed | as_written",
-  "unscaled_recipes": ["Recipe names with 0 kcal, Polish-sorted"],
+  "unscaled_recipes": ["Unique names of recipes with 0 kcal or a factor above 50, Polish-sorted"],
   "members_without_body": ["First names of adults on the reference row"]
 }
 ```

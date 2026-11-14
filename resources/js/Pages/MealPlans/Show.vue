@@ -163,7 +163,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const SLOW_AFTER_MS = 30_000
+// Above the job's own budget (up to ~61 s of AI attempts, killed at 80 s), so a healthy but slow run never looks like a dead worker.
+const SLOW_AFTER_MS = 75_000
 
 const showRegenerateDialog = ref(false)
 const isSlow = ref(false)

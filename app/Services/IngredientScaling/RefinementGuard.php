@@ -14,7 +14,7 @@ class RefinementGuard
     private const MAX_DEVIATION = '0.25';
 
     /**
-     * Returns the proposal as a 2-decimal string when it is acceptable, otherwise null (keep the computed value).
+     * Returns the proposal rounded half-up to a 2-decimal string when it is acceptable, otherwise null (keep the computed value).
      */
     public function accept(RefinementItem $item, string $proposal): ?string
     {
@@ -28,7 +28,8 @@ class RefinementGuard
             ? $this->acceptablePieces($computed, $proposal)
             : $this->withinDeviation($computed, $proposal);
 
-        return $valid ? bcadd($proposal, '0', 2) : null;
+        // Half-up like ScalingCalculator::scale; the regex above guarantees a non-negative proposal.
+        return $valid ? bcadd($proposal, '0.005', 2) : null;
     }
 
     private function acceptablePieces(string $computed, string $proposal): bool

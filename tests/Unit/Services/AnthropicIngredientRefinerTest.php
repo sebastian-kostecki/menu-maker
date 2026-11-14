@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use Anthropic\Core\Exceptions\APIStatusException;
 use App\Services\IngredientScaling\Drivers\AnthropicGateway;
 use App\Services\IngredientScaling\Drivers\AnthropicIngredientRefiner;
 use App\Services\IngredientScaling\RefinementConfigurationException;
 use App\Services\IngredientScaling\RefinementFailedException;
 use App\Services\IngredientScaling\RefinementItem;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 
 function anthropicItems(): array
 {
@@ -42,6 +45,22 @@ it('fails on non-JSON text and on a gateway error', function (): void {
     expect(fn () => anthropicRefinerWith(null, new RuntimeException('network'))->refine(anthropicItems()))
         ->toThrow(RefinementFailedException::class);
 });
+
+it('maps an SDK status error to a configuration error only when it is a permanent 4xx', function (int $status, bool $retryable): void {
+    $error = APIStatusException::from(new Request('POST', 'https://api.anthropic.com/v1/messages'), new Response($status));
+
+    try {
+        anthropicRefinerWith(null, $error)->refine(anthropicItems());
+        $this->fail('Expected a RefinementFailedException.');
+    } catch (RefinementFailedException $e) {
+        expect($e->isRetryable())->toBe($retryable)->and($e->getMessage())->toContain("HTTP {$status}");
+    }
+})->with([
+    'unauthorized' => [401, false],
+    'bad request' => [400, false],
+    'rate limited' => [429, true],
+    'overloaded' => [529, true],
+]);
 
 it('treats a missing key as a non-retryable configuration error', function (): void {
     $refiner = anthropicRefinerWith(null, null, '');

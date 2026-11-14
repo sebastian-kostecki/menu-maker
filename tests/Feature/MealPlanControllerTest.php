@@ -451,6 +451,25 @@ it('passes each meal its stored ingredients with the display string and source',
         );
 });
 
+it('passes each meal its amounts scaled to the family', function (): void {
+    seedTwoAdultFamily($this->user);
+    $recipe = Recipe::factory()->breakfast()->for($this->user)->create(['calories' => 810]);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    attachIngredient($recipe, 'Jajka', '1', 'szt');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('mealPlan.meals.0.ingredients', 2)
+                ->where('mealPlan.meals.0.ingredients.0.display', '200 g')
+                ->where('mealPlan.meals.0.ingredients.0.source', 'ai')
+                ->where('mealPlan.meals.0.ingredients.1.display', '2 szt.')
+                ->where('shoppingList.items.0.display', '2 szt.')
+                ->where('shoppingList.items.1.display', '200 g')
+        );
+});
+
 it('passes the scaling notices of a done plan', function (): void {
     $recipe = Recipe::factory()->for($this->user)->create();
     $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
@@ -466,7 +485,7 @@ it('passes the scaling notices of a done plan', function (): void {
                 ->where('mealPlan.scaling.status', 'computed')
                 ->where('mealPlan.scaling.notices', [
                     'Nie udało się dopracować ilości przez AI — pokazujemy ilości przeliczone automatycznie.',
-                    'Przepisy bez kaloryczności nie zostały przeliczone: Zupa.',
+                    'Przepisy z brakującą lub zbyt niską kalorycznością nie zostały przeliczone: Zupa.',
                 ])
         );
 });

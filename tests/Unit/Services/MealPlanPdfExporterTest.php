@@ -6,6 +6,7 @@ use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanPdf\MealPlanPdfExporter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -169,6 +170,24 @@ it('prints the scaling notices under the title', function (): void {
     expect($text)->toContain('Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.', 'Mąka — 600 g')
         ->and(strpos($text, 'Jadłospis 16.11.2026'))->toBeLessThan(strpos($text, 'Dodaj członków rodziny'))
         ->and(strpos($text, 'Dodaj członków rodziny'))->toBeLessThan(strpos($text, 'Naleśniki'));
+});
+
+it('prints the amounts scaled to the family together with their notice', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    // Without body data the man falls back to the 75 kg reference row: still 3000 kcal, but named in the notice.
+    $user->familyMembers()->where('first_name', 'Adam')->update(['weight_kg' => null, 'height_cm' => null]);
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Naleśniki', 'calories' => 810]);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => $outcome->toArray()]]);
+
+    $text = pdfText(app(MealPlanPdfExporter::class)->render($plan->fresh()));
+
+    expect($text)->toContain('Uzupełnij wagę i wzrost, aby dokładniej przeliczyć porcje: Adam.', 'Mąka — 200 g')
+        ->not->toContain('Mąka — 100 g');
 });
 
 it('marks soft-deleted recipes in the PDF', function (): void {

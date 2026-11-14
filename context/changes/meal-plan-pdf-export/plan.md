@@ -482,9 +482,9 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build
-- [x] 3.2 E2E suite passes in both browsers
-- [x] 3.3 Full Pest suite, Larastan and Pint pass
+- [x] 3.1 Client and SSR bundles build — b18a927
+- [x] 3.2 E2E suite passes in both browsers — b18a927
+- [x] 3.3 Full Pest suite, Larastan and Pint pass — b18a927
 
 #### Manual
 

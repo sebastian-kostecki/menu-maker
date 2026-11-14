@@ -24,7 +24,7 @@ class MealPlanPdfExporter
      */
     public function document(MealPlan $mealPlan): MealPlanDocument
     {
-        $mealPlan->loadMissing('meals.recipe.recipeIngredients.ingredient', 'meals.recipe.recipeIngredients.unit');
+        $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
         $byDate = $mealPlan->meals
             ->filter(fn (Meal $meal): bool => $meal->recipe !== null)
@@ -79,15 +79,15 @@ class MealPlanPdfExporter
         $recipe = $meal->recipe;
         $ingredients = [];
 
-        foreach ($recipe->recipeIngredients->sortBy('id') as $recipeIngredient) {
-            $ingredient = $recipeIngredient->ingredient;
-            $unit = $recipeIngredient->unit;
+        foreach ($meal->ingredients as $mealIngredient) {
+            $ingredient = $mealIngredient->ingredient;
+            $unit = $mealIngredient->unit;
 
-            if ($ingredient === null || $unit === null) {
+            if ($ingredient === null || $unit === null || bccomp((string) $mealIngredient->quantity, '0', 2) === 0) {
                 continue;
             }
 
-            $ingredients[] = $ingredient->name.' — '.$this->quantityFormatter->format((string) $recipeIngredient->quantity, $unit->code);
+            $ingredients[] = $ingredient->name.' — '.$this->quantityFormatter->format((string) $mealIngredient->quantity, $unit->code);
         }
 
         return new PdfMeal(

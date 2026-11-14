@@ -65,11 +65,11 @@ class ShoppingListBuilder
     }
 
     /**
-     * Build the shopping list for a plan from its recipes' ingredients as written.
+     * Build the shopping list for a plan from its meals' stored ingredient quantities (the generation snapshot).
      */
     public function forMealPlan(MealPlan $mealPlan): ShoppingList
     {
-        $mealPlan->loadMissing('meals.recipe.recipeIngredients.ingredient', 'meals.recipe.recipeIngredients.unit');
+        $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
         $lines = [];
         $withoutIngredients = [];
@@ -81,17 +81,17 @@ class ShoppingListBuilder
                 continue;
             }
 
-            if ($recipe->recipeIngredients->isEmpty()) {
+            if ($meal->ingredients->isEmpty()) {
                 $withoutIngredients[$recipe->id] = $recipe->name;
 
                 continue;
             }
 
-            foreach ($recipe->recipeIngredients as $recipeIngredient) {
-                $ingredient = $recipeIngredient->ingredient;
-                $unit = $recipeIngredient->unit;
+            foreach ($meal->ingredients as $mealIngredient) {
+                $ingredient = $mealIngredient->ingredient;
+                $unit = $mealIngredient->unit;
 
-                if ($ingredient === null || $unit === null) {
+                if ($ingredient === null || $unit === null || bccomp((string) $mealIngredient->quantity, '0', 2) === 0) {
                     continue;
                 }
 
@@ -100,7 +100,7 @@ class ShoppingListBuilder
                     name: $ingredient->name,
                     unitCode: $unit->code,
                     factorToBase: (string) $unit->conversion_factor_to_base,
-                    quantity: (string) $recipeIngredient->quantity,
+                    quantity: (string) $mealIngredient->quantity,
                 );
             }
         }

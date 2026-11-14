@@ -150,3 +150,19 @@ it('does not leak meals of another plan of the same user', function (): void {
 
     expect(array_map(fn ($item) => $item->name, $list->items))->toBe(['Mąka']);
 });
+
+it('reads the stored snapshot, not the current recipe, and skips zero quantities', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    attachIngredient($recipe, 'Sól', '5', 'g');
+    $plan = mealPlanWithRecipes($user, 'done', $recipe);
+    $rows = $plan->meals()->first()->ingredients;
+    $rows->first()->update(['quantity' => '450']);
+    $rows->last()->update(['quantity' => '0']);
+    $recipe->recipeIngredients()->update(['quantity' => '999']);
+
+    $list = (new ShoppingListBuilder)->forMealPlan($plan->fresh());
+
+    expect(array_map(fn ($item) => $item->display, $list->items))->toBe(['450 g']);
+});

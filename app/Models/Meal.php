@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property-read Recipe|null $recipe
+ * @property-read Collection<int, MealIngredient> $ingredients
  */
 class Meal extends Model
 {
@@ -31,5 +34,10 @@ class Meal extends Model
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class)->withTrashed();
+    }
+
+    public function ingredients(): HasMany
+    {
+        return $this->hasMany(MealIngredient::class)->orderBy('id');
     }
 }

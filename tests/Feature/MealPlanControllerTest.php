@@ -433,6 +433,24 @@ it('passes the summed shopping list for a done plan', function (): void {
         );
 });
 
+it('passes each meal its stored ingredients with the display string and source', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mąka', '250', 'g');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('mealPlan.meals.0.ingredients', 1)
+                ->where('mealPlan.meals.0.ingredients.0.name', 'Mąka')
+                ->where('mealPlan.meals.0.ingredients.0.quantity', '250.00')
+                ->where('mealPlan.meals.0.ingredients.0.unit.code', 'g')
+                ->where('mealPlan.meals.0.ingredients.0.display', '250 g')
+                ->where('mealPlan.meals.0.ingredients.0.source', 'as_written')
+                ->missing('mealPlan.meals.0.recipe.ingredients')
+        );
+});
+
 it('passes no shopping list while the plan is generating', function (string $status): void {
     $recipe = Recipe::factory()->for($this->user)->create();
     attachIngredient($recipe, 'Mąka', '100', 'g');

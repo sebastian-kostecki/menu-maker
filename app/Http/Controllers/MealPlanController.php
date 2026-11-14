@@ -83,8 +83,9 @@ class MealPlanController extends Controller
     {
         if (request()->expectsJson()) {
             $mealPlan->load([
-                'meals.recipe.recipeIngredients.ingredient',
-                'meals.recipe.recipeIngredients.unit',
+                'meals.recipe',
+                'meals.ingredients.ingredient',
+                'meals.ingredients.unit',
                 'logs' => function ($query) {
                     $query->orderBy('created_at', 'desc');
                 },
@@ -93,9 +94,9 @@ class MealPlanController extends Controller
             return response()->json(['data' => new MealPlanResource($mealPlan)]);
         }
 
-        // The week view (polled every 3 s while generating) needs the recipe names, kcal and servings;
-        // the shopping list also needs the ingredients, so it loads them itself, only for a done plan.
-        $mealPlan->load('meals.recipe');
+        // The week view (polled every 3 s while generating) needs the recipe names, kcal and servings
+        // plus each meal's scaled ingredients (empty while the plan is generating).
+        $mealPlan->load('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
         return Inertia::render('MealPlans/Show', [
             'mealPlan' => (new MealPlanResource($mealPlan))->resolve(),

@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Models\LogsMealPlan;
 use App\Models\MealPlan;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\InsufficientRecipesException;
 use App\Services\MealPlanGenerator;
 use Illuminate\Bus\Queueable;
@@ -29,6 +30,11 @@ class GenerateMealPlanJob implements ShouldQueue
      * Drop the job silently when the plan was deleted before processing.
      */
     public bool $deleteWhenMissingModels = true;
+
+    /**
+     * Seconds the worker lets one attempt run (below the queue's retry_after of 90).
+     */
+    public int $timeout = 80;
 
     /**
      * Shown to the user for app failures; the real exception goes to the logs and the error tracker only.
@@ -61,7 +67,7 @@ class GenerateMealPlanJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(MealPlanGenerator $generator): void
+    public function handle(MealPlanGenerator $generator, MealIngredientScaler $scaler): void
     {
         Context::add('meal_plan_id', $this->mealPlan->id);
 
@@ -78,12 +84,15 @@ class GenerateMealPlanJob implements ShouldQueue
 
             $generator->generate($this->mealPlan);
 
+            $scaling = $scaler->scale($this->mealPlan);
+
             $this->mealPlan->update([
                 'status' => 'done',
                 'generation_meta' => [
                     'generated_at' => now(),
                     'regenerate' => $this->regenerate,
-                    'version' => 'random-v1',
+                    'version' => 'scaled-v1',
+                    'scaling' => $scaling->toArray(),
                 ],
             ]);
 

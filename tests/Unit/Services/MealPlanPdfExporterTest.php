@@ -49,7 +49,7 @@ it('orders days by date and meals by category regardless of insertion order', fu
         ->and(array_map(fn ($meal) => $meal->category, $document->days[0]->meals))->toBe(['Śniadanie', 'Obiad', 'Kolacja']);
 });
 
-it('lists ingredients as written, in recipe order, without conversion', function (): void {
+it('lists the stored ingredient quantities in recipe order, without conversion', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);
     $recipe = Recipe::factory()->breakfast()->for($user)->create();
@@ -60,6 +60,7 @@ it('lists ingredients as written, in recipe order, without conversion', function
     attachIngredient($big, 'Ziemniaki', '1500', 'g');
     addMeal($plan, $recipe, '2026-11-16');
     addMeal($plan, $big, '2026-11-16');
+    snapshotMealIngredients($plan);
 
     $meals = app(MealPlanPdfExporter::class)->document($plan)->days[0]->meals;
 
@@ -101,12 +102,31 @@ it('skips meals without a recipe and omits days left empty', function (): void {
         ->and(array_map(fn ($meal) => $meal->recipeName, $days[0]->meals))->toBe(['Zostaje']);
 });
 
+it('lists the scaled snapshot, not the current recipe amounts, and skips zero quantities', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    attachIngredient($recipe, 'Sól', '1', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    snapshotMealIngredients($plan);
+    $plan->load('meals.ingredients');
+    $plan->meals->first()->ingredients->first()->update(['quantity' => '250']);
+    $plan->meals->first()->ingredients->last()->update(['quantity' => '0']);
+    $recipe->recipeIngredients()->update(['quantity' => '999']);
+
+    $meals = app(MealPlanPdfExporter::class)->document($plan->fresh())->days[0]->meals;
+
+    expect($meals[0]->ingredients)->toBe(['Mąka — 250 g']);
+});
+
 it('passes the shopping list through', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);
     $recipe = Recipe::factory()->breakfast()->for($user)->create();
     attachIngredient($recipe, 'Mąka', '600', 'g');
     addMeal($plan, $recipe, '2026-11-16');
+    snapshotMealIngredients($plan);
 
     $document = app(MealPlanPdfExporter::class)->document($plan);
 
@@ -124,6 +144,7 @@ it('renders a PDF with the plan before the shopping list and Polish glyphs', fun
     addMeal($plan, $salmon, '2026-11-16');
     addMeal($plan, $soup, '2026-11-16');
     addMeal($plan, $supper, '2026-11-16');
+    snapshotMealIngredients($plan);
 
     $bytes = app(MealPlanPdfExporter::class)->render($plan);
     $text = pdfText($bytes);

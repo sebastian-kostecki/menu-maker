@@ -7,8 +7,9 @@ namespace App\Http\Resources;
 use App\Enums\MealCategory;
 use App\Models\LogsMealPlan;
 use App\Models\Meal;
+use App\Models\MealIngredient;
 use App\Models\MealPlan;
-use App\Models\RecipeIngredient;
+use App\Services\ShoppingList\QuantityFormatter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -57,23 +58,21 @@ class MealPlanResource extends JsonResource
                                 'category' => $meal->recipe->category,
                                 'calories' => $meal->recipe->calories,
                                 'servings' => $meal->recipe->servings,
-                                'ingredients' => $this->when($meal->recipe->relationLoaded('recipeIngredients'), function () use ($meal) {
-                                    /** @var Collection<int, RecipeIngredient> $ingredients */
-                                    $ingredients = $meal->recipe->recipeIngredients;
-
-                                    return $ingredients->map(function (RecipeIngredient $recipeIngredient) {
-                                        return [
-                                            'id' => $recipeIngredient->ingredient->id ?? null,
-                                            'name' => $recipeIngredient->ingredient->name ?? 'Unknown ingredient',
-                                            'quantity' => $recipeIngredient->quantity ?? 0,
-                                            'unit' => [
-                                                'id' => $recipeIngredient->unit->id ?? null,
-                                                'code' => $recipeIngredient->unit->code ?? 'pcs',
-                                            ],
-                                        ];
-                                    });
-                                }, []),
                             ];
+                        }),
+                        'ingredients' => $this->when($meal->relationLoaded('ingredients'), function () use ($meal) {
+                            return $meal->ingredients
+                                ->filter(fn (MealIngredient $mealIngredient): bool => bccomp((string) $mealIngredient->quantity, '0', 2) !== 0)
+                                ->map(fn (MealIngredient $mealIngredient): array => [
+                                    'ingredient_id' => $mealIngredient->ingredient_id,
+                                    'name' => $mealIngredient->ingredient->name ?? '',
+                                    'quantity' => (string) $mealIngredient->quantity,
+                                    'unit' => ['code' => $mealIngredient->unit->code ?? ''],
+                                    'display' => (new QuantityFormatter)->format((string) $mealIngredient->quantity, $mealIngredient->unit->code ?? ''),
+                                    'source' => $mealIngredient->source,
+                                ])
+                                ->values()
+                                ->all();
                         }),
                     ];
                 });

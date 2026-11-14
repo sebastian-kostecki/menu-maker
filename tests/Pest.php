@@ -9,6 +9,7 @@ use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use Smalot\PdfParser\Parser;
 use Tests\TestCase;
 
@@ -56,7 +57,17 @@ function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): Me
         ]);
     }
 
-    return $plan;
+    return snapshotMealIngredients($plan);
+}
+
+/**
+ * Write the plan's per-meal ingredient snapshot from its recipes as written (the owner has no family, so nothing is scaled).
+ */
+function snapshotMealIngredients(MealPlan $plan): MealPlan
+{
+    app(MealIngredientScaler::class)->scale($plan);
+
+    return $plan->unsetRelation('meals');
 }
 
 /**

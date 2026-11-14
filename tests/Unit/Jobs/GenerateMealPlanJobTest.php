@@ -7,6 +7,7 @@ use App\Models\LogsMealPlan;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\User;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\MaxAttemptsExceededException;
@@ -26,7 +27,7 @@ it('processes meal plan successfully and logs progress', function (): void {
     ]);
 
     // Run job synchronously (queue connection is sync in phpunit.xml)
-    (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class));
+    (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
 
     $mealPlan->refresh();
 
@@ -34,7 +35,9 @@ it('processes meal plan successfully and logs progress', function (): void {
         ->and($mealPlan->generation_meta)
         ->toBeArray()
         ->and($mealPlan->generation_meta['regenerate'])->toBeFalse()
-        ->and($mealPlan->generation_meta['version'])->toBe('random-v1')
+        ->and($mealPlan->generation_meta['version'])->toBe('scaled-v1')
+        ->and($mealPlan->generation_meta['scaling'])->toHaveKeys(['status', 'unscaled_recipes', 'members_without_body'])
+        ->and($mealPlan->generation_meta['scaling']['status'])->toBe('as_written')
         ->and(Meal::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(21);
 
     $log = LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->latest('created_at')->first();
@@ -94,7 +97,7 @@ it('handle() adds meal_plan_id to the log context, rethrows and writes no error 
         }
     });
 
-    expect(fn () => (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class)))
+    expect(fn () => (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class)))
         ->toThrow(RuntimeException::class, 'forced failure inside handle')
         ->and(Context::get('meal_plan_id'))->toBe($mealPlan->id)
         ->and($mealPlan->fresh()->status)->toBe('error')
@@ -144,7 +147,7 @@ it('turns a run-time recipe shortfall into an unreported error status', function
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    (new GenerateMealPlanJob($mealPlan, true))->handle(app(MealPlanGenerator::class));
+    (new GenerateMealPlanJob($mealPlan, true))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
 
     $mealPlan->refresh();
     $log = LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->latest('created_at')->first();

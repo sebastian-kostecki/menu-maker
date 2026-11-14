@@ -655,11 +655,11 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `vendor/bin/sail artisan migrate`
-- [x] 1.2 New and updated unit tests pass: `vendor/bin/sail pest tests/Unit/FamilyMemberPolicyTest.php tests/Unit/Services/EnergyNormsTest.php tests/Unit/Services/ScalingCalculatorTest.php tests/Unit/RecipeRequestValidationTest.php`
-- [x] 1.3 Family member feature tests pass: `vendor/bin/sail pest tests/Feature/FamilyMemberTest.php`
-- [x] 1.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
-- [x] 1.5 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 1.1 Migration applies cleanly: `vendor/bin/sail artisan migrate` — ead4dd5
+- [x] 1.2 New and updated unit tests pass: `vendor/bin/sail pest tests/Unit/FamilyMemberPolicyTest.php tests/Unit/Services/EnergyNormsTest.php tests/Unit/Services/ScalingCalculatorTest.php tests/Unit/RecipeRequestValidationTest.php` — ead4dd5
+- [x] 1.3 Family member feature tests pass: `vendor/bin/sail pest tests/Feature/FamilyMemberTest.php` — ead4dd5
+- [x] 1.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — ead4dd5
+- [x] 1.5 Client and SSR bundles build: `vendor/bin/sail npm run build` — ead4dd5
 
 #### Manual
 
@@ -670,10 +670,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [ ] 2.1 Migrations, including the backfill, apply and roll back cleanly: `vendor/bin/sail artisan migrate` then `vendor/bin/sail artisan migrate:rollback --step=1` then `vendor/bin/sail artisan migrate`
-- [ ] 2.2 Scaler, job, list, PDF and controller tests pass: `vendor/bin/sail pest tests/Unit/Services tests/Unit/Jobs tests/Feature/MealPlanControllerTest.php`
-- [ ] 2.3 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 2.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 2.1 Migrations, including the backfill, apply and roll back cleanly: `vendor/bin/sail artisan migrate` then `vendor/bin/sail artisan migrate:rollback --step=1` then `vendor/bin/sail artisan migrate`
+- [x] 2.2 Scaler, job, list, PDF and controller tests pass: `vendor/bin/sail pest tests/Unit/Services tests/Unit/Jobs tests/Feature/MealPlanControllerTest.php`
+- [x] 2.3 Full suite passes: `vendor/bin/sail composer test`
+- [x] 2.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
 
 #### Manual
 

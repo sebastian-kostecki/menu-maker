@@ -682,10 +682,10 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [x] 5.1 Scripts parse and are lint-clean
-- [x] 5.2 Existing infra shell tests still pass
-- [x] 5.3 Every relative link in `docs/menu-maker.md` resolves
-- [x] 5.4 Commit exists on `feat/menu-maker` in the infra repo
+- [x] 5.1 Scripts parse and are lint-clean — 8f71ba4
+- [x] 5.2 Existing infra shell tests still pass — 8f71ba4
+- [x] 5.3 Every relative link in `docs/menu-maker.md` resolves — 8f71ba4
+- [x] 5.4 Commit exists on `feat/menu-maker` in the infra repo — 8f71ba4
 
 #### Manual
 

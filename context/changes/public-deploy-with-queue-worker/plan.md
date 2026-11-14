@@ -648,21 +648,21 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [x] 2.1 Consistency test passes
-- [x] 2.2 Compose file is valid
-- [x] 2.3 Image builds from a clean context
-- [x] 2.4 Image has no SSR bundle, no Node and no env secrets
-- [x] 2.5 Image ships the matching dump client
-- [x] 2.6 Full suite passes
+- [x] 2.1 Consistency test passes — 180f341
+- [x] 2.2 Compose file is valid — 180f341
+- [x] 2.3 Image builds from a clean context — 180f341
+- [x] 2.4 Image has no SSR bundle, no Node and no env secrets — 180f341
+- [x] 2.5 Image ships the matching dump client — 180f341
+- [x] 2.6 Full suite passes — 180f341
 
 ### Phase 3: Deploy Scripts
 
 #### Automated
 
-- [ ] 3.1 Preflight tests pass
-- [ ] 3.2 Scripts are lint-clean
-- [ ] 3.3 Scripts are executable
-- [ ] 3.4 The example env file fails preflight because it has blank secrets
+- [x] 3.1 Preflight tests pass
+- [x] 3.2 Scripts are lint-clean
+- [x] 3.3 Scripts are executable
+- [x] 3.4 The example env file fails preflight because it has blank secrets
 
 ### Phase 4: CI Boot Smoke
 

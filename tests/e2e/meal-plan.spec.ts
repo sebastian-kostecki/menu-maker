@@ -23,10 +23,26 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
     await expect(grid.getByRole('columnheader', { name: header })).toBeVisible();
   }
 
+  const shoppingItems = page.getByTestId('shopping-list').getByRole('listitem');
+  const expectShoppingList = async () => {
+    await expect(shoppingItems).toHaveCount(3);
+    const expected: [string, string][] = [
+      ['Jajka', '21 szt.'],
+      ['Mąka', '2,1 kg'],
+      ['Mleko', '1,05 l'],
+    ];
+    for (const [index, [name, quantity]] of expected.entries()) {
+      await expect(shoppingItems.nth(index)).toContainText(name);
+      await expect(shoppingItems.nth(index)).toContainText(quantity);
+    }
+  };
+  await expectShoppingList();
+
   await page.getByRole('button', { name: 'Regeneruj' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
 
   // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
   await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
+  await expectShoppingList();
 });

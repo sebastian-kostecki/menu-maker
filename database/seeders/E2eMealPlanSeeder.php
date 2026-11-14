@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\MealCategory;
+use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Models\Unit;
 use App\Models\User;
 use App\Services\MealPlanGenerator;
 use Illuminate\Database\Seeder;
@@ -66,6 +68,8 @@ class E2eMealPlanSeeder extends Seeder
                 }
             }
 
+            $this->syncFixedIngredients($user);
+
             RateLimiter::clear('generate-meal-plan:'.$user->id);
         }
 
@@ -81,5 +85,23 @@ class E2eMealPlanSeeder extends Seeder
 
             $cook->recipes()->withTrashed()->forceDelete();
         }
+    }
+
+    /**
+     * Give every recipe of the user the same ingredients, so any 21-meal draw yields one known shopping list.
+     */
+    private function syncFixedIngredients(User $user): void
+    {
+        $unitIds = Unit::query()->whereIn('code', ['g', 'ml', 'szt'])->pluck('id', 'code');
+
+        $ingredients = [
+            Ingredient::resolveIdByName('Mąka') => ['quantity' => '100', 'unit_id' => $unitIds['g']],
+            Ingredient::resolveIdByName('Mleko') => ['quantity' => '50', 'unit_id' => $unitIds['ml']],
+            Ingredient::resolveIdByName('Jajka') => ['quantity' => '1', 'unit_id' => $unitIds['szt']],
+        ];
+
+        Recipe::where('user_id', $user->id)->each(
+            fn (Recipe $recipe) => $recipe->ingredients()->sync($ingredients),
+        );
     }
 }

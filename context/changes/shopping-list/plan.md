@@ -332,11 +332,11 @@ No schema changes. The seeder change rewrites the ingredients of the E2E planner
 
 #### Automated
 
-- [x] 2.1 Meal-plan feature tests pass
-- [x] 2.2 Full suite passes
-- [x] 2.3 Larastan passes without baseline changes
-- [x] 2.4 Pint passes
-- [x] 2.5 Client and SSR bundles build
+- [x] 2.1 Meal-plan feature tests pass — b3ddb0a
+- [x] 2.2 Full suite passes — b3ddb0a
+- [x] 2.3 Larastan passes without baseline changes — b3ddb0a
+- [x] 2.4 Pint passes — b3ddb0a
+- [x] 2.5 Client and SSR bundles build — b3ddb0a
 
 #### Manual
 
@@ -349,10 +349,10 @@ No schema changes. The seeder change rewrites the ingredients of the E2E planner
 
 #### Automated
 
-- [ ] 3.1 Seeder runs twice without error
-- [ ] 3.2 Client and SSR bundles build
-- [ ] 3.3 E2E suite passes in both browsers
-- [ ] 3.4 Full Pest suite, Larastan and Pint pass
+- [x] 3.1 Seeder runs twice without error
+- [x] 3.2 Client and SSR bundles build
+- [x] 3.3 E2E suite passes in both browsers
+- [x] 3.4 Full Pest suite, Larastan and Pint pass
 
 #### Manual
 

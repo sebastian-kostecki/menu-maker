@@ -127,4 +127,5 @@ it('re-authenticates a remembered user after the session expired', function (): 
 
     getWithOnlyCookies('/dashboard', $cookies)->assertOk();
     $this->assertAuthenticatedAs($user);
+    expect(Auth::viaRemember())->toBeTrue();
 });

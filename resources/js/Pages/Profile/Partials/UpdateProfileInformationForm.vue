@@ -5,12 +5,6 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 
-defineProps({
-    status: {
-        type: String,
-    },
-});
-
 const user = usePage().props.auth.user;
 
 const form = useForm({

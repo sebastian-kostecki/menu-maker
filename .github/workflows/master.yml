@@ -153,7 +153,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       mailpit:
-        image: axllent/mailpit:latest
+        image: axllent/mailpit:v1.33.1
         ports:
           - 1025:1025
           - 8025:8025

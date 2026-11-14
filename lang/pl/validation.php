@@ -152,17 +152,13 @@ return [
     'string' => 'Pole :attribute musi być tekstem.',
     'timezone' => 'Pole :attribute musi być prawidłową strefą czasową.',
     'unique' => 'Wartość pola :attribute jest już zajęta.',
-    'uploaded' => 'Nie udało się przesłać pola :attribute.',
+    'uploaded' => 'Nie udało się przesłać pliku :attribute.',
     'uppercase' => 'Pole :attribute musi składać się z wielkich liter.',
     'url' => 'Pole :attribute musi być prawidłowym adresem URL.',
     'ulid' => 'Pole :attribute musi być prawidłowym identyfikatorem ULID.',
     'uuid' => 'Pole :attribute musi być prawidłowym identyfikatorem UUID.',
 
-    'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
-        ],
-    ],
+    'custom' => [],
 
     'attributes' => [
         'name' => 'imię',

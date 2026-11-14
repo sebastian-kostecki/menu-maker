@@ -5,11 +5,6 @@ import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
 
-defineProps({
-    status: {
-        type: String,
-    },
-});
 </script>
 
 <template>
@@ -29,10 +24,7 @@ defineProps({
                 <div
                     class="bg-white p-4 shadow-sm sm:rounded-lg sm:p-8 dark:bg-gray-800"
                 >
-                    <UpdateProfileInformationForm
-                        :status="status"
-                        class="max-w-xl"
-                    />
+                    <UpdateProfileInformationForm class="max-w-xl" />
                 </div>
 
                 <div

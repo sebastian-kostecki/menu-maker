@@ -39,6 +39,18 @@ class UpdateRecipeRequest extends FormRequest
     }
 
     /**
+     * Get custom attribute names for validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nazwa przepisu',
+        ];
+    }
+
+    /**
      * Get custom validation messages.
      *
      * @return array<string, string>

@@ -1,10 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { findResetMessage, findResetPath } from './support/mailpit';
-
-const generateRandomEmail = (): string => {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `e2e-${random}@example.com`;
-};
+import { findResetMessage, findResetPath, generateRandomEmail } from './support/mailpit';
 
 test('user can reset the password through the e-mailed link', async ({ page, browser }, testInfo) => {
   const baseURL = testInfo.project.use.baseURL ?? 'http://localhost';
@@ -22,28 +17,31 @@ test('user can reset the password through the e-mailed link', async ({ page, bro
 
   // Fresh context simulates a logged-out user
   const context = await browser.newContext({ baseURL });
-  const page2 = await context.newPage();
-  await page2.goto('/forgot-password');
-  await page2.getByLabel('Adres e-mail').fill(email);
-  await page2.getByRole('button', { name: 'Wyślij link do resetu hasła' }).click();
-  await expect(page2.getByText('Wysłaliśmy e-mailem link do resetu hasła.')).toBeVisible();
+  try {
+    const page2 = await context.newPage();
+    await page2.goto('/forgot-password');
+    await page2.getByLabel('Adres e-mail').fill(email);
+    await page2.getByRole('button', { name: 'Wyślij link do resetu hasła' }).click();
+    await expect(page2.getByText('Wysłaliśmy e-mailem link do resetu hasła.')).toBeVisible();
 
-  const message = await findResetMessage(email);
-  expect(message.Subject).toBe('Zresetuj hasło');
+    const message = await findResetMessage(email);
+    expect(message.Subject).toBe('Zresetuj hasło');
 
-  const resetPath = await findResetPath(email);
-  await page2.goto(resetPath);
-  await page2.getByLabel('Nowe hasło').fill(newPassword);
-  await page2.getByLabel('Potwierdź hasło').fill(newPassword);
-  await page2.getByRole('button', { name: 'Zresetuj hasło' }).click();
+    const resetPath = await findResetPath(email);
+    await page2.goto(resetPath);
+    await page2.getByLabel('Nowe hasło').fill(newPassword);
+    await page2.getByLabel('Potwierdź hasło').fill(newPassword);
+    await page2.getByRole('button', { name: 'Zresetuj hasło' }).click();
 
-  await page2.waitForURL('**/login');
-  await expect(page2.getByText('Twoje hasło zostało zresetowane.')).toBeVisible();
+    await page2.waitForURL('**/login');
+    await expect(page2.getByText('Twoje hasło zostało zresetowane.')).toBeVisible();
 
-  await page2.getByLabel('Adres e-mail').fill(email);
-  await page2.getByLabel('Hasło').fill(newPassword);
-  await page2.getByRole('button', { name: 'Zaloguj się' }).click();
-  await page2.waitForURL('**/dashboard');
-  await expect(page2).toHaveURL(/dashboard/);
-  await context.close();
+    await page2.getByLabel('Adres e-mail').fill(email);
+    await page2.getByLabel('Hasło').fill(newPassword);
+    await page2.getByRole('button', { name: 'Zaloguj się' }).click();
+    await page2.waitForURL('**/dashboard');
+    await expect(page2).toHaveURL(/dashboard/);
+  } finally {
+    await context.close();
+  }
 });

@@ -1,9 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-const generateRandomEmail = (): string => {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `e2e-${random}@example.com`;
-};
+import { generateRandomEmail } from './support/mailpit';
 
 test('user can register and see dashboard', async ({ page }) => {
   const email = generateRandomEmail();

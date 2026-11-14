@@ -3,7 +3,7 @@ project: menu-maker
 version: 1
 status: draft                    # draft | active | locked
 created: 2026-11-13
-updated: 2026-11-13
+updated: 2026-11-14
 prd_version: —
 main_goal: quality
 top_blocker: decisions
@@ -44,11 +44,11 @@ Menu Maker pomaga rodzinom zaplanować posiłki na cały tydzień: użytkownik z
 | F-01 | error-tracking-baseline        | (foundation) błędy aplikacji i zadań w kolejce trafiają do śledzenia błędów z kontekstem   | —             | §6 (0 krytycznych błędów)             | done     |
 | F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | ready    |
 | S-01 | polish-auth-with-24h-session   | zarejestrować się, zalogować i zresetować hasło po polsku; sesja trwa 24 h                  | —             | US-001, US-002, US-003, FR-001, FR-008 | ready    |
-| S-02 | recipe-required-ingredients    | zapisać przepis tylko z kompletem pól, w tym składnikami w g/kg/ml/l/szt.                  | —             | US-005, US-006, FR-003, FR-008        | ready    |
+| S-02 | recipe-required-ingredients    | zapisać przepis tylko z kompletem pól, w tym składnikami w g/kg/ml/l/szt.                  | —             | US-005, US-006, FR-003, FR-008        | done |
 | S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | done |
-| S-04 | ai-ingredient-scaling          | zobaczyć składniki jadłospisu przeliczone do swojej rodziny i dopracowane przez AI         | S-03          | US-012, US-004, FR-005, FR-002        | proposed |
-| S-05 | shopping-list                  | zobaczyć przy jadłospisie zsumowaną, posortowaną listę zakupów z konwersją jednostek        | S-02, S-03    | US-011, FR-006                        | proposed |
-| S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | proposed |
+| S-04 | ai-ingredient-scaling          | zobaczyć składniki jadłospisu przeliczone do swojej rodziny i dopracowane przez AI         | S-03          | US-012, US-004, FR-005, FR-002        | ready    |
+| S-05 | shopping-list                  | zobaczyć przy jadłospisie zsumowaną, posortowaną listę zakupów z konwersją jednostek        | S-02, S-03    | US-011, FR-006                        | done |
+| S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | in-progress |
 
 ## Streams
 
@@ -132,7 +132,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Co z istniejącymi przepisami bez składników po zaostrzeniu walidacji — zostają, czy wymagają uzupełnienia przy edycji? — Owner: user. Block: no.
 - **Risk:** Lista zakupów (S-05) i skalowanie (S-04) są bezużyteczne bez składników w spójnych jednostkach, więc ten wycinek musi wyprzedzić listę zakupów.
-- **Status:** ready
+- **Status:** done
 
 ### S-03: Prawdziwy tygodniowy jadłospis (north star)
 
@@ -162,7 +162,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Która tabela norm zapotrzebowania (np. normy żywienia dla populacji Polski, przy umiarkowanej aktywności)? — Owner: user. Block: no (`/10x-plan` proponuje, Ty zatwierdzasz).
 - **Risk:** Najbardziej zawodna część produktu; stoi za generacją, żeby skalować działający jadłospis, a nie atrapę. Liczenie w kodzie czyni wynik testowalnym, a AI nie może go zepsuć. Przy okazji dopiąć brakujący test `FamilyMemberPolicy`, bo ten wycinek jako pierwszy konsumuje profil rodziny.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-05: Lista zakupów przy jadłospisie
 
@@ -175,7 +175,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Jak sumować ten sam składnik zapisany w niewymienialnych jednostkach (np. `szt.` i `g`)? — Owner: user. Block: no.
 - **Risk:** Celowo niezależny od S-04: lista liczy z ilości zapisanych w jadłospisie, więc działa na ilościach z przepisów teraz i na przeskalowanych, gdy S-04 wejdzie (US-012 kryterium 2). Reguły FR-6 są precyzyjne, więc testy jednostkowe zaokrągleń i konwersji są obowiązkowe.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: PDF z jadłospisem i listą zakupów
 
@@ -187,7 +187,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** PDF musi poprawnie renderować polskie znaki i być unieważniany przy regeneracji (US-009 nie zachowuje poprzednich wersji), inaczej użytkownik pobierze nieaktualny plik.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Backlog Handoff
 
@@ -196,11 +196,11 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 | F-01       | error-tracking-baseline         | Śledzenie błędów dla żądań i zadań w kolejce                  | done                  | Zarchiwizowane 2026-11-13 |
 | F-02       | public-deploy-with-queue-worker | Publiczne wdrożenie na Mikrusie z workerem kolejki           | yes                   | Przy planowaniu podaj repo `kostecki-infra`. Run `/10x-plan public-deploy-with-queue-worker` |
 | S-01       | polish-auth-with-24h-session    | Konto po polsku: sesja 24 h, działający e-mail resetu         | yes                   | Run `/10x-plan polish-auth-with-24h-session` |
-| S-02       | recipe-required-ingredients     | Przepis wymaga składników w jednostkach g/kg/ml/l/szt.        | yes                   | Run `/10x-plan recipe-required-ingredients` |
-| S-03       | real-weekly-meal-plan           | Generacja prawdziwego jadłospisu 7×3 bez powtórzeń            | yes                   | North star. Run `/10x-plan real-weekly-meal-plan` |
-| S-04       | ai-ingredient-scaling           | Skalowanie składników do profilu rodziny z dopracowaniem AI   | no                    | Po S-03; potrzebny klucz API OpenRouter; dopiąć test `FamilyMemberPolicy` |
-| S-05       | shopping-list                   | Zsumowana lista zakupów z konwersją jednostek                 | no                    | Po S-02 i S-03 |
-| S-06       | meal-plan-pdf-export            | Eksport jadłospisu i listy zakupów do jednego PDF             | no                    | Po S-05 |
+| S-02       | recipe-required-ingredients     | Przepis wymaga składników w jednostkach g/kg/ml/l/szt.        | done                  | Zarchiwizowane 2026-11-14 |
+| S-03       | real-weekly-meal-plan           | Generacja prawdziwego jadłospisu 7×3 bez powtórzeń            | done                  | North star. Zarchiwizowane 2026-11-13 |
+| S-04       | ai-ingredient-scaling           | Skalowanie składników do profilu rodziny z dopracowaniem AI   | yes                   | Potrzebny klucz API OpenRouter (do implementacji, nie do planu); dopiąć test `FamilyMemberPolicy`. Run `/10x-plan ai-ingredient-scaling` |
+| S-05       | shopping-list                   | Zsumowana lista zakupów z konwersją jednostek                 | done                  | Zarchiwizowane 2026-11-14 |
+| S-06       | meal-plan-pdf-export            | Eksport jadłospisu i listy zakupów do jednego PDF             | yes                   | Run `/10x-plan meal-plan-pdf-export` |
 
 ## Open Roadmap Questions
 
@@ -224,3 +224,5 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 
 - **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.
 - **S-03: Użytkownik może jednym kliknięciem wygenerować jadłospis 7 dni × 3 posiłki, w którym przepisy są losowane z jego własnych przepisów według kategorii bez powtórzeń w tygodniu, zobaczyć go w interfejsie i regenerować bez limitu.** — Archived 2026-11-13 → `context/archive/2026-11-13-real-weekly-meal-plan/`. Lesson: —.
+- **S-02: Użytkownik może zapisać przepis tylko z nazwą, kategorią, co najmniej jednym składnikiem (nazwa, jednostka g/kg/ml/l/szt., ilość), sposobem przygotowania, kalorycznością i liczbą porcji, a potem przejrzeć, edytować i usunąć go z potwierdzeniem.** — Archived 2026-11-14 → `context/archive/2026-11-13-recipe-required-ingredients/`. Lesson: —.
+- **S-05: Użytkownik może zobaczyć przy jadłospisie listę zakupów, w której składniki są zsumowane, ilości powyżej 1000 g i 1000 ml zamienione na kg i l, zaokrąglone do 2 miejsc i posortowane alfabetycznie.** — Archived 2026-11-14 → `context/archive/2026-11-14-shopping-list/`. Lesson: —.

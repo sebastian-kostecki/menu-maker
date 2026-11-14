@@ -27,7 +27,9 @@ class ShoppingListBuilder
         foreach ($lines as $line) {
             $group = Unit::GROUPS[$line->unitCode] ?? $line->unitCode;
             $key = $line->ingredientId.'|'.$group;
-            $amount = bcmul($line->quantity, $line->factorToBase, self::SCALE);
+            $amount = isset(Unit::GROUPS[$line->unitCode])
+                ? bcmul($line->quantity, $line->factorToBase, self::SCALE)
+                : bcadd($line->quantity, '0', self::SCALE);
 
             if (! isset($groups[$key])) {
                 $groups[$key] = [
@@ -135,7 +137,12 @@ class ShoppingListBuilder
 
         $rounded = bcadd(bcadd($value, '0.005', self::SCALE), '0', 2);
         $quantity = str_contains($rounded, '.') ? rtrim(rtrim($rounded, '0'), '.') : $rounded;
-        $number = (string) $formatter->format((float) $quantity);
+        $number = $formatter->format((float) $quantity);
+
+        if ($number === false) {
+            $number = str_replace('.', ',', $quantity);
+        }
+
         $label = Unit::LABELS[$unit] ?? $unit;
 
         return new ShoppingListItem(

@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Ingredient;
+use App\Models\Meal;
+use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\Unit;
@@ -33,4 +37,23 @@ function attachIngredient(Recipe $recipe, string $name, string $quantity, string
         'quantity' => $quantity,
         'unit_id' => Unit::query()->where('code', $unitCode)->value('id'),
     ]);
+}
+
+/**
+ * Create a plan in the given status (a MealPlanFactory state) with one meal per recipe on consecutive days.
+ */
+function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): MealPlan
+{
+    $plan = MealPlan::factory()->for($user)->{$status}()->create();
+
+    foreach ($recipes as $index => $recipe) {
+        Meal::query()->create([
+            'meal_plan_id' => $plan->id,
+            'recipe_id' => $recipe->id,
+            'meal_date' => $plan->start_date->copy()->addDays($index),
+            'meal_category' => $recipe->category,
+        ]);
+    }
+
+    return $plan;
 }

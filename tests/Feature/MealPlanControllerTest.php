@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Jobs\GenerateMealPlanJob;
-use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
@@ -422,22 +421,6 @@ it('turns a concurrent duplicate start date into a validation error', function (
     expect(MealPlan::where('user_id', $this->user->id)->count())->toBe(1);
     Queue::assertNothingPushed();
 });
-
-function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): MealPlan
-{
-    $plan = MealPlan::factory()->for($user)->{$status}()->create();
-
-    foreach ($recipes as $index => $recipe) {
-        Meal::query()->create([
-            'meal_plan_id' => $plan->id,
-            'recipe_id' => $recipe->id,
-            'meal_date' => $plan->start_date->copy()->addDays($index),
-            'meal_category' => $recipe->category,
-        ]);
-    }
-
-    return $plan;
-}
 
 it('passes the summed shopping list for a done plan', function (): void {
     $first = Recipe::factory()->for($this->user)->create();

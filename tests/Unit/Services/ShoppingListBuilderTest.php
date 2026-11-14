@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Meal;
-use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\ShoppingList\QuantityLine;
@@ -12,16 +10,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-const SHOPPING_FACTORS = ['g' => '1.0000', 'kg' => '1000.0000', 'ml' => '1.0000', 'l' => '1000.0000', 'szt' => '1.0000'];
-
 /**
  * @param  list<array{0: string, 1: string}>  $entries  Pairs of [quantity, unit code].
  * @return list<string>
  */
 function displaysFor(array $entries, string $name = 'Mąka', int $id = 1): array
 {
+    $factors = ['g' => '1.0000', 'kg' => '1000.0000', 'ml' => '1.0000', 'l' => '1000.0000', 'szt' => '1.0000'];
+
     $lines = array_map(
-        fn (array $entry): QuantityLine => new QuantityLine($id, $name, $entry[1], SHOPPING_FACTORS[$entry[1]], $entry[0]),
+        fn (array $entry): QuantityLine => new QuantityLine($id, $name, $entry[1], $factors[$entry[1]], $entry[0]),
         $entries,
     );
 
@@ -83,30 +81,22 @@ it('returns an empty list for no lines', function (): void {
     expect((new ShoppingListBuilder)->build([]))->toBe([]);
 });
 
+it('keeps an unknown unit code as its own group without conversion', function (): void {
+    $items = (new ShoppingListBuilder)->build([new QuantityLine(1, 'Mąka', 'opak', '1000.0000', '2')]);
+
+    expect($items)->toHaveCount(1)
+        ->and($items[0]->display)->toBe('2 opak')
+        ->and($items[0]->unit)->toBe('opak');
+});
+
 it('exposes the rounded quantity as a dot-decimal string without trailing zeros', function (): void {
     $build = fn (string $quantity, string $unit): string => (new ShoppingListBuilder)
-        ->build([new QuantityLine(1, 'Mąka', $unit, SHOPPING_FACTORS[$unit], $quantity)])[0]->quantity;
+        ->build([new QuantityLine(1, 'Mąka', $unit, '1.0000', $quantity)])[0]->quantity;
 
     expect($build('1234', 'g'))->toBe('1.23')
         ->and($build('500', 'g'))->toBe('500')
         ->and($build('2.50', 'szt'))->toBe('2.5');
 });
-
-function planWithRecipes(User $user, Recipe ...$recipes): MealPlan
-{
-    $plan = MealPlan::factory()->for($user)->done()->create();
-
-    foreach ($recipes as $index => $recipe) {
-        Meal::query()->create([
-            'meal_plan_id' => $plan->id,
-            'recipe_id' => $recipe->id,
-            'meal_date' => $plan->start_date->copy()->addDays($index),
-            'meal_category' => $recipe->category,
-        ]);
-    }
-
-    return $plan;
-}
 
 it('sums ingredients across the plan meals', function (): void {
     $user = User::factory()->create();
@@ -115,7 +105,7 @@ it('sums ingredients across the plan meals', function (): void {
     attachIngredient($first, 'Mąka', '600', 'g');
     attachIngredient($second, 'Mąka', '600', 'g');
 
-    $list = (new ShoppingListBuilder)->forMealPlan(planWithRecipes($user, $first, $second));
+    $list = (new ShoppingListBuilder)->forMealPlan(mealPlanWithRecipes($user, 'done', $first, $second));
 
     expect($list->items)->toHaveCount(1)
         ->and($list->items[0]->display)->toBe('1,2 kg')
@@ -126,7 +116,7 @@ it('counts the ingredients of a soft-deleted recipe', function (): void {
     $user = User::factory()->create();
     $recipe = Recipe::factory()->for($user)->create();
     attachIngredient($recipe, 'Mleko', '250', 'ml');
-    $plan = planWithRecipes($user, $recipe);
+    $plan = mealPlanWithRecipes($user, 'done', $recipe);
     $recipe->delete();
 
     $list = (new ShoppingListBuilder)->forMealPlan($plan);
@@ -139,7 +129,7 @@ it('lists recipes without ingredients once, in Polish order, without adding rows
     $user = User::factory()->create();
     $zupa = Recipe::factory()->for($user)->create(['name' => 'Zupa']);
     $lazanki = Recipe::factory()->for($user)->create(['name' => 'Łazanki']);
-    $plan = planWithRecipes($user, $zupa, $lazanki, $zupa);
+    $plan = mealPlanWithRecipes($user, 'done', $zupa, $lazanki, $zupa);
 
     $list = (new ShoppingListBuilder)->forMealPlan($plan);
 
@@ -153,8 +143,8 @@ it('does not leak meals of another plan of the same user', function (): void {
     $elsewhere = Recipe::factory()->for($user)->create();
     attachIngredient($inPlan, 'Mąka', '100', 'g');
     attachIngredient($elsewhere, 'Cukier', '50', 'g');
-    $plan = planWithRecipes($user, $inPlan);
-    planWithRecipes($user, $elsewhere);
+    $plan = mealPlanWithRecipes($user, 'done', $inPlan);
+    mealPlanWithRecipes($user, 'done', $elsewhere);
 
     $list = (new ShoppingListBuilder)->forMealPlan($plan);
 

@@ -528,3 +528,17 @@ it('exposes the PDF link only for a done plan and no stored path', function (): 
         fn ($page) => $page->where('mealPlan.links.pdf', null)
     );
 });
+
+it('exposes the PDF link on the list only for done plans', function (): void {
+    $done = MealPlan::factory()->done()->for($this->user)->create();
+    $pending = MealPlan::factory()->pending()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.index'))->assertInertia(
+        function ($page) use ($done, $pending): void {
+            $links = collect($page->toArray()['props']['mealPlans']['data'])->pluck('links.pdf', 'id');
+
+            expect($links[$done->id])->toBe(route('meal-plans.pdf', $done))
+                ->and($links[$pending->id])->toBeNull();
+        }
+    );
+});

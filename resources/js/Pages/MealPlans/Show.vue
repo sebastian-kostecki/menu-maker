@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Head, Link, router, usePoll } from '@inertiajs/vue3'
-import { ArrowLeft, ChefHat, RefreshCw } from 'lucide-vue-next'
+import { ArrowLeft, ChefHat, Download, RefreshCw } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Button } from '@/Components/ui/button'

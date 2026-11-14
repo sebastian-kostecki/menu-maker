@@ -83,6 +83,24 @@ it('handles recipes without ingredients and soft-deleted recipes', function (): 
         ->and($meals[1]->recipeDeleted)->toBeTrue();
 });
 
+it('skips meals without a recipe and omits days left empty', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $kept = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Zostaje']);
+    $lost = Recipe::factory()->supper()->for($user)->create(['name' => 'Znika']);
+    addMeal($plan, $kept, '2026-11-16');
+    addMeal($plan, $lost, '2026-11-16');
+    addMeal($plan, $lost, '2026-11-17');
+
+    $plan->load('meals.recipe');
+    $plan->meals->where('recipe_id', $lost->id)->each(fn (Meal $meal) => $meal->setRelation('recipe', null));
+
+    $days = app(MealPlanPdfExporter::class)->document($plan)->days;
+
+    expect(array_map(fn ($day) => $day->label, $days))->toBe(['Poniedziałek 16.11'])
+        ->and(array_map(fn ($meal) => $meal->recipeName, $days[0]->meals))->toBe(['Zostaje']);
+});
+
 it('passes the shopping list through', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);

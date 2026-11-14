@@ -1,7 +1,7 @@
 ---
 change_id: meal-plan-pdf-export
 title: Meal plan PDF export
-status: implemented
+status: impl_reviewed
 created: 2026-11-14
 updated: 2026-11-14
 ---

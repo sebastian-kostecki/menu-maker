@@ -1,10 +1,10 @@
 ---
 change_id: recipe-required-ingredients
 title: Recipe required ingredients
-status: implemented
+status: archived
 created: 2026-11-13
-updated: 2026-11-13
-archived_at: null
+updated: 2026-11-14
+archived_at: 2026-11-14T07:34:54Z
 ---
 
 ## Notes

@@ -42,7 +42,7 @@ Menu Maker pomaga rodzinom zaplanować posiłki na cały tydzień: użytkownik z
 | ID   | Change ID                      | Outcome (user can …)                                                                        | Prerequisites | PRD refs                              | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------------------------------------- | ------------- | ------------------------------------- | -------- |
 | F-01 | error-tracking-baseline        | (foundation) błędy aplikacji i zadań w kolejce trafiają do śledzenia błędów z kontekstem   | —             | §6 (0 krytycznych błędów)             | done     |
-| F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | in-progress |
+| F-02 | public-deploy-with-queue-worker | (foundation) aplikacja z workerem kolejki działa publicznie na Mikrusie, wdrażana przez `kostecki-infra` | F-01 | §6 (wdrożenie publiczne)          | done |
 | S-01 | polish-auth-with-24h-session   | zarejestrować się, zalogować i zresetować hasło po polsku; sesja trwa 24 h                  | —             | US-001, US-002, US-003, FR-001, FR-008 | done |
 | S-02 | recipe-required-ingredients    | zapisać przepis tylko z kompletem pól, w tym składnikami w g/kg/ml/l/szt.                  | —             | US-005, US-006, FR-003, FR-008        | done |
 | S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | done |
@@ -103,7 +103,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Unknowns:**
   - Jakiego artefaktu i kontraktu oczekuje `kostecki-infra` (obraz w rejestrze, plik compose, zmienne środowiskowe, wyzwalacz z CI)? Repo nie jest dostępne w tym workspace — podaj ścieżkę lub URL przy `/10x-plan`. — Owner: user. Block: no.
 - **Risk:** Bez workera kolejki w produkcji żaden jadłospis się nie wygeneruje, więc wdrożenie musi obejmować worker od pierwszego dnia; Mikrus to mały VPS, więc pamięć workera i renderowania PDF trzeba sprawdzić na serwerze, nie lokalnie.
-- **Status:** in-progress
+- **Status:** done
 
 ## Slices
 
@@ -229,3 +229,4 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **S-04: Użytkownik może zobaczyć w wygenerowanym jadłospisie ilości składników przeliczone do swojej rodziny i zamienione przez AI na praktyczne ilości; gdy AI zawiedzie, nadal dostaje jadłospis z ilościami policzonymi bez AI i informację o tym.** — Archived 2026-11-14 → `context/archive/2026-11-14-ai-ingredient-scaling/`. Lesson: —.
 - **S-06: Użytkownik może pobrać jeden PDF, który najpierw zawiera tabelę jadłospisu (dzień, kategoria, nazwa, składniki, przygotowanie), a potem listę zakupów, zgodny z ostatnią wygenerowaną wersją i otwierający się w przeglądarce.** — Archived 2026-11-14 → `context/archive/2026-11-14-meal-plan-pdf-export/`. Lesson: —.
 - **S-01: Użytkownik może zarejestrować się, zalogować i zresetować hasło na polskich ekranach; sesja wygasa po 24 h braku aktywności, a link resetu (ważny 1 h) faktycznie dociera e-mailem.** — Archived 2026-11-14 → `context/archive/2026-11-14-polish-auth-with-24h-session/`. Lesson: —.
+- **F-02: (foundation) aplikacja działa pod publicznym adresem na serwerze Mikrus z działającym workerem kolejki; konfigurację serwera i wdrożenia trzyma osobne repo `kostecki-infra`, a to repo dostarcza artefakt, którego ono oczekuje.** — Archived 2026-11-14 → `context/archive/2026-11-14-public-deploy-with-queue-worker/`. Lesson: —.

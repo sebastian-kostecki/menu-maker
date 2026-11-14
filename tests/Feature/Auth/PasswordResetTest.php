@@ -111,3 +111,22 @@ it('rejects a token issued 61 minutes ago', function (): void {
         return true;
     });
 });
+
+it('renders the reset e-mail in Polish', function (): void {
+    $user = User::factory()->create();
+
+    $mail = (new ResetPassword('token'))->toMail($user);
+    $rendered = (string) $mail->render();
+
+    expect($mail->subject)->toBe('Zresetuj hasło')
+        ->and($mail->actionText)->toBe('Zresetuj hasło')
+        ->and($mail->outroLines)->toContain('Ten link do resetu hasła wygaśnie za 60 minut.')
+        ->and($rendered)->toContain('Witaj!')
+        ->and($rendered)->toContain('Pozdrawiamy,')
+        ->and($rendered)->toContain('Wszelkie prawa zastrzeżone.');
+});
+
+it('returns the Polish message for an unknown e-mail', function (): void {
+    $this->post('/forgot-password', ['email' => 'nobody@example.com'])
+        ->assertSessionHasErrors(['email' => 'Nie znaleziono użytkownika z takim adresem e-mail.']);
+});

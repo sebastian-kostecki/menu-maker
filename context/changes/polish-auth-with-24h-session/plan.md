@@ -454,12 +454,12 @@ None. The reset mail stays synchronous on the request path, as today. Mailpit SM
 
 #### Automated
 
-- [x] 1.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth tests/Feature/ProfileTest.php`
-- [x] 1.2 Full suite passes: `vendor/bin/sail composer test`
-- [x] 1.3 No verification routes remain: `vendor/bin/sail artisan route:list --name=verification` lists no routes
-- [x] 1.4 Larastan passes without new baseline entries: `vendor/bin/sail composer phpstan`
-- [x] 1.5 Pint passes: `vendor/bin/sail composer pint-test`
-- [x] 1.6 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 1.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth tests/Feature/ProfileTest.php` — 5e68f11
+- [x] 1.2 Full suite passes: `vendor/bin/sail composer test` — 5e68f11
+- [x] 1.3 No verification routes remain: `vendor/bin/sail artisan route:list --name=verification` lists no routes — 5e68f11
+- [x] 1.4 Larastan passes without new baseline entries: `vendor/bin/sail composer phpstan` — 5e68f11
+- [x] 1.5 Pint passes: `vendor/bin/sail composer pint-test` — 5e68f11
+- [x] 1.6 Client and SSR bundles build: `vendor/bin/sail npm run build` — 5e68f11
 
 #### Manual
 
@@ -470,11 +470,11 @@ None. The reset mail stays synchronous on the request path, as today. Mailpit SM
 
 #### Automated
 
-- [ ] 2.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth`
-- [ ] 2.2 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 2.3 No English UI literals remain in the eight Vue files
-- [ ] 2.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.5 Existing E2E suite passes against Sail
+- [x] 2.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth`
+- [x] 2.2 Full suite passes: `vendor/bin/sail composer test`
+- [x] 2.3 No English UI literals remain in the eight Vue files
+- [x] 2.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.5 Existing E2E suite passes against Sail
 
 #### Manual
 

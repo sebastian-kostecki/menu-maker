@@ -1,0 +1,12 @@
+{
+    "Reset your password": "Zresetuj hasło",
+    "You are receiving this email because we received a password reset request for your account.": "Otrzymujesz tę wiadomość, ponieważ otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta.",
+    "Reset Password": "Zresetuj hasło",
+    "This password reset link will expire in :count minutes.": "Ten link do resetu hasła wygaśnie za :count minut.",
+    "If you did not request a password reset, no further action is required.": "Jeśli to nie Ty prosiłeś o reset hasła, nie musisz podejmować żadnych działań.",
+    "Hello!": "Witaj!",
+    "Whoops!": "Ups!",
+    "Regards,": "Pozdrawiamy,",
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Jeśli masz problem z kliknięciem przycisku „:actionText”, skopiuj i wklej poniższy adres URL\ndo przeglądarki:",
+    "All rights reserved.": "Wszelkie prawa zastrzeżone."
+}

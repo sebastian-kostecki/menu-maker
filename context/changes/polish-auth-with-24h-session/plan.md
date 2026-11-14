@@ -485,11 +485,11 @@ None. The reset mail stays synchronous on the request path, as today. Mailpit SM
 
 #### Automated
 
-- [x] 3.1 Mailpit container is running after `vendor/bin/sail up -d`
-- [x] 3.2 Full Pest suite still passes: `vendor/bin/sail composer test`
-- [x] 3.3 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 3.4 Whole E2E suite, including the new reset spec on both browsers, passes against Sail
-- [x] 3.5 CI workflow defines the `mailpit` service in the `e2e-tests` job
+- [x] 3.1 Mailpit container is running after `vendor/bin/sail up -d` — 98c8053
+- [x] 3.2 Full Pest suite still passes: `vendor/bin/sail composer test` — 98c8053
+- [x] 3.3 Client and SSR bundles build: `vendor/bin/sail npm run build` — 98c8053
+- [x] 3.4 Whole E2E suite, including the new reset spec on both browsers, passes against Sail — 98c8053
+- [x] 3.5 CI workflow defines the `mailpit` service in the `e2e-tests` job — 98c8053
 
 #### Manual
 

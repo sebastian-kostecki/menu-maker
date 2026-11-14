@@ -229,3 +229,31 @@ jobs:
           name: e2e-laravel-logs
           path: storage/logs/*.log
           if-no-files-found: ignore
+
+  # Boot smoke produkcyjnego obrazu Docker (build + compose + healthchecki)
+  production-image:
+    name: Production Image Boot Smoke
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.base_ref == 'main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Lint shell scripts
+        run: |
+          shopt -s globstar
+          shellcheck scripts/**/*.sh
+
+      - name: Test deploy helpers
+        run: bash scripts/lib/production-deploy.test.sh
+
+      - name: Production boot smoke
+        run: bash scripts/ci/production-smoke.sh
+
+      - name: Upload Laravel logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-image-logs
+          path: storage/logs/*.log
+          if-no-files-found: ignore

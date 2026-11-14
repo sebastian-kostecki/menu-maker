@@ -50,6 +50,8 @@ storage/pail
 storage/framework/cache
 storage/framework/sessions
 storage/framework/views
+storage/framework/testing
+storage/inertia-devtools
 storage/app/backups
 storage/fonts/*
 

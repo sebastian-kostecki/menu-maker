@@ -659,18 +659,18 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [x] 3.1 Preflight tests pass
-- [x] 3.2 Scripts are lint-clean
-- [x] 3.3 Scripts are executable
-- [x] 3.4 The example env file fails preflight because it has blank secrets
+- [x] 3.1 Preflight tests pass — 90ec829
+- [x] 3.2 Scripts are lint-clean — 90ec829
+- [x] 3.3 Scripts are executable — 90ec829
+- [x] 3.4 The example env file fails preflight because it has blank secrets — 90ec829
 
 ### Phase 4: CI Boot Smoke
 
 #### Automated
 
-- [ ] 4.1 Workflow file is valid YAML and accepted by a validator
-- [ ] 4.2 Smoke script is lint-clean and executable
-- [ ] 4.3 Local boot smoke passes
+- [x] 4.1 Workflow file is valid YAML and accepted by a validator
+- [x] 4.2 Smoke script is lint-clean and executable
+- [x] 4.3 Local boot smoke passes
 
 #### Manual
 

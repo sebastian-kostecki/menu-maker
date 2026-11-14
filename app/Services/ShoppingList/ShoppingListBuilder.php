@@ -7,11 +7,12 @@ namespace App\Services\ShoppingList;
 use App\Models\MealPlan;
 use App\Models\Unit;
 use Collator;
-use NumberFormatter;
 
 class ShoppingListBuilder
 {
     private const SCALE = 12;
+
+    public function __construct(private readonly QuantityFormatter $quantityFormatter = new QuantityFormatter) {}
 
     /**
      * Sum, convert, round and sort quantity lines into shopping list rows.
@@ -43,15 +44,10 @@ class ShoppingListBuilder
             $groups[$key]['sum'] = bcadd($groups[$key]['sum'], $amount, self::SCALE);
         }
 
-        $formatter = new NumberFormatter('pl_PL', NumberFormatter::DECIMAL);
-        $formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, 0);
-        $formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 2);
-        $formatter->setAttribute(NumberFormatter::GROUPING_USED, 0);
-
         $rows = [];
 
         foreach ($groups as $group) {
-            $rows[] = ['item' => $this->makeItem($group, $formatter), 'group' => $group['group']];
+            $rows[] = ['item' => $this->makeItem($group), 'group' => $group['group']];
         }
 
         $collator = new Collator('pl_PL');
@@ -118,7 +114,7 @@ class ShoppingListBuilder
     /**
      * @param  array{ingredientId: int, name: string, group: string, sum: string}  $group
      */
-    private function makeItem(array $group, NumberFormatter $formatter): ShoppingListItem
+    private function makeItem(array $group): ShoppingListItem
     {
         $large = Unit::GROUP_LARGE_CODES[$group['group']] ?? null;
         $base = Unit::GROUP_BASE_CODES[$group['group']] ?? null;
@@ -137,20 +133,13 @@ class ShoppingListBuilder
 
         $rounded = bcadd(bcadd($value, '0.005', self::SCALE), '0', 2);
         $quantity = str_contains($rounded, '.') ? rtrim(rtrim($rounded, '0'), '.') : $rounded;
-        $number = $formatter->format((float) $quantity);
-
-        if ($number === false) {
-            $number = str_replace('.', ',', $quantity);
-        }
-
-        $label = Unit::LABELS[$unit] ?? $unit;
 
         return new ShoppingListItem(
             ingredientId: $group['ingredientId'],
             name: $group['name'],
             quantity: $quantity,
             unit: $unit,
-            display: $number.' '.$label,
+            display: $this->quantityFormatter->format($quantity, $unit),
         );
     }
 

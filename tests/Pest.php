@@ -9,6 +9,7 @@ use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\Unit;
 use App\Models\User;
+use Smalot\PdfParser\Parser;
 use Tests\TestCase;
 
 /**
@@ -56,4 +57,12 @@ function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): Me
     }
 
     return $plan;
+}
+
+/**
+ * Extract the text of PDF bytes, with whitespace collapsed (approximate: cells may wrap or be split by tabs and newlines).
+ */
+function pdfText(string $bytes): string
+{
+    return preg_replace('/\s+/u', ' ', (new Parser)->parseContent($bytes)->getText()) ?? '';
 }

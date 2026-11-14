@@ -16,6 +16,7 @@ if [[ ! -f .env.prod ]]; then
 fi
 
 production_assert_env_ready .env.prod
+production_assert_env_readable_by_app .env.prod
 
 production_pull_latest
 
@@ -28,9 +29,11 @@ fi
 BACKUP_HOST_DIR="${BACKUP_HOST_DIR:-/storage/menu-maker-backups}"
 export BACKUP_HOST_DIR
 
+# Ownership is left alone: production_prepare_storage hands the directory to the app user
+# after `up -d`. Changing it to the operator here would break the pre-deploy backup,
+# which runs as the app user in the old container.
 echo "==> Ensuring backup directory exists..."
 sudo mkdir -p "$BACKUP_HOST_DIR"
-sudo chown -R "$(id -u)":"$(id -g)" "$BACKUP_HOST_DIR"
 
 # shellcheck disable=SC2034 # read by the sourced production_* functions
 MAINTENANCE_STARTED=0

@@ -74,6 +74,7 @@ set_env WWWUSER "$(id -u)"
 set_env WWWGROUP "$(id -g)"
 
 production_assert_env_ready "${ENV_FILE}"
+production_assert_env_readable_by_app "${ENV_FILE}"
 
 echo "==> Building and starting the stack..."
 STARTED=1

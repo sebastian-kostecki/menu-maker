@@ -48,7 +48,7 @@ Menu Maker pomaga rodzinom zaplanować posiłki na cały tydzień: użytkownik z
 | S-03 | real-weekly-meal-plan          | jednym kliknięciem wygenerować i regenerować tydzień 7×3 z własnych przepisów bez powtórzeń | F-01          | US-008, US-009, FR-004, FR-008        | done |
 | S-04 | ai-ingredient-scaling          | zobaczyć składniki jadłospisu przeliczone do swojej rodziny i dopracowane przez AI         | S-03          | US-012, US-004, FR-005, FR-002        | done |
 | S-05 | shopping-list                  | zobaczyć przy jadłospisie zsumowaną, posortowaną listę zakupów z konwersją jednostek        | S-02, S-03    | US-011, FR-006                        | done |
-| S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | in-progress |
+| S-06 | meal-plan-pdf-export           | pobrać jeden PDF: najpierw tabela jadłospisu, potem lista zakupów                           | S-05          | US-010, FR-007                        | done |
 
 ## Streams
 
@@ -187,7 +187,7 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** PDF musi poprawnie renderować polskie znaki i być unieważniany przy regeneracji (US-009 nie zachowuje poprzednich wersji), inaczej użytkownik pobierze nieaktualny plik.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -227,3 +227,4 @@ Stan funkcji: przepisy (US-005/006) prawie gotowe (lista składników jest opcjo
 - **S-02: Użytkownik może zapisać przepis tylko z nazwą, kategorią, co najmniej jednym składnikiem (nazwa, jednostka g/kg/ml/l/szt., ilość), sposobem przygotowania, kalorycznością i liczbą porcji, a potem przejrzeć, edytować i usunąć go z potwierdzeniem.** — Archived 2026-11-14 → `context/archive/2026-11-13-recipe-required-ingredients/`. Lesson: —.
 - **S-05: Użytkownik może zobaczyć przy jadłospisie listę zakupów, w której składniki są zsumowane, ilości powyżej 1000 g i 1000 ml zamienione na kg i l, zaokrąglone do 2 miejsc i posortowane alfabetycznie.** — Archived 2026-11-14 → `context/archive/2026-11-14-shopping-list/`. Lesson: —.
 - **S-04: Użytkownik może zobaczyć w wygenerowanym jadłospisie ilości składników przeliczone do swojej rodziny i zamienione przez AI na praktyczne ilości; gdy AI zawiedzie, nadal dostaje jadłospis z ilościami policzonymi bez AI i informację o tym.** — Archived 2026-11-14 → `context/archive/2026-11-14-ai-ingredient-scaling/`. Lesson: —.
+- **S-06: Użytkownik może pobrać jeden PDF, który najpierw zawiera tabelę jadłospisu (dzień, kategoria, nazwa, składniki, przygotowanie), a potem listę zakupów, zgodny z ostatnią wygenerowaną wersją i otwierający się w przeglądarce.** — Archived 2026-11-14 → `context/archive/2026-11-14-meal-plan-pdf-export/`. Lesson: —.

@@ -27,7 +27,7 @@ services:
                 condition: service_healthy
     queue:
         image: 'sail-8.5/app'
-        command: 'php artisan queue:listen --tries=1'
+        command: 'php artisan queue:listen --tries=1 --timeout=85'
         restart: unless-stopped
         extra_hosts:
             - 'host.docker.internal:host-gateway'

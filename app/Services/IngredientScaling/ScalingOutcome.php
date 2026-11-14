@@ -11,6 +11,8 @@ final readonly class ScalingOutcome
 {
     public const STATUS_COMPUTED = 'computed';
 
+    public const STATUS_REFINED = 'refined';
+
     public const STATUS_AS_WRITTEN = 'as_written';
 
     /**

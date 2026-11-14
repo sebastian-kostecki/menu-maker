@@ -12,6 +12,7 @@
         "php": "^8.5",
         "ext-bcmath": "*",
         "ext-intl": "*",
+        "anthropic-ai/sdk": "^1.8",
         "barryvdh/laravel-dompdf": "^3.1",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel/framework": "^13.0",

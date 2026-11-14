@@ -670,10 +670,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [x] 2.1 Migrations, including the backfill, apply and roll back cleanly: `vendor/bin/sail artisan migrate` then `vendor/bin/sail artisan migrate:rollback --step=1` then `vendor/bin/sail artisan migrate`
-- [x] 2.2 Scaler, job, list, PDF and controller tests pass: `vendor/bin/sail pest tests/Unit/Services tests/Unit/Jobs tests/Feature/MealPlanControllerTest.php`
-- [x] 2.3 Full suite passes: `vendor/bin/sail composer test`
-- [x] 2.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 2.1 Migrations, including the backfill, apply and roll back cleanly: `vendor/bin/sail artisan migrate` then `vendor/bin/sail artisan migrate:rollback --step=1` then `vendor/bin/sail artisan migrate` — a9744ca
+- [x] 2.2 Scaler, job, list, PDF and controller tests pass: `vendor/bin/sail pest tests/Unit/Services tests/Unit/Jobs tests/Feature/MealPlanControllerTest.php` — a9744ca
+- [x] 2.3 Full suite passes: `vendor/bin/sail composer test` — a9744ca
+- [x] 2.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — a9744ca
 
 #### Manual
 
@@ -683,10 +683,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [ ] 3.1 Composer installs the new dependency: `vendor/bin/sail composer install`
-- [ ] 3.2 Guard, driver and scaler tests pass: `vendor/bin/sail pest tests/Unit/Services`
-- [ ] 3.3 Full suite passes with no stray HTTP: `vendor/bin/sail composer test`
-- [ ] 3.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 3.1 Composer installs the new dependency: `vendor/bin/sail composer install`
+- [x] 3.2 Guard, driver and scaler tests pass: `vendor/bin/sail pest tests/Unit/Services`
+- [x] 3.3 Full suite passes with no stray HTTP: `vendor/bin/sail composer test`
+- [x] 3.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
 
 #### Manual
 

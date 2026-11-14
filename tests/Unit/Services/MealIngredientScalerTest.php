@@ -9,10 +9,17 @@ use App\Models\MealIngredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\IngredientScaling\AiRefinementFailedException;
+use App\Services\IngredientScaling\IngredientRefiner;
 use App\Services\IngredientScaling\MealIngredientScaler;
+use App\Services\IngredientScaling\RefinementConfigurationException;
+use App\Services\IngredientScaling\RefinementFailedException;
+use App\Services\IngredientScaling\RefinementItem;
 use App\Services\IngredientScaling\ScalingOutcome;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Sleep;
 
 uses(RefreshDatabase::class);
 
@@ -55,13 +62,13 @@ it('scales a meal by family kcal for that meal over recipe kcal (worked example,
     $outcome = app(MealIngredientScaler::class)->scale($plan);
 
     $row = $meal->ingredients()->sole();
-    expect($outcome->status)->toBe(ScalingOutcome::STATUS_COMPUTED)
+    expect($outcome->status)->toBe(ScalingOutcome::STATUS_REFINED)
         ->and($outcome->unscaledRecipes)->toBe([])
         ->and($outcome->membersWithoutBody)->toBe([])
         ->and($row->recipe_quantity)->toBe('100.00')
         ->and($row->computed_quantity)->toBe('200.00')
         ->and($row->quantity)->toBe('200.00')
-        ->and($row->source)->toBe(MealIngredient::SOURCE_COMPUTED);
+        ->and($row->source)->toBe(MealIngredient::SOURCE_AI);
 });
 
 it('keeps the recipe amounts and reports as_written when the owner has no family', function (): void {
@@ -93,7 +100,7 @@ it('keeps a 0-kcal recipe as written and lists it once, in Polish order', functi
     $outcome = app(MealIngredientScaler::class)->scale($plan);
 
     $row = $meal->ingredients()->sole();
-    expect($outcome->status)->toBe(ScalingOutcome::STATUS_COMPUTED)
+    expect($outcome->status)->toBe(ScalingOutcome::STATUS_REFINED)
         ->and($outcome->unscaledRecipes)->toBe(['Łazanki', 'Żurek'])
         ->and($row->quantity)->toBe('100.00')
         ->and($row->source)->toBe(MealIngredient::SOURCE_AS_WRITTEN);
@@ -109,7 +116,7 @@ it('names adults without weight or height in membersWithoutBody', function (): v
 
     expect($outcome->membersWithoutBody)->toBe(['Marek'])
         ->and($outcome->toArray())->toBe([
-            'status' => 'computed',
+            'status' => 'refined',
             'unscaled_recipes' => [],
             'members_without_body' => ['Marek'],
         ]);
@@ -172,4 +179,175 @@ it('backfills existing meals with their recipe amounts as written', function ():
         ->and($rows->pluck('recipe_quantity')->all())->toBe(['100.00', '250.00'])
         ->and($rows->pluck('source')->unique()->all())->toBe([MealIngredient::SOURCE_AS_WRITTEN])
         ->and(DB::table('meal_ingredients')->count())->toBe(2);
+});
+
+/**
+ * Binds a refiner that runs the given steps in order: a Throwable is thrown, an array is returned (item key map), a closure receives the items.
+ *
+ * @param  list<Throwable|array<string, string>|Closure>  $steps
+ */
+function bindRefinerSteps(array $steps): object
+{
+    $refiner = new class($steps) implements IngredientRefiner
+    {
+        public int $calls = 0;
+
+        /** @var list<list<RefinementItem>> */
+        public array $received = [];
+
+        /** @param list<Throwable|array<string, string>|Closure> $steps */
+        public function __construct(private array $steps) {}
+
+        public function refine(array $items): array
+        {
+            $this->calls++;
+            $this->received[] = $items;
+            $step = array_shift($this->steps);
+
+            if ($step instanceof Throwable) {
+                throw $step;
+            }
+
+            return $step instanceof Closure ? $step($items) : $step;
+        }
+    };
+
+    app()->instance(IngredientRefiner::class, $refiner);
+
+    return $refiner;
+}
+
+function supperPlanWithFlour(User $user, string $calories = '1440'): array
+{
+    addWorkedExampleFamily($user);
+    $recipe = Recipe::factory()->supper()->for($user)->create(['calories' => $calories]);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+
+    return [scalerPlan($user), $recipe];
+}
+
+it('retries a failing refiner and succeeds on the third attempt without reporting', function (): void {
+    Sleep::fake();
+    Exceptions::fake();
+    [$plan, $recipe] = supperPlanWithFlour(User::factory()->create());
+    $meal = addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps([
+        new RefinementFailedException('boom'),
+        new RefinementFailedException('boom'),
+        fn (array $items): array => [$items[0]->key => '210'],
+    ]);
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $meal->ingredients()->sole();
+    expect($refiner->calls)->toBe(3)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_REFINED)
+        ->and($row->quantity)->toBe('210.00')
+        ->and($row->source)->toBe(MealIngredient::SOURCE_AI);
+    Exceptions::assertNothingReported();
+    Sleep::assertSleptTimes(2);
+});
+
+it('keeps computed amounts and reports exactly once after three failed attempts', function (): void {
+    Sleep::fake();
+    Exceptions::fake();
+    [$plan, $recipe] = supperPlanWithFlour(User::factory()->create());
+    $meal = addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps(array_fill(0, 3, new RefinementFailedException('boom')));
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $meal->ingredients()->sole();
+    expect($refiner->calls)->toBe(3)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_COMPUTED)
+        ->and($row->quantity)->toBe('200.00')
+        ->and($row->source)->toBe(MealIngredient::SOURCE_COMPUTED);
+    Exceptions::assertReported(AiRefinementFailedException::class);
+    Exceptions::assertReportedCount(1);
+});
+
+it('does not retry a configuration error and reports once', function (): void {
+    Sleep::fake();
+    Exceptions::fake();
+    [$plan, $recipe] = supperPlanWithFlour(User::factory()->create());
+    addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps([new RefinementConfigurationException('no key')]);
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    expect($refiner->calls)->toBe(1)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_COMPUTED);
+    Exceptions::assertReportedCount(1);
+    Sleep::assertNeverSlept();
+});
+
+it('reverts an out-of-bounds item to computed while other items keep the AI amount', function (): void {
+    $user = User::factory()->create();
+    [$plan, $recipe] = supperPlanWithFlour($user);
+    attachIngredient($recipe, 'Mleko', '50', 'ml');
+    $meal = addMealOf($plan, $recipe);
+    bindRefinerSteps([
+        fn (array $items): array => collect($items)->mapWithKeys(
+            fn (RefinementItem $item): array => [$item->key => $item->name === 'Mąka' ? '300' : '110'],
+        )->all(),
+    ]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    $rows = $meal->ingredients()->with('ingredient')->get()->keyBy(fn (MealIngredient $row): string => $row->ingredient->name);
+    expect($rows['Mąka']->quantity)->toBe('200.00')
+        ->and($rows['Mąka']->source)->toBe(MealIngredient::SOURCE_COMPUTED)
+        ->and($rows['Mleko']->quantity)->toBe('110.00')
+        ->and($rows['Mleko']->source)->toBe(MealIngredient::SOURCE_AI);
+});
+
+it('sends one item for the same ingredient, unit and computed quantity and applies the answer to both rows', function (): void {
+    $user = User::factory()->create();
+    [$plan, $recipe] = supperPlanWithFlour($user);
+    $first = addMealOf($plan, $recipe);
+    $second = addMealOf($plan, $recipe, '2026-11-17');
+    $refiner = bindRefinerSteps([fn (array $items): array => [$items[0]->key => '190']]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    expect($refiner->received[0])->toHaveCount(1)
+        ->and($first->ingredients()->sole()->quantity)->toBe('190.00')
+        ->and($second->ingredients()->sole()->quantity)->toBe('190.00');
+});
+
+it('never calls the refiner when the owner has no family', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->supper()->for($user)->create(['calories' => '1440']);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = scalerPlan($user);
+    addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps([]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    expect($refiner->calls)->toBe(0);
+});
+
+it('never calls the refiner when only 0-kcal recipes were drawn and reports refined', function (): void {
+    $user = User::factory()->create();
+    [$plan, $recipe] = supperPlanWithFlour($user, '0');
+    addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps([]);
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    expect($refiner->calls)->toBe(0)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_REFINED);
+});
+
+it('does not put family data into the refiner items', function (): void {
+    $user = User::factory()->create();
+    [$plan, $recipe] = supperPlanWithFlour($user);
+    addMealOf($plan, $recipe);
+    $refiner = bindRefinerSteps([fn (array $items): array => [$items[0]->key => '200']]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    $payload = json_encode($refiner->received[0]);
+    expect($payload)->not->toContain('Anna')->and($payload)->not->toContain('Jan')->and($payload)->not->toContain('Ola');
 });

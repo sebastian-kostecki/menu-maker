@@ -93,6 +93,9 @@ class Recipe extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<RecipeIngredient, $this>
+     */
     public function recipeIngredients(): HasMany
     {
         return $this->hasMany(RecipeIngredient::class);

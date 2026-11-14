@@ -1,10 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ * @property string $quantity
+ * @property-read Ingredient|null $ingredient
+ * @property-read Unit|null $unit
+ */
 class RecipeIngredient extends Pivot
 {
     protected $table = 'recipe_ingredients';

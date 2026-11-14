@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-function attachIngredient(Recipe $recipe, Ingredient $ingredient): void
+function attachIngredientModel(Recipe $recipe, Ingredient $ingredient): void
 {
     RecipeIngredient::query()->forceCreate([
         'recipe_id' => $recipe->id,
@@ -64,10 +64,10 @@ it('suggests catalog and own-recipe ingredients only', function (): void {
     $foreign = Ingredient::create(['name' => 'Cudzy składnik']);
     $deleted = Ingredient::create(['name' => 'Usunięty składnik']);
 
-    attachIngredient(Recipe::factory()->for($user)->create(), $own);
-    attachIngredient(Recipe::factory()->for($other)->create(), $foreign);
+    attachIngredientModel(Recipe::factory()->for($user)->create(), $own);
+    attachIngredientModel(Recipe::factory()->for($other)->create(), $foreign);
     $trashed = Recipe::factory()->for($user)->create();
-    attachIngredient($trashed, $deleted);
+    attachIngredientModel($trashed, $deleted);
     $trashed->delete();
 
     $names = Ingredient::suggestedFor($user->id)->pluck('name');

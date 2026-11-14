@@ -119,9 +119,10 @@ fake_compose() {
   echo "$*" >>"$compose_log"
   case "$*" in
     "ps --status running --quiet app") echo "abc123" ;;
+    *"test -f storage/framework/down"*) [[ "${FAKE_ALREADY_DOWN:-0}" == "1" ]] ;;
     *"backup:run"*) return 1 ;;
+    *) return 0 ;;
   esac
-  return 0
 }
 : >"$compose_log"
 # shellcheck disable=SC2034 # read by the sourced production_* functions
@@ -134,6 +135,55 @@ if [[ "$(tail -n 1 "$compose_log")" == "exec -T -u sail app php artisan up" ]]; 
   pass "failed backup reopens the old app"
 else
   failed "failed backup reopens the old app (last call: $(tail -n 1 "$compose_log"))"
+fi
+
+# An app that was already down before the deploy (failed first deploy) stays down.
+: >"$compose_log"
+# shellcheck disable=SC2034 # read by the sourced production_* functions
+if (COMPOSE=fake_compose; MAINTENANCE_STARTED=0; FAKE_ALREADY_DOWN=1; production_prepare_running_instance) >/dev/null 2>&1; then
+  failed "failed backup on an app already down stops the deploy"
+else
+  pass "failed backup on an app already down stops the deploy"
+fi
+if grep -q "artisan up" "$compose_log"; then
+  failed "failed backup on an app already down keeps it down"
+else
+  pass "failed backup on an app already down keeps it down"
+fi
+
+# --- production_assert_env_readable_by_app ---
+own_env="$tmp/own.env"
+printf 'WWWUSER=%s\n' "$(id -u)" >"$own_env"
+chmod 600 "$own_env"
+if (production_assert_env_readable_by_app "$own_env") >/dev/null 2>&1; then
+  pass "env owned by the app user passes"
+else
+  failed "env owned by the app user passes"
+fi
+
+foreign_env="$tmp/foreign.env"
+printf 'WWWUSER=4242\n' >"$foreign_env"
+chmod 600 "$foreign_env"
+if err="$( (production_assert_env_readable_by_app "$foreign_env") 2>&1 >/dev/null)"; then
+  failed "mode 600 env owned by another uid is refused"
+elif [[ "$err" != *"chown 4242:root"* ]]; then
+  failed "refusal names the chown fix (got: $err)"
+else
+  pass "mode 600 env owned by another uid is refused"
+fi
+
+chmod 644 "$foreign_env"
+if (production_assert_env_readable_by_app "$foreign_env") >/dev/null 2>&1; then
+  pass "world-readable env passes"
+else
+  failed "world-readable env passes"
+fi
+
+# --- deploy.sh must not hand the backup dir to the operator (root on the VPS) ---
+if grep -qE 'chown[^#]*BACKUP_HOST_DIR' "$TEST_DIR/../deploy.sh"; then
+  failed "deploy.sh leaves backup dir ownership to production_prepare_storage"
+else
+  pass "deploy.sh leaves backup dir ownership to production_prepare_storage"
 fi
 
 exit "$fail"

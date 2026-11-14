@@ -125,6 +125,25 @@ production_assert_env_ready() {
     esac
 }
 
+# The env file is bind-mounted read-only as the app's .env and read by the runtime user
+# (WWWUSER, default 1000), not by the operator. A root-owned mode 600 file is invisible
+# to the app, which then silently falls back to config defaults (127.0.0.1, "laravel").
+production_assert_env_readable_by_app() {
+    local env_file="$1"
+    local app_uid owner mode
+
+    app_uid="$(_production_env_value "${env_file}" "WWWUSER")"
+    app_uid="${app_uid:-1000}"
+    owner="$(stat -c '%u' "${env_file}")"
+    mode="$(stat -c '%a' "${env_file}")"
+
+    if [[ "${owner}" != "${app_uid}" && $(( 8#${mode: -1} & 4 )) -eq 0 ]]; then
+        echo "ERROR: ${env_file} is owned by uid ${owner} with mode ${mode}, so the app user (uid ${app_uid}) cannot read it." >&2
+        echo "Run: chown ${app_uid}:root ${env_file} && chmod 600 ${env_file}" >&2
+        exit 1
+    fi
+}
+
 # Before `up -d`: the OLD container still holds the old code and schema. `artisan down`
 # goes first (the maintenance file lives in the bind-mounted storage and survives
 # `up -d`), then a DB-only backup. Only an absent app container counts as a first
@@ -148,12 +167,24 @@ production_prepare_running_instance() {
         return 0
     fi
 
+    # A container already in maintenance mode (for example after a failed first deploy)
+    # must not be reopened if the backup fails: it may never have been migrated.
+    local was_down=0
+    if $COMPOSE exec -T app test -f storage/framework/down; then
+        was_down=1
+    fi
+
     echo "==> Entering maintenance mode in the old container..."
     $COMPOSE exec -T -u sail app php artisan down
     MAINTENANCE_STARTED=1
 
     echo "==> Backing up the database..."
     if ! $COMPOSE exec -T -u sail app php artisan backup:run --only-db --disable-notifications; then
+        if [[ "${was_down}" == "1" ]]; then
+            echo "ERROR: The pre-deploy backup failed. The application was already in maintenance mode before this deploy, so it stays down." >&2
+            exit 1
+        fi
+
         echo "ERROR: The pre-deploy backup failed. Nothing was deployed; reopening the old application." >&2
         $COMPOSE exec -T -u sail app php artisan up
         MAINTENANCE_STARTED=0

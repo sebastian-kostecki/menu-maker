@@ -263,4 +263,15 @@ class RecipeRequestValidationTest extends TestCase
             $this->assertSame('Ten składnik już jest na liście.', $errors->first('ingredients.1.name'));
         }
     }
+
+    public function test_zero_calories_are_rejected_and_a_hundredth_is_accepted(): void
+    {
+        foreach ([new StoreRecipeRequest, new UpdateRecipeRequest] as $request) {
+            $zero = $this->validate($request, ['calories' => 0] + $this->recipeWith($this->validIngredients()));
+            $tiny = $this->validate($request, ['calories' => 0.01] + $this->recipeWith($this->validIngredients()));
+
+            $this->assertSame('Kaloryczność musi być większa od zera.', $zero->errors()->first('calories'));
+            $this->assertFalse($tiny->errors()->has('calories'));
+        }
+    }
 }

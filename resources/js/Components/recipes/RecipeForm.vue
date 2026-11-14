@@ -65,7 +65,7 @@
       <!-- Calories -->
       <div class="space-y-2">
         <label for="calories" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Kaloryczność (kcal) *
+          Kaloryczność całkowita (kcal) *
         </label>
         <Input
           id="calories"

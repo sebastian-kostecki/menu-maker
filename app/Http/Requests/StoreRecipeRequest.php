@@ -32,7 +32,7 @@ class StoreRecipeRequest extends FormRequest
             'name' => 'required|string|max:255',
             'category' => 'required|in:breakfast,supper,dinner',
             'instructions' => 'required|string',
-            'calories' => 'required|numeric|min:0',
+            'calories' => 'required|numeric|gt:0',
             'servings' => 'required|integer|min:1',
         ] + $this->ingredientRules();
     }
@@ -52,7 +52,7 @@ class StoreRecipeRequest extends FormRequest
             'instructions.required' => 'Podaj instrukcję przygotowania.',
             'calories.required' => 'Podaj kaloryczność.',
             'calories.numeric' => 'Kaloryczność musi być liczbą.',
-            'calories.min' => 'Kaloryczność nie może być ujemna.',
+            'calories.gt' => 'Kaloryczność musi być większa od zera.',
             'servings.required' => 'Podaj liczbę porcji.',
             'servings.integer' => 'Liczba porcji musi być liczbą całkowitą.',
             'servings.min' => 'Liczba porcji musi wynosić co najmniej 1.',

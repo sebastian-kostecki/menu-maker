@@ -65,6 +65,7 @@ class MealPlanPdfExporter
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', false)
             ->setOption('isPhpEnabled', false)
+            ->setOption('isFontSubsettingEnabled', true)
             ->output();
     }
 

@@ -446,6 +446,11 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 - Prior slices: `context/archive/2026-11-14-shopping-list/plan.md` (builder, display strings, card copy), `context/archive/2026-11-13-real-weekly-meal-plan/plan.md` (grid, polling, E2E)
 - Code: `app/Http/Controllers/MealPlanController.php:192-235`, `app/Services/ShoppingList/ShoppingListBuilder.php`, `app/Http/Resources/MealPlanResource.php`, `resources/js/Components/MealPlans/ActionDropdown.vue:117-134`, `resources/js/Pages/MealPlans/Show.vue:15-22,155`
 
+## Addendum (2026-11-14, after manual verification)
+
+- **Rowspan fallback applied.** On a real 21-meal plan, one day with three-paragraph instructions did not fit on a landscape page. dompdf split the day's `<tbody>` despite `page-break-inside: avoid`, and the continued row lost its rowspan cell and shifted one column left (check 2.10 failed). As "Critical Implementation Details" allows, the template now has no `rowspan`. The day label is in the day's first row, the next rows have an empty day cell without a top border, a 2px top border separates days, and `page-break-inside: avoid` moved from `tbody` to `tr`, so a single meal is never split.
+- **Font subsetting on.** `render()` also sets `isFontSubsettingEnabled` true. Before, dompdf embedded the full DejaVu fonts: the 21-meal plan was 896 KB, rendered in ~0.6 s. With subsetting it is 40 KB in ~0.6 s.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -472,11 +477,11 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 
 #### Manual
 
-- [ ] 2.8 Done plan's PDF opens inline and saves as jadlospis-<start>-<end>.pdf
-- [ ] 2.9 Polish diacritics, A4 landscape, table first and list on a new page
-- [ ] 2.10 Day cells stay intact across page breaks
-- [ ] 2.11 Another user's plan returns 403 and a pending plan 404
-- [ ] 2.12 A 21-meal plan renders in about 3 s or less
+- [x] 2.8 Done plan's PDF opens inline and saves as jadlospis-<start>-<end>.pdf — verified 2026-11-14
+- [x] 2.9 Polish diacritics, A4 landscape, table first and list on a new page — verified 2026-11-14
+- [x] 2.10 Day cells stay intact across page breaks — verified 2026-11-14 after the rowspan fallback (see Addendum)
+- [x] 2.11 Another user's plan returns 403 and a pending plan 404 — verified 2026-11-14
+- [x] 2.12 A 21-meal plan renders in about 3 s or less — verified 2026-11-14
 
 ### Phase 3: UI and E2E
 

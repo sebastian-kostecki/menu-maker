@@ -69,4 +69,6 @@ Manual rows: none are falsely checked; all 9 are pending. Row 3.5 ("List menu it
 
 ## Triage
 
+Manual checks 2.8–2.12 were then run by the agent against Sail (plan 22, 21 meals): inline headers and filename OK, 403/404 OK, ~0.6 s per render, all Polish glyphs render. Check 2.10 failed (rowspan row shifted a column at a page break), so the plan's rowspan fallback and font subsetting were applied; see the plan's Addendum.
+
 All findings were fixed on 2026-11-14 at the user's request ("napraw samodzielnie według rekomendacji"). After the fixes: `sail composer test` 237 passed, Larastan OK, Pint OK, `npm run build` OK, E2E 10/10 passed (chromium + firefox).

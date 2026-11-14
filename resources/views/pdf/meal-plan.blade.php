@@ -11,8 +11,10 @@
         th, td { border: 1px solid #999; padding: 4px 5px; vertical-align: top; text-align: left; }
         th { background: #e8e8e8; }
         thead { display: table-header-group; }
-        tbody { page-break-inside: avoid; }
+        tr { page-break-inside: avoid; }
+        tr.day-start td { border-top: 2px solid #444; }
         .day { font-weight: bold; }
+        td.day-continued { border-top: none; }
         .note { margin-top: 10px; }
     </style>
 </head>
@@ -30,11 +32,13 @@
             </tr>
         </thead>
         @foreach ($document->days as $day)
-            <tbody style="page-break-inside: avoid">
+            <tbody>
                 @foreach ($day->meals as $meal)
-                    <tr>
+                    <tr @class(['day-start' => $loop->first])>
                         @if ($loop->first)
-                            <td class="day" rowspan="{{ count($day->meals) }}">{{ $day->label }}</td>
+                            <td class="day">{{ $day->label }}</td>
+                        @else
+                            <td class="day-continued"></td>
                         @endif
                         <td>{{ $meal->category }}</td>
                         <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) (usunięty)@endif</td>

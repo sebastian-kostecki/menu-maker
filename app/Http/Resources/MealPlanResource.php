@@ -32,8 +32,6 @@ class MealPlanResource extends JsonResource
             'end_date' => $this->end_date->format('Y-m-d'),
             'status' => $this->status,
             'generation_meta' => $this->generation_meta,
-            'pdf_path' => $this->pdf_path,
-            'pdf_size' => $this->pdf_size,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
@@ -107,6 +105,7 @@ class MealPlanResource extends JsonResource
             // Links
             'links' => [
                 'self' => route('meal-plans.show', $this->id),
+                'pdf' => $this->status === 'done' ? route('meal-plans.pdf', $this->id) : null,
             ],
         ];
     }

@@ -52,6 +52,14 @@ class MealPlanPolicy
     }
 
     /**
+     * Determine whether the user can download the PDF of the meal plan (status is checked in the controller).
+     */
+    public function downloadPdf(User $user, MealPlan $mealPlan): bool
+    {
+        return $user->id === $mealPlan->user_id;
+    }
+
+    /**
      * Determine whether the user can restore the meal plan.
      */
     public function restore(User $user, MealPlan $mealPlan): bool

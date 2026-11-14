@@ -454,21 +454,21 @@ One migration drops `meal_plans.pdf_path` and `pdf_size`. No code ever wrote the
 
 #### Automated
 
-- [x] 1.1 Exporter and shopping-list unit tests pass
-- [x] 1.2 Larastan passes without baseline changes
-- [x] 1.3 Pint passes
+- [x] 1.1 Exporter and shopping-list unit tests pass — ee29ed3
+- [x] 1.2 Larastan passes without baseline changes — ee29ed3
+- [x] 1.3 Pint passes — ee29ed3
 
 ### Phase 2: Download endpoint and cleanup
 
 #### Automated
 
-- [ ] 2.1 Migration applies and rolls back cleanly
-- [ ] 2.2 Policy and meal-plan feature tests pass
-- [ ] 2.3 No code references to the dropped columns remain
-- [ ] 2.4 Full suite passes
-- [ ] 2.5 Larastan passes without baseline changes
-- [ ] 2.6 Pint passes
-- [ ] 2.7 Client and SSR bundles build
+- [x] 2.1 Migration applies and rolls back cleanly
+- [x] 2.2 Policy and meal-plan feature tests pass
+- [x] 2.3 No code references to the dropped columns remain
+- [x] 2.4 Full suite passes
+- [x] 2.5 Larastan passes without baseline changes
+- [x] 2.6 Pint passes
+- [x] 2.7 Client and SSR bundles build
 
 #### Manual
 

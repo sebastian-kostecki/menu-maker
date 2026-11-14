@@ -11,6 +11,7 @@ use App\Http\Resources\MealPlanResource;
 use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
+use App\Services\MealPlanPdf\MealPlanPdfExporter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Carbon\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -20,7 +21,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -187,31 +187,22 @@ class MealPlanController extends Controller
     }
 
     /**
-     * Download the PDF file for the specified meal plan.
+     * Render the PDF (plan table, then shopping list) of a finished meal plan and show it inline.
      */
-    public function downloadPdf(MealPlan $mealPlan): Response
+    public function downloadPdf(MealPlan $mealPlan, MealPlanPdfExporter $exporter): Response
     {
-        // Check if meal plan is in done status
+        // Authorize first, so a non-owner cannot tell from a 404 whether the plan is ready.
+        $this->authorize('downloadPdf', $mealPlan);
+
         if ($mealPlan->status !== 'done') {
-            abort(404, 'PDF is not available for this meal plan.');
+            abort(404, 'PDF jest dostępny tylko dla gotowego jadłospisu.');
         }
 
-        // Check if PDF file exists
-        if (! $mealPlan->pdf_path || ! Storage::exists($mealPlan->pdf_path)) {
-            abort(404, 'PDF file not found.');
-        }
-
-        // Get the file content
-        $fileContent = Storage::get($mealPlan->pdf_path);
-        $fileName = sprintf(
-            'meal-plan-%s-%s.pdf',
-            $mealPlan->start_date,
-            $mealPlan->end_date
-        );
-
-        return response($fileContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+        return response($exporter->render($mealPlan), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$exporter->filename($mealPlan).'"',
+            'Cache-Control' => 'no-store, private',
+        ]);
     }
 
     /**
@@ -219,11 +210,6 @@ class MealPlanController extends Controller
      */
     public function destroy(Request $request, MealPlan $mealPlan): Response|RedirectResponse
     {
-        // Delete PDF file if exists
-        if ($mealPlan->pdf_path && Storage::exists($mealPlan->pdf_path)) {
-            Storage::delete($mealPlan->pdf_path);
-        }
-
         // Delete meal plan (cascade delete handles meals & logs via DB constraints)
         $mealPlan->delete();
 

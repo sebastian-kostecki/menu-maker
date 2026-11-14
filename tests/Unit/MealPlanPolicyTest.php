@@ -43,6 +43,16 @@ class MealPlanPolicyTest extends TestCase
         $this->assertTrue($this->policy->view($this->user, $this->mealPlan));
     }
 
+    public function test_download_pdf_allows_owner(): void
+    {
+        $this->assertTrue($this->policy->downloadPdf($this->user, $this->mealPlan));
+    }
+
+    public function test_download_pdf_denies_non_owner(): void
+    {
+        $this->assertFalse($this->policy->downloadPdf($this->otherUser, $this->mealPlan));
+    }
+
     public function test_view_denies_non_owner(): void
     {
         $this->assertFalse($this->policy->view($this->otherUser, $this->mealPlan));

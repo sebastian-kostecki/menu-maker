@@ -25,15 +25,12 @@ class MealPlan extends Model
         'end_date',
         'status',
         'generation_meta',
-        'pdf_path',
-        'pdf_size',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
         'generation_meta' => 'array',
-        'pdf_size' => 'integer',
     ];
 
     public function user(): BelongsTo

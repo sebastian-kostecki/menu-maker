@@ -10,7 +10,7 @@
 - E2E: Playwright (multi‑browser) dla krytycznych ścieżek (login, CRUD przepisów, pobranie PDF).
 - Baza testowa: `testing` (konfiguracja ENV w `phpunit.xml`), migracje i seedowanie pod testy; wsparcie `--parallel` po stronie runnera.
 - Kolejki: dla testów backendu `sync` (z `phpunit.xml`) dla deterministycznego wykonania jobów.
-- PDF: obecnie kontroler pobiera z dysku przez `Storage`; generowanie PDF w jobie jest placeholderem.
+- PDF: renderowany na żądanie (dompdf, `MealPlanPdfExporter`) z bieżących posiłków; nic nie jest zapisywane na dysku.
 
 ### Środowisko testowe
 - **Wymagane usługi**: PostgreSQL (baza `testing`), przeglądarki Playwright.
@@ -128,7 +128,7 @@
   - JOB-001..003: sukces/błąd/idempotencja.
 
 - **PDF**
-  - PDF-001..003: 404 dla nie‑done/brak pliku, poprawny Content-Type/nazwa.
+  - PDF-001..003: 403 dla cudzego jadłospisu, 404 dla nie‑done, nagłówki inline (Content-Type, Content-Disposition, Cache-Control: no-store) i nazwa pliku.
 
 - **POLICY / SECURITY**
   - SEC-001..004: zasady właścicielstwa i ograniczenia operacji.

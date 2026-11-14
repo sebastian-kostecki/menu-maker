@@ -105,9 +105,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Service  | `MealPlanGeneratorService`                          | Losowy wybór przepisów, brak powtórzeń, 7 dni × 3 posiłki |
 | Service  | `IngredientScalingService`                          | Skalowanie ilości wg kalorii, porcji i profilu rodziny    |
 | Service  | `ShoppingListService`                               | Sumowanie i konwersja jednostek (g→kg, ml→l)              |
-| Service  | `PdfExportService`                                  | Generacja pojedynczego PDF z jadłospisem i listą zakupów  |
+| Service  | `MealPlanPdfExporter`                               | PDF z jadłospisem i listą zakupów, renderowany na żądanie (dompdf) |
 | Job      | `GenerateMealPlanJob`                               | Kolejkowanie procesu generowania jadłospisu               |
-| Job      | `GeneratePdfJob`                                    | Kolejkowanie renderu PDF                                  |
 | Event    | `MealPlanGenerationStarted` / `Finished` / `Failed` | Monitoring postępu                                        |
 | Listener | `UpdateMealPlanStatusListener`                      | Aktualizacja kolumny `status` + `generation_meta`         |
 
@@ -118,13 +117,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 1. **Uwierzytelnianie**: Laravel Sanctum (SPA tokens) + session cookies; trasy `auth` middleware.
 2. **Autoryzacja**: Policies + Gates; dodatkowo middleware `can:*` przy trasach admina.
 3. **CSRF**: Domyślna ochrona Laravel + Inertia.
-4. **Rate limiting / throttling**: `RateLimiter::for('api', 60 req / 1 min)` oraz per-route limit dla generacji PDF (np. 5/h).
+4. **Rate limiting / throttling**: `RateLimiter::for('api', 60 req / 1 min)` oraz per-route limit dla generacji PDF (np. 5/h; odłożone, na razie niewdrożone).
 5. **Caching**:
    * Sterownik `database` jako `cache` i `queue`.
    * Cache listy jednostek i składników (`rememberForever`).
    * Cache wyników pełnotekstowego wyszukiwania przepisów (tag `recipes`).
-6. **Kolejki**: Sterownik `database`; Jobs dla ciężkich zadań (AI, PDF).
+6. **Kolejki**: Sterownik `database`; Jobs dla ciężkich zadań (AI).
 7. **XSS / bezpieczeństwo danych**: Escapowanie w Vue (domyślne), `v-html` unikać; sanitizacja danych wejściowych.
 8. **SQL Injection**: Eloquent ORM, parametryzowane zapytania.
-9. **Backup i czyszczenie danych**: `prune` command usuwający stare pliki PDF.
-10. **Monitoring**: Events + Laravel Telescope w środowisku dev; Sentry produkcyjnie.
+9. **Monitoring**: Events + Laravel Telescope w środowisku dev; Sentry produkcyjnie.

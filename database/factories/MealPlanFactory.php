@@ -30,8 +30,6 @@ class MealPlanFactory extends Factory
             'end_date' => $endDate,
             'status' => $this->faker->randomElement(['pending', 'processing', 'done', 'error']),
             'generation_meta' => null,
-            'pdf_path' => null,
-            'pdf_size' => null,
         ];
     }
 
@@ -72,8 +70,6 @@ class MealPlanFactory extends Factory
                 'total_recipes' => 21, // 3 meals x 7 days
                 'total_calories' => $this->faker->numberBetween(10000, 15000),
             ],
-            'pdf_path' => 'meal-plans/'.$this->faker->uuid().'.pdf',
-            'pdf_size' => $this->faker->numberBetween(500000, 2000000), // 500KB - 2MB
         ]);
     }
 
@@ -121,17 +117,6 @@ class MealPlanFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'start_date' => $startDate,
             'end_date' => $endDate,
-        ]);
-    }
-
-    /**
-     * Create a meal plan with PDF.
-     */
-    public function withPdf(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'pdf_path' => 'meal-plans/'.$this->faker->uuid().'.pdf',
-            'pdf_size' => $this->faker->numberBetween(500000, 2000000),
         ]);
     }
 }

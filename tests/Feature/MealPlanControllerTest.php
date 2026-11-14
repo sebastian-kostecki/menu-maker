@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Jobs\GenerateMealPlanJob;
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
@@ -12,7 +13,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 uses(WithFaker::class);
@@ -229,22 +229,13 @@ it("user cannot regenerate other user's meal plan", function (): void {
 });
 
 it('user can delete own meal plan', function (): void {
-    Storage::fake('local');
-
-    $mealPlan = MealPlan::factory()
-        ->done()
-        ->withPdf()
-        ->for($this->user)
-        ->create();
-
-    Storage::put($mealPlan->pdf_path, 'fake pdf content');
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
     $response = $this->actingAs($this->user)->deleteJson(route('meal-plans.destroy', $mealPlan));
 
     $response->assertStatus(204);
 
     $this->assertDatabaseMissing('meal_plans', ['id' => $mealPlan->id]);
-    Storage::assertMissing($mealPlan->pdf_path);
 });
 
 it('user cannot delete processing meal plan', function (): void {
@@ -464,4 +455,76 @@ it('returns the shopping list on a partial reload', function (): void {
                     ->where('shoppingList.items.0.display', '250 ml')
             )
         );
+});
+
+it('owner gets the rendered PDF inline and uncached', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Łosoś pieczony']);
+    attachIngredient($recipe, 'Mąka', '600', 'g');
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $response = $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan));
+
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'application/pdf');
+    $response->assertHeader(
+        'Content-Disposition',
+        'inline; filename="jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'.pdf"'
+    );
+    expect($response->headers->get('Cache-Control'))->toContain('no-store');
+
+    $bytes = $response->getContent();
+    expect($bytes)->toStartWith('%PDF-');
+
+    $text = pdfText($bytes);
+    expect(strpos($text, 'Łosoś pieczony'))->toBeInt()
+        ->and(strpos($text, 'Łosoś pieczony'))->toBeLessThan(strpos($text, 'Lista zakupów'));
+});
+
+it("user cannot download another user's PDF whatever its status", function (string $status): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->otherUser)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertForbidden();
+})->with(['done', 'pending']);
+
+it('PDF is not available until the plan is done', function (string $status): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertNotFound();
+})->with(['pending', 'processing', 'error']);
+
+it('guest is redirected to login from the PDF route', function (): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $this->get(route('meal-plans.pdf', $mealPlan))->assertRedirect(route('login'));
+});
+
+it('PDF reflects the current meals after regeneration', function (): void {
+    $old = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Stary Żurek']);
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $old);
+
+    $new = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Nowy Bigos']);
+    $mealPlan->meals()->delete();
+    Meal::query()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $new->id,
+        'meal_date' => $mealPlan->start_date,
+        'meal_category' => $new->category,
+    ]);
+
+    $text = pdfText($this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->getContent());
+
+    expect($text)->toContain('Nowy Bigos')->not->toContain('Stary Żurek');
+});
+
+it('exposes the PDF link only for a done plan and no stored path', function (): void {
+    $done = MealPlan::factory()->done()->for($this->user)->create();
+    $pending = MealPlan::factory()->pending()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $done))->assertInertia(
+        fn ($page) => $page->where('mealPlan.links.pdf', route('meal-plans.pdf', $done))
+            ->missing('mealPlan.pdf_path')
+    );
+    $this->actingAs($this->user)->get(route('meal-plans.show', $pending))->assertInertia(
+        fn ($page) => $page->where('mealPlan.links.pdf', null)
+    );
 });

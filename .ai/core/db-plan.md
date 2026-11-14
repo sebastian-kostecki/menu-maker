@@ -93,8 +93,6 @@ UNIQUE(recipe_id, ingredient_id)
 | end_date        | DATE                                                          | NOT NULL, CHECK (end_date = start_date + INTERVAL 6 DAY) |
 | status          | ENUM('pending','processing','done','error') DEFAULT 'pending' | NOT NULL, indexed                                        |
 | generation_meta | JSON NULL                                                     | Stores `started_at`, `finished_at`, etc.                 |
-| pdf_path        | VARCHAR(255) NULL                                             | Relative storage path                                    |
-| pdf_size        | BIGINT UNSIGNED NULL                                          | Size in bytes                                            |
 | created_at      | TIMESTAMP                                                     | —                                                        |
 | updated_at      | TIMESTAMP                                                     | —                                                        |
 
@@ -179,5 +177,5 @@ All foreign keys use `ON DELETE CASCADE` to ensure full cleanup when a parent re
 2. `generation_meta` in `meal_plans` keeps auxiliary data (e.g., AI parameters, progress) without fragmenting the schema; if query-ability of `started_at` / `finished_at` becomes critical, consider separate columns plus indexed views.
 3. `CHECK (end_date = start_date + INTERVAL '6 days')` ensures every meal plan covers exactly seven consecutive days; PostgreSQL supports check constraints. Not yet implemented in migrations.
 4. The schema is normalized to 3NF; no soft-delete columns are used as per requirements.
-5. PDF files are stored in the filesystem; only metadata (`pdf_path`, `pdf_size`) resides in the database.
+5. PDF jest renderowany na żądanie z bieżących posiłków jadłospisu; nic nie jest zapisywane (brak plików ani metadanych w bazie).
 6. All enumerations are fixed; if future extensibility is required, convert enums to lookup tables.

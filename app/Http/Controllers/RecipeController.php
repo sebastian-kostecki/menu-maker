@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\MealCategory;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
@@ -12,6 +13,7 @@ use App\Models\Recipe;
 use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -51,11 +53,7 @@ class RecipeController extends Controller
         return Inertia::render('Recipes/Index', [
             'recipes' => RecipeResource::collection($recipes),
             'filters' => $request->only(['search', 'category', 'sort', 'direction']),
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
+            'categories' => $this->categoryOptions(),
         ]);
     }
 
@@ -66,13 +64,9 @@ class RecipeController extends Controller
     {
         return Inertia::render('Recipes/Form', [
             'recipe' => null,
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Super'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
-            'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
-            'units' => Unit::orderBy('code')->get(['id', 'code']),
+            'categories' => $this->categoryOptions(),
+            'ingredients' => Ingredient::suggestedFor((int) Auth::id())->get(['ingredients.id', 'ingredients.name']),
+            'units' => $this->unitOptions(),
         ]);
     }
 
@@ -84,23 +78,18 @@ class RecipeController extends Controller
         $recipe = DB::transaction(function () use ($request) {
             $validatedData = $request->validated();
 
-            // Remove ingredients from recipe data
-            $ingredients = $validatedData['ingredients'] ?? [];
+            $ingredients = $validatedData['ingredients'];
             unset($validatedData['ingredients']);
 
-            // Create recipe
             $recipe = $request->user()->recipes()->create($validatedData);
 
-            // Sync ingredients if provided
-            if (! empty($ingredients)) {
-                $this->syncRecipeIngredients($recipe, $ingredients);
-            }
+            $this->syncRecipeIngredients($recipe, $ingredients);
 
             return $recipe;
         });
 
         return redirect()->route('recipes.index')
-            ->with('success', 'Recipe created successfully.');
+            ->with('success', 'Przepis został dodany.');
     }
 
     /**
@@ -125,13 +114,9 @@ class RecipeController extends Controller
 
         return Inertia::render('Recipes/Form', [
             'recipe' => new RecipeResource($recipe),
-            'categories' => [
-                ['value' => 'breakfast', 'label' => 'Breakfast'],
-                ['value' => 'supper', 'label' => 'Supper'],
-                ['value' => 'dinner', 'label' => 'Dinner'],
-            ],
-            'ingredients' => Ingredient::orderBy('name')->get(['id', 'name']),
-            'units' => Unit::orderBy('code')->get(['id', 'code']),
+            'categories' => $this->categoryOptions(),
+            'ingredients' => Ingredient::suggestedFor((int) Auth::id())->get(['ingredients.id', 'ingredients.name']),
+            'units' => $this->unitOptions(),
         ]);
     }
 
@@ -143,21 +128,16 @@ class RecipeController extends Controller
         DB::transaction(function () use ($request, $recipe) {
             $validatedData = $request->validated();
 
-            // Remove ingredients from recipe data
-            $ingredients = $validatedData['ingredients'] ?? null;
+            $ingredients = $validatedData['ingredients'];
             unset($validatedData['ingredients']);
 
-            // Update recipe
             $recipe->update($validatedData);
 
-            // Sync ingredients if provided
-            if (isset($ingredients)) {
-                $this->syncRecipeIngredients($recipe, $ingredients);
-            }
+            $this->syncRecipeIngredients($recipe, $ingredients);
         });
 
         return redirect()->route('recipes.show', $recipe)
-            ->with('success', 'Recipe updated successfully.');
+            ->with('success', 'Przepis został zaktualizowany.');
     }
 
     /**
@@ -168,21 +148,52 @@ class RecipeController extends Controller
         $recipe->delete();
 
         return redirect()->route('recipes.index')
-            ->with('success', 'Recipe deleted successfully.');
+            ->with('success', 'Przepis został usunięty.');
     }
 
     /**
-     * Sync recipe ingredients with the provided data.
+     * Sync recipe ingredients, resolving each row's name to an ingredient id.
+     *
+     * @param  list<array{name: string, quantity: numeric-string|int|float, unit_id: int|string}>  $ingredients
      */
     private function syncRecipeIngredients(Recipe $recipe, array $ingredients): void
     {
-        $pivotData = collect($ingredients)->mapWithKeys(function ($ingredient) {
-            return [$ingredient['ingredient_id'] => [
+        $pivotData = collect($ingredients)->mapWithKeys(function (array $ingredient): array {
+            return [Ingredient::resolveIdByName($ingredient['name']) => [
                 'quantity' => $ingredient['quantity'],
                 'unit_id' => $ingredient['unit_id'],
             ]];
         });
 
         $recipe->ingredients()->sync($pivotData);
+    }
+
+    /**
+     * The five allowed units in display order.
+     *
+     * @return Collection<int, Unit>
+     */
+    private function unitOptions(): Collection
+    {
+        return Unit::whereIn('code', Unit::ALLOWED_CODES)
+            ->get(['id', 'code'])
+            ->sortBy(fn (Unit $unit): int => (int) array_search($unit->code, Unit::ALLOWED_CODES, true))
+            ->values();
+    }
+
+    /**
+     * Category options with Polish labels, in display order.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    private function categoryOptions(): array
+    {
+        return array_map(
+            fn (MealCategory $category): array => [
+                'value' => $category->value,
+                'label' => $category->label(),
+            ],
+            MealCategory::cases(),
+        );
     }
 }

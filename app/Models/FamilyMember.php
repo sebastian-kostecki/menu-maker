@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,10 +17,14 @@ class FamilyMember extends Model
         'first_name',
         'birth_date',
         'gender',
+        'weight_kg',
+        'height_cm',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
+        'weight_kg' => 'decimal:1',
+        'height_cm' => 'decimal:1',
     ];
 
     public function user(): BelongsTo

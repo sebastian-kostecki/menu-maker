@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Services\MealPlanGenerator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 class RegenerateMealPlanRequest extends FormRequest
 {
+    /**
+     * Statuses a plan may be regenerated from.
+     *
+     * @var list<string>
+     */
+    public const REGENERATABLE_STATUSES = ['done', 'error'];
+
+    public const NOT_REGENERATABLE_MESSAGE = 'Regenerować można tylko gotowy lub nieudany jadłospis.';
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -31,18 +39,7 @@ class RegenerateMealPlanRequest extends FormRequest
     {
         return [
             'regenerate' => ['required', 'accepted'],
-            'force' => ['boolean', 'nullable'],
         ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'force' => $this->boolean('force', false),
-        ]);
     }
 
     /**
@@ -53,44 +50,25 @@ class RegenerateMealPlanRequest extends FormRequest
         $validator->after(function ($validator) {
             $mealPlan = $this->route('meal_plan');
 
-            // Check if meal plan is currently processing
             if ($mealPlan->status === 'processing') {
-                $validator->errors()->add('status', 'Cannot regenerate meal plan while it is being processed.');
+                $validator->errors()->add('status', 'Nie można regenerować jadłospisu w trakcie generowania.');
 
                 return;
             }
 
-            // Only allow regeneration if status is 'done' or 'error'
-            if (! in_array($mealPlan->status, ['done', 'error'])) {
-                $validator->errors()->add('status', 'Can only regenerate completed or failed meal plans.');
+            if (! in_array($mealPlan->status, self::REGENERATABLE_STATUSES, true)) {
+                $validator->errors()->add('status', self::NOT_REGENERATABLE_MESSAGE);
 
                 return;
             }
 
-            // Check rate limit unless force flag is set
-            if (! $this->input('force')) {
-                $key = 'regenerate-meal-plan:'.$this->user()->id;
+            $generator = app(MealPlanGenerator::class);
+            $missing = $generator->missingRecipesPerCategory($this->user()->id);
 
-                if (RateLimiter::tooManyAttempts($key, 5)) {
-                    $seconds = RateLimiter::availableIn($key);
-                    throw ValidationException::withMessages([
-                        'rate_limit' => "Too many regeneration attempts. Try again in {$seconds} seconds or use force flag.",
-                    ]);
-                }
+            foreach ($generator->shortfallMessages($missing) as $message) {
+                $validator->errors()->add('recipes', $message);
             }
         });
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation(): void
-    {
-        // Hit the rate limiter unless force flag is set
-        if (! $this->input('force')) {
-            $key = 'regenerate-meal-plan:'.$this->user()->id;
-            RateLimiter::hit($key, 3600); // 1 hour
-        }
     }
 
     /**

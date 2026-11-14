@@ -2,13 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Http\Requests\GenerateMealPlanRequest;
+use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Jobs\GenerateMealPlanJob;
+use App\Models\Meal;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\RateLimiter;
 
 uses(RefreshDatabase::class);
 uses(WithFaker::class);
@@ -73,6 +77,7 @@ it("user cannot view other user's meal plan", function (): void {
 
 it('user can generate meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlanData = [
         'start_date' => now()->addDays(7)->format('Y-m-d'),
@@ -126,7 +131,7 @@ it('prevents duplicate start dates per user', function (): void {
 });
 
 it('respects rate limiting on generation', function (): void {
-    $startDate = now()->addDays(7)->format('Y-m-d');
+    seedFullWeekOfRecipes($this->user);
 
     for ($i = 1; $i <= 5; $i++) {
         $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
@@ -144,6 +149,7 @@ it('respects rate limiting on generation', function (): void {
 
 it('user can regenerate completed meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
@@ -169,6 +175,7 @@ it('user can regenerate completed meal plan', function (): void {
 
 it('user can regenerate failed meal plan', function (): void {
     Queue::fake();
+    seedFullWeekOfRecipes($this->user);
 
     $mealPlan = MealPlan::factory()->error()->for($this->user)->create();
 
@@ -222,22 +229,13 @@ it("user cannot regenerate other user's meal plan", function (): void {
 });
 
 it('user can delete own meal plan', function (): void {
-    Storage::fake('local');
-
-    $mealPlan = MealPlan::factory()
-        ->done()
-        ->withPdf()
-        ->for($this->user)
-        ->create();
-
-    Storage::put($mealPlan->pdf_path, 'fake pdf content');
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
     $response = $this->actingAs($this->user)->deleteJson(route('meal-plans.destroy', $mealPlan));
 
     $response->assertStatus(204);
 
     $this->assertDatabaseMissing('meal_plans', ['id' => $mealPlan->id]);
-    Storage::assertMissing($mealPlan->pdf_path);
 });
 
 it('user cannot delete processing meal plan', function (): void {
@@ -280,4 +278,324 @@ it('responds with JSON when expected', function (): void {
     $response->assertJsonStructure([
         'data' => ['id', 'start_date', 'end_date', 'status', 'links'],
     ]);
+});
+
+it('refuses generation when a category is short', function (): void {
+    Queue::fake();
+    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
+    Recipe::factory()->count(7)->supper()->for($this->user)->create();
+    Recipe::factory()->count(4)->dinner()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['recipes']);
+    expect($response->json('errors.recipes.0'))->toContain('Kolacja')->toContain('Dodaj jeszcze 3');
+    $this->assertDatabaseCount('meal_plans', 0);
+    Queue::assertNothingPushed();
+});
+
+it('does not consume a rate limit attempt on shortfall', function (): void {
+    RateLimiter::clear('generate-meal-plan:'.$this->user->id);
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ])->assertJsonValidationErrors(['recipes']);
+
+    expect(RateLimiter::attempts('generate-meal-plan:'.$this->user->id))->toBe(0);
+});
+
+it('refuses regeneration when a category is short', function (): void {
+    Queue::fake();
+    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
+    Recipe::factory()->count(7)->supper()->for($this->user)->create();
+    Recipe::factory()->count(2)->dinner()->for($this->user)->create();
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['recipes']);
+    Queue::assertNothingPushed();
+});
+
+it('allows many regenerations in a row', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    for ($i = 0; $i < 7; $i++) {
+        MealPlan::whereKey($mealPlan->id)->update(['status' => 'done']);
+
+        $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+            'regenerate' => true,
+        ])->assertStatus(202);
+    }
+
+    Queue::assertPushed(GenerateMealPlanJob::class, 7);
+});
+
+it('redirects to the plan view after an Inertia generate', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+
+    $response = $this->actingAs($this->user)->post(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ]);
+
+    $mealPlan = MealPlan::where('user_id', $this->user->id)->firstOrFail();
+    $response->assertRedirect(route('meal-plans.show', $mealPlan));
+});
+
+it('redirects to the plan view after an Inertia regenerate', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->put(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertRedirect(route('meal-plans.show', $mealPlan));
+});
+
+it('redirects to the index after an Inertia delete', function (): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)->delete(route('meal-plans.destroy', $mealPlan));
+
+    $response->assertRedirect(route('meal-plans.index'));
+    $this->assertDatabaseMissing('meal_plans', ['id' => $mealPlan->id]);
+});
+
+it('refuses a regeneration that lost the race to a concurrent one', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    // Another request claims the plan after this one passed validation.
+    $this->app->afterResolving(RegenerateMealPlanRequest::class, function () use ($mealPlan): void {
+        MealPlan::query()->whereKey($mealPlan->id)->update(['status' => 'pending']);
+    });
+
+    $response = $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), [
+        'regenerate' => true,
+    ]);
+
+    $response->assertStatus(422)->assertJsonValidationErrors(['status']);
+    Queue::assertNothingPushed();
+});
+
+it('turns a concurrent duplicate start date into a validation error', function (): void {
+    Queue::fake();
+    seedFullWeekOfRecipes($this->user);
+    $startDate = now()->addDays(7)->format('Y-m-d');
+
+    // A second tab creates the same week after this request passed validation.
+    $this->app->afterResolving(GenerateMealPlanRequest::class, function () use ($startDate): void {
+        MealPlan::factory()->for($this->user)->create([
+            'start_date' => $startDate,
+            'end_date' => now()->addDays(13)->format('Y-m-d'),
+        ]);
+    });
+
+    $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => $startDate,
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE]);
+    expect(MealPlan::where('user_id', $this->user->id)->count())->toBe(1);
+    Queue::assertNothingPushed();
+});
+
+it('passes the summed shopping list for a done plan', function (): void {
+    $first = Recipe::factory()->for($this->user)->create();
+    $second = Recipe::factory()->for($this->user)->create();
+    $empty = Recipe::factory()->for($this->user)->create(['name' => 'Owsianka']);
+    attachIngredient($first, 'Mąka', '600', 'g');
+    attachIngredient($second, 'Mąka', '600', 'g');
+    $plan = mealPlanWithRecipes($this->user, 'done', $first, $second, $empty);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('shoppingList.items', 1)
+                ->where('shoppingList.items.0.name', 'Mąka')
+                ->where('shoppingList.items.0.quantity', '1.2')
+                ->where('shoppingList.items.0.unit', 'kg')
+                ->where('shoppingList.items.0.display', '1,2 kg')
+                ->where('shoppingList.recipes_without_ingredients', ['Owsianka'])
+        );
+});
+
+it('passes each meal its stored ingredients with the display string and source', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mąka', '250', 'g');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('mealPlan.meals.0.ingredients', 1)
+                ->where('mealPlan.meals.0.ingredients.0.name', 'Mąka')
+                ->where('mealPlan.meals.0.ingredients.0.quantity', '250.00')
+                ->where('mealPlan.meals.0.ingredients.0.unit.code', 'g')
+                ->where('mealPlan.meals.0.ingredients.0.display', '250 g')
+                ->where('mealPlan.meals.0.ingredients.0.source', 'as_written')
+                ->missing('mealPlan.meals.0.recipe.ingredients')
+        );
+});
+
+it('passes each meal its amounts scaled to the family', function (): void {
+    seedTwoAdultFamily($this->user);
+    $recipe = Recipe::factory()->breakfast()->for($this->user)->create(['calories' => 810]);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    attachIngredient($recipe, 'Jajka', '1', 'szt');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('mealPlan.meals.0.ingredients', 2)
+                ->where('mealPlan.meals.0.ingredients.0.display', '200 g')
+                ->where('mealPlan.meals.0.ingredients.0.source', 'ai')
+                ->where('mealPlan.meals.0.ingredients.1.display', '2 szt.')
+                ->where('shoppingList.items.0.display', '2 szt.')
+                ->where('shoppingList.items.1.display', '200 g')
+        );
+});
+
+it('passes the scaling notices of a done plan', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => [
+        'status' => 'computed',
+        'unscaled_recipes' => ['Zupa'],
+        'members_without_body' => [],
+    ]]]);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->where('mealPlan.scaling.status', 'computed')
+                ->where('mealPlan.scaling.notices', [
+                    'Nie udało się dopracować ilości przez AI — pokazujemy ilości przeliczone automatycznie.',
+                    'Przepisy z brakującą lub zbyt niską kalorycznością nie zostały przeliczone: Zupa.',
+                ])
+        );
+});
+
+it('passes no shopping list while the plan is generating', function (string $status): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = mealPlanWithRecipes($this->user, $status, $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(fn ($page) => $page->where('shoppingList', null));
+})->with(['pending', 'processing']);
+
+it('returns the shopping list on a partial reload', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mleko', '250', 'ml');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->reloadOnly(
+                ['mealPlan', 'shoppingList'],
+                fn ($reload) => $reload->where('mealPlan.id', $plan->id)
+                    ->where('shoppingList.items.0.display', '250 ml')
+            )
+        );
+});
+
+it('owner gets the rendered PDF inline and uncached', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Łosoś pieczony']);
+    attachIngredient($recipe, 'Mąka', '600', 'g');
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $response = $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan));
+
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'application/pdf');
+    $response->assertHeader(
+        'Content-Disposition',
+        'inline; filename="jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'.pdf"'
+    );
+    expect($response->headers->get('Cache-Control'))->toContain('no-store');
+
+    $bytes = $response->getContent();
+    expect($bytes)->toStartWith('%PDF-');
+
+    $text = pdfText($bytes);
+    expect(strpos($text, 'Łosoś pieczony'))->toBeInt()
+        ->and(strpos($text, 'Łosoś pieczony'))->toBeLessThan(strpos($text, 'Lista zakupów'));
+});
+
+it("user cannot download another user's PDF whatever its status", function (string $status): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->otherUser)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertForbidden();
+})->with(['done', 'pending']);
+
+it('PDF is not available until the plan is done', function (string $status): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertNotFound();
+})->with(['pending', 'processing', 'error']);
+
+it('guest is redirected to login from the PDF route', function (): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $this->get(route('meal-plans.pdf', $mealPlan))->assertRedirect(route('login'));
+});
+
+it('PDF reflects the current meals after regeneration', function (): void {
+    $old = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Stary Żurek']);
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $old);
+
+    $new = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Nowy Bigos']);
+    $mealPlan->meals()->delete();
+    Meal::query()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $new->id,
+        'meal_date' => $mealPlan->start_date,
+        'meal_category' => $new->category,
+    ]);
+
+    $text = pdfText($this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->getContent());
+
+    expect($text)->toContain('Nowy Bigos')->not->toContain('Stary Żurek');
+});
+
+it('exposes the PDF link only for a done plan and no stored path', function (): void {
+    $done = MealPlan::factory()->done()->for($this->user)->create();
+    $pending = MealPlan::factory()->pending()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $done))->assertInertia(
+        fn ($page) => $page->where('mealPlan.links.pdf', route('meal-plans.pdf', $done))
+            ->missing('mealPlan.pdf_path')
+    );
+    $this->actingAs($this->user)->get(route('meal-plans.show', $pending))->assertInertia(
+        fn ($page) => $page->where('mealPlan.links.pdf', null)
+    );
+});
+
+it('exposes the PDF link on the list only for done plans', function (): void {
+    $done = MealPlan::factory()->done()->for($this->user)->create();
+    $pending = MealPlan::factory()->pending()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.index'))->assertInertia(
+        function ($page) use ($done, $pending): void {
+            $links = collect($page->toArray()['props']['mealPlans']['data'])->pluck('links.pdf', 'id');
+
+            expect($links[$done->id])->toBe(route('meal-plans.pdf', $done))
+                ->and($links[$pending->id])->toBeNull();
+        }
+    );
 });

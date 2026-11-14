@@ -6,6 +6,7 @@
 
 <script setup>
 import { Badge } from '@/Components/ui/badge';
+import { mealCategoryLabel } from '@/lib/mealCategories';
 
 defineProps({
   category: {
@@ -15,12 +16,7 @@ defineProps({
 });
 
 function getCategoryLabel(category) {
-  const labels = {
-    breakfast: 'Breakfast',
-    supper: 'Supper',
-    dinner: 'Dinner'
-  };
-  return labels[category];
+  return mealCategoryLabel(category);
 }
 
 function getBadgeVariant(category) {

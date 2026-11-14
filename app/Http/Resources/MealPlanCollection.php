@@ -87,6 +87,7 @@ class MealPlanCollection extends ResourceCollection
                     // Links
                     'links' => [
                         'self' => route('meal-plans.show', $mealPlan->id),
+                        'pdf' => $mealPlan->status === 'done' ? route('meal-plans.pdf', $mealPlan->id) : null,
                     ],
                 ];
             }),

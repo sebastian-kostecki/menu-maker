@@ -46,6 +46,8 @@ it('user can store family member', function (): void {
         'first_name' => 'John',
         'birth_date' => '1990-01-01',
         'gender' => 'male',
+        'weight_kg' => '80',
+        'height_cm' => '180',
     ];
 
     $response = $this->actingAs($this->user)
@@ -84,6 +86,8 @@ it('user can update family member', function (): void {
         'first_name' => 'Jane',
         'birth_date' => '1995-05-05',
         'gender' => 'female',
+        'weight_kg' => '60',
+        'height_cm' => '165',
     ];
 
     $response = $this->actingAs($this->user)
@@ -191,4 +195,77 @@ it('guest cannot access family members', function (): void {
 
     $response = $this->get(route('family-members.edit', $familyMember));
     $response->assertRedirect(route('login'));
+});
+
+it('rejects an adult without weight or height', function (): void {
+    $data = [
+        'first_name' => 'John',
+        'birth_date' => now()->subYears(19)->format('Y-m-d'),
+        'gender' => 'male',
+    ];
+
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data);
+
+    $response->assertSessionHasErrors([
+        'weight_kg' => 'Podaj wagę (wymagana od 19 lat).',
+        'height_cm' => 'Podaj wzrost (wymagany od 19 lat).',
+    ]);
+});
+
+it('accepts a child without weight or height', function (): void {
+    $data = [
+        'first_name' => 'Ola',
+        'birth_date' => now()->subYears(18)->addDay()->format('Y-m-d'),
+        'gender' => 'female',
+    ];
+
+    $response = $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data);
+
+    $response->assertSessionDoesntHaveErrors();
+    $this->assertDatabaseHas('family_members', ['first_name' => 'Ola', 'weight_kg' => null, 'height_cm' => null]);
+});
+
+it('stores weight and height for an adult', function (): void {
+    $data = [
+        'first_name' => 'John',
+        'birth_date' => '1985-03-03',
+        'gender' => 'male',
+        'weight_kg' => '80.5',
+        'height_cm' => '180',
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('family-members.store'), $data)
+        ->assertSessionDoesntHaveErrors();
+
+    $this->assertDatabaseHas('family_members', [
+        'first_name' => 'John',
+        'weight_kg' => '80.5',
+        'height_cm' => '180.0',
+    ]);
+});
+
+it('enforces the weight and height range boundaries', function (): void {
+    $base = ['first_name' => 'John', 'birth_date' => '1985-03-03', 'gender' => 'male'];
+
+    $this->actingAs($this->user)
+        ->post(route('family-members.store'), $base + ['weight_kg' => 29.9, 'height_cm' => 99.9])
+        ->assertSessionHasErrors([
+            'weight_kg' => 'Waga musi wynosić od 30 do 300 kg.',
+            'height_cm' => 'Wzrost musi wynosić od 100 do 250 cm.',
+        ]);
+
+    $this->actingAs($this->user)
+        ->post(route('family-members.store'), $base + ['weight_kg' => 300.1, 'height_cm' => 250.1])
+        ->assertSessionHasErrors(['weight_kg', 'height_cm']);
+
+    $this->actingAs($this->user)
+        ->post(route('family-members.store'), $base + ['weight_kg' => 30, 'height_cm' => 100])
+        ->assertSessionDoesntHaveErrors();
+
+    $this->actingAs($this->user)
+        ->post(route('family-members.store'), $base + ['first_name' => 'Max', 'weight_kg' => 300, 'height_cm' => 250])
+        ->assertSessionDoesntHaveErrors();
 });

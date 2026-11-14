@@ -1,0 +1,71 @@
+# Version control and local tooling
+.git
+.gitignore
+.gitattributes
+context
+.agents
+.ai
+.claude
+.cursor
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.phpactor.json
+.npmrc
+.mcp.json
+.10x-cli.json
+
+# Dev dependencies (reinstalled inside the image)
+node_modules
+vendor
+
+# Dev environment and compose
+docker-compose*.yml
+compose.yaml
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+# Tests and static analysis
+tests
+phpunit.xml
+phpunit.nfr.xml
+phpstan.neon
+.phpunit.cache
+.phpunit.result.cache
+playwright.config.ts
+test-results
+
+# Dev build artifacts
+public/hot
+public/build
+bootstrap/ssr
+
+# Local runtime data
+storage/logs
+storage/pail
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/framework/testing
+storage/inertia-devtools
+storage/app/backups
+storage/app/backup-temp
+storage/app/private
+storage/app/public
+storage/framework/down
+storage/fonts/*
+
+# Deploy scripts (run on the host)
+scripts
+
+# CI and docs
+.github
+docs
+AGENTS.md
+CLAUDE*.md
+boost.json
+skills-lock.json

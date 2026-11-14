@@ -1,11 +1,11 @@
 <template>
   <Select :model-value="modelValue || 'all'" @update:model-value="handleChange">
     <SelectTrigger class="w-40">
-      <SelectValue placeholder="All statuses" />
+      <SelectValue placeholder="Wszystkie statusy" />
     </SelectTrigger>
     <SelectContent>
       <SelectItem value="all">
-        All statuses
+        Wszystkie statusy
       </SelectItem>
       <SelectItem
         v-for="option in options"

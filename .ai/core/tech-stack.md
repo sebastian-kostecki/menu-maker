@@ -20,8 +20,11 @@
 - **PHPUnit** (^11.5.3) - Testing framework
 
 ## Komunikacja z AI
-- **Openrouter.ai** - dostęp do wielu modeli
+- **Openrouter.ai** - dostęp do wielu modeli (sterownik `openrouter`, klucz `OPENROUTER_API_KEY`, model `OPENROUTER_MODEL`)
+- **Anthropic API** (`anthropic-ai/sdk`) - sterownik `anthropic` (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `ANTHROPIC_EFFORT`)
+- Wybór sterownika do zaokrąglania ilości składników: `AI_SCALING_DRIVER` = `openrouter`, `anthropic` albo `fake` (testy, CI i E2E używają `fake`).
+- Subskrypcja Claude (Pro/Max) nie może obsługiwać wdrożonej aplikacji; produkcja wymaga klucza API (OpenRouter lub konsola Anthropic).
 
 ## CI/CD i Hosting:
 - **Github Actions** do tworzenia pipeline’ów CI/CD
-- **DigitalOcean** do hostowania aplikacji za pośrednictwem obrazu docker
+- **Mikrus** (VPS) do hostowania aplikacji; konfiguracja serwera i wdrożenia w osobnym repo `kostecki-infra`

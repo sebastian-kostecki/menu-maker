@@ -10,7 +10,7 @@
 
       <DialogFooter class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
         <Button variant="outline" @click="handleCancel">
-          Cancel
+          Anuluj
         </Button>
         <Button
           :variant="variant"
@@ -48,7 +48,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  confirmText: 'Confirm',
+  confirmText: 'Potwierdź',
   variant: 'default'
 })
 

@@ -15,7 +15,7 @@ it('casts quantity to decimal:2 on RecipeIngredient', function (): void {
     $user = User::factory()->create();
     $recipe = Recipe::factory()->for($user)->create();
     $ingredient = Ingredient::create(['name' => 'Sugar']);
-    $unit = Unit::create(['code' => 'g', 'conversion_factor_to_base' => 1]);
+    $unit = Unit::where('code', 'g')->firstOrFail();
 
     // Create pivot row directly in pivot table
     $pivot = RecipeIngredient::query()->forceCreate([

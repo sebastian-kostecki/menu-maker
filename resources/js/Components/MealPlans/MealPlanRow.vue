@@ -67,6 +67,7 @@ interface MealPlanListItem {
   logs_count: number
   links: {
     self: string
+    pdf: string | null
   }
 }
 

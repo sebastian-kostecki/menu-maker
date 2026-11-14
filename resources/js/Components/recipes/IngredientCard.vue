@@ -21,6 +21,7 @@ defineProps({
 
 function formatQuantity(quantity) {
   // Format quantity to remove unnecessary decimals
-  return quantity % 1 === 0 ? quantity.toString() : quantity.toFixed(2).replace(/\.?0+$/, '');
+  const value = Number(quantity);
+  return value % 1 === 0 ? value.toString() : value.toFixed(2).replace(/\.?0+$/, '');
 }
 </script>

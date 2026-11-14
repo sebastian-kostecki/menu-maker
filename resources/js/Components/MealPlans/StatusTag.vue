@@ -18,10 +18,10 @@ const props = defineProps<Props>()
 
 // Status label mapping
 const statusLabels: Record<MealPlanStatus, string> = {
-  pending: 'Pending',
-  processing: 'Processing',
-  done: 'Done',
-  error: 'Error'
+  pending: 'Oczekuje',
+  processing: 'Generowanie',
+  done: 'Gotowy',
+  error: 'Błąd'
 }
 
 // Badge variant based on status

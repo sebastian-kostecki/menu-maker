@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Button } from '@/Components/ui/button'
 import { Head, Link } from '@inertiajs/vue3'
+import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
 </script>
 
@@ -81,12 +82,12 @@ import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
                         Dodaj przepis
                     </Link>
                 </Button>
-                <Button variant="outline" size="lg" class="w-full justify-start" as-child>
-                    <Link href="/meal-plans/create">
+                <GenerateMealPlanDialog>
+                    <Button variant="outline" size="lg" class="w-full justify-start">
                         <Calendar class="mr-2 h-5 w-5" />
                         Wygeneruj jadłospis
-                    </Link>
-                </Button>
+                    </Button>
+                </GenerateMealPlanDialog>
             </div>
         </div>
 

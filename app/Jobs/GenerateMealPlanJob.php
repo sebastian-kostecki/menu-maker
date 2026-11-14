@@ -6,11 +6,18 @@ namespace App\Jobs;
 
 use App\Models\LogsMealPlan;
 use App\Models\MealPlan;
+use App\Services\IngredientScaling\MealIngredientScaler;
+use App\Services\InsufficientRecipesException;
+use App\Services\MealPlanGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 
 class GenerateMealPlanJob implements ShouldQueue
@@ -19,6 +26,21 @@ class GenerateMealPlanJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    /**
+     * Drop the job silently when the plan was deleted before processing.
+     */
+    public bool $deleteWhenMissingModels = true;
+
+    /**
+     * Seconds the worker lets one attempt run (below the queue's retry_after of 90).
+     */
+    public int $timeout = 80;
+
+    /**
+     * Shown to the user for app failures; the real exception goes to the logs and the error tracker only.
+     */
+    public const GENERIC_ERROR_MESSAGE = 'Nie udało się wygenerować jadłospisu. Spróbuj ponownie za chwilę.';
 
     /**
      * Create a new job instance.
@@ -31,38 +53,53 @@ class GenerateMealPlanJob implements ShouldQueue
     }
 
     /**
+     * Never run two generations of the same plan at once. A duplicate is dropped (not released),
+     * because with `--tries=1` a release would end as a reported MaxAttemptsExceededException.
+     *
+     * @return list<object>
+     */
+    public function middleware(): array
+    {
+        return [$this->overlapGuard()];
+    }
+
+    /**
+     * The overlap middleware, built in one place so failed() can release the same lock key.
+     */
+    private function overlapGuard(): WithoutOverlapping
+    {
+        return (new WithoutOverlapping((string) $this->mealPlan->id))->dontRelease()->expireAfter(300);
+    }
+
+    /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(MealPlanGenerator $generator, MealIngredientScaler $scaler): void
     {
+        Context::add('meal_plan_id', $this->mealPlan->id);
+
         $log = $this->createLog();
 
         try {
             // Update status to processing
             $this->mealPlan->update(['status' => 'processing']);
 
-            // TODO: Implement actual meal plan generation logic
-            // This is a placeholder implementation that should be replaced with:
-            // - MealPlanGeneratorService implementation
-            // - Recipe selection logic
-            // - Meal creation
-            // - PDF generation
-
             Log::info('Meal plan generation started', [
                 'meal_plan_id' => $this->mealPlan->id,
                 'regenerate' => $this->regenerate,
             ]);
 
-            // Simulate processing time (remove in production)
-            sleep(2);
+            $generator->generate($this->mealPlan);
 
-            // For now, just update status to done
+            $scaling = $scaler->scale($this->mealPlan);
+
             $this->mealPlan->update([
                 'status' => 'done',
                 'generation_meta' => [
                     'generated_at' => now(),
                     'regenerate' => $this->regenerate,
-                    'version' => 'placeholder',
+                    'version' => 'scaled-v1',
+                    'scaling' => $scaling->toArray(),
                 ],
             ]);
 
@@ -71,24 +108,31 @@ class GenerateMealPlanJob implements ShouldQueue
             Log::info('Meal plan generation completed', [
                 'meal_plan_id' => $this->mealPlan->id,
             ]);
+        } catch (InsufficientRecipesException $e) {
+            // User data shortfall, not an app fault: record it on the plan and do not report.
+            $this->mealPlan->update([
+                'status' => 'error',
+                'generation_meta' => [
+                    'error_at' => now(),
+                    'error_message' => $e->getMessage(),
+                    'missing' => $e->missing,
+                    'regenerate' => $this->regenerate,
+                ],
+            ]);
+
+            $this->finishLog($log, 'error');
         } catch (\Exception $e) {
             // Update status to error
             $this->mealPlan->update([
                 'status' => 'error',
                 'generation_meta' => [
                     'error_at' => now(),
-                    'error_message' => $e->getMessage(),
+                    'error_message' => self::GENERIC_ERROR_MESSAGE,
                     'regenerate' => $this->regenerate,
                 ],
             ]);
 
             $this->finishLog($log, 'error');
-
-            Log::error('Meal plan generation failed', [
-                'meal_plan_id' => $this->mealPlan->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
 
             // Re-throw to mark job as failed
             throw $e;
@@ -123,18 +167,25 @@ class GenerateMealPlanJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('GenerateMealPlanJob failed permanently', [
-            'meal_plan_id' => $this->mealPlan->id,
-            'exception' => $exception->getMessage(),
-        ]);
+        Context::add('meal_plan_id', $this->mealPlan->id);
 
-        // Update meal plan status to error if not already done
-        if ($this->mealPlan->fresh()->status === 'processing') {
+        // The worker reports exceptions thrown out of handle() itself. Timeouts (a subclass of
+        // MaxAttemptsExceededException) and exceeded attempts only reach failed(), so report those here exactly once.
+        if ($exception instanceof MaxAttemptsExceededException) {
+            report($exception);
+
+            // A killed attempt never reaches the middleware's `finally`, so its lock would outlive it and
+            // make the next regeneration of this plan be dropped as an overlap.
+            Cache::lock($this->overlapGuard()->getLockKey($this))->forceRelease();
+        }
+
+        // Pending covers failures before handle() starts (e.g. a refiner driver that cannot be resolved).
+        if (in_array($this->mealPlan->fresh()->status, ['pending', 'processing'], true)) {
             $this->mealPlan->update([
                 'status' => 'error',
                 'generation_meta' => [
                     'failed_at' => now(),
-                    'error_message' => $exception->getMessage(),
+                    'error_message' => self::GENERIC_ERROR_MESSAGE,
                 ],
             ]);
         }

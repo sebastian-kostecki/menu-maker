@@ -12,7 +12,6 @@
         :errors="getIngredientErrors(index)"
         @update="handleUpdateIngredient"
         @remove="handleRemoveIngredient"
-        @add-ingredient="handleAddNewIngredient"
       />
     </div>
 
@@ -21,7 +20,7 @@
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
         <Plus class="w-6 h-6" />
       </div>
-      <p class="text-sm">No ingredients added yet. Click "Add Ingredient" to get started.</p>
+      <p class="text-sm">Nie dodano jeszcze składników.</p>
     </div>
 
     <!-- Add Ingredient Button -->
@@ -32,7 +31,7 @@
       class="w-full"
     >
       <Plus class="w-4 h-4 mr-2" />
-      Add Ingredient
+      Dodaj składnik
     </Button>
 
     <!-- General Ingredients Error -->
@@ -68,14 +67,14 @@ const props = defineProps({
 })
 
 // Define emits for v-model support
-const emit = defineEmits(['update:ingredients', 'add-new-ingredient'])
+const emit = defineEmits(['update:ingredients'])
 
 // Handle adding new ingredient
 const handleAddIngredient = () => {
   const newIngredients = [
     ...props.ingredients,
     {
-      ingredient_id: null,
+      name: '',
       quantity: '',
       unit_id: null
     }
@@ -96,19 +95,13 @@ const handleRemoveIngredient = (index) => {
   emit('update:ingredients', newIngredients)
 }
 
-// Handle adding new ingredient from combobox
-const handleAddNewIngredient = (ingredientName) => {
-  // Emit event to parent component to handle creating new ingredient
-  emit('add-new-ingredient', ingredientName)
-}
-
 // Get errors for specific ingredient
 const getIngredientErrors = (index) => {
   const ingredientErrors = {}
 
-  // Check for ingredient_id errors
-  if (props.errors[`ingredients.${index}.ingredient_id`]) {
-    ingredientErrors.ingredient_id = props.errors[`ingredients.${index}.ingredient_id`]
+  // Check for name errors
+  if (props.errors[`ingredients.${index}.name`]) {
+    ingredientErrors.name = props.errors[`ingredients.${index}.name`]
   }
 
   // Check for quantity errors

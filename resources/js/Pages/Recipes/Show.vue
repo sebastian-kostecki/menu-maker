@@ -1,5 +1,5 @@
 <template>
-  <Head :title="`Recipe: ${recipe.data.name}`" />
+  <Head :title="`Recipe: ${recipe.name}`" />
 
   <AuthenticatedLayout>
     <template #header>
@@ -7,7 +7,7 @@
       <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-4">
         <Link href="/recipes" class="hover:text-gray-900">Recipes</Link>
         <span>/</span>
-        <span class="text-gray-900">{{ recipe.data.name }}</span>
+        <span class="text-gray-900">{{ recipe.name }}</span>
       </nav>
 
       <div class="flex items-center justify-between">
@@ -44,24 +44,24 @@
 
             <!-- Recipe Header -->
             <RecipeHeader
-              :name="recipe?.data.name || ''"
-              :category="recipe?.data.category || 'breakfast'"
+              :name="recipe.name || ''"
+              :category="recipe.category || 'breakfast'"
             />
 
             <!-- Recipe Meta Badges -->
             <RecipeMetaBadges
-              :calories="recipe?.data.calories || 0"
-              :servings="recipe?.data.servings || 1"
+              :calories="recipe.calories || 0"
+              :servings="recipe.servings || 1"
             />
 
             <!-- Ingredients Grid -->
             <div class="space-y-4">
               <h2 class="text-2xl font-semibold text-gray-900">Ingredients</h2>
-              <IngredientCardGrid :ingredients="recipe?.data.ingredients || []" />
+              <IngredientCardGrid :ingredients="recipe.ingredients || []" />
             </div>
 
             <!-- Instructions Section -->
-            <InstructionsSection :instructions="recipe?.data.instructions || ''" />
+            <InstructionsSection :instructions="recipe.instructions || ''" />
 
           </div>
         </div>
@@ -71,7 +71,7 @@
     <!-- Delete Confirmation Dialog -->
     <DeleteConfirmationDialog
       :open="showDeleteDialog"
-      :recipe-name="recipe?.data.name || ''"
+      :recipe-name="recipe.name || ''"
       :is-loading="deleteLoading"
       @confirm="handleDeleteConfirm"
       @cancel="handleDeleteCancel"
@@ -109,7 +109,7 @@ const { deleteRecipe, isLoading: deleteLoading } = useDeleteRecipe();
 
 // Event handlers
 function handleEdit() {
-  router.visit(`/recipes/${props.recipe.data.id}/edit`);
+  router.visit(`/recipes/${props.recipe.id}/edit`);
 }
 
 function handleDeleteRequest() {
@@ -122,7 +122,7 @@ function handleDeleteCancel() {
 
 async function handleDeleteConfirm() {
   try {
-    await deleteRecipe(props.recipe.data.id);
+    await deleteRecipe(props.recipe.id);
     showDeleteDialog.value = false;
     // Redirect is handled by the hook
   } catch (error) {

@@ -8,14 +8,20 @@ use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Http\Resources\MealPlanCollection;
 use App\Http\Resources\MealPlanResource;
+use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
+use App\Services\MealPlanPdf\MealPlanPdfExporter;
+use App\Services\ShoppingList\ShoppingListBuilder;
 use Carbon\Carbon;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -62,10 +68,10 @@ class MealPlanController extends Controller
             'mealPlans' => $data,
             'filters' => $request->only(['filter.status', 'sort', 'direction', 'perPage']),
             'statuses' => [
-                ['value' => 'pending', 'label' => 'Pending'],
-                ['value' => 'processing', 'label' => 'Processing'],
-                ['value' => 'done', 'label' => 'Done'],
-                ['value' => 'error', 'label' => 'Error'],
+                ['value' => 'pending', 'label' => 'Oczekuje'],
+                ['value' => 'processing', 'label' => 'Generowanie'],
+                ['value' => 'done', 'label' => 'Gotowy'],
+                ['value' => 'error', 'label' => 'Błąd'],
             ],
         ]);
     }
@@ -73,31 +79,37 @@ class MealPlanController extends Controller
     /**
      * Display the specified meal plan.
      */
-    public function show(MealPlan $mealPlan): InertiaResponse|JsonResponse
+    public function show(MealPlan $mealPlan, ShoppingListBuilder $shoppingListBuilder): InertiaResponse|JsonResponse
     {
-        $mealPlan->load([
-            'meals.recipe.recipeIngredients.ingredient',
-            'meals.recipe.recipeIngredients.unit',
-            'logs' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            },
-        ]);
-
-        $data = new MealPlanResource($mealPlan);
-
         if (request()->expectsJson()) {
-            return response()->json(['data' => $data]);
+            $mealPlan->load([
+                'meals.recipe',
+                'meals.ingredients.ingredient',
+                'meals.ingredients.unit',
+                'logs' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                },
+            ]);
+
+            return response()->json(['data' => new MealPlanResource($mealPlan)]);
         }
 
+        // The week view (polled every 3 s while generating) needs the recipe names, kcal and servings
+        // plus each meal's scaled ingredients (empty while the plan is generating).
+        $mealPlan->load('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
+
         return Inertia::render('MealPlans/Show', [
-            'mealPlan' => $data->resolve(),
+            'mealPlan' => (new MealPlanResource($mealPlan))->resolve(),
+            'shoppingList' => fn (): ?array => $mealPlan->status === 'done'
+                ? (new ShoppingListResource($shoppingListBuilder->forMealPlan($mealPlan)))->resolve()
+                : null,
         ]);
     }
 
     /**
      * Generate a new meal plan.
      */
-    public function store(GenerateMealPlanRequest $request): JsonResponse
+    public function store(GenerateMealPlanRequest $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
 
@@ -105,16 +117,28 @@ class MealPlanController extends Controller
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = $startDate->copy()->addDays(6);
 
-        // Create meal plan with pending status
-        $mealPlan = MealPlan::create([
-            'user_id' => $validated['user_id'],
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'status' => 'pending',
-        ]);
+        // Create meal plan with pending status. The request already checks the date; a concurrent
+        // submit (second tab) can still hit the unique key, which gets the same validation error.
+        try {
+            // Own transaction (a savepoint when nested), so a violation never poisons an outer one.
+            $mealPlan = DB::transaction(fn (): MealPlan => MealPlan::create([
+                'user_id' => $validated['user_id'],
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'status' => 'pending',
+            ]));
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE,
+            ]);
+        }
 
         // Dispatch generation job
         GenerateMealPlanJob::dispatch($mealPlan, false); // regenerate = false
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
 
         $data = new MealPlanResource($mealPlan);
 
@@ -127,24 +151,33 @@ class MealPlanController extends Controller
     /**
      * Regenerate an existing meal plan.
      */
-    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse
+    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
     {
-        // Guard: Check if already processing (should be caught by policy/validation but double-check)
-        if ($mealPlan->status === 'processing') {
-            return response()->json([
-                'message' => 'Cannot regenerate meal plan while it is being processed.',
-                'error' => 'meal_plan_processing',
-            ], 409);
+        // Reset status and clear generation metadata in one conditional update, so two concurrent
+        // requests that both passed validation cannot both queue a job.
+        $claimed = MealPlan::query()
+            ->whereKey($mealPlan->getKey())
+            ->whereIn('status', RegenerateMealPlanRequest::REGENERATABLE_STATUSES)
+            ->update([
+                'status' => 'pending',
+                'generation_meta' => null,
+                'updated_at' => now(),
+            ]);
+
+        if ($claimed === 0) {
+            throw ValidationException::withMessages([
+                'status' => RegenerateMealPlanRequest::NOT_REGENERATABLE_MESSAGE,
+            ]);
         }
 
-        // Reset status and clear generation metadata
-        $mealPlan->update([
-            'status' => 'pending',
-            'generation_meta' => null,
-        ]);
+        $mealPlan->refresh();
 
         // Dispatch regeneration job
         GenerateMealPlanJob::dispatch($mealPlan, true); // regenerate = true
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
 
         $data = new MealPlanResource($mealPlan->fresh());
 
@@ -155,45 +188,35 @@ class MealPlanController extends Controller
     }
 
     /**
-     * Download the PDF file for the specified meal plan.
+     * Render the PDF (plan table, then shopping list) of a finished meal plan and show it inline.
      */
-    public function downloadPdf(MealPlan $mealPlan): Response
+    public function downloadPdf(MealPlan $mealPlan, MealPlanPdfExporter $exporter): Response
     {
-        // Check if meal plan is in done status
+        // Authorize first, so a non-owner cannot tell from a 404 whether the plan is ready.
+        $this->authorize('downloadPdf', $mealPlan);
+
         if ($mealPlan->status !== 'done') {
-            abort(404, 'PDF is not available for this meal plan.');
+            abort(404, 'PDF jest dostępny tylko dla gotowego jadłospisu.');
         }
 
-        // Check if PDF file exists
-        if (! $mealPlan->pdf_path || ! Storage::exists($mealPlan->pdf_path)) {
-            abort(404, 'PDF file not found.');
-        }
-
-        // Get the file content
-        $fileContent = Storage::get($mealPlan->pdf_path);
-        $fileName = sprintf(
-            'meal-plan-%s-%s.pdf',
-            $mealPlan->start_date,
-            $mealPlan->end_date
-        );
-
-        return response($fileContent)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="'.$fileName.'"');
+        return response($exporter->render($mealPlan), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$exporter->filename($mealPlan).'"',
+            'Cache-Control' => 'no-store, private',
+        ]);
     }
 
     /**
      * Remove the specified meal plan from storage.
      */
-    public function destroy(MealPlan $mealPlan): Response
+    public function destroy(Request $request, MealPlan $mealPlan): Response|RedirectResponse
     {
-        // Delete PDF file if exists
-        if ($mealPlan->pdf_path && Storage::exists($mealPlan->pdf_path)) {
-            Storage::delete($mealPlan->pdf_path);
-        }
-
         // Delete meal plan (cascade delete handles meals & logs via DB constraints)
         $mealPlan->delete();
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.index');
+        }
 
         return response()->noContent();
     }

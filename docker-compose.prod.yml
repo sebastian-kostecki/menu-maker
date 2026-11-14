@@ -1,0 +1,75 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: docker/8.5/Dockerfile.prod
+            args:
+                WWWGROUP: ${WWWGROUP:-1000}
+                VITE_APP_NAME: ${VITE_APP_NAME:-Menu Maker}
+                POSTGRES_VERSION: 18
+        image: menu-maker-app:prod
+        container_name: menu-app
+        restart: unless-stopped
+        mem_limit: 768m
+        cpus: 1.0
+        pids_limit: 256
+        stop_grace_period: 100s
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: '3'
+        environment:
+            WWWUSER: ${WWWUSER:-1000}
+            SUPERVISOR_PHP_USER: sail
+        volumes:
+            - ./storage:/var/www/html/storage
+            - ${BACKUP_HOST_DIR:-/storage/menu-maker-backups}:/var/www/html/storage/app/backups
+            - ./.env.prod:/var/www/html/.env:ro
+        networks:
+            - menu-maker-internal
+            - proxy
+        depends_on:
+            pgsql:
+                condition: service_healthy
+        labels:
+            - traefik.enable=true
+            - traefik.docker.network=proxy
+            - traefik.http.routers.menu.rule=Host(`menu.kostecki.dev`)
+            - traefik.http.routers.menu.entrypoints=websecure
+            - traefik.http.routers.menu.tls.certresolver=letsencrypt
+            - traefik.http.services.menu.loadbalancer.server.port=80
+
+    pgsql:
+        image: postgres:18-alpine
+        container_name: menu-pgsql
+        restart: unless-stopped
+        mem_limit: 512m
+        cpus: 0.5
+        pids_limit: 128
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - menu-pgsql:/var/lib/postgresql
+        networks:
+            - menu-maker-internal
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}',
+                ]
+            retries: 5
+            timeout: 5s
+            interval: 10s
+
+networks:
+    menu-maker-internal:
+        driver: bridge
+    proxy:
+        external: true
+
+volumes:
+    menu-pgsql:

@@ -15,6 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/Components/ui/label'
 import { toast } from 'vue-sonner'
 import { X, Save } from 'lucide-vue-next'
+import { useFamilyMemberBodyValidation } from '@/hooks/useFamilyMemberBodyValidation'
+
+const { validateBodyData } = useFamilyMemberBodyValidation()
 
 const props = defineProps({
   open: {
@@ -33,7 +36,9 @@ const emit = defineEmits(['saved', 'close'])
 const form = ref({
   first_name: '',
   birth_date: '',
-  gender: ''
+  gender: '',
+  weight_kg: '',
+  height_cm: ''
 })
 
 const errors = ref({})
@@ -64,7 +69,9 @@ watch(() => props.member, (newMember) => {
     form.value = {
       first_name: newMember.first_name,
       birth_date: newMember.birth_date,
-      gender: newMember.gender
+      gender: newMember.gender,
+      weight_kg: newMember.weight_kg ?? '',
+      height_cm: newMember.height_cm ?? ''
     }
   } else {
     resetForm()
@@ -77,13 +84,17 @@ const resetForm = () => {
     form.value = {
       first_name: props.member.first_name,
       birth_date: props.member.birth_date,
-      gender: props.member.gender
+      gender: props.member.gender,
+      weight_kg: props.member.weight_kg ?? '',
+      height_cm: props.member.height_cm ?? ''
     }
   } else {
     form.value = {
       first_name: '',
       birth_date: '',
-      gender: ''
+      gender: '',
+      weight_kg: '',
+      height_cm: ''
     }
   }
 }
@@ -117,6 +128,9 @@ const validateForm = () => {
   } else if (!['male', 'female'].includes(form.value.gender)) {
     newErrors.gender = 'Nieprawidłowa wartość płci'
   }
+
+  // Body data validation (required from 19 years of age)
+  Object.assign(newErrors, validateBodyData(form.value))
 
   errors.value = newErrors
   return Object.keys(newErrors).length === 0
@@ -266,6 +280,41 @@ const handleGenderChange = (value) => {
           </Select>
           <p v-if="errors.gender" class="text-sm text-red-600">
             {{ errors.gender }}
+          </p>
+        </div>
+        <!-- Weight -->
+        <div class="space-y-2">
+          <Label for="weight_kg" class="block leading-6">Waga (kg)</Label>
+          <Input
+            id="weight_kg"
+            v-model="form.weight_kg"
+            type="number"
+            min="30"
+            max="300"
+            step="0.1"
+            placeholder="np. 70"
+            :class="{ 'border-red-500 focus:border-red-500': errors.weight_kg }"
+          />
+          <p v-if="errors.weight_kg" class="text-sm text-red-600">
+            {{ errors.weight_kg }}
+          </p>
+        </div>
+
+        <!-- Height -->
+        <div class="space-y-2">
+          <Label for="height_cm" class="block leading-6">Wzrost (cm)</Label>
+          <Input
+            id="height_cm"
+            v-model="form.height_cm"
+            type="number"
+            min="100"
+            max="250"
+            step="0.1"
+            placeholder="np. 175"
+            :class="{ 'border-red-500 focus:border-red-500': errors.height_cm }"
+          />
+          <p v-if="errors.height_cm" class="text-sm text-red-600">
+            {{ errors.height_cm }}
           </p>
         </div>
       </form>

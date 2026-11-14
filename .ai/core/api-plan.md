@@ -5,7 +5,7 @@
 | Encja (tabela)       | Kluczowe pola                                              | Relacje                                               | Reguły walidacji (główne)                                                           |
 | -------------------- | ---------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | `users`              | `name`, `email`, `password`                                | 1-N `family_members`, 1-N `recipes`, 1-N `meal_plans` | `name:string                                                                        | max:255`, `email:email                                                                                     | unique`, `password:string                   | min:8`      |
-| `family_members`     | `first_name`, `birth_date`, `gender`                       | N-1 `users`                                           | `first_name:string                                                                  | max:255`, `birth_date:date                                                                                 | before:today`, `gender:in:male,female`      |
+| `family_members`     | `first_name`, `birth_date`, `gender`, `weight_kg`, `height_cm` (wymagane od 19 lat) | N-1 `users`                                           | `first_name:string                                                                  | max:255`, `birth_date:date                                                                                 | before:today`, `gender:in:male,female`      |
 | `units`              | `code`, `conversion_factor_to_base`                        | 1-N `recipe_ingredients`                              | `code:string                                                                        | max:10                                                                                                     | unique`, `conversion_factor_to_base:numeric | min:0.0001` |
 | `ingredients`        | `name`                                                     | N-N `recipes` (via `recipe_ingredients`)              | `name:string                                                                        | max:255                                                                                                    | unique`                                     |
 | `recipes`            | `name`, `category`, `instructions`, `calories`, `servings` | N-1 `users`, N-N `ingredients`, 1-N `meals`           | `name:string                                                                        | max:255`, `category:in:breakfast,supper,dinner`, `instructions:string`, `calories:numeric                   | min:0`, `servings:integer                   | min:1`      |
@@ -37,7 +37,7 @@
 ### B. Trasy (`routes/web.php`)
 
 ```php
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Family Members
     Route::resource('family-members', FamilyMemberController::class)->except(['create', 'edit', 'show']);
 
@@ -100,14 +100,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 ### F. Dodatkowa logika biznesowa
 
+> Payload `MealPlanController@show` (Inertia): `mealPlan.meals[].ingredients` = `[{ingredient_id, name, quantity, unit: {code}, display, source}]` oraz `mealPlan.scaling` = `{status, notices[]}`. Lista zakupów i PDF czytają `meal_ingredients`.
+
+
 | Typ      | Nazwa                                               | Cel                                                       |
 | -------- | --------------------------------------------------- | --------------------------------------------------------- |
 | Service  | `MealPlanGeneratorService`                          | Losowy wybór przepisów, brak powtórzeń, 7 dni × 3 posiłki |
-| Service  | `IngredientScalingService`                          | Skalowanie ilości wg kalorii, porcji i profilu rodziny    |
+| Service  | `IngredientScaling\EnergyNorms`, `ScalingCalculator`  | Normy NIZP-PZH 2020 (kcal/dzień) i współczynnik skalowania posiłku (30/40/30) |
+| Service  | `IngredientScaling\MealIngredientScaler`            | Zapis przeliczonych ilości do `meal_ingredients` (migawka planu) |
+| Service  | `IngredientScaling\IngredientRefiner` (sterowniki `openrouter`, `anthropic`, `fake`), `RefinementGuard` | Zaokrąglanie ilości przez AI w granicach wymuszanych kodem; wybór przez `AI_SCALING_DRIVER` |
+| Service  | `IngredientScaling\ScalingNotices`                  | Komunikaty o ograniczeniach skalowania (ekran i PDF)      |
 | Service  | `ShoppingListService`                               | Sumowanie i konwersja jednostek (g→kg, ml→l)              |
-| Service  | `PdfExportService`                                  | Generacja pojedynczego PDF z jadłospisem i listą zakupów  |
+| Service  | `MealPlanPdfExporter`                               | PDF z jadłospisem i listą zakupów, renderowany na żądanie (dompdf) |
 | Job      | `GenerateMealPlanJob`                               | Kolejkowanie procesu generowania jadłospisu               |
-| Job      | `GeneratePdfJob`                                    | Kolejkowanie renderu PDF                                  |
 | Event    | `MealPlanGenerationStarted` / `Finished` / `Failed` | Monitoring postępu                                        |
 | Listener | `UpdateMealPlanStatusListener`                      | Aktualizacja kolumny `status` + `generation_meta`         |
 
@@ -118,13 +123,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 1. **Uwierzytelnianie**: Laravel Sanctum (SPA tokens) + session cookies; trasy `auth` middleware.
 2. **Autoryzacja**: Policies + Gates; dodatkowo middleware `can:*` przy trasach admina.
 3. **CSRF**: Domyślna ochrona Laravel + Inertia.
-4. **Rate limiting / throttling**: `RateLimiter::for('api', 60 req / 1 min)` oraz per-route limit dla generacji PDF (np. 5/h).
+4. **Rate limiting / throttling**: `RateLimiter::for('api', 60 req / 1 min)` oraz per-route limit dla generacji PDF (np. 5/h; odłożone, na razie niewdrożone).
 5. **Caching**:
    * Sterownik `database` jako `cache` i `queue`.
    * Cache listy jednostek i składników (`rememberForever`).
    * Cache wyników pełnotekstowego wyszukiwania przepisów (tag `recipes`).
-6. **Kolejki**: Sterownik `database`; Jobs dla ciężkich zadań (AI, PDF).
+6. **Kolejki**: Sterownik `database`; Jobs dla ciężkich zadań (AI).
 7. **XSS / bezpieczeństwo danych**: Escapowanie w Vue (domyślne), `v-html` unikać; sanitizacja danych wejściowych.
 8. **SQL Injection**: Eloquent ORM, parametryzowane zapytania.
-9. **Backup i czyszczenie danych**: `prune` command usuwający stare pliki PDF.
-10. **Monitoring**: Events + Laravel Telescope w środowisku dev; Sentry produkcyjnie.
+9. **Monitoring**: Events + Laravel Telescope w środowisku dev; Sentry produkcyjnie.

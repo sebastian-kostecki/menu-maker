@@ -39,6 +39,14 @@ const formatGender = (gender) => {
   return gender === 'male' ? 'Mężczyzna' : 'Kobieta'
 }
 
+const formatMeasure = (value, unit) => {
+  if (value === null || value === undefined || value === '') {
+    return '—'
+  }
+
+  return `${Number(value).toLocaleString('pl-PL')} ${unit}`
+}
+
 const calculateAge = (birthDate) => {
   const today = new Date()
   const birth = new Date(birthDate)
@@ -93,6 +101,12 @@ const handleDeleteCancelled = () => {
             <TableHead class="w-[120px] font-semibold">
               Płeć
             </TableHead>
+            <TableHead class="w-[100px] font-semibold">
+              Waga
+            </TableHead>
+            <TableHead class="w-[100px] font-semibold">
+              Wzrost
+            </TableHead>
             <TableHead class="w-[120px] text-right font-semibold">
               Akcje
             </TableHead>
@@ -115,6 +129,12 @@ const handleDeleteCancelled = () => {
             </TableCell>
             <TableCell class="text-gray-600 dark:text-gray-300">
               {{ formatGender(member.gender) }}
+            </TableCell>
+            <TableCell class="text-gray-600 dark:text-gray-300">
+              {{ formatMeasure(member.weight_kg, 'kg') }}
+            </TableCell>
+            <TableCell class="text-gray-600 dark:text-gray-300">
+              {{ formatMeasure(member.height_cm, 'cm') }}
             </TableCell>
             <TableCell class="text-right">
               <div class="flex items-center justify-end gap-2">

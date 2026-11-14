@@ -5,7 +5,7 @@
         <div class="p-6 bg-white border-b border-gray-200">
           <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-semibold text-gray-900">
-              {{ recipe?.data ? 'Edit Recipe' : 'Create Recipe' }}
+              {{ recipe?.data ? 'Edytuj przepis' : 'Nowy przepis' }}
             </h1>
           </div>
 
@@ -57,7 +57,7 @@ const form = useForm({
   calories: props.recipe?.data?.calories ?? '',
   servings: props.recipe?.data?.servings ?? '',
   ingredients: props.recipe?.data?.ingredients?.map(ingredient => ({
-    ingredient_id: ingredient.id,
+    name: ingredient.name,
     quantity: ingredient.quantity,
     unit_id: ingredient.unit.id,
   })) ?? []

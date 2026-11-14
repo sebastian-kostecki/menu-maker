@@ -6,6 +6,9 @@ on:
     branches:
       - main
       - master
+  pull_request:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -74,7 +77,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql
+          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql, bcmath, intl
           coverage: none
 
       - name: Cache Composer dependencies
@@ -134,7 +137,7 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [frontend-build, backend]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.base_ref == 'main'
     services:
       postgres:
         image: postgres:18-alpine
@@ -149,6 +152,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mailpit:
+        image: axllent/mailpit:v1.33.1
+        ports:
+          - 1025:1025
+          - 8025:8025
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -163,7 +171,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql
+          extensions: mbstring, dom, fileinfo, pdo, pgsql, pdo_pgsql, bcmath, intl
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
@@ -192,12 +200,61 @@ jobs:
           DB_DATABASE=testing
           DB_USERNAME=sail
           DB_PASSWORD=password
+          QUEUE_CONNECTION=database
+          AI_SCALING_DRIVER=fake
+          MAIL_MAILER=smtp
+          MAIL_HOST=127.0.0.1
+          MAIL_PORT=1025
+          MAIL_FROM_ADDRESS="no-reply@menu-maker.local"
           VITE_APP_NAME="Menu Maker"
           EOF
           php artisan key:generate --ansi
           php artisan migrate --graceful --no-interaction -v
+          php artisan db:seed --class=E2eMealPlanSeeder --no-interaction
+
+      - name: Start queue worker
+        run: php artisan queue:work --tries=1 > storage/logs/queue.log 2>&1 &
 
       - name: Run E2E tests
         run: npm run test:e2e
+        env:
+          MAILPIT_URL: http://127.0.0.1:8025
 
 
+
+      - name: Upload Laravel and queue logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-laravel-logs
+          path: storage/logs/*.log
+          if-no-files-found: ignore
+
+  # Boot smoke produkcyjnego obrazu Docker (build + compose + healthchecki)
+  production-image:
+    name: Production Image Boot Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.base_ref == 'main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Lint shell scripts
+        run: |
+          shopt -s globstar
+          shellcheck scripts/**/*.sh
+
+      - name: Test deploy helpers
+        run: bash scripts/lib/production-deploy.test.sh
+
+      - name: Production boot smoke
+        run: bash scripts/ci/production-smoke.sh
+
+      - name: Upload Laravel logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-image-logs
+          path: storage/logs/*.log
+          if-no-files-found: ignore

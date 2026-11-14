@@ -10,8 +10,8 @@
       </button>
     </TableCell>
     <TableCell>
-      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize" :class="categoryClasses">
-        {{ recipe.category }}
+      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="categoryClasses">
+        {{ mealCategoryLabel(recipe.category) }}
       </span>
     </TableCell>
     <TableCell class="text-gray-600 dark:text-gray-300">
@@ -63,6 +63,7 @@ import { router } from '@inertiajs/vue3';
 import { Eye, Edit, Trash2 } from 'lucide-vue-next';
 import { TableCell, TableRow } from '@/Components/ui/table';
 import { Button } from '@/Components/ui/button';
+import { mealCategoryLabel } from '@/lib/mealCategories';
 
 // Props
 const props = defineProps({

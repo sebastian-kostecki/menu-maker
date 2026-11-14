@@ -117,7 +117,7 @@ class MealPlanRequestValidationTest extends TestCase
 
         $this->assertFalse($validator->passes());
         $this->assertArrayHasKey('start_date', $validator->errors()->toArray());
-        $this->assertStringContainsString('already have a meal plan', $validator->errors()->first('start_date'));
+        $this->assertStringContainsString('Masz już jadłospis zaczynający się tego dnia', $validator->errors()->first('start_date'));
     }
 
     public function test_generate_meal_plan_request_enforces_rate_limiting(): void
@@ -135,7 +135,7 @@ class MealPlanRequestValidationTest extends TestCase
         $validator = Validator::make(['start_date' => now()->format('Y-m-d')], $request->rules());
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('Too many meal plan generation attempts');
+        $this->expectExceptionMessage('Zbyt wiele prób generowania');
         $request->withValidator($validator);
     }
 
@@ -159,36 +159,16 @@ class MealPlanRequestValidationTest extends TestCase
         $this->assertArrayHasKey('regenerate', $validator->errors()->toArray());
     }
 
-    public function test_regenerate_meal_plan_request_validates_force_flag(): void
+    public function test_regenerate_meal_plan_request_ignores_force_flag_and_limiter(): void
     {
         $request = new RegenerateMealPlanRequest;
-        $rules = $request->rules();
 
-        // Valid: force is true
-        $validator = Validator::make([
-            'regenerate' => true,
-            'force' => true,
-        ], $rules);
+        $this->assertArrayNotHasKey('force', $request->rules());
+
+        $validator = Validator::make(['regenerate' => true, 'force' => 'invalid'], $request->rules());
         $this->assertTrue($validator->passes());
-
-        // Valid: force is false
-        $validator = Validator::make([
-            'regenerate' => true,
-            'force' => false,
-        ], $rules);
-        $this->assertTrue($validator->passes());
-
-        // Valid: force is missing (nullable)
-        $validator = Validator::make(['regenerate' => true], $rules);
-        $this->assertTrue($validator->passes());
-
-        // Invalid: force is string
-        $validator = Validator::make([
-            'regenerate' => true,
-            'force' => 'invalid',
-        ], $rules);
-        $this->assertFalse($validator->passes());
-        $this->assertArrayHasKey('force', $validator->errors()->toArray());
+        $this->assertArrayNotHasKey('force', $validator->validated());
+        $this->assertSame(0, RateLimiter::attempts('regenerate-meal-plan:'.$this->user->id));
     }
 
     public function test_regenerate_meal_plan_request_checks_meal_plan_status(): void
@@ -216,11 +196,12 @@ class MealPlanRequestValidationTest extends TestCase
 
         $this->assertFalse($validator->passes());
         $this->assertArrayHasKey('status', $validator->errors()->toArray());
-        $this->assertStringContainsString('Cannot regenerate meal plan while it is being processed', $validator->errors()->first('status'));
+        $this->assertStringContainsString('Nie można regenerować jadłospisu w trakcie generowania', $validator->errors()->first('status'));
     }
 
     public function test_regenerate_meal_plan_request_allows_done_status(): void
     {
+        seedFullWeekOfRecipes($this->user);
         $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
         $request = new RegenerateMealPlanRequest;
@@ -247,6 +228,7 @@ class MealPlanRequestValidationTest extends TestCase
 
     public function test_regenerate_meal_plan_request_allows_error_status(): void
     {
+        seedFullWeekOfRecipes($this->user);
         $mealPlan = MealPlan::factory()->error()->for($this->user)->create();
 
         $request = new RegenerateMealPlanRequest;
@@ -269,5 +251,32 @@ class MealPlanRequestValidationTest extends TestCase
         $request->withValidator($validator);
 
         $this->assertTrue($validator->passes());
+    }
+
+    public function test_regenerate_meal_plan_request_reports_shortfall_on_recipes(): void
+    {
+        $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+        $request = new RegenerateMealPlanRequest;
+        $request->setUserResolver(function () {
+            return $this->user;
+        });
+        $request->setRouteResolver(function () use ($mealPlan) {
+            return new class($mealPlan)
+            {
+                public function __construct(private MealPlan $mealPlan) {}
+
+                public function parameter(string $key)
+                {
+                    return $this->mealPlan;
+                }
+            };
+        });
+
+        $validator = Validator::make(['regenerate' => true], $request->rules());
+        $request->withValidator($validator);
+
+        $this->assertFalse($validator->passes());
+        $this->assertCount(3, $validator->errors()->get('recipes'));
     }
 }

@@ -1,20 +1,16 @@
 import { test, expect } from '@playwright/test';
-
-const generateRandomEmail = (): string => {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `e2e-${random}@example.com`;
-};
+import { generateRandomEmail } from './support/mailpit';
 
 test('user can register and see dashboard', async ({ page }) => {
   const email = generateRandomEmail();
   const password = 'Password123!';
 
   await page.goto('/register');
-  await page.getByLabel('Name').fill('E2E User');
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByLabel('Confirm Password').fill(password);
-  await page.getByRole('button', { name: 'Register' }).click();
+  await page.getByLabel('Imię').fill('E2E User');
+  await page.getByLabel('Adres e-mail').fill(email);
+  await page.getByLabel('Hasło', { exact: true }).fill(password);
+  await page.getByLabel('Potwierdź hasło').fill(password);
+  await page.getByRole('button', { name: 'Zarejestruj się' }).click();
   await page.waitForURL('**/dashboard');
   await expect(page).toHaveURL(/dashboard/);
 });
@@ -26,11 +22,11 @@ test('user can log in with valid credentials', async ({ page, browser }, testInf
 
   // Create a user via the UI (registration)
   await page.goto('/register');
-  await page.getByLabel('Name').fill('E2E Login User');
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByLabel('Confirm Password').fill(password);
-  await page.getByRole('button', { name: 'Register' }).click();
+  await page.getByLabel('Imię').fill('E2E Login User');
+  await page.getByLabel('Adres e-mail').fill(email);
+  await page.getByLabel('Hasło', { exact: true }).fill(password);
+  await page.getByLabel('Potwierdź hasło').fill(password);
+  await page.getByRole('button', { name: 'Zarejestruj się' }).click();
   await page.waitForURL('**/dashboard');
 
   // Start a fresh context to simulate a logged-out user

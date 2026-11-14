@@ -3,13 +3,13 @@
     <!-- Recipe Name -->
     <div class="space-y-2">
       <label for="name" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Recipe Name *
+        Nazwa przepisu *
       </label>
       <Input
         id="name"
         v-model="form.name"
         type="text"
-        placeholder="Enter recipe name"
+        placeholder="Wpisz nazwę przepisu"
         :class="{ 'border-red-500': form.errors.name }"
         required
       />
@@ -21,11 +21,11 @@
     <!-- Category -->
     <div class="space-y-2">
       <label for="category" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Category *
+        Kategoria *
       </label>
       <Select v-model="form.category" :disabled="form.processing">
-        <SelectTrigger :class="{ 'border-red-500': form.errors.category }">
-          <SelectValue placeholder="Select a category" />
+        <SelectTrigger id="category" :class="{ 'border-red-500': form.errors.category }">
+          <SelectValue placeholder="Wybierz kategorię" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem
@@ -45,13 +45,13 @@
     <!-- Instructions -->
     <div class="space-y-2">
       <label for="instructions" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Instructions *
+        Sposób przygotowania *
       </label>
       <Textarea
         id="instructions"
         v-model="form.instructions"
         rows="5"
-        placeholder="Enter cooking instructions"
+        placeholder="Opisz sposób przygotowania"
         :class="{ 'border-red-500': form.errors.instructions }"
         required
       />
@@ -65,14 +65,14 @@
       <!-- Calories -->
       <div class="space-y-2">
         <label for="calories" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Calories *
+          Kaloryczność całkowita (kcal) *
         </label>
         <Input
           id="calories"
           v-model="form.calories"
           type="number"
-          min="0"
-          placeholder="e.g. 350"
+          min="50"
+          placeholder="np. 350"
           :class="{ 'border-red-500': form.errors.calories }"
           required
         />
@@ -84,14 +84,14 @@
       <!-- Servings -->
       <div class="space-y-2">
         <label for="servings" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Servings *
+          Liczba porcji *
         </label>
         <Input
           id="servings"
           v-model="form.servings"
           type="number"
           min="1"
-          placeholder="e.g. 4"
+          placeholder="np. 4"
           :class="{ 'border-red-500': form.errors.servings }"
           required
         />
@@ -104,7 +104,7 @@
     <!-- Ingredients -->
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium">Ingredients</h3>
+        <h3 class="text-lg font-medium">Składniki</h3>
       </div>
 
       <IngredientManager
@@ -123,10 +123,10 @@
         class="flex-1 md:flex-none"
       >
         <span v-if="form.processing">
-          {{ isEditing ? 'Updating...' : 'Creating...' }}
+          Zapisywanie...
         </span>
         <span v-else>
-          {{ isEditing ? 'Update Recipe' : 'Create Recipe' }}
+          {{ isEditing ? 'Zapisz zmiany' : 'Zapisz przepis' }}
         </span>
       </Button>
 
@@ -136,12 +136,12 @@
         @click="$emit('cancel')"
         :disabled="form.processing"
       >
-        Cancel
+        Anuluj
       </Button>
     </div>
 
     <div class="text-xs text-muted-foreground">
-      * Required fields
+      * Pola wymagane
     </div>
   </form>
 </template>
@@ -187,6 +187,14 @@ const props = defineProps({
 // Define emits
 defineEmits(['submit', 'cancel'])
 
+const hasCompleteIngredient = computed(() => {
+  return (props.form.ingredients ?? []).some(row =>
+    String(row.name ?? '').trim() !== '' &&
+    Number(row.quantity) > 0 &&
+    !!row.unit_id
+  )
+})
+
 // Basic form validation
 const isFormValid = computed(() => {
   return !!(
@@ -194,7 +202,8 @@ const isFormValid = computed(() => {
     props.form.category &&
     props.form.instructions &&
     props.form.calories &&
-    props.form.servings
+    props.form.servings &&
+    hasCompleteIngredient.value
   )
 })
 </script>

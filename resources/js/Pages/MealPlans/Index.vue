@@ -16,12 +16,7 @@
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <Button as-child>
-            <Link :href="route('meal-plans.store')" class="flex items-center gap-2">
-              <Plus class="h-4 w-4" />
-              Wygeneruj nowy jadłospis
-            </Link>
-          </Button>
+          <GenerateMealPlanDialog />
         </div>
       </div>
     </template>
@@ -59,12 +54,11 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import { ref, computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Button } from '@/Components/ui/button'
-import { Plus } from 'lucide-vue-next'
+import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 // Types for MealPlan components and API responses
 type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
 
@@ -84,6 +78,7 @@ interface MealPlanListItem {
   logs_count: number
   links: {
     self: string
+    pdf: string | null
   }
 }
 

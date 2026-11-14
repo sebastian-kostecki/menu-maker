@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Models\MealPlan;
+use App\Services\MealPlanGenerator;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 
 class GenerateMealPlanRequest extends FormRequest
 {
+    public const DUPLICATE_START_DATE_MESSAGE = 'Masz już jadłospis zaczynający się tego dnia.';
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -55,7 +58,7 @@ class GenerateMealPlanRequest extends FormRequest
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
-                'rate_limit' => "Too many meal plan generation attempts. Try again in {$seconds} seconds.",
+                'rate_limit' => "Zbyt wiele prób generowania. Spróbuj ponownie za {$seconds} s.",
             ]);
         }
 
@@ -72,7 +75,14 @@ class GenerateMealPlanRequest extends FormRequest
                 ->exists();
 
             if ($existingPlan) {
-                $validator->errors()->add('start_date', 'You already have a meal plan for this start date.');
+                $validator->errors()->add('start_date', self::DUPLICATE_START_DATE_MESSAGE);
+            }
+
+            $generator = app(MealPlanGenerator::class);
+            $missing = $generator->missingRecipesPerCategory($this->user()->id);
+
+            foreach ($generator->shortfallMessages($missing) as $message) {
+                $validator->errors()->add('recipes', $message);
             }
         });
     }

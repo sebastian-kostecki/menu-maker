@@ -668,9 +668,9 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [x] 4.1 Workflow file is valid YAML and accepted by a validator
-- [x] 4.2 Smoke script is lint-clean and executable
-- [x] 4.3 Local boot smoke passes
+- [x] 4.1 Workflow file is valid YAML and accepted by a validator — 6a4159f
+- [x] 4.2 Smoke script is lint-clean and executable — 6a4159f
+- [x] 4.3 Local boot smoke passes — 6a4159f
 
 #### Manual
 
@@ -682,10 +682,10 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [ ] 5.1 Scripts parse and are lint-clean
-- [ ] 5.2 Existing infra shell tests still pass
-- [ ] 5.3 Every relative link in `docs/menu-maker.md` resolves
-- [ ] 5.4 Commit exists on `feat/menu-maker` in the infra repo
+- [x] 5.1 Scripts parse and are lint-clean
+- [x] 5.2 Existing infra shell tests still pass
+- [x] 5.3 Every relative link in `docs/menu-maker.md` resolves
+- [x] 5.4 Commit exists on `feat/menu-maker` in the infra repo
 
 #### Manual
 

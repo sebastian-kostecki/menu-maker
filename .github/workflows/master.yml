@@ -152,6 +152,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -197,6 +202,10 @@ jobs:
           DB_PASSWORD=password
           QUEUE_CONNECTION=database
           AI_SCALING_DRIVER=fake
+          MAIL_MAILER=smtp
+          MAIL_HOST=127.0.0.1
+          MAIL_PORT=1025
+          MAIL_FROM_ADDRESS="no-reply@menu-maker.local"
           VITE_APP_NAME="Menu Maker"
           EOF
           php artisan key:generate --ansi
@@ -208,6 +217,8 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
+        env:
+          MAILPIT_URL: http://127.0.0.1:8025
 
 
 

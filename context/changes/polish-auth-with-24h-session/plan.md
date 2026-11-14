@@ -470,11 +470,11 @@ None. The reset mail stays synchronous on the request path, as today. Mailpit SM
 
 #### Automated
 
-- [x] 2.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth`
-- [x] 2.2 Full suite passes: `vendor/bin/sail composer test`
-- [x] 2.3 No English UI literals remain in the eight Vue files
-- [x] 2.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.5 Existing E2E suite passes against Sail
+- [x] 2.1 Auth tests pass: `vendor/bin/sail pest tests/Feature/Auth` — d686b79
+- [x] 2.2 Full suite passes: `vendor/bin/sail composer test` — d686b79
+- [x] 2.3 No English UI literals remain in the eight Vue files — d686b79
+- [x] 2.4 Client and SSR bundles build: `vendor/bin/sail npm run build` — d686b79
+- [x] 2.5 Existing E2E suite passes against Sail — d686b79
 
 #### Manual
 
@@ -485,11 +485,11 @@ None. The reset mail stays synchronous on the request path, as today. Mailpit SM
 
 #### Automated
 
-- [ ] 3.1 Mailpit container is running after `vendor/bin/sail up -d`
-- [ ] 3.2 Full Pest suite still passes: `vendor/bin/sail composer test`
-- [ ] 3.3 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.4 Whole E2E suite, including the new reset spec on both browsers, passes against Sail
-- [ ] 3.5 CI workflow defines the `mailpit` service in the `e2e-tests` job
+- [x] 3.1 Mailpit container is running after `vendor/bin/sail up -d`
+- [x] 3.2 Full Pest suite still passes: `vendor/bin/sail composer test`
+- [x] 3.3 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 3.4 Whole E2E suite, including the new reset spec on both browsers, passes against Sail
+- [x] 3.5 CI workflow defines the `mailpit` service in the `e2e-tests` job
 
 #### Manual
 

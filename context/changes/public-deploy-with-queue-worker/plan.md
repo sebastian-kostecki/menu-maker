@@ -637,23 +637,23 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Automated
 
-- [x] 1.1 Backup and proxy tests pass
-- [x] 1.2 Full suite passes
-- [x] 1.3 Larastan passes without new baseline entries
-- [x] 1.4 Pint passes
-- [x] 1.5 `.env.prod` is git-ignored
-- [x] 1.6 Config still caches
+- [x] 1.1 Backup and proxy tests pass — cf6afb8
+- [x] 1.2 Full suite passes — cf6afb8
+- [x] 1.3 Larastan passes without new baseline entries — cf6afb8
+- [x] 1.4 Pint passes — cf6afb8
+- [x] 1.5 `.env.prod` is git-ignored — cf6afb8
+- [x] 1.6 Config still caches — cf6afb8
 
 ### Phase 2: Production Image and Compose
 
 #### Automated
 
-- [ ] 2.1 Consistency test passes
-- [ ] 2.2 Compose file is valid
-- [ ] 2.3 Image builds from a clean context
-- [ ] 2.4 Image has no SSR bundle, no Node and no env secrets
-- [ ] 2.5 Image ships the matching dump client
-- [ ] 2.6 Full suite passes
+- [x] 2.1 Consistency test passes
+- [x] 2.2 Compose file is valid
+- [x] 2.3 Image builds from a clean context
+- [x] 2.4 Image has no SSR bundle, no Node and no env secrets
+- [x] 2.5 Image ships the matching dump client
+- [x] 2.6 Full suite passes
 
 ### Phase 3: Deploy Scripts
 

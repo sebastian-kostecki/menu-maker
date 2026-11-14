@@ -349,10 +349,10 @@ No schema changes. The seeder change rewrites the ingredients of the E2E planner
 
 #### Automated
 
-- [x] 3.1 Seeder runs twice without error
-- [x] 3.2 Client and SSR bundles build
-- [x] 3.3 E2E suite passes in both browsers
-- [x] 3.4 Full Pest suite, Larastan and Pint pass
+- [x] 3.1 Seeder runs twice without error — 86df678
+- [x] 3.2 Client and SSR bundles build — 86df678
+- [x] 3.3 E2E suite passes in both browsers — 86df678
+- [x] 3.4 Full Pest suite, Larastan and Pint pass — 86df678
 
 #### Manual
 

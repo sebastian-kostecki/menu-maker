@@ -155,6 +155,22 @@ it('renders a PDF with the plan before the shopping list and Polish glyphs', fun
         ->and(strpos($text, 'Lista zakupów'))->toBeLessThan(strpos($text, '1,2 kg'));
 });
 
+it('prints the scaling notices under the title', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => ['status' => 'as_written']]]);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Naleśniki']);
+    attachIngredient($recipe, 'Mąka', '600', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    snapshotMealIngredients($plan);
+
+    $text = pdfText(app(MealPlanPdfExporter::class)->render($plan));
+
+    expect($text)->toContain('Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.', 'Mąka — 600 g')
+        ->and(strpos($text, 'Jadłospis 16.11.2026'))->toBeLessThan(strpos($text, 'Dodaj członków rodziny'))
+        ->and(strpos($text, 'Dodaj członków rodziny'))->toBeLessThan(strpos($text, 'Naleśniki'));
+});
+
 it('marks soft-deleted recipes in the PDF', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);

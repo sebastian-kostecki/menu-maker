@@ -7,6 +7,7 @@ namespace App\Services\MealPlanPdf;
 use App\Enums\MealCategory;
 use App\Models\Meal;
 use App\Models\MealPlan;
+use App\Services\IngredientScaling\ScalingNotices;
 use App\Services\ShoppingList\QuantityFormatter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -52,6 +53,7 @@ class MealPlanPdfExporter
             'Jadłospis '.$mealPlan->start_date->format('d.m.Y').' – '.$mealPlan->end_date->format('d.m.Y'),
             $days,
             $this->shoppingListBuilder->forMealPlan($mealPlan),
+            ScalingNotices::for($mealPlan)['notices'],
         );
     }
 

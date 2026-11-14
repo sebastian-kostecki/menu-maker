@@ -10,10 +10,12 @@ final readonly class MealPlanDocument
 {
     /**
      * @param  list<PdfDay>  $days
+     * @param  list<string>  $notices
      */
     public function __construct(
         public string $title,
         public array $days,
         public ShoppingList $shoppingList,
+        public array $notices = [],
     ) {}
 }

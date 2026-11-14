@@ -9,6 +9,7 @@ use App\Models\LogsMealPlan;
 use App\Models\Meal;
 use App\Models\MealIngredient;
 use App\Models\MealPlan;
+use App\Services\IngredientScaling\ScalingNotices;
 use App\Services\ShoppingList\QuantityFormatter;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class MealPlanResource extends JsonResource
             'end_date' => $this->end_date->format('Y-m-d'),
             'status' => $this->status,
             'generation_meta' => $this->generation_meta,
+            'scaling' => ScalingNotices::for($this->resource),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

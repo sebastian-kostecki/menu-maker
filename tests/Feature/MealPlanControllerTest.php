@@ -451,6 +451,26 @@ it('passes each meal its stored ingredients with the display string and source',
         );
 });
 
+it('passes the scaling notices of a done plan', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => [
+        'status' => 'computed',
+        'unscaled_recipes' => ['Zupa'],
+        'members_without_body' => [],
+    ]]]);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->where('mealPlan.scaling.status', 'computed')
+                ->where('mealPlan.scaling.notices', [
+                    'Nie udało się dopracować ilości przez AI — pokazujemy ilości przeliczone automatycznie.',
+                    'Przepisy bez kaloryczności nie zostały przeliczone: Zupa.',
+                ])
+        );
+});
+
 it('passes no shopping list while the plan is generating', function (string $status): void {
     $recipe = Recipe::factory()->for($this->user)->create();
     attachIngredient($recipe, 'Mąka', '100', 'g');

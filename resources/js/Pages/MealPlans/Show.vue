@@ -62,6 +62,22 @@
       </div>
 
       <template v-else>
+        <div
+          v-if="mealPlan.scaling?.notices.length"
+          class="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-900/20 dark:text-amber-200"
+          data-testid="scaling-notice"
+        >
+          <p v-for="notice in mealPlan.scaling.notices" :key="notice">
+            {{ notice }}
+          </p>
+          <Link
+            v-if="mealPlan.scaling.status === 'as_written'"
+            :href="route('family-members.index')"
+            class="mt-2 inline-block font-medium underline"
+          >
+            Przejdź do profilu rodziny
+          </Link>
+        </div>
         <MealPlanGrid :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
         <ShoppingList v-if="shoppingList" :list="shoppingList" />
       </template>
@@ -108,11 +124,18 @@ interface Recipe {
   deleted: boolean
 }
 
+interface MealIngredient {
+  ingredient_id: number
+  name: string
+  display: string
+}
+
 interface Meal {
   id: number
   meal_date: string
   meal_category: string
   recipe?: Recipe
+  ingredients?: MealIngredient[]
 }
 
 interface MealPlan {
@@ -126,6 +149,7 @@ interface MealPlan {
   meals_count: number
   logs_count: number
   meals?: Meal[]
+  scaling?: { status: string | null; notices: string[] }
   links: {
     self: string
     pdf: string | null

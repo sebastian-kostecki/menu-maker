@@ -16,10 +16,20 @@
         .day { font-weight: bold; }
         td.day-continued { border-top: none; }
         .note { margin-top: 10px; }
+        .notices { margin: 0 0 10px; padding: 6px 8px; border: 1px solid #c9a227; background: #fff8e1; }
+        .notices p { margin: 0 0 3px; }
     </style>
 </head>
 <body>
     <h1>{{ $document->title }}</h1>
+
+    @if (count($document->notices) > 0)
+        <div class="notices">
+            @foreach ($document->notices as $notice)
+                <p>{{ $notice }}</p>
+            @endforeach
+        </div>
+    @endif
 
     <table>
         <thead>

@@ -683,10 +683,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [x] 3.1 Composer installs the new dependency: `vendor/bin/sail composer install`
-- [x] 3.2 Guard, driver and scaler tests pass: `vendor/bin/sail pest tests/Unit/Services`
-- [x] 3.3 Full suite passes with no stray HTTP: `vendor/bin/sail composer test`
-- [x] 3.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 3.1 Composer installs the new dependency: `vendor/bin/sail composer install` — 57a069c
+- [x] 3.2 Guard, driver and scaler tests pass: `vendor/bin/sail pest tests/Unit/Services` — 57a069c
+- [x] 3.3 Full suite passes with no stray HTTP: `vendor/bin/sail composer test` — 57a069c
+- [x] 3.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — 57a069c
 
 #### Manual
 
@@ -699,10 +699,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [ ] 4.1 Notice, controller and PDF tests pass: `vendor/bin/sail pest tests/Unit/Services/ScalingNoticesTest.php tests/Feature/MealPlanControllerTest.php tests/Unit/Services/MealPlanPdfExporterTest.php`
-- [ ] 4.2 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 4.3 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
-- [ ] 4.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 4.1 Notice, controller and PDF tests pass: `vendor/bin/sail pest tests/Unit/Services/ScalingNoticesTest.php tests/Feature/MealPlanControllerTest.php tests/Unit/Services/MealPlanPdfExporterTest.php`
+- [x] 4.2 Full suite passes: `vendor/bin/sail composer test`
+- [x] 4.3 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 4.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
 
 #### Manual
 

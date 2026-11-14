@@ -36,8 +36,18 @@
                   </Link>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ formatCalories(day.meals[category].recipe.calories) }} kcal · {{ day.meals[category].recipe.servings }} porcji
+                  {{ formatCalories(day.meals[category].recipe.calories) }} kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
                 </div>
+                <details v-if="day.meals[category].ingredients?.length" class="mt-2 text-xs text-gray-700 dark:text-gray-300">
+                  <summary class="cursor-pointer select-none text-blue-600 hover:underline dark:text-blue-400">
+                    Składniki ({{ day.meals[category].ingredients.length }})
+                  </summary>
+                  <ul class="mt-1 list-disc space-y-0.5 pl-4" data-testid="meal-ingredients">
+                    <li v-for="(ingredient, index) in day.meals[category].ingredients" :key="`${ingredient.ingredient_id}-${index}`">
+                      {{ ingredient.name }} — {{ ingredient.display }}
+                    </li>
+                  </ul>
+                </details>
               </template>
               <span v-else class="text-gray-400">—</span>
             </td>
@@ -61,11 +71,18 @@ interface GridRecipe {
   deleted: boolean
 }
 
+interface GridIngredient {
+  ingredient_id: number
+  name: string
+  display: string
+}
+
 interface GridMeal {
   id: number
   meal_date: string
   meal_category: string
   recipe?: GridRecipe
+  ingredients?: GridIngredient[]
 }
 
 interface Props {

@@ -5,7 +5,7 @@
 | Encja (tabela)       | Kluczowe pola                                              | Relacje                                               | Reguły walidacji (główne)                                                           |
 | -------------------- | ---------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | `users`              | `name`, `email`, `password`                                | 1-N `family_members`, 1-N `recipes`, 1-N `meal_plans` | `name:string                                                                        | max:255`, `email:email                                                                                     | unique`, `password:string                   | min:8`      |
-| `family_members`     | `first_name`, `birth_date`, `gender`                       | N-1 `users`                                           | `first_name:string                                                                  | max:255`, `birth_date:date                                                                                 | before:today`, `gender:in:male,female`      |
+| `family_members`     | `first_name`, `birth_date`, `gender`, `weight_kg`, `height_cm` (wymagane od 19 lat) | N-1 `users`                                           | `first_name:string                                                                  | max:255`, `birth_date:date                                                                                 | before:today`, `gender:in:male,female`      |
 | `units`              | `code`, `conversion_factor_to_base`                        | 1-N `recipe_ingredients`                              | `code:string                                                                        | max:10                                                                                                     | unique`, `conversion_factor_to_base:numeric | min:0.0001` |
 | `ingredients`        | `name`                                                     | N-N `recipes` (via `recipe_ingredients`)              | `name:string                                                                        | max:255                                                                                                    | unique`                                     |
 | `recipes`            | `name`, `category`, `instructions`, `calories`, `servings` | N-1 `users`, N-N `ingredients`, 1-N `meals`           | `name:string                                                                        | max:255`, `category:in:breakfast,supper,dinner`, `instructions:string`, `calories:numeric                   | min:0`, `servings:integer                   | min:1`      |
@@ -100,10 +100,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 ### F. Dodatkowa logika biznesowa
 
+> Payload `MealPlanController@show` (Inertia): `mealPlan.meals[].ingredients` = `[{ingredient_id, name, quantity, unit: {code}, display, source}]` oraz `mealPlan.scaling` = `{status, notices[]}`. Lista zakupów i PDF czytają `meal_ingredients`.
+
+
 | Typ      | Nazwa                                               | Cel                                                       |
 | -------- | --------------------------------------------------- | --------------------------------------------------------- |
 | Service  | `MealPlanGeneratorService`                          | Losowy wybór przepisów, brak powtórzeń, 7 dni × 3 posiłki |
-| Service  | `IngredientScalingService`                          | Skalowanie ilości wg kalorii, porcji i profilu rodziny    |
+| Service  | `IngredientScaling\EnergyNorms`, `ScalingCalculator`  | Normy NIZP-PZH 2020 (kcal/dzień) i współczynnik skalowania posiłku (30/40/30) |
+| Service  | `IngredientScaling\MealIngredientScaler`            | Zapis przeliczonych ilości do `meal_ingredients` (migawka planu) |
+| Service  | `IngredientScaling\IngredientRefiner` (sterowniki `openrouter`, `anthropic`, `fake`), `RefinementGuard` | Zaokrąglanie ilości przez AI w granicach wymuszanych kodem; wybór przez `AI_SCALING_DRIVER` |
+| Service  | `IngredientScaling\ScalingNotices`                  | Komunikaty o ograniczeniach skalowania (ekran i PDF)      |
 | Service  | `ShoppingListService`                               | Sumowanie i konwersja jednostek (g→kg, ml→l)              |
 | Service  | `MealPlanPdfExporter`                               | PDF z jadłospisem i listą zakupów, renderowany na żądanie (dompdf) |
 | Job      | `GenerateMealPlanJob`                               | Kolejkowanie procesu generowania jadłospisu               |

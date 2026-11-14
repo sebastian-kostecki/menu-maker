@@ -16,7 +16,7 @@ test('user creates a recipe with a new ingredient', async ({ page }, testInfo) =
   await page.getByLabel('Kategoria').click();
   await page.getByRole('option', { name: 'Obiad' }).click();
   await page.getByLabel('Sposób przygotowania').fill('Ugotuj kaszę i podaj.');
-  await page.getByLabel('Kaloryczność (kcal)').fill('350');
+  await page.getByLabel('Kaloryczność całkowita (kcal)').fill('350');
   await page.getByLabel('Liczba porcji').fill('2');
 
   const submit = page.getByRole('button', { name: 'Zapisz przepis' });

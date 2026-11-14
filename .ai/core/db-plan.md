@@ -28,6 +28,8 @@ Already provided by Laravel default migration (`0001_01_01_000000_create_users_t
 | first_name | VARCHAR(255)                  | NOT NULL                  |
 | birth_date | DATE                          | —                         |
 | gender     | ENUM('male','female')         | NOT NULL                  |
+| weight_kg  | DECIMAL(5,1)                  | NULL; required by the form/request for members aged 19+ (FR-002 extension), 30-300 |
+| height_cm  | DECIMAL(5,1)                  | NULL; required by the form/request for members aged 19+ (FR-002 extension), 100-250 |
 | created_at | TIMESTAMP                     | —                         |
 | updated_at | TIMESTAMP                     | —                         |
 
@@ -113,6 +115,38 @@ UNIQUE(user_id, start_date)
 
 ---
 
+### 1.8a `meal_ingredients`
+Per-meal snapshot of the scaled ingredient quantities, written by `MealIngredientScaler` during plan generation. Later recipe or family edits do not change it until the plan is regenerated.
+
+| Column            | Type                | Constraints/Notes                                                        |
+| ----------------- | ------------------- | ------------------------------------------------------------------------ |
+| id                | BIGINT UNSIGNED     | PK, auto-increment                                                       |
+| meal_id           | BIGINT UNSIGNED     | FK → `meals.id`, NOT NULL, ON DELETE CASCADE                             |
+| ingredient_id     | BIGINT UNSIGNED     | FK → `ingredients.id`, NOT NULL                                          |
+| unit_id           | BIGINT UNSIGNED     | FK → `units.id`, NOT NULL                                                |
+| recipe_quantity   | DECIMAL(10,2)       | Amount as written in the recipe                                          |
+| computed_quantity | DECIMAL(12,2)       | Code-computed amount (recipe amount × scaling factor)                    |
+| quantity          | DECIMAL(12,2)       | Final amount used by the grid, shopping list and PDF                     |
+| source            | VARCHAR(20)         | `ai` (AI-rounded), `computed` (code only) or `as_written` (not scaled)   |
+| created_at        | TIMESTAMP           | —                                                                        |
+| updated_at        | TIMESTAMP           | —                                                                        |
+
+UNIQUE (`meal_id`, `ingredient_id`). Plans created before scaling were backfilled with `as_written` rows.
+
+`meal_plans.generation_meta.scaling` (snake_case) is set by `GenerateMealPlanJob` together with `version: 'scaled-v1'`:
+
+```json
+{
+  "status": "refined | computed | as_written",
+  "unscaled_recipes": ["Recipe names with 0 kcal, Polish-sorted"],
+  "members_without_body": ["First names of adults on the reference row"]
+}
+```
+
+`refined` = AI-rounded, `computed` = AI failed (once reported), `as_written` = no family members. Plans with `version` missing or `random-v1` predate scaling.
+
+---
+
 ### 1.9 `logs_meal_plan`
 | Column       | Type                                        | Constraints/Notes              |
 | ------------ | ------------------------------------------- | ------------------------------ |
@@ -149,6 +183,7 @@ Laravel provides `password_reset_tokens`; include for completeness if not yet mi
 6. **`recipes` 1--N `meals`** (each meal references one recipe).
 7. **`units` 1--N `recipe_ingredients`**.
 8. **`meal_plans` 1--N `logs_meal_plan`**.
+9. **`meals` 1--N `meal_ingredients`** (also N--1 `ingredients` and `units`).
 
 All foreign keys use `ON DELETE CASCADE` to ensure full cleanup when a parent record is removed (e.g., deleting a user cascades through meals, meal_plans, etc.).
 

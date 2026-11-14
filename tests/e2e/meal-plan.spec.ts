@@ -23,13 +23,19 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
     await expect(grid.getByRole('columnheader', { name: header })).toBeVisible();
   }
 
+  const expectScaledGrid = async () => {
+    await expect(page.getByTestId('scaling-notice')).toBeHidden();
+    await grid.locator('details').first().locator('summary').click();
+    await expect(grid.getByTestId('meal-ingredients').first()).toContainText('Mąka — 200 g');
+  };
+
   const shoppingItems = page.getByTestId('shopping-list').getByRole('listitem');
   const expectShoppingList = async () => {
     await expect(shoppingItems).toHaveCount(3);
     const expected: [string, string][] = [
-      ['Jajka', '21 szt.'],
-      ['Mąka', '2,1 kg'],
-      ['Mleko', '1,05 l'],
+      ['Jajka', '42 szt.'],
+      ['Mąka', '4,2 kg'],
+      ['Mleko', '2,1 l'],
     ];
     for (const [index, [name, quantity]] of expected.entries()) {
       await expect(shoppingItems.nth(index)).toContainText(name);
@@ -37,6 +43,7 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
     }
   };
   await expectShoppingList();
+  await expectScaledGrid();
 
   const pdfLink = page.getByRole('link', { name: 'Pobierz PDF' });
   const expectPdfDownload = async () => {
@@ -60,5 +67,6 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   await expect(pdfLink).toBeHidden();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
   await expectShoppingList();
+  await expectScaledGrid();
   await expectPdfDownload();
 });

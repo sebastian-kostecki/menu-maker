@@ -196,6 +196,7 @@ jobs:
           DB_USERNAME=sail
           DB_PASSWORD=password
           QUEUE_CONNECTION=database
+          AI_SCALING_DRIVER=fake
           VITE_APP_NAME="Menu Maker"
           EOF
           php artisan key:generate --ansi

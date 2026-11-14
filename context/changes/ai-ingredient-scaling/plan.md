@@ -699,10 +699,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [x] 4.1 Notice, controller and PDF tests pass: `vendor/bin/sail pest tests/Unit/Services/ScalingNoticesTest.php tests/Feature/MealPlanControllerTest.php tests/Unit/Services/MealPlanPdfExporterTest.php`
-- [x] 4.2 Full suite passes: `vendor/bin/sail composer test`
-- [x] 4.3 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
-- [x] 4.4 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 4.1 Notice, controller and PDF tests pass: `vendor/bin/sail pest tests/Unit/Services/ScalingNoticesTest.php tests/Feature/MealPlanControllerTest.php tests/Unit/Services/MealPlanPdfExporterTest.php` — 4d9cf1a
+- [x] 4.2 Full suite passes: `vendor/bin/sail composer test` — 4d9cf1a
+- [x] 4.3 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — 4d9cf1a
+- [x] 4.4 Client and SSR bundles build: `vendor/bin/sail npm run build` — 4d9cf1a
 
 #### Manual
 
@@ -714,10 +714,10 @@ Make the browser path deterministic with the fake driver and a pinned family, pr
 
 #### Automated
 
-- [ ] 5.1 Build and seed succeed: `vendor/bin/sail npm run build` and `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder`
-- [ ] 5.2 E2E passes in both browsers with the fake driver: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [ ] 5.3 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 5.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
+- [x] 5.1 Build and seed succeed: `vendor/bin/sail npm run build` and `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder`
+- [x] 5.2 E2E passes in both browsers with the fake driver: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
+- [x] 5.3 Full suite passes: `vendor/bin/sail composer test`
+- [x] 5.4 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
 
 #### Manual
 

@@ -7,7 +7,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - Every query on user data is scoped to the owner (`Recipe::forUser()`, `where('user_id', ...)`), and every resource controller calls `authorizeResource()` with a policy in `app/Policies/`. A new resource needs both, plus a policy test in `tests/Unit/`.
 - Run every `php`, `composer` and `artisan` command through `vendor/bin/sail` (PHP 8.5 in Docker, `@docker/8.5/Dockerfile`). Host PHP is a different version: do not use it.
 - Do not add errors to `phpstan-baseline.neon`; fix them (Larastan level 5, `app/` only).
-- `app/Jobs/GenerateMealPlanJob.php` is a placeholder (TODO): it does no recipe selection, AI scaling, shopping list or PDF yet. Do not treat its output as real.
+- `app/Jobs/GenerateMealPlanJob.php` runs the real pipeline: `MealPlanGenerator` (recipe draw), `MealIngredientScaler` (code-computed quantities), then an `IngredientRefiner` driver (`AI_SCALING_DRIVER`: `openrouter`, `anthropic` or `fake`); the AI call never runs on a request path.
 
 ## Commands
 
@@ -15,7 +15,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - `vendor/bin/sail composer test`: Pest suite; one test with `vendor/bin/sail pest --filter=<name>`.
 - `vendor/bin/sail composer phpstan`, `vendor/bin/sail composer pint-test` (fix with `composer pint`).
 - `vendor/bin/sail npm run build`: client and SSR bundles; CI fails if it breaks.
-- E2E (Playwright, from the host, against Sail): `vendor/bin/sail npm run build`, then `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder` (idempotent; creates the two planner users with 21 recipes each and deletes their plans, so re-run it before every E2E run), then `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`. Do not let Playwright start `php artisan serve` (host PHP). If the default ports are busy, set `APP_PORT` and `VITE_PORT` in `.env`. The Sail `queue` service (started by `sail up -d`) processes plan generation, so it must be running. See `@playwright.config.ts`.
+- E2E (Playwright, from the host, against Sail): `vendor/bin/sail npm run build`, then `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder` (idempotent; creates the two planner users with 21 recipes each and deletes their plans, so re-run it before every E2E run; it also pins a two-adult family and recipe kcal so amounts scale by 2.0), then `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`. `.env` must contain `AI_SCALING_DRIVER=fake` (CI sets it too), otherwise generation calls a real AI. Do not let Playwright start `php artisan serve` (host PHP). If the default ports are busy, set `APP_PORT` and `VITE_PORT` in `.env`. The Sail `queue` service (started by `sail up -d`) processes plan generation, so it must be running. See `@playwright.config.ts`.
 
 ## Structure & Conventions
 

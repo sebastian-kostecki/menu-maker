@@ -127,6 +127,13 @@
 - **MEAL PLANS – job i logi**
   - JOB-001..003: sukces/błąd/idempotencja.
 
+- **SKALOWANIE SKŁADNIKÓW (AI)**
+  - SCAL-001: `EnergyNorms` – granice wieku/wagi, obcięcie BMI, wiersz referencyjny; `ScalingCalculator` – współczynnik, 0 kcal, zaokrąglenie.
+  - SCAL-002: `MealIngredientScaler` – brak rodziny (`as_written`), przepis 0 kcal, dorosły bez wagi/wzrostu, izolacja użytkowników, regeneracja.
+  - SCAL-003: Sterowniki AI (`Http::fake`, `Http::preventStrayRequests()`, mock bramki Anthropic), `RefinementGuard`, 3 próby, jedno `report()` po awarii (`Exceptions::fake()`).
+  - SCAL-004: Sterownik `fake` (`AI_SCALING_DRIVER=fake` w `phpunit.xml`, CI i lokalnym `.env` dla E2E) – deterministyczne sumy; E2E: stała rodzina i kcal przepisów dają współczynnik 2,0 ("42 szt.", "4,2 kg", "2,1 l"), rozwinięta komórka "Mąka — 200 g", brak `scaling-notice`.
+  - SCAL-005: `ScalingNotices` – każdy komunikat i kolejność; PDF zawiera przeliczone ilości i komunikat.
+
 - **PDF**
   - PDF-001..003: 403 dla cudzego jadłospisu, 404 dla nie‑done, nagłówki inline (Content-Type, Content-Disposition, Cache-Control: no-store) i nazwa pliku.
 

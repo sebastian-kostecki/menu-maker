@@ -37,7 +37,7 @@
 ### B. Trasy (`routes/web.php`)
 
 ```php
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Family Members
     Route::resource('family-members', FamilyMemberController::class)->except(['create', 'edit', 'show']);
 

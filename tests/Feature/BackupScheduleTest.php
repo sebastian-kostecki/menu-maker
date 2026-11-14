@@ -27,7 +27,8 @@ test('backups are database-only, on the backups disk, and scheduled in free prod
         ->and($byCommand->get('backup:run')->command)->toContain('--only-db')
         ->and($byCommand->get('backup:run')->expression)->toBe('15 5 * * *')
         ->and((string) $byCommand->get('backup:run')->timezone)->toBe('Europe/Warsaw')
-        ->and($byCommand->get('backup:run')->environments)->toBe(['production']);
+        ->and($byCommand->get('backup:run')->environments)->toBe(['production'])
+        ->and($byCommand->get('backup:run')->evenInMaintenanceMode)->toBeTrue();
 
     expect($byCommand->get('backup:clean'))->toBeInstanceOf(Event::class)
         ->and($byCommand->get('backup:clean')->expression)->toBe('30 5 * * *')
@@ -37,5 +38,6 @@ test('backups are database-only, on the backups disk, and scheduled in free prod
     expect($byCommand->get('backup:monitor'))->toBeInstanceOf(Event::class)
         ->and($byCommand->get('backup:monitor')->expression)->toBe('45 5 * * *')
         ->and((string) $byCommand->get('backup:monitor')->timezone)->toBe('Europe/Warsaw')
-        ->and($byCommand->get('backup:monitor')->environments)->toBe(['production']);
+        ->and($byCommand->get('backup:monitor')->environments)->toBe(['production'])
+        ->and($byCommand->get('backup:monitor')->evenInMaintenanceMode)->toBeTrue();
 });

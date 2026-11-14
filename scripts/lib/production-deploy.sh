@@ -153,7 +153,12 @@ production_prepare_running_instance() {
     MAINTENANCE_STARTED=1
 
     echo "==> Backing up the database..."
-    $COMPOSE exec -T -u sail app php artisan backup:run --only-db --disable-notifications
+    if ! $COMPOSE exec -T -u sail app php artisan backup:run --only-db --disable-notifications; then
+        echo "ERROR: The pre-deploy backup failed. Nothing was deployed; reopening the old application." >&2
+        $COMPOSE exec -T -u sail app php artisan up
+        MAINTENANCE_STARTED=0
+        exit 1
+    fi
 }
 
 # After `up -d` on a first deployment there was no old container to put in maintenance

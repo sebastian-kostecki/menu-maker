@@ -53,6 +53,10 @@ storage/framework/views
 storage/framework/testing
 storage/inertia-devtools
 storage/app/backups
+storage/app/backup-temp
+storage/app/private
+storage/app/public
+storage/framework/down
 storage/fonts/*
 
 # Deploy scripts (run on the host)

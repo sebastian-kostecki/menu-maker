@@ -1,7 +1,7 @@
 ---
 change_id: public-deploy-with-queue-worker
 title: Public deploy on menu.kostecki.dev with queue worker and backups
-status: implemented
+status: impl_reviewed
 created: 2026-11-14
 updated: 2026-11-14
 archived_at: null

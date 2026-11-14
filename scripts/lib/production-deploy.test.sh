@@ -111,4 +111,29 @@ else
   failed "assert_branch accepts main"
 fi
 
+# --- production_prepare_running_instance: a failed backup reopens the old app ---
+compose_log="$tmp/compose.log"
+# Stand-in for `docker compose`: the app is running and backup:run fails.
+# shellcheck disable=SC2329 # invoked through $COMPOSE inside the sourced library
+fake_compose() {
+  echo "$*" >>"$compose_log"
+  case "$*" in
+    "ps --status running --quiet app") echo "abc123" ;;
+    *"backup:run"*) return 1 ;;
+  esac
+  return 0
+}
+: >"$compose_log"
+# shellcheck disable=SC2034 # read by the sourced production_* functions
+if (COMPOSE=fake_compose; MAINTENANCE_STARTED=0; production_prepare_running_instance) >/dev/null 2>&1; then
+  failed "failed backup stops the deploy"
+else
+  pass "failed backup stops the deploy"
+fi
+if [[ "$(tail -n 1 "$compose_log")" == "exec -T -u sail app php artisan up" ]]; then
+  pass "failed backup reopens the old app"
+else
+  failed "failed backup reopens the old app (last call: $(tail -n 1 "$compose_log"))"
+fi
+
 exit "$fail"

@@ -41,9 +41,9 @@ production_prepare_running_instance
 echo "==> Starting stack..."
 $COMPOSE up -d
 
-production_ensure_maintenance_mode
-
 production_prepare_storage "$COMPOSE"
+
+production_ensure_maintenance_mode
 
 echo "==> Running migrations..."
 $COMPOSE exec -T -u sail app php artisan migrate --force

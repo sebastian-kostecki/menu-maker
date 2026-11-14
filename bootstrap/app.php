@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('Europe/Warsaw')
             ->withoutOverlapping()
             ->onOneServer()
+            ->evenInMaintenanceMode()
             ->environments(['production']);
 
         $schedule->command('backup:clean')
@@ -45,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ->timezone('Europe/Warsaw')
             ->withoutOverlapping()
             ->onOneServer()
+            ->evenInMaintenanceMode()
             ->environments(['production']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -66,6 +66,17 @@ test('compose app and pgsql services are wired for the runtime user and database
         ->toContain('POSTGRES_PASSWORD: ${DB_PASSWORD}');
 });
 
+test('production image frees uid 1000 so start-container can move sail to WWWUSER', function (): void {
+    $dockerfile = productionFile('docker/8.5/Dockerfile.prod');
+
+    $userdel = strpos($dockerfile, 'userdel -r ubuntu');
+    $useradd = strpos($dockerfile, 'useradd');
+
+    expect($userdel)->not->toBeFalse()
+        ->and($useradd)->not->toBeFalse()
+        ->and($userdel)->toBeLessThan($useradd);
+});
+
 test('production image builds the client bundle only', function (): void {
     $dockerfile = productionFile('docker/8.5/Dockerfile.prod');
 

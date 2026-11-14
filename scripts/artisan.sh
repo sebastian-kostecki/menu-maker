@@ -23,4 +23,4 @@ if [[ -t 0 && -t 1 ]]; then
     exec_flags=()
 fi
 
-$COMPOSE exec "${exec_flags[@]}" app php artisan "$@"
+$COMPOSE exec -u sail "${exec_flags[@]}" app php artisan "$@"

@@ -55,7 +55,10 @@
         </Button>
       </div>
 
-      <MealPlanGrid v-else :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
+      <template v-else>
+        <MealPlanGrid :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
+        <ShoppingList v-if="shoppingList" :list="shoppingList" />
+      </template>
 
       <div class="flex justify-start">
         <Button variant="outline" as-child>
@@ -89,6 +92,7 @@ import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/MealPlans/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
+import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 
 interface Recipe {
   id: number
@@ -124,6 +128,7 @@ interface MealPlan {
 
 interface Props {
   mealPlan: MealPlan
+  shoppingList: ShoppingListPayload | null
 }
 
 const props = defineProps<Props>()
@@ -147,7 +152,7 @@ const formatDate = (isoDate: string): string => {
 
 const dateRange = computed(() => `${formatDate(props.mealPlan.start_date)} – ${formatDate(props.mealPlan.end_date)}`)
 
-const { start, stop } = usePoll(3000, { only: ['mealPlan'] }, { autoStart: false })
+const { start, stop } = usePoll(3000, { only: ['mealPlan', 'shoppingList'] }, { autoStart: false })
 
 let slowTimer: ReturnType<typeof setTimeout> | null = null
 

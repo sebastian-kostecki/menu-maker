@@ -324,19 +324,19 @@ No schema changes. The seeder change rewrites the ingredients of the E2E planner
 
 #### Automated
 
-- [x] 1.1 Service tests pass
-- [x] 1.2 Larastan passes without baseline changes
-- [x] 1.3 Pint passes
+- [x] 1.1 Service tests pass — 778c148
+- [x] 1.2 Larastan passes without baseline changes — 778c148
+- [x] 1.3 Pint passes — 778c148
 
 ### Phase 2: List on the plan view
 
 #### Automated
 
-- [ ] 2.1 Meal-plan feature tests pass
-- [ ] 2.2 Full suite passes
-- [ ] 2.3 Larastan passes without baseline changes
-- [ ] 2.4 Pint passes
-- [ ] 2.5 Client and SSR bundles build
+- [x] 2.1 Meal-plan feature tests pass
+- [x] 2.2 Full suite passes
+- [x] 2.3 Larastan passes without baseline changes
+- [x] 2.4 Pint passes
+- [x] 2.5 Client and SSR bundles build
 
 #### Manual
 

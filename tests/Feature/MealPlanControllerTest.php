@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Jobs\GenerateMealPlanJob;
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
@@ -420,4 +421,64 @@ it('turns a concurrent duplicate start date into a validation error', function (
         ->assertJsonValidationErrors(['start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE]);
     expect(MealPlan::where('user_id', $this->user->id)->count())->toBe(1);
     Queue::assertNothingPushed();
+});
+
+function mealPlanWithRecipes(User $user, string $status, Recipe ...$recipes): MealPlan
+{
+    $plan = MealPlan::factory()->for($user)->{$status}()->create();
+
+    foreach ($recipes as $index => $recipe) {
+        Meal::query()->create([
+            'meal_plan_id' => $plan->id,
+            'recipe_id' => $recipe->id,
+            'meal_date' => $plan->start_date->copy()->addDays($index),
+            'meal_category' => $recipe->category,
+        ]);
+    }
+
+    return $plan;
+}
+
+it('passes the summed shopping list for a done plan', function (): void {
+    $first = Recipe::factory()->for($this->user)->create();
+    $second = Recipe::factory()->for($this->user)->create();
+    $empty = Recipe::factory()->for($this->user)->create(['name' => 'Owsianka']);
+    attachIngredient($first, 'Mąka', '600', 'g');
+    attachIngredient($second, 'Mąka', '600', 'g');
+    $plan = mealPlanWithRecipes($this->user, 'done', $first, $second, $empty);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('shoppingList.items', 1)
+                ->where('shoppingList.items.0.name', 'Mąka')
+                ->where('shoppingList.items.0.quantity', '1.2')
+                ->where('shoppingList.items.0.unit', 'kg')
+                ->where('shoppingList.items.0.display', '1,2 kg')
+                ->where('shoppingList.recipes_without_ingredients', ['Owsianka'])
+        );
+});
+
+it('passes no shopping list while the plan is generating', function (string $status): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = mealPlanWithRecipes($this->user, $status, $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(fn ($page) => $page->where('shoppingList', null));
+})->with(['pending', 'processing']);
+
+it('returns the shopping list on a partial reload', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mleko', '250', 'ml');
+    $plan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->reloadOnly(
+                ['mealPlan', 'shoppingList'],
+                fn ($reload) => $reload->where('mealPlan.id', $plan->id)
+                    ->where('shoppingList.items.0.display', '250 ml')
+            )
+        );
 });

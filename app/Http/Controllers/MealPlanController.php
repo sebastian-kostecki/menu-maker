@@ -8,8 +8,10 @@ use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Http\Resources\MealPlanCollection;
 use App\Http\Resources\MealPlanResource;
+use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealPlan;
+use App\Services\ShoppingList\ShoppingListBuilder;
 use Carbon\Carbon;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
@@ -77,7 +79,7 @@ class MealPlanController extends Controller
     /**
      * Display the specified meal plan.
      */
-    public function show(MealPlan $mealPlan): InertiaResponse|JsonResponse
+    public function show(MealPlan $mealPlan, ShoppingListBuilder $shoppingListBuilder): InertiaResponse|JsonResponse
     {
         if (request()->expectsJson()) {
             $mealPlan->load([
@@ -91,11 +93,15 @@ class MealPlanController extends Controller
             return response()->json(['data' => new MealPlanResource($mealPlan)]);
         }
 
-        // The week view (polled every 3 s while generating) needs only the recipe names, kcal and servings.
+        // The week view (polled every 3 s while generating) needs the recipe names, kcal and servings;
+        // the shopping list also needs the ingredients, so it loads them itself, only for a done plan.
         $mealPlan->load('meals.recipe');
 
         return Inertia::render('MealPlans/Show', [
             'mealPlan' => (new MealPlanResource($mealPlan))->resolve(),
+            'shoppingList' => fn (): ?array => $mealPlan->status === 'done'
+                ? (new ShoppingListResource($shoppingListBuilder->forMealPlan($mealPlan)))->resolve()
+                : null,
         ]);
     }
 

@@ -674,8 +674,8 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 
 #### Manual
 
-- [ ] 4.4 The `production-image` job is green on the PR from `develop` into `main`
-- [ ] 4.5 Existing jobs are still green on the same PR
+- [x] 4.4 The `production-image` job is green on the PR from `develop` into `main`
+- [x] 4.5 Existing jobs are still green on the same PR
 - [ ] 4.6 Deliberate image break turns `production-image` red, then revert
 
 ### Phase 5: kostecki-dev-infra Integration
@@ -690,18 +690,18 @@ None in code. The operator follows `kostecki-dev-infra/docs/menu-maker.md`:
 #### Manual
 
 - [ ] 5.5 `docs/menu-maker.md` is enough for a first deploy by someone new
-- [ ] 5.6 Push, open and merge the infra PR `feat/menu-maker` → `master`
+- [x] 5.6 Push, open and merge the infra PR `feat/menu-maker` → `master`
 
 ### Phase 6: First Production Deploy
 
 #### Manual
 
-- [ ] 6.1 `/up` returns 200 through Cloudflare
-- [ ] 6.2 supervisord shows `php`, `queue` and `scheduler` RUNNING
+- [x] 6.1 `/up` returns 200 through Cloudflare
+- [x] 6.2 supervisord shows `php`, `queue` and `scheduler` RUNNING
 - [ ] 6.3 Register, log in and receive a working https reset e-mail
 - [ ] 6.4 Generate with real AI under 1 minute, regenerate, download a correct Polish PDF
-- [ ] 6.5 Forced error delivers exactly one alert e-mail
+- [x] 6.5 Forced error delivers exactly one alert e-mail
 - [ ] 6.6 Manual backup creates an encrypted zip that opens with the off-VPS password
 - [ ] 6.7 Memory peak stays below the limits and is recorded
-- [ ] 6.8 Second deploy shows a brief 503, keeps the data and takes a pre-deploy backup
+- [x] 6.8 Second deploy shows a brief 503, keeps the data and takes a pre-deploy backup
 - [ ] 6.9 Next-morning scheduled backup exists with no failure e-mail

@@ -326,10 +326,10 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Automated
 
-- [x] 3.1 CLAUDE.md references the design system and the CLI normalisation
-- [x] 3.2 Decision D-9 recorded
-- [x] 3.3 The F-03/F-04 split appears in §8
-- [x] 3.4 The F-04 roadmap entry completes the rule
+- [x] 3.1 CLAUDE.md references the design system and the CLI normalisation — f09e5aa
+- [x] 3.2 Decision D-9 recorded — f09e5aa
+- [x] 3.3 The F-03/F-04 split appears in §8 — f09e5aa
+- [x] 3.4 The F-04 roadmap entry completes the rule — f09e5aa
 
 #### Manual
 

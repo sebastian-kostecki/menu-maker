@@ -1,104 +1,113 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Button } from '@/Components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Head, Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import PageHeader from '@/Components/Common/PageHeader.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import StatCard from '@/Components/Dashboard/StatCard.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
-import { Plus, ChefHat, Calendar, FileText } from 'lucide-vue-next'
+import { formatDateRange } from '@/lib/format'
+import { Plus, ChefHat, CalendarDays, FileDown, TriangleAlert } from 'lucide-vue-next'
+
+const props = defineProps({
+  stats: { type: Object, required: true },
+  latestMealPlan: { type: Object, default: null },
+  recipeShortfall: { type: Array, default: () => [] },
+})
+
+const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealPlans === 0)
 </script>
 
 <template>
-    <Head title="Pulpit" />
+  <Head title="Pulpit" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h1 class="text-2xl font-semibold tracking-tight text-foreground">
-                Pulpit
-            </h1>
-        </template>
+  <AuthenticatedLayout>
+    <template #header>
+      <PageHeader title="Pulpit" />
+    </template>
 
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
-            <!-- Recipes Count -->
-            <div class="rounded-lg border bg-card p-6">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-accent p-3">
-                        <ChefHat class="size-6 text-primary" />
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-muted-foreground">
-                            Liczba przepisów
-                        </p>
-                        <p class="text-2xl font-semibold text-foreground">
-                            12
-                        </p>
-                    </div>
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
+      <EmptyState
+        v-if="isFirstRun"
+        class="py-12"
+        :icon="ChefHat"
+        title="Zacznij od pierwszego przepisu"
+        description="Dodaj przepisy do śniadań, obiadów i kolacji. Gdy będzie ich dość, wygenerujesz z nich jadłospis na cały tydzień."
+      >
+        <Button as-child>
+          <Link :href="route('recipes.create')">Dodaj pierwszy przepis</Link>
+        </Button>
+      </EmptyState>
+
+      <template v-else>
+        <Alert v-if="recipeShortfall.length" variant="warning">
+          <TriangleAlert aria-hidden="true" />
+          <AlertTitle>Nie można jeszcze wygenerować tygodnia</AlertTitle>
+          <AlertDescription>
+            <p v-for="message in recipeShortfall" :key="message">{{ message }}</p>
+          </AlertDescription>
+          <div class="col-start-2 mt-3">
+            <Button variant="outline" as-child>
+              <Link :href="route('recipes.create')">Dodaj brakujące przepisy</Link>
+            </Button>
+          </div>
+        </Alert>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <StatCard label="Przepisy" :value="stats.recipes" :icon="ChefHat" />
+          <StatCard label="Jadłospisy" :value="stats.mealPlans" :icon="CalendarDays" />
+
+          <Card class="lg:col-span-2">
+            <CardHeader>
+              <CardTitle as="h2">Ostatni jadłospis</CardTitle>
+            </CardHeader>
+            <CardContent class="flex flex-col gap-4">
+              <template v-if="latestMealPlan">
+                <p class="text-lg font-semibold">
+                  {{ formatDateRange(latestMealPlan.start_date, latestMealPlan.end_date) }}
+                </p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" as-child>
+                    <Link :href="latestMealPlan.links.self">Otwórz jadłospis</Link>
+                  </Button>
+                  <Button v-if="latestMealPlan.links.pdf" variant="outline" as-child>
+                    <a :href="latestMealPlan.links.pdf" target="_blank" rel="noopener">
+                      <FileDown class="size-4" aria-hidden="true" />
+                      Pobierz PDF
+                    </a>
+                  </Button>
                 </div>
-            </div>
-
-            <!-- Meal Plans Count -->
-            <div class="rounded-lg border bg-card p-6">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-accent p-3">
-                        <Calendar class="size-6 text-primary" />
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-muted-foreground">
-                            Jadłospisy
-                        </p>
-                        <p class="text-2xl font-semibold text-foreground">
-                            3
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Last Generated PDF -->
-            <div class="rounded-lg border bg-card p-6">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-accent p-3">
-                        <FileText class="size-6 text-primary" />
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-muted-foreground">
-                            Ostatni PDF
-                        </p>
-                        <p class="text-sm font-medium text-foreground">
-                            2 dni temu
-                        </p>
-                    </div>
-                </div>
-            </div>
+              </template>
+              <p v-else class="text-sm text-muted-foreground">
+                Nie masz jeszcze gotowego jadłospisu. Wygeneruj pierwszy, a pojawi się tutaj.
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="rounded-lg border bg-card p-6">
-            <h2 class="mb-4 text-lg font-semibold text-foreground">
-                Szybkie akcje
-            </h2>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Button size="lg" class="w-full justify-start" as-child>
-                    <Link href="/recipes/create">
-                        <Plus class="mr-2 h-5 w-5" />
-                        Dodaj przepis
-                    </Link>
-                </Button>
-                <GenerateMealPlanDialog>
-                    <Button variant="outline" size="lg" class="w-full justify-start">
-                        <Calendar class="mr-2 h-5 w-5" />
-                        Wygeneruj jadłospis
-                    </Button>
-                </GenerateMealPlanDialog>
-            </div>
-        </div>
-
-        <!-- Welcome Message -->
-        <div class="mt-8 rounded-lg border bg-accent p-6 text-accent-foreground">
-            <h3 class="text-lg font-semibold">
-                Witaj w Menu Maker! 👋
-            </h3>
-            <p class="mt-2">
-                Twój osobisty asystent kulinarny jest gotowy do działania. Zacznij od dodania przepisów, a następnie wygeneruj swój pierwszy jadłospis.
-            </p>
-        </div>
-    </AuthenticatedLayout>
+        <Card>
+          <CardHeader>
+            <CardTitle as="h2">Szybkie akcje</CardTitle>
+          </CardHeader>
+          <CardContent class="flex flex-wrap items-center gap-2">
+            <Button as-child>
+              <Link :href="route('recipes.create')">
+                <Plus class="size-4" aria-hidden="true" />
+                Dodaj przepis
+              </Link>
+            </Button>
+            <GenerateMealPlanDialog>
+              <Button variant="outline">
+                <CalendarDays class="size-4" aria-hidden="true" />
+                Wygeneruj jadłospis
+              </Button>
+            </GenerateMealPlanDialog>
+          </CardContent>
+        </Card>
+      </template>
+    </div>
+  </AuthenticatedLayout>
 </template>

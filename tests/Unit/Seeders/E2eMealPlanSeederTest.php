@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Http\Resources\ShoppingListResource;
+use App\Models\FamilyMember;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Models\User;
 use App\Services\IngredientScaling\ScalingOutcome;
 use App\Services\ShoppingList\ShoppingListBuilder;
@@ -85,4 +87,20 @@ it('leaves the other planners without plans', function (): void {
     foreach (['e2e-planner-chromium@example.com', 'e2e-planner-firefox@example.com'] as $email) {
         expect(MealPlan::where('user_id', User::where('email', $email)->value('id'))->count())->toBe(0);
     }
+});
+
+it('leaves the dashboard-empty user without recipes, plans and family members, however often it is seeded', function (): void {
+    $user = User::where('email', E2eMealPlanSeeder::DASHBOARD_EMPTY_EMAIL)->firstOrFail();
+
+    Recipe::factory()->for($user)->create();
+    Recipe::factory()->for($user)->create()->delete();
+    MealPlan::factory()->for($user)->create();
+    FamilyMember::factory()->for($user)->create();
+
+    $this->seed(E2eMealPlanSeeder::class);
+
+    expect(User::where('email', E2eMealPlanSeeder::DASHBOARD_EMPTY_EMAIL)->count())->toBe(1)
+        ->and(Recipe::withTrashed()->where('user_id', $user->id)->count())->toBe(0)
+        ->and(MealPlan::where('user_id', $user->id)->count())->toBe(0)
+        ->and(FamilyMember::where('user_id', $user->id)->count())->toBe(0);
 });

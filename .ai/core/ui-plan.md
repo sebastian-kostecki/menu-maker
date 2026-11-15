@@ -12,11 +12,11 @@ Menu Maker to jednojęzyczna (PL) aplikacja SPA oparta o Laravel + Vue 3 + Inert
 ## 2. Lista widoków
 
 ### 2.1 Dashboard
-- **Ścieżka:** `/`
+- **Ścieżka:** `/dashboard`
 - **Cel:** Szybki przegląd stanu konta i skróty do kluczowych akcji.
-- **Kluczowe informacje:** liczba przepisów, liczba jadłospisów, ostatni wygenerowany PDF.
-- **Kluczowe komponenty:** `StatCard` × 2, `QuickActionButton` („Dodaj przepis”, „Wygeneruj jadłospis”), `Toast`.
-- **UX/Accessibility/Security:** karty w 2-kolumnowej siatce (1 kolumna < lg); przyciski mają aria-label, focus-ring; akcja generacji wymaga potwierdzenia modalem.
+- **Kluczowe informacje:** liczba przepisów, liczba jadłospisów (wszystkie statusy), najnowszy gotowy jadłospis z akcją „Pobierz PDF” oraz alert o brakach przepisów.
+- **Kluczowe komponenty:** `PageHeader`, `StatCard` (feature), `Card`, `Alert`, `EmptyState` i `GenerateMealPlanDialog` (akcje „Dodaj przepis”, „Wygeneruj jadłospis”).
+- **UX/Accessibility/Security:** karty w 2-kolumnowej siatce (1 kolumna < lg); przyciski mają focus-ring; akcja generacji wymaga potwierdzenia modalem.
 
 ### 2.2 Przepisy – lista
 - **Ścieżka:** `/recipes`

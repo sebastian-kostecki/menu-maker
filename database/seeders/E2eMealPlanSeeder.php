@@ -27,7 +27,8 @@ use RuntimeException;
  *
  * The visual planner additionally owns four meal plans with pinned dates for the plans list; the done one starting
  * 2026-06-15 is reproducible (its pinned recipes, scaled with the fake refiner), so the real meal plan page can be
- * screenshotted.
+ * screenshotted. The dashboard-empty user always ends without recipes (trashed ones included), meal plans or family
+ * members, so the dashboard shows its first-run state.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -57,6 +58,8 @@ class E2eMealPlanSeeder extends Seeder
     ];
 
     public const PASSWORD = 'Password123!';
+
+    public const DASHBOARD_EMPTY_EMAIL = 'e2e-dashboard-empty-visual@example.com';
 
     public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
 
@@ -125,6 +128,19 @@ class E2eMealPlanSeeder extends Seeder
 
             FamilyMember::where('user_id', $familyUser->id)->delete();
         }
+
+        $emptyUser = User::firstOrCreate(
+            ['email' => self::DASHBOARD_EMPTY_EMAIL],
+            [
+                'name' => 'E2E Dashboard Empty',
+                'password' => Hash::make(self::PASSWORD),
+                'email_verified_at' => now(),
+            ],
+        );
+
+        $emptyUser->recipes()->withTrashed()->forceDelete();
+        $emptyUser->mealPlans()->delete();
+        FamilyMember::where('user_id', $emptyUser->id)->delete();
     }
 
     /**

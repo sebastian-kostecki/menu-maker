@@ -30,3 +30,4 @@ resources/js/Components/recipes
 resources/js/Components/MealPlans/MealPlanGrid.vue
 resources/js/Components/MealPlans/ShoppingList.vue
 resources/js/Pages/MealPlans/Show.vue
+resources/js/Components/Dashboard

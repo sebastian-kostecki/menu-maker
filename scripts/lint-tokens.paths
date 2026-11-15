@@ -13,3 +13,11 @@ resources/js/Components/Common
 resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
 resources/js/lib/format.js
+resources/js/Pages/Recipes/Index.vue
+resources/js/Components/recipes/RecipesTable.vue
+resources/js/Components/recipes/RecipeRow.vue
+resources/js/Components/recipes/RecipesToolbar.vue
+resources/js/Components/recipes/SearchInput.vue
+resources/js/Components/recipes/CategoryFilterDropdown.vue
+resources/js/Components/recipes/ResetFiltersButton.vue
+resources/js/Components/recipes/CreateRecipeButton.vue

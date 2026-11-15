@@ -503,11 +503,11 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [x] 1.1 Build passes
-- [x] 1.2 Token scan green with the new files listed
-- [x] 1.3 Kitchen sink page test passes
-- [x] 1.4 Visual gate passes after the deliberate update
-- [x] 1.5 Baseline delta limited
+- [x] 1.1 Build passes — 0597e4c
+- [x] 1.2 Token scan green with the new files listed — 0597e4c
+- [x] 1.3 Kitchen sink page test passes — 0597e4c
+- [x] 1.4 Visual gate passes after the deliberate update — 0597e4c
+- [x] 1.5 Baseline delta limited — 0597e4c
 
 #### Manual
 
@@ -518,12 +518,12 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Token scan green
-- [ ] 2.3 Dead dropdown gone
-- [ ] 2.4 No English list copy left
-- [ ] 2.5 Recipe controller tests pass
-- [ ] 2.6 List E2E specs pass
+- [x] 2.1 Build passes
+- [x] 2.2 Token scan green
+- [x] 2.3 Dead dropdown gone
+- [x] 2.4 No English list copy left
+- [x] 2.5 Recipe controller tests pass
+- [x] 2.6 List E2E specs pass
 
 #### Manual
 

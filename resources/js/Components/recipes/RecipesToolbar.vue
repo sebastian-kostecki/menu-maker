@@ -1,18 +1,18 @@
 <template>
   <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
     <div class="flex flex-col sm:flex-row gap-4 items-center flex-1">
-      <!-- Search Input -->
-      <div class="w-full sm:w-auto min-w-[300px]">
+      <!-- Pole wyszukiwania -->
+      <div class="w-full sm:w-auto min-w-75">
         <SearchInput
           v-model="searchValue"
-          placeholder="Search recipes..."
+          placeholder="Szukaj przepisów…"
           @update:model-value="handleSearchInput"
           @keydown.enter="handleSearchEnter"
         />
       </div>
 
-      <!-- Category Filter Dropdown -->
-      <div class="w-full sm:w-auto min-w-[200px]">
+      <!-- Filtr kategorii -->
+      <div class="w-full sm:w-auto min-w-50">
         <CategoryFilterDropdown
           v-model="categoryValue"
           :options="categoriesWithAll"
@@ -20,14 +20,14 @@
         />
       </div>
 
-      <!-- Reset Filters Button -->
+      <!-- Przycisk czyszczenia filtrów -->
       <ResetFiltersButton
         :disabled="!hasActiveFilters"
         @click="handleReset"
       />
     </div>
 
-    <!-- Create Recipe Button -->
+    <!-- Przycisk dodawania przepisu -->
     <div class="w-full sm:w-auto">
       <CreateRecipeButton />
     </div>
@@ -62,7 +62,7 @@ const categoryValue = ref(props.modelValue.category || 'all');
 
 // Computed
 const categoriesWithAll = computed(() => [
-  { value: 'all', label: 'All Categories' },
+  { value: 'all', label: 'Wszystkie kategorie' },
   ...props.categories
 ]);
 

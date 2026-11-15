@@ -5,8 +5,8 @@
     size="default"
     @click="$emit('click')"
   >
-    <RotateCcw class="h-4 w-4 mr-2" />
-    Reset Filters
+    <RotateCcw class="size-4" />
+    Wyczyść filtry
   </Button>
 </template>
 

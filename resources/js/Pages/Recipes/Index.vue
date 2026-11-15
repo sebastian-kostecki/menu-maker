@@ -3,66 +3,70 @@
 
   <AuthenticatedLayout>
     <template #header>
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Przepisy
-          </h1>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Zarządzaj swoją kolekcją przepisów
-            <span v-if="recipes.meta.total > 0" class="ml-2">
-              ({{ recipes.meta.total }} {{ recipes.meta.total === 1 ? 'przepis' : recipes.meta.total < 5 ? 'przepisy' : 'przepisów' }})
-            </span>
-          </p>
-        </div>
-      </div>
+      <PageHeader title="Przepisy">
+        <template #description>
+          Zarządzaj swoją kolekcją przepisów
+          <span v-if="recipes.meta.total > 0">
+            ({{ recipes.meta.total }} {{ pluralize(recipes.meta.total, ['przepis', 'przepisy', 'przepisów']) }})
+          </span>
+        </template>
+      </PageHeader>
     </template>
 
-    <div class="mx-auto max-w-7xl">
-      <div class="overflow-hidden sm:rounded-lg bg-white dark:bg-gray-800 shadow-xs">
-        <div class="p-6">
-          <div class="space-y-6">
-            <!-- Toolbar with filters and search -->
-            <RecipesToolbar
-              v-model="filterState"
-              :categories="categories"
-              @search="handleSearch"
-              @category-change="handleCategoryChange"
-              @reset="handleReset"
-            />
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
+      <EmptyState
+        v-if="noRecipes"
+        :icon="ChefHat"
+        title="Brak przepisów"
+        description="Dodaj pierwszy przepis, aby zaplanować tydzień."
+      >
+        <template #action>
+          <Button as-child>
+            <Link :href="route('recipes.create')">
+              <Plus class="size-4" aria-hidden="true" />
+              Dodaj przepis
+            </Link>
+          </Button>
+        </template>
+      </EmptyState>
 
-            <!-- Recipes table -->
-            <RecipesTable
-              :recipes="recipes.data"
-              :sort="sortState"
-              @sort-change="handleSortChange"
-              @delete-requested="handleDeleteRequested"
-            />
+      <template v-else>
+        <!-- Pasek filtrów i wyszukiwania -->
+        <RecipesToolbar
+          v-model="filterState"
+          :categories="categories"
+          @search="handleSearch"
+          @category-change="handleCategoryChange"
+          @reset="handleReset"
+        />
 
-            <!-- Empty state when no recipes -->
-            <div v-if="recipes.data.length === 0" class="py-12 text-center">
-              <div class="mx-auto h-12 w-12 text-gray-400">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
-                Brak przepisów
-              </h3>
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Rozpocznij od dodania pierwszego przepisu.
-              </p>
-            </div>
+        <EmptyState
+          v-if="noResults"
+          :icon="SearchX"
+          title="Brak wyników"
+          description="Na tej stronie nie ma przepisów lub żaden nie pasuje do filtrów."
+        >
+          <template #action>
+            <Button variant="outline" @click="handleReset">
+              Wyczyść filtry
+            </Button>
+          </template>
+        </EmptyState>
 
-            <!-- Pagination -->
-            <ServerPagination
-              v-if="recipes.data.length > 0"
-              :meta="recipes.meta"
-              @page-change="handlePageChange"
-            />
-          </div>
-        </div>
-      </div>
+        <template v-else>
+          <RecipesTable
+            :recipes="recipes.data"
+            :sort="sortState"
+            @sort-change="handleSortChange"
+            @delete-requested="handleDeleteRequested"
+          />
+
+          <ServerPagination
+            :meta="recipes.meta"
+            @page-change="handlePageChange"
+          />
+        </template>
+      </template>
     </div>
 
     <!-- Delete confirmation dialog -->
@@ -79,14 +83,18 @@
 </template>
 
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import { ref, reactive, watch, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, reactive, computed } from 'vue';
+import { ChefHat, Plus, SearchX } from 'lucide-vue-next';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue';
 import RecipesTable from '@/Components/recipes/RecipesTable.vue';
 import ServerPagination from '@/Components/Common/ServerPagination.vue';
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue';
+import PageHeader from '@/Components/Common/PageHeader.vue';
+import EmptyState from '@/Components/Common/EmptyState.vue';
+import { Button } from '@/Components/ui/button';
+import { pluralize } from '@/lib/format.js';
 import { toast } from 'vue-sonner';
 import { useLocalStorageStateSync } from '@/lib/useLocalStorageStateSync.js';
 
@@ -106,8 +114,11 @@ const props = defineProps({
   }
 });
 
-// Page data
-const page = usePage();
+// Stan pustej listy decydowany na podstawie filtrów zwróconych przez serwer
+const noRecipes = computed(() =>
+  props.recipes.meta.total === 0 && !(props.filters.search || props.filters.category)
+);
+const noResults = computed(() => props.recipes.data.length === 0 && !noRecipes.value);
 
 // Filter state
 const filterState = reactive({

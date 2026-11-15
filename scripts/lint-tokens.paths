@@ -12,3 +12,5 @@ resources/js/Pages/Dashboard.vue
 resources/js/Components/Common
 resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
+resources/js/Components/MealPlans/MealPlanGrid.vue
+resources/js/Components/MealPlans/ShoppingList.vue

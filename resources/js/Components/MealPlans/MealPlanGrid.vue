@@ -1,55 +1,67 @@
 <template>
-  <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-    <table class="w-full min-w-[40rem] text-sm" data-testid="meal-plan-grid">
+  <div class="overflow-x-auto rounded-lg border border-border bg-card">
+    <table class="w-full min-w-160 text-sm" data-testid="meal-plan-grid" :aria-busy="skeleton ? 'true' : undefined">
       <thead>
-        <tr class="border-b border-gray-200 bg-gray-50 text-left dark:border-gray-700 dark:bg-gray-900/40">
-          <th scope="col" class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Dzień</th>
-          <th v-for="category in MEAL_CATEGORIES" :key="category" scope="col" class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">
+        <tr class="border-b border-border bg-muted text-left">
+          <th scope="col" class="px-4 py-3 font-medium text-muted-foreground">Dzień</th>
+          <th v-for="category in MEAL_CATEGORIES" :key="category" scope="col" class="px-4 py-3 font-medium text-muted-foreground">
             {{ mealCategoryLabel(category) }}
           </th>
         </tr>
       </thead>
       <tbody>
         <template v-if="skeleton">
-          <tr v-for="index in 7" :key="index" class="animate-pulse border-b border-gray-100 last:border-0 dark:border-gray-700">
-            <td class="px-4 py-4"><div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" /></td>
+          <tr v-for="index in 7" :key="index" class="border-b border-border last:border-0">
+            <td class="px-4 py-4"><Skeleton class="h-4 w-24" /></td>
             <td v-for="category in MEAL_CATEGORIES" :key="category" class="px-4 py-4">
-              <div class="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <Skeleton class="h-4 w-32" />
             </td>
           </tr>
         </template>
         <template v-else>
-          <tr v-for="day in days" :key="day.date" class="border-b border-gray-100 align-top last:border-0 dark:border-gray-700">
-            <th scope="row" class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
+          <tr v-for="day in days" :key="day.date" class="border-b border-border align-top last:border-0">
+            <th scope="row" class="whitespace-nowrap px-4 py-3 text-left font-medium text-foreground">
               <span class="capitalize">{{ day.weekday }}</span>
-              <span class="ml-1 text-gray-500 dark:text-gray-400">{{ day.short }}</span>
+              <span class="ml-1 text-muted-foreground">{{ day.short }}</span>
             </th>
             <td v-for="category in MEAL_CATEGORIES" :key="category" class="px-4 py-3">
-              <template v-if="day.meals[category]?.recipe">
-                <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div v-if="day.meals[category]?.recipe" class="border-l-4 pl-3" :class="categoryBarClass(category)">
+                <div class="font-medium text-foreground">
                   <span v-if="day.meals[category].recipe.deleted">
                     {{ day.meals[category].recipe.name }}
-                    <span class="text-xs font-normal text-gray-500">(usunięty)</span>
+                    <span class="text-xs font-normal text-muted-foreground">(usunięty)</span>
                   </span>
-                  <Link v-else :href="route('recipes.show', day.meals[category].recipe.id)" class="hover:text-blue-600 hover:underline">
+                  <Link
+                    v-else
+                    :href="route('recipes.show', day.meals[category].recipe.id)"
+                    class="rounded-sm hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
                     {{ day.meals[category].recipe.name }}
                   </Link>
                 </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ formatCalories(day.meals[category].recipe.calories) }} kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
+                <div class="text-xs text-muted-foreground">
+                  <span class="tabular-nums">{{ formatCalories(day.meals[category].recipe.calories) }}</span> kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
                 </div>
-                <details v-if="day.meals[category].ingredients?.length" class="mt-2 text-xs text-gray-700 dark:text-gray-300">
-                  <summary class="cursor-pointer select-none text-blue-600 hover:underline dark:text-blue-400">
+                <Collapsible v-if="day.meals[category].ingredients?.length" class="mt-2 text-xs">
+                  <CollapsibleTrigger
+                    class="group inline-flex items-center gap-1 rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
                     Składniki ({{ day.meals[category].ingredients.length }})
-                  </summary>
-                  <ul class="mt-1 list-disc space-y-0.5 pl-4" data-testid="meal-ingredients">
-                    <li v-for="(ingredient, index) in day.meals[category].ingredients" :key="`${ingredient.ingredient_id}-${index}`">
-                      {{ ingredient.name }} — {{ ingredient.display }}
-                    </li>
-                  </ul>
-                </details>
-              </template>
-              <span v-else class="text-gray-400">—</span>
+                    <ChevronDown
+                      class="size-4 transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
+                      aria-hidden="true"
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <ul class="mt-1 list-disc space-y-0.5 pl-4 text-foreground" data-testid="meal-ingredients">
+                      <li v-for="(ingredient, index) in day.meals[category].ingredients" :key="`${ingredient.ingredient_id}-${index}`">
+                        {{ ingredient.name }} — {{ ingredient.display }}
+                      </li>
+                    </ul>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+              <span v-else class="text-muted-foreground">—</span>
             </td>
           </tr>
         </template>
@@ -61,6 +73,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import { ChevronDown } from 'lucide-vue-next'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
+import { Skeleton } from '@/Components/ui/skeleton'
 import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
 
 interface GridRecipe {
@@ -95,6 +110,14 @@ const props = withDefaults(defineProps<Props>(), {
   meals: () => [],
   skeleton: false,
 })
+
+const CATEGORY_BAR_CLASSES: Record<string, string> = {
+  breakfast: 'border-meal-breakfast-foreground',
+  supper: 'border-meal-supper-foreground',
+  dinner: 'border-meal-dinner-foreground',
+}
+
+const categoryBarClass = (category: string): string => CATEGORY_BAR_CLASSES[category] ?? 'border-border'
 
 const formatCalories = (calories: number | string): string => Number(calories).toFixed(0)
 

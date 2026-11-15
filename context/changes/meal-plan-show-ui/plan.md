@@ -587,10 +587,10 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [x] 1.1 Build passes
-- [x] 1.2 Token scan and its self-test pass
-- [x] 1.3 Kitchen-sink route test passes
-- [x] 1.4 App-shell E2E still passes
+- [x] 1.1 Build passes — ece4dfe
+- [x] 1.2 Token scan and its self-test pass — ece4dfe
+- [x] 1.3 Kitchen-sink route test passes — ece4dfe
+- [x] 1.4 App-shell E2E still passes — ece4dfe
 
 #### Manual
 
@@ -601,11 +601,11 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Token scan passes with the two new paths
-- [ ] 2.3 The two files have no literals left
-- [ ] 2.4 No details element remains in the grid
-- [ ] 2.5 Meal plan E2E passes in both browsers with the updated selector
+- [x] 2.1 Build passes
+- [x] 2.2 Token scan passes with the two new paths
+- [x] 2.3 The two files have no literals left
+- [x] 2.4 No details element remains in the grid
+- [x] 2.5 Meal plan E2E passes in both browsers with the updated selector
 
 #### Manual
 

@@ -25,7 +25,9 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
 
   const expectScaledGrid = async () => {
     await expect(page.getByTestId('scaling-notice')).toBeHidden();
-    await grid.locator('details').first().locator('summary').click();
+    const ingredientsToggle = grid.getByRole('button', { name: /^Składniki/ }).first();
+    await ingredientsToggle.click();
+    await expect(ingredientsToggle).toHaveAttribute('aria-expanded', 'true');
     await expect(grid.getByTestId('meal-ingredients').first()).toContainText('Mąka — 200 g');
   };
 

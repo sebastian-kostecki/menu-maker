@@ -1,10 +1,10 @@
 ---
 change_id: meal-plans-index-ui
 title: Meal plans index UI (list, filters, generate dialog)
-status: impl_reviewed
+status: archived
 created: 2026-11-15
 updated: 2026-11-15
-archived_at: null
+archived_at: 2026-11-15T16:42:46Z
 ---
 
 ## Notes

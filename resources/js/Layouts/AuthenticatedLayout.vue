@@ -68,7 +68,7 @@ const toggleCollapse = () => {
               </SheetTrigger>
               <div class="flex-1">
                 <slot v-if="$slots.header" name="header" />
-                <h1 v-else class="text-lg font-semibold">Menu Maker</h1>
+                <p v-else class="text-lg font-semibold">Menu Maker</p>
               </div>
             </div>
 

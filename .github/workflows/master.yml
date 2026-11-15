@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=dev
 
+      - name: Design tokens lint (self-test)
+        run: bash scripts/lint-tokens.test.sh
+
+      - name: Design tokens lint
+        run: npm run lint:tokens
+
       - name: Build for production
         run: NODE_ENV=production npm run build
 

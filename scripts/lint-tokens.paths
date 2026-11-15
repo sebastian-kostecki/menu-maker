@@ -1,0 +1,4 @@
+# Paths scanned by `npm run lint:tokens` (one per line; # comments and blank lines are ignored).
+# Each migration slice appends the paths it migrated, in its own change.
+# Files under Components/ui/ are always excluded.
+resources/js/Pages/Dev

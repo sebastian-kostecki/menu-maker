@@ -534,11 +534,11 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [x] 1.1 The route test passes
-- [x] 1.2 The full Pest suite and code style stay green
-- [x] 1.3 The client and SSR bundles build
-- [x] 1.4 The route is registered locally
-- [x] 1.5 Route caching still works
+- [x] 1.1 The route test passes — 89d5019
+- [x] 1.2 The full Pest suite and code style stay green — 89d5019
+- [x] 1.3 The client and SSR bundles build — 89d5019
+- [x] 1.4 The route is registered locally — 89d5019
+- [x] 1.5 Route caching still works — 89d5019
 
 #### Manual
 
@@ -550,11 +550,11 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [ ] 2.1 The self-test passes
-- [ ] 2.2 The kitchen sink is literal-free
-- [ ] 2.3 A deliberate break is caught
-- [ ] 2.4 Both scripts pass shellcheck
-- [ ] 2.5 CI runs both steps
+- [x] 2.1 The self-test passes
+- [x] 2.2 The kitchen sink is literal-free
+- [x] 2.3 A deliberate break is caught
+- [x] 2.4 Both scripts pass shellcheck
+- [x] 2.5 CI runs both steps
 
 #### Manual
 

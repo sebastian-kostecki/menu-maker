@@ -550,11 +550,11 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [x] 2.1 The self-test passes
-- [x] 2.2 The kitchen sink is literal-free
-- [x] 2.3 A deliberate break is caught
-- [x] 2.4 Both scripts pass shellcheck
-- [x] 2.5 CI runs both steps
+- [x] 2.1 The self-test passes — acd41b8
+- [x] 2.2 The kitchen sink is literal-free — acd41b8
+- [x] 2.3 A deliberate break is caught — acd41b8
+- [x] 2.4 Both scripts pass shellcheck — acd41b8
+- [x] 2.5 CI runs both steps — acd41b8
 
 #### Manual
 
@@ -564,13 +564,13 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [ ] 3.1 The gate is green against committed baselines, twice in a row
-- [ ] 3.2 Exactly 19 baselines are committed
-- [ ] 3.3 A deliberate break is caught
-- [ ] 3.4 The behaviour E2E suite runs only chromium and firefox and stays green
-- [ ] 3.5 The visual project skips outside Docker
-- [ ] 3.6 The wrapper refuses a dev-server state
-- [ ] 3.7 The wrapper passes shellcheck
+- [x] 3.1 The gate is green against committed baselines, twice in a row
+- [x] 3.2 Exactly 19 baselines are committed
+- [x] 3.3 A deliberate break is caught
+- [x] 3.4 The behaviour E2E suite runs only chromium and firefox and stays green
+- [x] 3.5 The visual project skips outside Docker
+- [x] 3.6 The wrapper refuses a dev-server state
+- [x] 3.7 The wrapper passes shellcheck
 
 #### Manual
 

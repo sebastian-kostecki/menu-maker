@@ -6,8 +6,9 @@
         "build": "npx vite build && npx vite build --ssr",
         "dev": "npx vite",
         "lint:tokens": "bash scripts/lint-tokens.sh",
-        "test:e2e": "npx playwright test",
-        "test:e2e:headed": "npx playwright test --headed",
+        "test:e2e": "npx playwright test --project=chromium --project=firefox",
+        "test:visual": "bash scripts/visual-test.sh",
+        "test:e2e:headed": "npx playwright test --project=chromium --project=firefox --headed",
         "test:e2e:ui": "npx playwright test --ui",
         "pw:install": "npx playwright install --with-deps"
     },

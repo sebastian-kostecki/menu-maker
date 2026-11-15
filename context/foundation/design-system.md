@@ -123,6 +123,8 @@ Statusy jadłospisu mapują się na tokeny stanów, nie na nowe kolory: `pending
 
 Kolor nigdy nie jest jedynym nośnikiem informacji: badge zawsze ma etykietę, a siatka ma nagłówki kolumn.
 
+Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warning-foreground`) leżą nieznacznie poza gamutem sRGB (przekroczenie kanału ≤ 0.08). Przeglądarki na ekranach sRGB je przycinają; kontrast po przycięciu nadal ≥ 5.9:1. PDF (S-14) ma używać wartości hex z przycięcia (kolumna „Hex” w 4.4), a nie przeliczać OKLCH na nowo.
+
 ### 4.5 Typografia
 
 - Krój: **Figtree** (już ładowany z bunny.net, ma polskie znaki). Dodać wagę 700 tylko jeśli pojawi się potrzeba; dziś wystarczą 400/500/600.

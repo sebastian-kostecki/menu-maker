@@ -318,7 +318,7 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Manual
 
-- [ ] 2.8 package.json diff reviewed and approved (D-5)
+- [x] 2.8 package.json diff reviewed and approved (D-5) — verified in impl-review: only the reka-ui range changed, lock already pinned 2.11.0
 - [ ] 2.9 Generated file spot-read uses repo cn, lucide-vue-next and tokens
 - [ ] 2.10 Existing dialogs and selects still work in the browser
 

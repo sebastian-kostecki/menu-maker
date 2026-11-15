@@ -552,11 +552,11 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [x] 4.1 Build passes
-- [x] 4.2 Token scan green over both directories
-- [x] 4.3 Paths list uses directory entries only
-- [x] 4.4 Recipe controller tests pass
-- [x] 4.5 Recipe E2E specs pass
+- [x] 4.1 Build passes — 9e26e81
+- [x] 4.2 Token scan green over both directories — 9e26e81
+- [x] 4.3 Paths list uses directory entries only — 9e26e81
+- [x] 4.4 Recipe controller tests pass — 9e26e81
+- [x] 4.5 Recipe E2E specs pass — 9e26e81
 
 #### Manual
 
@@ -568,13 +568,13 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [ ] 5.1 Seeder is idempotent and Pint-clean
-- [ ] 5.2 Static analysis passes
-- [ ] 5.3 Token scan green
-- [ ] 5.4 Baselines created deliberately
-- [ ] 5.5 Visual gate stable
-- [ ] 5.6 Full Pest suite passes
-- [ ] 5.7 Full E2E passes
+- [x] 5.1 Seeder is idempotent and Pint-clean
+- [x] 5.2 Static analysis passes
+- [x] 5.3 Token scan green
+- [x] 5.4 Baselines created deliberately
+- [x] 5.5 Visual gate stable
+- [x] 5.6 Full Pest suite passes
+- [x] 5.7 Full E2E passes
 
 #### Manual
 

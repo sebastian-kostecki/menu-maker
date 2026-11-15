@@ -33,8 +33,8 @@ const initials = computed(() =>
     <DropdownMenuTrigger as-child>
       <Button variant="ghost" class="h-auto gap-3 px-3 py-2">
         <span class="sr-only">Menu użytkownika</span>
-        <Avatar>
-          <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
+        <Avatar aria-hidden="true">
+          <AvatarImage v-if="user.avatar" :src="user.avatar" alt="" />
           <AvatarFallback>{{ initials }}</AvatarFallback>
         </Avatar>
         <span class="hidden text-left sm:block">

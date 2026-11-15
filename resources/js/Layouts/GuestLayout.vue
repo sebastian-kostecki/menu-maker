@@ -13,7 +13,7 @@ const currentYear = new Date().getFullYear()
       <div class="text-center">
         <Link
           :href="route('login')"
-          class="inline-flex items-center space-x-3 rounded-md text-2xl font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          class="inline-flex items-center space-x-3 rounded-md text-2xl font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <ChefHat class="size-10 text-primary" />
           <span>Menu Maker</span>

@@ -347,16 +347,16 @@ No data changes. Rollback is a `git revert` per phase, because each phase is sel
 
 #### Automated
 
-- [x] 1.1 Legacy files are gone
-- [x] 1.2 No reference to the splash page remains
-- [x] 1.3 The scan list is the whole tree and green
-- [x] 1.4 Scanner self-test passes
-- [x] 1.5 New and changed PHP tests pass
-- [x] 1.6 Full suite, Larastan and style pass
-- [x] 1.7 Routes still cache
-- [x] 1.8 Bundles build
-- [x] 1.9 Visual gate passes with no baseline change
-- [x] 1.10 Full E2E passes after a re-seed
+- [x] 1.1 Legacy files are gone — d38cda0
+- [x] 1.2 No reference to the splash page remains — d38cda0
+- [x] 1.3 The scan list is the whole tree and green — d38cda0
+- [x] 1.4 Scanner self-test passes — d38cda0
+- [x] 1.5 New and changed PHP tests pass — d38cda0
+- [x] 1.6 Full suite, Larastan and style pass — d38cda0
+- [x] 1.7 Routes still cache — d38cda0
+- [x] 1.8 Bundles build — d38cda0
+- [x] 1.9 Visual gate passes with no baseline change — d38cda0
+- [x] 1.10 Full E2E passes after a re-seed — d38cda0
 
 #### Manual
 
@@ -368,10 +368,10 @@ No data changes. Rollback is a `git revert` per phase, because each phase is sel
 
 #### Automated
 
-- [ ] 2.1 Plugin and source are gone
-- [ ] 2.2 Bundles build and the scan is green
-- [ ] 2.3 Visual gate passes against Phase 1 baselines
-- [ ] 2.4 Full E2E passes after a re-seed
+- [x] 2.1 Plugin and source are gone
+- [x] 2.2 Bundles build and the scan is green
+- [x] 2.3 Visual gate passes against Phase 1 baselines
+- [x] 2.4 Full E2E passes after a re-seed
 
 #### Manual
 

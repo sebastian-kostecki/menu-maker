@@ -1,65 +1,57 @@
 <template>
-  <div class="space-y-4">
-    <!-- Table -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-      <Table>
-        <TableHeader>
-          <TableRow class="bg-gray-50 dark:bg-gray-800">
-            <SortableHeader
-              class="w-[300px] font-semibold"
-              column="name"
-              :sort="sort.field"
-              :direction="sort.direction"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Name
-            </SortableHeader>
-            <SortableHeader
-              class="w-[120px] font-semibold"
-              column="category"
-              :sort="sort.field"
-              :direction="sort.direction"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Category
-            </SortableHeader>
-            <SortableHeader
-              class="w-[100px] font-semibold"
-              column="calories"
-              :sort="sort.field"
-              :direction="sort.direction"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Calories
-            </SortableHeader>
-            <TableHead class="w-[100px] font-semibold">Servings</TableHead>
-            <SortableHeader
-              class="w-[120px] font-semibold"
-              column="created_at"
-              :sort="sort.field"
-              :direction="sort.direction"
-              @sort-change="$emit('sort-change', $event)"
-            >
-              Created
-            </SortableHeader>
-            <TableHead class="w-[120px] text-right font-semibold">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <RecipeRow
-            v-for="recipe in recipes"
-            :key="recipe.id"
-            :recipe="recipe"
-            @delete-requested="$emit('delete-requested', recipe)"
-          />
-          <TableRow v-if="recipes.length === 0">
-            <TableCell :colspan="6" class="text-center py-8 text-gray-500 dark:text-gray-400">
-              No recipes found
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </div>
+  <div class="overflow-x-auto rounded-lg border bg-card">
+    <Table>
+      <TableHeader>
+        <TableRow class="bg-muted">
+          <SortableHeader
+            class="w-75"
+            column="name"
+            :sort="sort.field"
+            :direction="sort.direction"
+            @sort-change="$emit('sort-change', $event)"
+          >
+            Nazwa
+          </SortableHeader>
+          <SortableHeader
+            class="w-30"
+            column="category"
+            :sort="sort.field"
+            :direction="sort.direction"
+            @sort-change="$emit('sort-change', $event)"
+          >
+            Kategoria
+          </SortableHeader>
+          <SortableHeader
+            class="w-25 text-right"
+            column="calories"
+            :sort="sort.field"
+            :direction="sort.direction"
+            @sort-change="$emit('sort-change', $event)"
+          >
+            Kalorie
+          </SortableHeader>
+          <TableHead class="w-25 text-right font-semibold text-foreground">Porcje</TableHead>
+          <SortableHeader
+            class="w-30"
+            column="created_at"
+            :sort="sort.field"
+            :direction="sort.direction"
+            @sort-change="$emit('sort-change', $event)"
+          >
+            Dodano
+          </SortableHeader>
+          <TableHead class="w-30 text-right font-semibold text-foreground">Akcje</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <RecipeRow
+          v-for="recipe in recipes"
+          :key="recipe.id"
+          :recipe="recipe"
+          @delete-requested="$emit('delete-requested', recipe)"
+        />
+      </TableBody>
+    </Table>
   </div>
 </template>
 
@@ -67,7 +59,6 @@
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,

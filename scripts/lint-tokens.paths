@@ -10,7 +10,6 @@ resources/js/app.js
 resources/js/Layouts/GuestLayout.vue
 resources/js/Pages/Dashboard.vue
 resources/js/Components/Common
-resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
 resources/js/Pages/Auth
 resources/js/Pages/Profile
@@ -26,6 +25,8 @@ resources/js/Components/MealPlans/MealPlanTable.vue
 resources/js/Components/MealPlans/MealPlanRow.vue
 resources/js/Components/MealPlans/ActionDropdown.vue
 resources/js/Components/MealPlans/GenerateMealPlanDialog.vue
+resources/js/Pages/Recipes
+resources/js/Components/recipes
 resources/js/Components/MealPlans/MealPlanGrid.vue
 resources/js/Components/MealPlans/ShoppingList.vue
 resources/js/Pages/MealPlans/Show.vue

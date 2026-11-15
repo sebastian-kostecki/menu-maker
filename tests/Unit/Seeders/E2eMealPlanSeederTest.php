@@ -39,10 +39,8 @@ it('gives the visual user the four list fixtures, with one deterministic done pl
         ->and($plan->meals()->count())->toBe(21);
 
     $expected = [];
-    foreach (E2eMealPlanSeeder::VISUAL_RECIPES as $recipes) {
-        foreach ($recipes as $recipe) {
-            $expected[] = [$recipe['name'], $recipe['servings']];
-        }
+    foreach (E2eMealPlanSeeder::visualRecipes() as $recipe) {
+        $expected[] = [$recipe['name'], $recipe['servings']];
     }
 
     $actual = $plan->meals()->with('recipe')->get()
@@ -60,10 +58,13 @@ it('puts the recipes of each category on consecutive days from the plan start', 
         range(0, 6),
     );
 
-    foreach (E2eMealPlanSeeder::VISUAL_RECIPES as $category => $recipes) {
+    // Each category takes its pinned recipes in list order (newest first), one per day.
+    $byCategory = collect(E2eMealPlanSeeder::visualRecipes())->groupBy('category');
+
+    foreach ($byCategory as $category => $recipes) {
         $meals = $plan->meals()->with('recipe')->where('meal_category', $category)->orderBy('meal_date')->get();
 
-        expect($meals->map(fn ($meal): string => $meal->recipe->name)->all())->toBe(array_column($recipes, 'name'))
+        expect($meals->map(fn ($meal): string => $meal->recipe->name)->all())->toBe($recipes->pluck('name')->all())
             ->and($meals->map(fn ($meal): string => $meal->meal_date->toDateString())->all())->toBe($days);
     }
 });

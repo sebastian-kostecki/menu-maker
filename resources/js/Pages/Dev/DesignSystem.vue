@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -830,6 +830,27 @@ const showToast = () => {
             </template>
           </FormField>
         </ConfirmDialog>
+
+        <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
+          <PageHeader as="h2" title="Zupa pomidorowa z makaronem i świeżą bazylią">
+            <template #breadcrumbs>
+              <a href="#ds-komponenty-aplikacji" class="hover:text-foreground hover:underline">Przepisy</a>
+              <span aria-hidden="true"> / </span>
+              <span aria-current="page">Zupa pomidorowa</span>
+            </template>
+            <template #description>
+              <CategoryBadge category="dinner" />
+            </template>
+            <template #actions>
+              <Button variant="outline">Edytuj przepis</Button>
+              <Button variant="secondary">Kopiuj przepis</Button>
+            </template>
+          </PageHeader>
+        </div>
+
+        <div class="rounded-lg border bg-card p-6">
+          <EmptyState :icon="SearchX" title="Brak wyników" />
+        </div>
       </section>
 
       <section aria-labelledby="ds-jadlospis" class="flex flex-col gap-4">

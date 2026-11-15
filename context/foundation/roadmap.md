@@ -48,7 +48,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | done |
 | S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | done |
-| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
+| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | done |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | done |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
@@ -144,7 +144,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-10, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa. — Owner: /10x-plan. Block: no.
+  - S-10 i S-11 zbudowały je równolegle; scalone przy merge'u S-11 do `develop` (`EmptyState` z CTA w domyślnym slocie i `headingLevel`, `PageHeader` z okruszkami i slotem `description`, jeden `lib/format.js`). S-09 ich używa. — Owner: /10x-plan. Block: no.
 - **Risk:** to rdzeń produktu pilnowany przez `meal-plan.spec.ts`; zamiana `<details>` na rozwijany komponent zmienia semantykę, więc nowy selektor w specu jest tu sygnałem zmiany znaczenia, który trzeba świadomie przejrzeć (§8), a nie tylko poprawić.
 - **Status:** done
 
@@ -157,7 +157,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-09, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa. — Owner: /10x-plan. Block: no.
+  - S-10 i S-11 zbudowały je równolegle; scalone przy merge'u S-11 do `develop` (`EmptyState` z CTA w domyślnym slocie i `headingLevel`, `PageHeader` z okruszkami i slotem `description`, jeden `lib/format.js`). S-09 ich używa. — Owner: /10x-plan. Block: no.
   - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
 - **Status:** done
@@ -171,10 +171,10 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-09, S-10, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - Jedna zmiana czy trzy (lista, szczegóły, formularz)? §8 dopuszcza podział „po jednym widoku, jeśli diff rośnie”. — Owner: /10x-plan. Block: no.
-  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
+  - ~~Jedna zmiana czy trzy (lista, szczegóły, formularz)?~~ Rozstrzygnięte: jedna zmiana, po jednej fazie na widok.
+  - ~~`PageHeader` i `EmptyState` nie powstały w S-07 (m.in. podwójny komunikat pustej listy w `Recipes/Index`).~~ Rozstrzygnięte: komponenty powstają w tej zmianie (faza 1).
 - **Risk:** `RecipeRow` ma najwięcej literałów w listach (34), a formularz z `IngredientManager` jest najbardziej interaktywnym widokiem aplikacji i ma własny spec E2E (`recipe-form.spec.ts`).
-- **Status:** ready
+- **Status:** done
 
 ### S-12: Rodzina w nowym wyglądzie
 
@@ -267,6 +267,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 ## Done
 
 - **S-09: Użytkownik może zobaczyć wygenerowany jadłospis jako siatkę tygodnia, w której każda komórka ma kreskę w kolorze kategorii i rozwijane składniki, w trakcie generowania widzi szkielet siatki, przy dopracowaniu bez AI — ostrzeżenie na tokenie `warning`, a obok listę zakupów z ilościami wyrównanymi do prawej i sformatowanymi po polsku.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plan-show-ui/`. Lesson: —.
+- **S-11: Użytkownik może przeglądać listę przepisów, oglądać szczegóły przepisu i dodawać lub edytować przepis ze składnikami w nowym wyglądzie.** — Archived 2026-11-15 → `context/archive/2026-11-15-recipes-ui/`. Lesson: —.
 - **S-10: Użytkownik może przeglądać listę swoich jadłospisów, filtrować ją i otwierać dialog generowania w nowym wyglądzie, ze statusami na wspólnych wariantach.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plans-index-ui/`. Lesson: —.
 - **S-13: Użytkownik może logować się, rejestrować, resetować hasło i edytować profil na ekranach z tymi samymi przyciskami, polami i checkboxem „Zapamiętaj mnie” co reszta aplikacji.** — Archived 2026-11-15 → `context/archive/2026-11-15-auth-profile-ui/`. Lesson: —.
 - **S-14: Użytkownik może pobrać PDF, w którym kategoria posiłku ma w tabeli to samo tło co na ekranie (z etykietą, czytelną też w druku czarno-białym), komunikaty mają ramkę ostrzeżenia, a hierarchia tekstu odpowiada rolom z §4.5.** — Archived 2026-11-15 → `context/archive/2026-11-15-pdf-design-alignment/`. Lesson: —.

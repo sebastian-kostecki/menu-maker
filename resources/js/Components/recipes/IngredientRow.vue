@@ -19,7 +19,7 @@
         :list="`ingredient-options-${index}`"
         autocomplete="off"
         placeholder="np. mąka"
-        :class="{ 'border-red-500': errors.name }"
+        :class="{ 'border-destructive': errors.name }"
         :aria-invalid="!!errors.name"
         :aria-describedby="errors.name ? `ingredient-error-${index}` : undefined"
         @update:model-value="updateField('name', $event)"
@@ -34,7 +34,7 @@
       <div
         v-if="errors.name"
         :id="`ingredient-error-${index}`"
-        class="text-xs text-red-600"
+        class="text-xs text-destructive"
         role="alert"
       >
         {{ errors.name }}
@@ -56,7 +56,7 @@
         step="0.01"
         min="0.01"
         placeholder="np. 2"
-        :class="{ 'border-red-500': errors.quantity }"
+        :class="{ 'border-destructive': errors.quantity }"
         :aria-invalid="!!errors.quantity"
         :aria-describedby="errors.quantity ? `quantity-error-${index}` : undefined"
         @update:model-value="updateField('quantity', $event)"
@@ -64,7 +64,7 @@
       <div
         v-if="errors.quantity"
         :id="`quantity-error-${index}`"
-        class="text-xs text-red-600"
+        class="text-xs text-destructive"
         role="alert"
       >
         {{ errors.quantity }}
@@ -85,7 +85,7 @@
       >
         <SelectTrigger
           :id="`unit-${index}`"
-          :class="{ 'border-red-500': errors.unit_id }"
+          :class="{ 'border-destructive': errors.unit_id }"
           :aria-invalid="!!errors.unit_id"
           :aria-describedby="errors.unit_id ? `unit-error-${index}` : undefined"
         >
@@ -104,7 +104,7 @@
       <div
         v-if="errors.unit_id"
         :id="`unit-error-${index}`"
-        class="text-xs text-red-600"
+        class="text-xs text-destructive"
         role="alert"
       >
         {{ errors.unit_id }}
@@ -118,7 +118,7 @@
         variant="outline"
         size="sm"
         @click="emit('remove', index)"
-        class="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+        class="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
         :aria-label="`Usuń składnik ${index + 1}`"
       >
         <Trash2 class="w-4 h-4" />

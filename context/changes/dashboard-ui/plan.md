@@ -451,13 +451,13 @@ No schema or data migration. Rollback means reverting the route to the closure; 
 
 #### Automated
 
-- [x] 3.1 Seeder is idempotent (two runs in a row)
-- [x] 3.2 Seeder tests pass: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php`
-- [x] 3.3 Full suite, Larastan and style pass
-- [x] 3.4 Bundles build and the token scan is green
-- [x] 3.5 Baseline delta is exactly 3 modified and 1 new app-shell dashboard PNG (`git status --porcelain -uall tests/e2e/__screenshots__`)
-- [x] 3.6 Visual gate is stable twice in a row: `npm run test:visual && npm run test:visual`
-- [x] 3.7 Full E2E passes after a re-seed
+- [x] 3.1 Seeder is idempotent (two runs in a row) — 36711e8
+- [x] 3.2 Seeder tests pass: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php` — 36711e8
+- [x] 3.3 Full suite, Larastan and style pass — 36711e8
+- [x] 3.4 Bundles build and the token scan is green — 36711e8
+- [x] 3.5 Baseline delta is exactly 3 modified and 1 new app-shell dashboard PNG (`git status --porcelain -uall tests/e2e/__screenshots__`) — 36711e8
+- [x] 3.6 Visual gate is stable twice in a row: `npm run test:visual && npm run test:visual` — 36711e8
+- [x] 3.7 Full E2E passes after a re-seed — 36711e8
 
 #### Manual
 

@@ -616,11 +616,11 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Token scan passes with Show.vue added
-- [x] 3.3 No literals remain in the view
-- [x] 3.4 Show-page Pest coverage still passes
-- [x] 3.5 The full E2E suite passes in both browsers
+- [x] 3.1 Build passes — 61c4faa
+- [x] 3.2 Token scan passes with Show.vue added — 61c4faa
+- [x] 3.3 No literals remain in the view — 61c4faa
+- [x] 3.4 Show-page Pest coverage still passes — 61c4faa
+- [x] 3.5 The full E2E suite passes in both browsers — 61c4faa
 
 #### Manual
 
@@ -632,13 +632,13 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [ ] 4.1 PHP suite, style and static analysis pass
-- [ ] 4.2 Seeder test passes
-- [ ] 4.3 Seeder runs twice without error
-- [ ] 4.4 Build and token scan pass
-- [ ] 4.5 Baseline generation matches the expected delta
-- [ ] 4.6 The visual gate passes twice in a row without updates
-- [ ] 4.7 The full E2E suite still passes
+- [x] 4.1 PHP suite, style and static analysis pass
+- [x] 4.2 Seeder test passes
+- [x] 4.3 Seeder runs twice without error
+- [x] 4.4 Build and token scan pass
+- [x] 4.5 Baseline generation matches the expected delta
+- [x] 4.6 The visual gate passes twice in a row without updates
+- [x] 4.7 The full E2E suite still passes
 
 #### Manual
 

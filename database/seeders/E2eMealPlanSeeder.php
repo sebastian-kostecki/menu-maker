@@ -7,9 +7,13 @@ namespace Database\Seeders;
 use App\Enums\MealCategory;
 use App\Models\FamilyMember;
 use App\Models\Ingredient;
+use App\Models\Meal;
+use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\IngredientScaling\Drivers\FakeIngredientRefiner;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanGenerator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +22,9 @@ use RuntimeException;
 
 /**
  * Re-runnable fixtures for the Playwright specs: one planner user and one recipe-author (cook) user per browser project.
+ *
+ * The visual planner additionally owns one reproducible done plan (start 2026-06-15, fixed recipe names and servings,
+ * scaled with the fake refiner), so the real meal plan page can be screenshotted.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -39,6 +46,47 @@ class E2eMealPlanSeeder extends Seeder
     ];
 
     public const PASSWORD = 'Password123!';
+
+    public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
+
+    public const VISUAL_PLAN_START = '2026-06-15';
+
+    public const VISUAL_PLAN_END = '2026-06-21';
+
+    /**
+     * Fixed recipe names and servings of the visual user's plan, 7 per category in id order (the position is the day offset).
+     *
+     * @var array<string, list<array{name: string, servings: int}>>
+     */
+    public const VISUAL_RECIPES = [
+        'breakfast' => [
+            ['name' => 'Owsianka z jabłkiem i cynamonem', 'servings' => 2],
+            ['name' => 'Jajecznica na maśle', 'servings' => 3],
+            ['name' => 'Naleśniki z serem', 'servings' => 4],
+            ['name' => 'Kanapki z pastą jajeczną', 'servings' => 2],
+            ['name' => 'Placuszki bananowe', 'servings' => 3],
+            ['name' => 'Jaglanka z owocami leśnymi i orzechami', 'servings' => 2],
+            ['name' => 'Omlet z pieczarkami', 'servings' => 1],
+        ],
+        'supper' => [
+            ['name' => 'Rosół z makaronem', 'servings' => 6],
+            ['name' => 'Kotlet schabowy z ziemniakami i mizerią', 'servings' => 4],
+            ['name' => 'Pierogi ruskie', 'servings' => 5],
+            ['name' => 'Gulasz wołowy z kaszą gryczaną', 'servings' => 4],
+            ['name' => 'Zupa pomidorowa z ryżem', 'servings' => 6],
+            ['name' => 'Łosoś pieczony z warzywami', 'servings' => 2],
+            ['name' => 'Bigos', 'servings' => 8],
+        ],
+        'dinner' => [
+            ['name' => 'Sałatka grecka', 'servings' => 2],
+            ['name' => 'Tosty z serem i szynką', 'servings' => 3],
+            ['name' => 'Zapiekanka makaronowa', 'servings' => 4],
+            ['name' => 'Twarożek ze szczypiorkiem', 'servings' => 2],
+            ['name' => 'Krem z dyni z prażonymi pestkami', 'servings' => 4],
+            ['name' => 'Sałatka z kurczakiem, rukolą i pomidorkami koktajlowymi', 'servings' => 3],
+            ['name' => 'Pasta jajeczna na chrupkim pieczywie', 'servings' => 2],
+        ],
+    ];
 
     public function run(): void
     {
@@ -74,6 +122,10 @@ class E2eMealPlanSeeder extends Seeder
             $this->syncPinnedCalories($user);
             $this->syncFamily($user);
 
+            if ($email === self::VISUAL_EMAIL) {
+                $this->seedVisualPlan($user);
+            }
+
             RateLimiter::clear('generate-meal-plan:'.$user->id);
         }
 
@@ -90,6 +142,52 @@ class E2eMealPlanSeeder extends Seeder
             $cook->recipes()->withTrashed()->forceDelete();
             FamilyMember::where('user_id', $cook->id)->delete();
         }
+    }
+
+    /**
+     * Give the visual user one done plan that is identical on every run: fixed recipes, fixed week, fake-scaled ingredients.
+     *
+     * Mirrors what GenerateMealPlanJob stores, without the queue, the random draw or any AI call.
+     */
+    private function seedVisualPlan(User $user): void
+    {
+        $plan = MealPlan::create([
+            'user_id' => $user->id,
+            'start_date' => self::VISUAL_PLAN_START,
+            'end_date' => self::VISUAL_PLAN_END,
+            'status' => 'pending',
+        ]);
+
+        foreach (self::VISUAL_RECIPES as $category => $fixed) {
+            $recipes = Recipe::where('user_id', $user->id)
+                ->where('category', $category)
+                ->orderBy('id')
+                ->limit(MealPlanGenerator::MEALS_PER_CATEGORY)
+                ->get();
+
+            foreach ($recipes as $offset => $recipe) {
+                $recipe->update($fixed[$offset]);
+
+                Meal::create([
+                    'meal_plan_id' => $plan->id,
+                    'recipe_id' => $recipe->id,
+                    'meal_date' => $plan->start_date->copy()->addDays($offset),
+                    'meal_category' => $category,
+                ]);
+            }
+        }
+
+        $outcome = app()->make(MealIngredientScaler::class, ['refiner' => new FakeIngredientRefiner])->scale($plan);
+
+        $plan->update([
+            'status' => 'done',
+            'generation_meta' => [
+                'generated_at' => $plan->start_date,
+                'regenerate' => false,
+                'version' => 'scaled-v1',
+                'scaling' => $outcome->toArray(),
+            ],
+        ]);
     }
 
     /**

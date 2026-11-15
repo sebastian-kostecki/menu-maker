@@ -656,13 +656,13 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 #### Automated
 
-- [x] 4.1 Seeder runs twice in a row without error: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder`
-- [x] 4.2 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
-- [x] 4.3 Visual gate passes twice in a row after baselines are written: `npm run test:visual && npm run test:visual` (with `VISUAL_DOCKER_NETWORK=meal-plans-index-u_sail VISUAL_BASE_URL=http://laravel.test` in this worktree)
-- [x] 4.4 `git status --porcelain -uall tests/e2e/__screenshots__` shows exactly 4 `??` entries under `meal-plans-index.spec.ts/`, and ` M` only for the expected design-system PNGs listed in Changes Required 3
-- [x] 4.5 Full E2E suite passes after re-seeding: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [x] 4.6 Token scanner self-test and scan are green: `bash scripts/lint-tokens.test.sh && vendor/bin/sail npm run lint:tokens`
-- [x] 4.7 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 4.1 Seeder runs twice in a row without error: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder` — db119ec
+- [x] 4.2 Larastan and Pint are clean: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — db119ec
+- [x] 4.3 Visual gate passes twice in a row after baselines are written: `npm run test:visual && npm run test:visual` (with `VISUAL_DOCKER_NETWORK=meal-plans-index-u_sail VISUAL_BASE_URL=http://laravel.test` in this worktree) — db119ec
+- [x] 4.4 `git status --porcelain -uall tests/e2e/__screenshots__` shows exactly 4 `??` entries under `meal-plans-index.spec.ts/`, and ` M` only for the expected design-system PNGs listed in Changes Required 3 — db119ec
+- [x] 4.5 Full E2E suite passes after re-seeding: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e` — db119ec
+- [x] 4.6 Token scanner self-test and scan are green: `bash scripts/lint-tokens.test.sh && vendor/bin/sail npm run lint:tokens` — db119ec
+- [x] 4.7 Full Pest suite passes: `vendor/bin/sail composer test` — db119ec
 
 #### Manual
 

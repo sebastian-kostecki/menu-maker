@@ -568,13 +568,13 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [x] 5.1 Seeder is idempotent and Pint-clean
-- [x] 5.2 Static analysis passes
-- [x] 5.3 Token scan green
-- [x] 5.4 Baselines created deliberately
-- [x] 5.5 Visual gate stable
-- [x] 5.6 Full Pest suite passes
-- [x] 5.7 Full E2E passes
+- [x] 5.1 Seeder is idempotent and Pint-clean — 89a9e92
+- [x] 5.2 Static analysis passes — 89a9e92
+- [x] 5.3 Token scan green — 89a9e92
+- [x] 5.4 Baselines created deliberately — 89a9e92
+- [x] 5.5 Visual gate stable — 89a9e92
+- [x] 5.6 Full Pest suite passes — 89a9e92
+- [x] 5.7 Full E2E passes — 89a9e92
 
 #### Manual
 

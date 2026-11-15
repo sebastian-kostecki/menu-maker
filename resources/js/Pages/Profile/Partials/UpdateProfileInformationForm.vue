@@ -1,28 +1,28 @@
 <script setup>
-import FormField from '@/Components/Common/FormField.vue';
-import { Button } from '@/Components/ui/button';
+import FormField from '@/Components/Common/FormField.vue'
+import { Button } from '@/Components/ui/button'
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { useForm, usePage } from '@inertiajs/vue3';
+} from '@/Components/ui/card'
+import { Input } from '@/Components/ui/input'
+import { useForm, usePage } from '@inertiajs/vue3'
 
-const user = usePage().props.auth.user;
+const user = usePage().props.auth.user
 
 const form = useForm({
     name: user.name,
     email: user.email,
-});
+})
 </script>
 
 <template>
-    <Card>
+    <Card role="region" aria-labelledby="profile-information-title">
         <CardHeader>
-            <CardTitle as="h2">Dane profilu</CardTitle>
+            <CardTitle id="profile-information-title" as="h2">Dane profilu</CardTitle>
             <CardDescription>
                 Zaktualizuj imię i adres e-mail powiązane z kontem.
             </CardDescription>

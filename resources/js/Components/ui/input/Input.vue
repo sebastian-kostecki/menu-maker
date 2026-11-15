@@ -1,5 +1,6 @@
 <script setup>
 import { useVModel } from "@vueuse/core";
+import { onMounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 
 const props = defineProps({
@@ -14,10 +15,21 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue,
 });
+
+// Local edit (keep on D-9 regeneration): native autofocus only fires on the first
+// document load, so Inertia client-side visits would otherwise leave the field unfocused.
+const inputElement = ref(null);
+
+onMounted(() => {
+  if (inputElement.value?.hasAttribute("autofocus")) {
+    inputElement.value.focus();
+  }
+});
 </script>
 
 <template>
   <input
+    ref="inputElement"
     v-model="modelValue"
     :class="
       cn(

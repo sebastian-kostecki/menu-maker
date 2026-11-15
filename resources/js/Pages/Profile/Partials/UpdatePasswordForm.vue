@@ -1,25 +1,25 @@
 <script setup>
-import FormField from '@/Components/Common/FormField.vue';
-import { Button } from '@/Components/ui/button';
+import FormField from '@/Components/Common/FormField.vue'
+import { Button } from '@/Components/ui/button'
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+} from '@/Components/ui/card'
+import { Input } from '@/Components/ui/input'
+import { useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
-const passwordInput = ref(null);
-const currentPasswordInput = ref(null);
+const passwordInput = ref(null)
+const currentPasswordInput = ref(null)
 
 const form = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
-});
+})
 
 const updatePassword = () => {
     form.put(route('password.update'), {
@@ -27,22 +27,22 @@ const updatePassword = () => {
         onSuccess: () => form.reset(),
         onError: () => {
             if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value.$el.focus();
+                form.reset('password', 'password_confirmation')
+                passwordInput.value.$el.focus()
             }
             if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value.$el.focus();
+                form.reset('current_password')
+                currentPasswordInput.value.$el.focus()
             }
         },
-    });
-};
+    })
+}
 </script>
 
 <template>
-    <Card>
+    <Card role="region" aria-labelledby="update-password-title">
         <CardHeader>
-            <CardTitle as="h2">Zmiana hasła</CardTitle>
+            <CardTitle id="update-password-title" as="h2">Zmiana hasła</CardTitle>
             <CardDescription>
                 Używaj długiego, losowego hasła, aby zabezpieczyć swoje konto.
             </CardDescription>

@@ -23,6 +23,7 @@ test('guest register', async ({ page }) => {
 test('profile', async ({ page }) => {
   await logIn(page);
   await page.goto('/profile');
+  await expectFigtreeLoaded(page);
   await expect(page.getByRole('heading', { name: 'Profil', level: 1 })).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('profile-desktop.png', { fullPage: true });

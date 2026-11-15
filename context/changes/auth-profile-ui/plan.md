@@ -408,7 +408,7 @@ None. Same number of components per page; no new dependencies.
 - After merge, sibling worktrees still on the old `c547133` base (`recipes-ui`, `family-members-ui`) will see `ConfirmDialog` gain a slot. It is optional, so their callers are unaffected.
 - S-15 can delete all 13 Breeze files once this lands.
 - `recipes-ui`: after this lands, `IngredientRow.vue` invalid inputs get the destructive border from `ui/input`, so its `border-red-500` becomes redundant and goes away in that slice.
-- `ui/input/Input.vue` (invalid style) and `ui/card/CardTitle.vue` (`as` prop) now carry local edits. The D-9 regeneration of the older primitives must keep them.
+- `ui/input/Input.vue` (invalid style, plus the `onMounted` autofocus added by impl-review F1) and `ui/card/CardTitle.vue` (`as` prop) now carry local edits. The D-9 regeneration of the older primitives must keep them.
 
 ## References
 
@@ -422,6 +422,29 @@ None. Same number of components per page; no new dependencies.
   - `resources/js/Pages/Dashboard.vue:13-17` (header pattern)
   - `resources/js/Pages/Dev/DesignSystem.vue:365-374` (invalid field markup)
   - `tests/e2e/visual/app-shell.spec.ts` (real-page visual spec)
+
+## Addendum: implementation review (2026-11-15)
+
+From `reviews/impl-review.md`:
+
+- **Unplanned phase 1 baselines (F2).**
+  - Commit 8347100 also changed four `design-system.spec.ts` baselines that change 5 does not list. Each one has the same image size and looks identical:
+    - `section-powloka`: 331 px, maximum channel difference 28;
+    - `section-karta-i-tabela`: 45 px, maximum difference 2;
+    - `shell-nav-hover`: 167 px, maximum difference 7;
+    - `shell-nav-focus-visible`: 175 px, maximum difference 23.
+  - They are sub-pixel shifts caused by „Formularze” growing from 408 to 580 px, so they are accepted.
+  - `overlay-user-menu` changed only in its corner columns, as change 5 allows.
+  - The dialog, alert-dialog and `ConfirmDialog` overlays did not change at all.
+  - Manual check 1.5 still has to look at these four diffs.
+- **Flaky `shell nav hover` (F2).**
+  - It failed in 2 of 6 local runs during the review. The diff is confined to the hovered „Jadłospisy” icon, so the screenshot catches the hover transition mid-way.
+  - It is not caused by this change. If it fails in CI, stabilise the hover (wait for the transition, or disable it for that shot) in its own change instead of re-baselining.
+- **Autofocus (F1).**
+  - Breeze `TextInput` focused an `autofocus` field in `onMounted`. Native `autofocus` only fires on the first document load, so Inertia visits left the field unfocused.
+  - `ui/input` now focuses on mount when the attribute is present.
+  - `login.spec.ts` covers it with a client-side visit to `/forgot-password`.
+- **Profile cards (F3).** Each partial's `Card` is a `region` labelled by its `CardTitle` id, and `profile.spec.ts` scopes by `getByRole('region', { name })` instead of the card's CSS class.
 
 ## Progress
 

@@ -22,24 +22,20 @@ async function registerAndOpenProfile(page: Page): Promise<string> {
 test('user can update profile data', async ({ page }) => {
   await registerAndOpenProfile(page);
 
-  const card = page.locator('div.rounded-xl').filter({
-    has: page.getByRole('heading', { name: 'Dane profilu' }),
-  });
+  const card = page.getByRole('region', { name: 'Dane profilu' });
 
   await card.getByLabel('Imię').fill('Nowe Imię');
   await card.getByRole('button', { name: 'Zapisz' }).click();
   await expect(card.getByText('Zapisano.')).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel('Imię')).toHaveValue('Nowe Imię');
+  await expect(card.getByLabel('Imię')).toHaveValue('Nowe Imię');
 });
 
 test('user can change password', async ({ page }) => {
   await registerAndOpenProfile(page);
 
-  const card = page.locator('div.rounded-xl').filter({
-    has: page.getByRole('heading', { name: 'Zmiana hasła' }),
-  });
+  const card = page.getByRole('region', { name: 'Zmiana hasła' });
   const newPassword = 'NewPassword456!';
 
   await card.getByLabel('Obecne hasło').fill('WrongPassword!');
@@ -76,6 +72,7 @@ test('user can delete the account', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Usuń konto' }).click();
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText(wrongPasswordMessage)).toBeVisible();
+  await expect(dialog.getByLabel('Hasło', { exact: true })).toBeFocused();
 
   await dialog.getByLabel('Hasło', { exact: true }).fill(password);
   await dialog.getByRole('button', { name: 'Usuń konto' }).click();

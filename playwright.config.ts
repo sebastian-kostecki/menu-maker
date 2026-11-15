@@ -29,7 +29,7 @@ export default defineConfig({
       snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
       updateSnapshots: process.env.CI ? 'none' : 'missing',
       expect: { toHaveScreenshot: { threshold: 0, maxDiffPixels: 0 } },
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'], timezoneId: 'UTC' }
     }
   ],
   webServer: process.env.E2E_SKIP_WEBSERVER

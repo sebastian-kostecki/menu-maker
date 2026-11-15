@@ -1,26 +1,42 @@
 const LOCALE = 'pl-PL'
 
+const isValidDate = (date) => !Number.isNaN(date.getTime())
+
+// Only the Y-m-d prefix is read, so a full ISO timestamp still parses as a local date.
 const parseYmd = (ymd) => {
-  const [year, month, day] = String(ymd).split('-').map(Number)
+  const [year, month, day] = String(ymd ?? '').slice(0, 10).split('-').map(Number)
 
   return new Date(year, month - 1, day)
 }
 
-export const formatDateRange = (startYmd, endYmd) =>
-  new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' }).formatRange(
-    parseYmd(startYmd),
-    parseYmd(endYmd),
-  )
+// Invalid input renders as '' instead of throwing a RangeError during render.
+export const formatDateRange = (startYmd, endYmd) => {
+  const start = parseYmd(startYmd)
+  const end = parseYmd(endYmd)
 
-export const formatDateTime = (iso) =>
-  new Intl.DateTimeFormat(LOCALE, {
+  if (!isValidDate(start) || !isValidDate(end)) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' }).formatRange(start, end)
+}
+
+export const formatDateTime = (iso) => {
+  const date = new Date(iso ?? '')
+
+  if (!isValidDate(date)) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat(LOCALE, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
-  }).format(new Date(iso))
+  }).format(date)
+}
 
 export const pluralize = (count, { one, few, many }) => {
   const category = new Intl.PluralRules(LOCALE).select(count)

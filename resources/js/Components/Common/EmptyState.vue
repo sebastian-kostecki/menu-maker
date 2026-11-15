@@ -9,7 +9,7 @@ defineProps({
 <template>
   <div class="flex flex-col items-center gap-2 text-center">
     <component :is="icon" v-if="icon" class="size-10 text-muted-foreground" aria-hidden="true" />
-    <h3 class="text-lg font-semibold">{{ title }}</h3>
+    <h2 class="text-lg font-semibold">{{ title }}</h2>
     <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
     <div v-if="$slots.default" class="mt-2">
       <slot />

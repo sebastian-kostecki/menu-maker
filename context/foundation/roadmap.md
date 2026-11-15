@@ -47,7 +47,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | done |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | ready    |
-| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | ready    |
+| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | in-progress |
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | ready    |
@@ -160,7 +160,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
   - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
   - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-11: Przepisy w nowym wyglądzie
 

@@ -590,6 +590,13 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 - Users' browsers may keep the `mm.mealPlans.filters` key. It is no longer read, so it is harmless and is left in place.
 - A bookmarked `/meal-plans` without query parameters now opens unfiltered at 15 per page. That is the agreed behaviour change.
+- Accepted trade-off of derived filter state (impl-review F3): each visit is built from the last response's `props.filters`, and Inertia cancels an in-flight visit. A second filter, page-size or sort change made before the first response arrives is therefore built on stale props, and the first change is lost (the URL and the controls show the result). The window is the time to open and pick a Select, so this is accepted rather than reintroducing local filter state, which caused the S-07 select/list desync.
+
+## Addenda (impl-review 2026-11-15)
+
+- **Baselines beyond the expected list (Phase 4 §3, row 4.4).** `overlay-confirm-dialog.png` and `overlay-confirm-dialog-processing.png` (51 px in the bottom rows, max channel delta 2) and `overlay-user-menu.png` (the menu sits about 1 px further right in its crop, so the right border touches the edge; the menu content is identical) changed as well. They are accepted as the same fractional-position class as S-07/S-08, caused by the taller kitchen-sink page. Manual row 4.8 still covers a look at the user-menu diff.
+- **Page-change query (Phase 2 §2).** Page changes send `{ ...buildQuery(), page }`, so the normalised `sort`, `direction` and `perPage` are always present (a raw `direction=ASC` becomes `desc`). This follows the single-query-builder intent; the server result is the same.
+- **Filtered-empty shot (Phase 4 §2).** The spec reloads the page after the URL changes and asserts that the "Status" Select reads "Oczekuje" before the shot, to avoid corner jitter after client-side navigation. The baseline therefore comes from a hard load, and the reload also proves that the URL drives the Select.
 
 ## References
 

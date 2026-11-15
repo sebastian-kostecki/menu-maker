@@ -35,7 +35,7 @@
     </Button>
 
     <!-- General Ingredients Error -->
-    <div v-if="errors.ingredients && typeof errors.ingredients === 'string'" class="text-sm text-red-600">
+    <div v-if="errors.ingredients && typeof errors.ingredients === 'string'" class="text-sm text-destructive">
       {{ errors.ingredients }}
     </div>
   </div>

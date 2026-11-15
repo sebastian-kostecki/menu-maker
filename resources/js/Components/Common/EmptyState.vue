@@ -1,16 +1,24 @@
-<script setup>
-defineProps({
-  icon: { type: null, required: false, default: undefined },
-  title: { type: String, required: true },
-  description: { type: String, required: false, default: undefined },
+<script setup lang="ts">
+import type { Component } from 'vue'
+
+interface Props {
+  icon?: Component
+  title: string
+  description?: string
+  headingLevel?: 2 | 3
+}
+
+withDefaults(defineProps<Props>(), {
+  headingLevel: 2,
 })
 </script>
 
+<!-- The CTA goes in the default slot; vertical spacing comes from the caller (e.g. class="py-12"). -->
 <template>
   <div class="flex flex-col items-center gap-2 text-center">
     <component :is="icon" v-if="icon" class="size-10 text-muted-foreground" aria-hidden="true" />
-    <h2 class="text-lg font-semibold">{{ title }}</h2>
-    <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
+    <component :is="`h${headingLevel}`" class="text-lg font-semibold">{{ title }}</component>
+    <p v-if="description" class="max-w-md text-sm text-muted-foreground">{{ description }}</p>
     <div v-if="$slots.default" class="mt-2">
       <slot />
     </div>

@@ -12,6 +12,7 @@ use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\MealPlanGenerator;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -69,16 +70,10 @@ class E2eMealPlanSeeder extends Seeder
 
             $user->mealPlans()->delete();
 
-            foreach (MealCategory::values() as $category) {
-                $missing = MealPlanGenerator::MEALS_PER_CATEGORY
-                    - Recipe::where('user_id', $user->id)->where('category', $category)->count();
-
-                if ($missing > 0) {
-                    Recipe::factory()->count($missing)->create([
-                        'user_id' => $user->id,
-                        'category' => $category,
-                    ]);
-                }
+            if ($email === self::VISUAL_EMAIL) {
+                $this->syncVisualRecipes($user);
+            } else {
+                $this->topUpRecipes($user);
             }
 
             $this->syncFixedIngredients($user);
@@ -153,6 +148,93 @@ class E2eMealPlanSeeder extends Seeder
     }
 
     /**
+     * Create missing faker recipes so the user has enough of every category for a 21-meal draw.
+     */
+    private function topUpRecipes(User $user): void
+    {
+        foreach (MealCategory::values() as $category) {
+            $missing = MealPlanGenerator::MEALS_PER_CATEGORY
+                - Recipe::where('user_id', $user->id)->where('category', $category)->count();
+
+            if ($missing > 0) {
+                Recipe::factory()->count($missing)->create([
+                    'user_id' => $user->id,
+                    'category' => $category,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Replace the visual user's recipes with the fixed list, so the recipe screenshots are identical everywhere.
+     *
+     * Every trashed recipe and every live one outside the list is force-deleted first (`recipes` has no unique
+     * index on user and name, so a trashed twin would otherwise sit next to a live row). Timestamps are
+     * written at 12:00 UTC on distinct days, newest first, so the default `created_at desc` order has no ties.
+     */
+    private function syncVisualRecipes(User $user): void
+    {
+        $recipes = $this->visualRecipes();
+
+        Recipe::onlyTrashed()->where('user_id', $user->id)->forceDelete();
+        Recipe::where('user_id', $user->id)->whereNotIn('name', array_column($recipes, 'name'))->forceDelete();
+
+        $newest = CarbonImmutable::create(2026, 5, 25, 12, 0, 0, 'UTC');
+
+        Recipe::withoutTimestamps(function () use ($user, $recipes, $newest): void {
+            foreach ($recipes as $index => $attributes) {
+                $moment = $newest->subDays($index);
+
+                $recipe = Recipe::firstOrNew(['user_id' => $user->id, 'name' => $attributes['name']]);
+                $recipe->forceFill([
+                    'category' => $attributes['category'],
+                    'servings' => $attributes['servings'],
+                    'instructions' => $attributes['instructions'],
+                    'calories' => $recipe->calories ?? '810',
+                    'created_at' => $moment,
+                    'updated_at' => $moment,
+                ])->save();
+            }
+        });
+    }
+
+    /**
+     * Seven recipes per category, newest first.
+     *
+     * @return list<array{name: string, category: string, servings: int, instructions: string}>
+     */
+    private function visualRecipes(): array
+    {
+        $breakfast = MealCategory::Breakfast->value;
+        $supper = MealCategory::Supper->value;
+        $dinner = MealCategory::Dinner->value;
+
+        return [
+            ['name' => 'Jajecznica ze szczypiorkiem', 'category' => $breakfast, 'servings' => 2, 'instructions' => "Rozpuść masło na patelni.\nWbij jajka, mieszaj do ścięcia.\nPosyp szczypiorkiem."],
+            ['name' => 'Rosół z makaronem', 'category' => $supper, 'servings' => 4, 'instructions' => "Gotuj kurczaka z warzywami przez dwie godziny.\nPrzecedź wywar.\nPodaj z makaronem."],
+            ['name' => 'Kanapki z pastą jajeczną', 'category' => $dinner, 'servings' => 2, 'instructions' => "Rozgnieć jajka z majonezem.\nSmaruj pieczywo pastą.\nUłóż rzodkiewkę."],
+            ['name' => 'Owsianka z jabłkiem i cynamonem', 'category' => $breakfast, 'servings' => 1, 'instructions' => "Ugotuj płatki owsiane na mleku.\nDodaj starte jabłko.\nPosyp cynamonem."],
+            ['name' => 'Kotlety mielone z ziemniakami', 'category' => $supper, 'servings' => 4, 'instructions' => "Uformuj kotlety z mięsa mielonego.\nSmaż po cztery minuty z każdej strony.\nPodaj z ziemniakami."],
+            ['name' => 'Sałatka grecka z fetą', 'category' => $dinner, 'servings' => 2, 'instructions' => "Pokrój pomidory, ogórka i paprykę.\nDodaj oliwki i fetę.\nPolej oliwą."],
+            ['name' => 'Naleśniki z serem', 'category' => $breakfast, 'servings' => 3, 'instructions' => "Usmaż cienkie naleśniki.\nWymieszaj twaróg z cukrem waniliowym.\nZawiń nadzienie w naleśniki."],
+            ['name' => 'Zupa pomidorowa z ryżem', 'category' => $supper, 'servings' => 4, 'instructions' => "Ugotuj bulion z włoszczyzną.\nDodaj koncentrat i passatę.\nPodaj z ryżem."],
+            ['name' => 'Tosty z awokado', 'category' => $dinner, 'servings' => 2, 'instructions' => "Opiecz kromki chleba.\nRozgnieć awokado z limonką.\nNałóż pastę na tosty."],
+            ['name' => 'Jaglanka z owocami', 'category' => $breakfast, 'servings' => 2, 'instructions' => "Ugotuj kaszę jaglaną na mleku.\nDodaj miód.\nUdekoruj sezonowymi owocami."],
+            ['name' => 'Gulasz wieprzowy z kaszą', 'category' => $supper, 'servings' => 5, 'instructions' => "Obsmaż mięso z cebulą.\nPodlej wodą i duś godzinę.\nPodaj z kaszą gryczaną."],
+            ['name' => 'Zupa krem z dyni', 'category' => $dinner, 'servings' => 3, 'instructions' => "Upiecz dynię z cebulą.\nZmiksuj ze śmietanką.\nPosyp pestkami."],
+            ['name' => 'Omlet z warzywami', 'category' => $breakfast, 'servings' => 1, 'instructions' => "Roztrzep jajka z mlekiem.\nSmaż z papryką i szpinakiem.\nZłóż na pół."],
+            ['name' => 'Pierogi ruskie', 'category' => $supper, 'servings' => 4, 'instructions' => "Zagnieć ciasto na pierogi.\nPrzygotuj farsz z ziemniaków i sera.\nGotuj do wypłynięcia."],
+            ['name' => 'Sałatka z tuńczykiem', 'category' => $dinner, 'servings' => 2, 'instructions' => "Wymieszaj sałatę z tuńczykiem.\nDodaj kukurydzę i pomidorki.\nSpryskaj sosem winegret."],
+            ['name' => 'Twarożek z rzodkiewką', 'category' => $breakfast, 'servings' => 2, 'instructions' => "Wymieszaj twaróg ze śmietaną.\nDodaj posiekaną rzodkiewkę.\nPodaj z chlebem."],
+            ['name' => 'Schabowy z surówką', 'category' => $supper, 'servings' => 4, 'instructions' => "Rozbij kotlety i obtocz w bułce tartej.\nSmaż na złoto.\nPodaj z surówką z kapusty."],
+            ['name' => 'Zapiekanka z pieczarkami', 'category' => $dinner, 'servings' => 2, 'instructions' => "Ułóż pieczarki na bagietce.\nPosyp serem.\nZapiekaj dziesięć minut."],
+            ['name' => 'Chia z mlekiem kokosowym', 'category' => $breakfast, 'servings' => 1, 'instructions' => "Zalej nasiona chia mlekiem kokosowym.\nOdstaw na noc do lodówki.\nDodaj mango."],
+            ['name' => 'Makaron z pesto', 'category' => $supper, 'servings' => 3, 'instructions' => "Ugotuj makaron al dente.\nWymieszaj z pesto bazyliowym.\nPosyp parmezanem."],
+            ['name' => 'Placki ziemniaczane ze śmietaną', 'category' => $dinner, 'servings' => 3, 'instructions' => "Zetrzyj ziemniaki z cebulą.\nDodaj jajko i mąkę.\nSmaż do zarumienienia."],
+        ];
+    }
+
+    /**
      * Give every recipe of the user the same ingredients, so any 21-meal draw yields one known shopping list.
      */
     private function syncFixedIngredients(User $user): void
@@ -183,11 +265,13 @@ class E2eMealPlanSeeder extends Seeder
             MealCategory::Dinner->value => '810',
         ];
 
-        foreach ($caloriesByCategory as $category => $calories) {
-            Recipe::where('user_id', $user->id)
-                ->where('category', $category)
-                ->update(['calories' => $calories]);
-        }
+        Recipe::withoutTimestamps(function () use ($user, $caloriesByCategory): void {
+            foreach ($caloriesByCategory as $category => $calories) {
+                Recipe::where('user_id', $user->id)
+                    ->where('category', $category)
+                    ->update(['calories' => $calories]);
+            }
+        });
     }
 
     /**

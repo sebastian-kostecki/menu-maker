@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { toast } from 'vue-sonner';
 
 export function useDeleteRecipe() {
   const isLoading = ref(false);
@@ -20,13 +21,10 @@ export function useDeleteRecipe() {
             resolve();
           },
           onError: (errors) => {
-            const errorMessage = errors?.message || 'Failed to delete recipe. Please try again.';
+            const errorMessage = errors?.message || 'Nie udało się usunąć przepisu.';
             error.value = errorMessage;
 
-            // Show error toast if available
-            if (window.toast) {
-              window.toast.error(errorMessage);
-            }
+            toast.error('Nie udało się usunąć przepisu.');
 
             reject(new Error(errorMessage));
           },

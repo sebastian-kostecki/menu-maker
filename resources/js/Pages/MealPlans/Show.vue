@@ -93,12 +93,12 @@
     </div>
 
     <ConfirmDialog
-      v-if="showRegenerateDialog"
+      v-model:open="showRegenerateDialog"
       title="Regeneruj jadłospis"
       description="Obecne posiłki zostaną zastąpione nowym losowaniem przepisów. Czy chcesz kontynuować?"
-      confirm-text="Regeneruj"
+      confirm-label="Regeneruj"
+      :processing="regenerating"
       @confirm="handleRegenerate"
-      @cancel="showRegenerateDialog = false"
     />
   </AuthenticatedLayout>
 </template>
@@ -112,7 +112,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Button } from '@/Components/ui/button'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
-import ConfirmDialog from '@/Components/MealPlans/ConfirmDialog.vue'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 
@@ -167,6 +167,7 @@ const props = defineProps<Props>()
 const SLOW_AFTER_MS = 75_000
 
 const showRegenerateDialog = ref(false)
+const regenerating = ref(false)
 const isSlow = ref(false)
 
 const isGenerating = computed(() => ['pending', 'processing'].includes(props.mealPlan.status))
@@ -219,7 +220,7 @@ onBeforeUnmount(() => {
 })
 
 const handleRegenerate = () => {
-  showRegenerateDialog.value = false
+  regenerating.value = true
 
   router.put(
     route('meal-plans.update', { meal_plan: props.mealPlan.id }),
@@ -228,6 +229,10 @@ const handleRegenerate = () => {
       preserveScroll: true,
       onError: (errors) => {
         toast.error(errors.status ?? errors.recipes ?? errors.regenerate ?? 'Nie udało się zregenerować jadłospisu.')
+      },
+      onFinish: () => {
+        regenerating.value = false
+        showRegenerateDialog.value = false
       },
     }
   )

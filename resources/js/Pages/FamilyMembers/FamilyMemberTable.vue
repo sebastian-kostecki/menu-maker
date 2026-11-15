@@ -9,7 +9,9 @@ import {
   TableRow
 } from '@/Components/ui/table'
 import { Button } from '@/Components/ui/button'
-import ConfirmDialog from './ConfirmDialog.vue'
+import { router } from '@inertiajs/vue3'
+import { toast } from 'vue-sonner'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import { Edit, Trash2 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -24,6 +26,7 @@ const emit = defineEmits(['edit', 'deleted'])
 // Local state for delete confirmation
 const showDeleteDialog = ref(false)
 const memberToDelete = ref(null)
+const deleting = ref(false)
 
 // Helper functions
 const formatDate = (dateString) => {
@@ -70,15 +73,30 @@ const handleDeleteClick = (member) => {
   showDeleteDialog.value = true
 }
 
-const handleDeleteConfirmed = (memberId) => {
-  emit('deleted', memberId)
-  showDeleteDialog.value = false
-  memberToDelete.value = null
-}
+const handleDeleteConfirm = () => {
+  const member = memberToDelete.value
+  if (!member) {
+    return
+  }
 
-const handleDeleteCancelled = () => {
-  showDeleteDialog.value = false
-  memberToDelete.value = null
+  deleting.value = true
+
+  router.delete(`/family-members/${member.id}`, {
+    preserveScroll: true,
+    onSuccess: () => {
+      emit('deleted', member.id)
+      toast.success(`Członek rodziny "${member.first_name}" został usunięty`)
+    },
+    onError: (errors) => {
+      console.error('Error deleting family member:', errors)
+      toast.error('Nie udało się usunąć członka rodziny')
+    },
+    onFinish: () => {
+      deleting.value = false
+      showDeleteDialog.value = false
+      memberToDelete.value = null
+    }
+  })
 }
 </script>
 
@@ -165,12 +183,13 @@ const handleDeleteCancelled = () => {
 
     <!-- Delete Confirmation Dialog -->
     <ConfirmDialog
-      v-if="memberToDelete"
-      :open="showDeleteDialog"
-      :member-id="memberToDelete.id"
-      :member-name="memberToDelete.first_name"
-      @confirmed="handleDeleteConfirmed"
-      @cancelled="handleDeleteCancelled"
+      v-model:open="showDeleteDialog"
+      title="Usuń członka rodziny"
+      :description="`Czy na pewno chcesz usunąć członka rodziny „${memberToDelete?.first_name ?? ''}”? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      variant="destructive"
+      :processing="deleting"
+      @confirm="handleDeleteConfirm"
     />
   </div>
 </template>

@@ -47,22 +47,22 @@
 
   <!-- Confirm Dialogs -->
   <ConfirmDialog
-    v-if="showRegenerateDialog"
+    v-model:open="showRegenerateDialog"
     title="Regeneruj jadłospis"
     description="Obecne posiłki zostaną zastąpione nowym losowaniem przepisów. Czy chcesz kontynuować?"
-    confirm-text="Regeneruj"
+    confirm-label="Regeneruj"
+    :processing="regenerating"
     @confirm="handleRegenerateConfirm"
-    @cancel="showRegenerateDialog = false"
   />
 
   <ConfirmDialog
-    v-if="showDeleteDialog"
+    v-model:open="showDeleteDialog"
     title="Usuń jadłospis"
     description="Tej operacji nie można cofnąć. Jadłospis zostanie trwale usunięty."
-    confirm-text="Usuń"
+    confirm-label="Usuń"
     variant="destructive"
+    :processing="deleting"
     @confirm="handleDeleteConfirm"
-    @cancel="showDeleteDialog = false"
   />
 </template>
 
@@ -100,7 +100,7 @@ interface MealPlanListItem {
     pdf: string | null
   }
 }
-import ConfirmDialog from '@/Components/MealPlans/ConfirmDialog.vue'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 
 interface Props {
   item: MealPlanListItem
@@ -112,6 +112,8 @@ const props = defineProps<Props>()
 // Dialog state
 const showRegenerateDialog = ref(false)
 const showDeleteDialog = ref(false)
+const regenerating = ref(false)
+const deleting = ref(false)
 
 // Action availability based on status
 const canDownloadPdf = computed(() => !!props.item.links.pdf)
@@ -140,7 +142,7 @@ const handleRegenerateClick = () => {
 
 // Handle regenerate confirm
 const handleRegenerateConfirm = async () => {
-  showRegenerateDialog.value = false
+  regenerating.value = true
 
   try {
     await router.put(
@@ -154,12 +156,18 @@ const handleRegenerateConfirm = async () => {
         onError: (errors) => {
           const message = errors.status ?? errors.recipes ?? errors.regenerate ?? errors.message
           toast.error(message || 'Nie udało się zregenerować jadłospisu. Spróbuj ponownie.')
+        },
+        onFinish: () => {
+          regenerating.value = false
+          showRegenerateDialog.value = false
         }
       }
     )
   } catch (error) {
     console.error('Regeneration error:', error)
     toast.error('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.')
+    regenerating.value = false
+    showRegenerateDialog.value = false
   }
 }
 
@@ -171,7 +179,7 @@ const handleDeleteClick = () => {
 
 // Handle delete confirm
 const handleDeleteConfirm = async () => {
-  showDeleteDialog.value = false
+  deleting.value = true
 
   try {
     await router.delete(
@@ -189,12 +197,18 @@ const handleDeleteConfirm = async () => {
           } else {
             toast.error('Nie udało się usunąć jadłospisu. Spróbuj ponownie.')
           }
+        },
+        onFinish: () => {
+          deleting.value = false
+          showDeleteDialog.value = false
         }
       }
     )
   } catch (error) {
     console.error('Delete error:', error)
     toast.error('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.')
+    deleting.value = false
+    showDeleteDialog.value = false
   }
 }
 </script>

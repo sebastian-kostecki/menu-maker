@@ -48,7 +48,7 @@
           size="sm"
           @click="handleDeleteRecipe"
           class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-          :aria-label="`Delete ${recipe.name}`"
+          :aria-label="`Usuń ${recipe.name}`"
         >
           <Trash2 class="h-4 w-4" />
         </Button>

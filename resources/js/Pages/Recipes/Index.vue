@@ -65,12 +65,15 @@
       </div>
     </div>
 
-    <!-- Delete confirmation modal -->
-    <ConfirmDeleteModal
-      :open="showDeleteModal"
-      :recipe-name="selectedRecipe?.name || ''"
+    <!-- Delete confirmation dialog -->
+    <ConfirmDialog
+      v-model:open="showDeleteModal"
+      title="Usuń przepis"
+      :description="`Czy na pewno chcesz usunąć przepis „${selectedRecipe?.name ?? ''}”? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      variant="destructive"
+      :processing="deleting"
       @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
     />
   </AuthenticatedLayout>
 </template>
@@ -83,7 +86,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue';
 import RecipesTable from '@/Components/recipes/RecipesTable.vue';
 import ServerPagination from '@/Components/Common/ServerPagination.vue';
-import ConfirmDeleteModal from '@/Components/recipes/ConfirmDeleteModal.vue';
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue';
+import { toast } from 'vue-sonner';
 import { useLocalStorageStateSync } from '@/lib/useLocalStorageStateSync.js';
 
 // Define props interface
@@ -120,6 +124,7 @@ const sortState = reactive({
 // Delete modal state
 const showDeleteModal = ref(false);
 const selectedRecipe = ref(null);
+const deleting = ref(false);
 
 // Initialize localStorage sync for filters and sort
 const { syncToStorage } = useLocalStorageStateSync();
@@ -177,19 +182,19 @@ const handleDeleteRequested = (recipe) => {
 
 const handleDeleteConfirm = () => {
   if (selectedRecipe.value) {
+    deleting.value = true;
     router.delete(route('recipes.destroy', selectedRecipe.value.id), {
       preserveScroll: true,
-      onSuccess: () => {
+      onError: () => {
+        toast.error('Nie udało się usunąć przepisu.');
+      },
+      onFinish: () => {
+        deleting.value = false;
         showDeleteModal.value = false;
         selectedRecipe.value = null;
       }
     });
   }
-};
-
-const handleDeleteCancel = () => {
-  showDeleteModal.value = false;
-  selectedRecipe.value = null;
 };
 
 // Update filters and make API call

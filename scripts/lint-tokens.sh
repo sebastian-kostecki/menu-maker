@@ -2,11 +2,17 @@
 # Flags Tailwind palette classes, hex colours, arbitrary values and dark: variants
 # in the paths listed in scripts/lint-tokens.paths (design-system §3, rule 1).
 # Usage: scripts/lint-tokens.sh [paths-file]
-# Exit: 0 no hits, 1 hits found, 2 configuration error.
+# Exit: 0 no hits, 1 hits found, 2 configuration error (or grep -P unavailable).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-paths_file="${1:-$SCRIPT_DIR/lint-tokens.paths}"
+if (($# == 0)); then
+  # Default list: entries are repo-root-relative, whatever the caller's directory.
+  cd "$SCRIPT_DIR/.."
+  paths_file="scripts/lint-tokens.paths"
+else
+  paths_file="$1"
+fi
 
 if [[ ! -f "$paths_file" ]]; then
   echo "lint:tokens: paths file not found: $paths_file" >&2
@@ -17,7 +23,7 @@ kinds=(palette hex arbitrary dark)
 patterns=(
   '(?<![\w-])(?:bg|text|border(?:-[xytrblse])?|ring(?:-offset)?|outline|divide|from|via|to|fill|stroke|shadow|inset-shadow|inset-ring|accent|caret|decoration|placeholder)-(?:(?:slate|gray|zinc|neutral|stone|mauve|olive|mist|taupe|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}|white|black)(?![\w-])'
   '(?<![\w&])#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})(?![\w-])'
-  '(?<=[\w)])-\[[^\]\s]+\](?!:)'
+  '(?<=[\w)])-\[[^\]\s]+\](?!:|/[\w-]+:)'
   '(?<![\w-])dark:'
 )
 
@@ -50,11 +56,17 @@ done < <(find "${entries[@]}" -type f \( -name '*.vue' -o -name '*.js' -o -name 
 hits=0
 for file in "${files[@]}"; do
   for i in "${!kinds[@]}"; do
+    grep_status=0
+    matches="$(grep -noP "${patterns[$i]}" "$file")" || grep_status=$?
+    if ((grep_status > 1)); then
+      echo "lint:tokens: grep -P failed (exit $grep_status) on $file; needs GNU grep with PCRE support" >&2
+      exit 2
+    fi
     while IFS= read -r hit; do
       [[ -z "$hit" ]] && continue
       echo "$file:${hit%%:*}: ${kinds[$i]}: ${hit#*:}"
       hits=$((hits + 1))
-    done < <(grep -noP "${patterns[$i]}" "$file" || true)
+    done <<<"$matches"
   done
 done
 

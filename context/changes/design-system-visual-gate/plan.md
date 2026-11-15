@@ -77,7 +77,7 @@ The change also adds the kitchen-sink and `lint:tokens` bullet to the design-sys
 - No hover screenshots. Hover is checked manually only.
 - No dark-mode section or dark screenshots (D-1).
 - No self-hosted Figtree. The font stays on bunny.net, and the spec asserts that it loaded.
-- No pixel tolerance (`maxDiffPixels`/`maxDiffPixelRatio` stay at 0, with Playwright's default per-pixel `threshold`).
+- No pixel tolerance (`maxDiffPixels` and `threshold` are both 0 on the `visual` project; amended after impl-review F2, was Playwright's default per-pixel `threshold`).
 - No firefox screenshots: the visual project is chromium only.
 - No change to CI triggers (still pushes to `main` and PRs into `main`).
 - No new npm or Composer dependencies.
@@ -367,7 +367,7 @@ Add a chromium-only Playwright `visual` project that runs in the pinned Docker i
   - runs the Figtree check from Critical Implementation Details.
 - Screenshots, all strict. Every screenshot is a locator screenshot, never a full page.
   - 11 section screenshots, one per region, named `section-<slug>.png` (for example `section-przyciski.png`).
-  - `focus-visible.png`: focus the first button in "Przyciski" via keyboard, then screenshot that section.
+  - `focus-visible.png`: focus the `destructive` button in "Przyciski", press Tab so the `outline` button takes keyboard focus, then screenshot that section (amended: the default button's ring has the same green as its fill).
   - 7 overlay screenshots, one per test from a fresh page, each of the opened element:
     - `overlay-dialog.png` (role `dialog`);
     - `overlay-alert-dialog.png` (role `alertdialog`);

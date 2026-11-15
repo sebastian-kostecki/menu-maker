@@ -62,11 +62,12 @@ test.describe('sections', () => {
 test('focus-visible on the outline button', async ({ page }) => {
   await openKitchenSink(page);
   const buttons = section(page, 'Przyciski').getByRole('button');
-  await buttons.nth(3).focus();
+  const outline = buttons.getByText('outline', { exact: true }).first();
+  await buttons.getByText('destructive', { exact: true }).first().focus();
   // Keyboard navigation (not .focus()) is what triggers :focus-visible.
-  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
   // The default button's ring is the same green as its fill, so the outline button shows the ring.
-  await expect(buttons.nth(2)).toBeFocused();
+  await expect(outline).toBeFocused();
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
 });
 

@@ -52,4 +52,12 @@ test('shows error on invalid login credentials', async ({ page }) => {
   await expect(page.getByText('Podane dane logowania są nieprawidłowe.')).toBeVisible();
 });
 
+test('autofocuses the first field after a client-side visit', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByRole('link', { name: 'Nie pamiętasz hasła?' }).click();
+
+  await expect(page).toHaveURL(/forgot-password/);
+  await expect(page.getByLabel('Adres e-mail')).toBeFocused();
+});
+
 

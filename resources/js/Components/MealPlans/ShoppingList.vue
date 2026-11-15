@@ -1,11 +1,11 @@
 <template>
   <Card>
     <CardHeader>
-      <!-- h2, not CardTitle (h3): the list sits directly under the page's h1. -->
-      <h2 class="flex items-center gap-2 text-lg font-semibold leading-none tracking-tight">
+      <!-- h2: the list sits directly under the page's h1. -->
+      <CardTitle as="h2" class="flex items-center gap-2 text-lg">
         <ShoppingBasket class="size-4" aria-hidden="true" />
         Lista zakupów
-      </h2>
+      </CardTitle>
     </CardHeader>
 
     <CardContent class="text-sm">
@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ShoppingBasket } from 'lucide-vue-next'
-import { Card, CardContent, CardHeader } from '@/Components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card'
 
 export interface ShoppingListItem {
   ingredient_id: number

@@ -41,15 +41,17 @@ test('user deletes a family member through the confirmation dialog', async ({ pa
   await login(page, `e2e-cook-${testInfo.project.name}@example.com`);
   const name = `Delete E2E ${testInfo.project.name}`;
 
-  await page.goto('/family-members/create');
-  await page.getByLabel('Imię *').fill(name);
-  await page.getByLabel('Data urodzenia *').fill('1990-01-01');
-  await page.getByRole('combobox').click();
+  await page.goto('/family-members');
+  await page.getByRole('button', { name: 'Dodaj członka', exact: true }).click();
+  const formDialog = page.getByRole('dialog');
+  await formDialog.getByLabel('Imię *').fill(name);
+  await formDialog.getByLabel('Data urodzenia *').fill('1990-01-01');
+  await formDialog.getByRole('combobox').click();
   await page.getByRole('option', { name: 'Mężczyzna' }).click();
-  await page.getByLabel('Waga (kg)').fill('70');
-  await page.getByLabel('Wzrost (cm)').fill('175');
-  await page.getByRole('button', { name: 'Zapisz', exact: true }).click();
-  await page.waitForURL('**/family-members');
+  await formDialog.getByLabel('Waga (kg)').fill('70');
+  await formDialog.getByLabel('Wzrost (cm)').fill('175');
+  await formDialog.getByRole('button', { name: 'Zapisz', exact: true }).click();
+  await expect(formDialog).toBeHidden();
 
   await expect(page.getByRole('cell', { name, exact: true })).toBeVisible();
 

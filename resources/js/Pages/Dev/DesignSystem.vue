@@ -20,6 +20,7 @@ import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
@@ -194,6 +195,7 @@ const appPaginationMeta = ref({
 })
 const confirmOpen = ref(false)
 const processingOpen = ref(false)
+const fieldOpen = ref(false)
 
 const handleAppSort = (value) => {
   appSort.value = value
@@ -362,16 +364,47 @@ const showToast = () => {
             <Label for="ds-input-disabled">Autor</Label>
             <Input id="ds-input-disabled" model-value="Jan Kowalski" disabled />
           </div>
-          <div class="flex flex-col gap-2">
-            <Label for="ds-input-invalid">Liczba porcji</Label>
-            <Input
-              id="ds-input-invalid"
-              model-value="abc"
-              aria-invalid="true"
-              aria-describedby="ds-input-invalid-error"
-            />
-            <p id="ds-input-invalid-error" class="text-sm text-destructive">Podaj liczbę porcji.</p>
-          </div>
+          <FormField id="ds-field-default" label="Nazwa przepisu">
+            <template #default="{ id }">
+              <Input :id="id" model-value="Zupa pomidorowa" />
+            </template>
+          </FormField>
+          <FormField
+            id="ds-field-description"
+            label="Liczba porcji"
+            description="Dla ilu osób przygotowujesz przepis."
+          >
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                model-value="4"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+          <FormField id="ds-field-error" label="Liczba porcji" error="Podaj liczbę porcji.">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                model-value="abc"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+          <FormField id="ds-field-password" label="Hasło">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                type="password"
+                model-value="sekretne-haslo"
+                autocomplete="new-password"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
           <div class="flex flex-col gap-2">
             <Label for="ds-textarea-default">Instrukcja</Label>
             <Textarea id="ds-textarea-default" placeholder="Opisz kolejne kroki" />
@@ -681,6 +714,7 @@ const showToast = () => {
         <div class="flex flex-wrap items-center gap-2">
           <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
           <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
+          <Button variant="destructive" @click="fieldOpen = true">Potwierdź z polem</Button>
         </div>
 
         <ConfirmDialog
@@ -699,6 +733,27 @@ const showToast = () => {
           variant="destructive"
           processing
         />
+        <ConfirmDialog
+          v-model:open="fieldOpen"
+          title="Usuń konto"
+          description="Po usunięciu konta wszystkie Twoje dane zostaną trwale skasowane. Podaj hasło, aby potwierdzić."
+          confirm-label="Usuń konto"
+          variant="destructive"
+          @confirm="fieldOpen = false"
+        >
+          <FormField id="ds-delete-password" label="Hasło" error="Podane hasło jest nieprawidłowe.">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                type="password"
+                model-value="zle-haslo"
+                autocomplete="current-password"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+        </ConfirmDialog>
       </section>
     </main>
   </div>

@@ -52,7 +52,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | done     |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | done |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
-| S-16 | dashboard-ui              | zobaczyć na pulpicie prawdziwe liczby przepisów i jadłospisów, ostatni gotowy jadłospis i szybkie akcje | S-07, S-08                       | DS-11, ui-plan §2.1         | in-progress |
+| S-16 | dashboard-ui              | zobaczyć na pulpicie prawdziwe liczby przepisów i jadłospisów, ostatni gotowy jadłospis i szybkie akcje | S-07, S-08                       | DS-11, ui-plan §2.1         | done |
 | S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13, S-16 | DS-10, D-7, §7.4     | proposed |
 
 ## Streams
@@ -227,7 +227,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
   - „Ostatni wygenerowany PDF” z `ui-plan.md` §2.1 nie ma już danych: PDF powstaje na żądanie, a jego kolumny usunięto 2026-11-14. Rekomendacja: karta „Ostatni jadłospis” — najnowszy jadłospis w statusie `done`, jego daty i akcja „Pobierz PDF”. — Owner: user. Block: no.
   - Czy statystyki mają też mówić, czy użytkownik może już wygenerować tydzień (ile przepisów brakuje w każdej kategorii), czy tylko liczyć? — Owner: /10x-plan. Block: no.
 - **Risk:** pierwszy pulpit czytający dane z bazy — liczby muszą być ograniczone do właściciela, a trasa pulpitu nie ma dziś ani kontrolera, ani testu; przycisk „Wygeneruj jadłospis” korzysta z dialogu z S-10, więc zmiana nie może zmienić wysyłanego żądania.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-15: Sprzątanie po starym UI
 
@@ -281,6 +281,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ## Done
 
+- **S-16: Użytkownik może po zalogowaniu zobaczyć na pulpicie prawdziwą liczbę swoich przepisów i jadłospisów oraz ostatni gotowy jadłospis z dostępem do PDF, a z tego samego miejsca dodać przepis albo wygenerować jadłospis; nowy użytkownik bez przepisów widzi stan pusty z pierwszym krokiem zamiast zer.** — Archived 2026-11-15 → `context/archive/2026-11-15-dashboard-ui/`. Lesson: —.
 - **S-12: Użytkownik może dodawać, edytować i usuwać członków rodziny w nowym wyglądzie.** — Archived 2026-11-15 → `context/archive/2026-11-15-family-members-ui/`. Lesson: —.
 - **S-09: Użytkownik może zobaczyć wygenerowany jadłospis jako siatkę tygodnia, w której każda komórka ma kreskę w kolorze kategorii i rozwijane składniki, w trakcie generowania widzi szkielet siatki, przy dopracowaniu bez AI — ostrzeżenie na tokenie `warning`, a obok listę zakupów z ilościami wyrównanymi do prawej i sformatowanymi po polsku.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plan-show-ui/`. Lesson: —.
 - **S-11: Użytkownik może przeglądać listę przepisów, oglądać szczegóły przepisu i dodawać lub edytować przepis ze składnikami w nowym wyglądzie.** — Archived 2026-11-15 → `context/archive/2026-11-15-recipes-ui/`. Lesson: —.

@@ -382,13 +382,13 @@ No data changes. Rollback is a `git revert` per phase, because each phase is sel
 
 #### Automated
 
-- [x] 3.1 The slot is gone everywhere
-- [x] 3.2 Each authenticated page renders `PageHeader`
-- [x] 3.3 Bundles build and the scan is green
-- [x] 3.4 Baseline delta is within the 12 named PNGs
-- [x] 3.5 Visual gate is stable twice in a row after the update
-- [x] 3.6 Full E2E passes after a re-seed
-- [x] 3.7 Full PHP suite still passes
+- [x] 3.1 The slot is gone everywhere — b8891a5
+- [x] 3.2 Each authenticated page renders `PageHeader` — b8891a5
+- [x] 3.3 Bundles build and the scan is green — b8891a5
+- [x] 3.4 Baseline delta is within the 12 named PNGs — b8891a5
+- [x] 3.5 Visual gate is stable twice in a row after the update — b8891a5
+- [x] 3.6 Full E2E passes after a re-seed — b8891a5
+- [x] 3.7 Full PHP suite still passes — b8891a5
 
 #### Manual
 

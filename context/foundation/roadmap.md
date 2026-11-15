@@ -42,7 +42,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 
 | ID   | Change ID                 | Outcome (user can …)                                                                                   | Prerequisites                     | PRD refs                    | Status   |
 | ---- | ------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- | --------------------------- | -------- |
-| F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | planning |
+| F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | in-progress |
 | F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | proposed |
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | proposed |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | proposed |
@@ -92,7 +92,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** zmiana tokenów od razu przemaluje komponenty `ui/` (przyciski staną się zielone) na widokach, które jeszcze mają literały — to zamierzone (§8), ale wymaga sprawdzenia kontrastu z §4.2 po konwersji i przeglądu diffu `package.json` po `shadcn-vue add` (D-5). Tabelę §8 w `design-system.md` trzeba przy tej zmianie zaktualizować o podział DS-01 na F-03 i F-04.
-- **Status:** planning
+- **Status:** in-progress
 
 ### F-04: Bramka wizualna design systemu
 

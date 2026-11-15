@@ -27,6 +27,7 @@ class E2eMealPlanSeeder extends Seeder
     public const EMAILS = [
         'e2e-planner-chromium@example.com',
         'e2e-planner-firefox@example.com',
+        'e2e-planner-visual@example.com',
     ];
 
     /**

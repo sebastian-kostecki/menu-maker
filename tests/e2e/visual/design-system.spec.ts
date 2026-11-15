@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFigtreeLoaded } from './support/fonts';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -16,34 +17,14 @@ const sections = [
   { name: 'Karta i tabela', slug: 'karta-i-tabela' },
   { name: 'Ładowanie i rozwijanie', slug: 'ladowanie-i-rozwijanie' },
   { name: 'Paginacja', slug: 'paginacja' },
-  { name: 'Nakładki', slug: 'nakladki' }
+  { name: 'Nakładki', slug: 'nakladki' },
+  { name: 'Powłoka', slug: 'powloka' }
 ];
 
 async function openKitchenSink(page: Page) {
   await page.goto('/dev/design-system');
   await expect(page.getByRole('heading', { level: 1, name: 'Design system' })).toBeVisible();
-
-  // document.fonts.check() is true when no face matches, so load each weight and
-  // assert a loaded Figtree face came back.
-  const results = await page.evaluate(async () => {
-    await document.fonts.ready;
-    const out: { weight: number; faces: { family: string; status: string }[] }[] = [];
-    for (const weight of [400, 500, 600]) {
-      const faces = await document.fonts.load(`${weight} 16px Figtree`);
-      out.push({
-        weight,
-        faces: faces.map((face) => ({ family: face.family, status: face.status }))
-      });
-    }
-    return out;
-  });
-
-  for (const { weight, faces } of results) {
-    const loaded = faces.some(
-      (face) => face.family.replace(/["']/g, '') === 'Figtree' && face.status === 'loaded'
-    );
-    expect(loaded, `Figtree did not load (fonts.bunny.net unreachable?) - weight ${weight}`).toBe(true);
-  }
+  await expectFigtreeLoaded(page);
 }
 
 function section(page: Page, name: string) {
@@ -69,6 +50,27 @@ test('focus-visible on the outline button', async ({ page }) => {
   // The default button's ring is the same green as its fill, so the outline button shows the ring.
   await expect(outline).toBeFocused();
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
+});
+
+test('shell nav hover', async ({ page }) => {
+  await openKitchenSink(page);
+  const box = page.getByTestId('shell-sidebar-expanded');
+  await section(page, 'Powłoka')
+    .getByRole('navigation')
+    .first()
+    .getByRole('link', { name: 'Jadłospisy', exact: true })
+    .hover();
+  await expect(box).toHaveScreenshot('shell-nav-hover.png');
+});
+
+test('shell nav focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const box = page.getByTestId('shell-sidebar-expanded');
+  await box.getByRole('button', { name: 'Zwiń panel boczny' }).focus();
+  // Keyboard navigation (not .focus()) is what triggers :focus-visible.
+  await page.keyboard.press('Tab');
+  await expect(box.getByRole('link', { name: 'Pulpit', exact: true })).toBeFocused();
+  await expect(box).toHaveScreenshot('shell-nav-focus-visible.png');
 });
 
 test.describe('overlays', () => {
@@ -106,6 +108,15 @@ test.describe('overlays', () => {
     await expect(overlay).toBeVisible();
     await page.mouse.move(0, 0);
     await expect(overlay).toHaveScreenshot('overlay-dropdown-menu.png');
+  });
+
+  test('user menu', async ({ page }) => {
+    await openKitchenSink(page);
+    await page.getByRole('button', { name: 'Menu użytkownika' }).click();
+    const overlay = page.getByRole('menu');
+    await expect(overlay).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect(overlay).toHaveScreenshot('overlay-user-menu.png');
   });
 
   test('select', async ({ page }) => {

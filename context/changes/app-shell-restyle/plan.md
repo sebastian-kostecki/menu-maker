@@ -511,10 +511,10 @@ None material. The Sheet content mounts only while open. localStorage is read on
 
 #### Automated
 
-- [x] 2.1 Build passes
-- [x] 2.2 Token scan is green, including both files
-- [x] 2.3 The /10x-ui hard-coded value scan finds nothing in the shell files
-- [x] 2.4 Guest-screen specs still pass
+- [x] 2.1 Build passes — 50e8c69
+- [x] 2.2 Token scan is green, including both files — 50e8c69
+- [x] 2.3 The /10x-ui hard-coded value scan finds nothing in the shell files — 50e8c69
+- [x] 2.4 Guest-screen specs still pass — 50e8c69
 
 #### Manual
 
@@ -525,12 +525,12 @@ None material. The Sheet content mounts only while open. localStorage is read on
 
 #### Automated
 
-- [ ] 3.1 PHP suite, style and static analysis pass
-- [ ] 3.2 Seeder runs twice without error
-- [ ] 3.3 Build and token scan pass
-- [ ] 3.4 Baseline generation adds exactly 8 PNGs and modifies none of the 19 existing ones
-- [ ] 3.5 The visual gate passes twice in a row without updates
-- [ ] 3.6 The full E2E suite still passes
+- [x] 3.1 PHP suite, style and static analysis pass
+- [x] 3.2 Seeder runs twice without error
+- [x] 3.3 Build and token scan pass
+- [x] 3.4 Baseline generation adds exactly 8 PNGs and modifies none of the 19 existing ones
+- [x] 3.5 The visual gate passes twice in a row without updates
+- [x] 3.6 The full E2E suite still passes
 
 #### Manual
 

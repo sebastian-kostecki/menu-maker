@@ -22,6 +22,9 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - Validation in Form Requests (`app/Http/Requests/`), JSON in API Resources (`app/Http/Resources/`).
 - New PHP files start with `declare(strict_types=1);` (half of `app/` still lacks it; add it when touching a file).
 - Inertia pages: `resources/js/Pages/<Feature>/{Index,Show,Form}.vue`. Feature components go in `resources/js/Components/<Feature>/`, shadcn-vue primitives in `resources/js/Components/ui/` (config: `@components.json`). The shadcn-vue CLI is not installed; add components with `vendor/bin/sail npx shadcn-vue@2 add <component>` (the CLI emits the redesigned style and newer deps: review the diff, never `--overwrite` existing components blindly).
+- Design system: tokens live in `resources/css/app.css` and are described in `context/foundation/design-system.md`.
+- Before writing a new component, check `Components/ui/` and `Components/Common/` (`Common/` is created in S-07). Add a missing primitive with the CLI, then rewrite its imports to `@/lib/utils` and `lucide-vue-next`, run `vendor/bin/sail npm uninstall cn @lucide/vue`, and restore every existing `ui/` file the CLI overwrote (D-9).
+- In new files under `Pages/` and `Components/<Feature>/`, and in a view being migrated in its own slice: no Tailwind palette classes (`gray-*`, `red-*`…), hex colours, arbitrary values or `dark:`. Use token utilities and `Badge`/`Alert` variants. In views not yet migrated, add no new literals and do not restyle the existing ones outside their slice.
 - Default locale is `pl` (`config/app.php`), with translations in `lang/pl/`.
 
 ## Testing

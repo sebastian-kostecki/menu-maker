@@ -3,7 +3,7 @@ project: menu-maker
 version: 1
 status: draft                    # draft | active | locked
 created: 2026-11-14
-updated: 2026-11-14
+updated: 2026-11-15
 token_source: resources/css/app.css
 primitives_dir: resources/js/Components/ui/
 shared_dir: resources/js/Components/Common/   # potwierdzony, D-3
@@ -156,6 +156,27 @@ Kolor nigdy nie jest jedynym nośnikiem informacji: badge zawsze ma etykietę, a
 
 Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe klasy `dark:` usuwamy przy migracji każdego widoku; blok `.dark` w `app.css` zostaje z wartościami OKLCH odpowiadającymi palecie z 4.2, żeby dark mode był później zmianą wyłącznie w tokenach i przełączniku, bez dotykania widoków.
 
+Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
+
+| Token | `.dark` |
+| --- | --- |
+| `--background` | `oklch(0.20 0.012 60)` |
+| `--foreground`, `--card-foreground`, `--popover-foreground`, `--secondary-foreground` | `oklch(0.95 0.01 85)` |
+| `--card`, `--popover` | `oklch(0.235 0.012 60)` |
+| `--muted`, `--secondary` | `oklch(0.28 0.012 60)` |
+| `--muted-foreground` | `oklch(0.74 0.02 70)` |
+| `--primary`, `--ring` | `oklch(0.72 0.14 150)` |
+| `--primary-foreground` | `oklch(0.20 0.03 150)` |
+| `--accent` / `--accent-foreground` | `oklch(0.32 0.05 150)` / `oklch(0.92 0.04 150)` |
+| `--destructive` / `--destructive-foreground` | `oklch(0.65 0.19 25)` / `oklch(0.20 0.03 25)` |
+| `--border`, `--input` | `oklch(0.32 0.012 60)` |
+| `--success` / `-foreground` | `oklch(0.30 0.06 150)` / `oklch(0.86 0.10 150)` |
+| `--warning` / `-foreground` | `oklch(0.32 0.06 85)` / `oklch(0.88 0.10 90)` |
+| `--info` / `-foreground` | `oklch(0.30 0.06 250)` / `oklch(0.86 0.07 240)` |
+| `--meal-breakfast` / `-foreground` | `oklch(0.32 0.06 75)` / `oklch(0.88 0.10 80)` |
+| `--meal-supper` / `-foreground` | `oklch(0.32 0.07 35)` / `oklch(0.86 0.06 40)` |
+| `--meal-dinner` / `-foreground` | `oklch(0.32 0.06 280)` / `oklch(0.86 0.06 280)` |
+
 ## 5. Komponenty
 
 ### 5.1 Prymitywy (`Components/ui/`)
@@ -167,6 +188,8 @@ Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe kla
 | Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`; `alert`: warianty `warning`, `info`, `success` |
 
 Dodanie przez CLI może podbić zależności (`reka-ui` itp.) — to zmiana zależności, wymaga akceptacji (D-5).
+
+Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next` (D-9).
 
 ### 5.2 Komponenty aplikacji (`Components/Common/`)
 
@@ -218,7 +241,8 @@ Kolejność: **tokeny → wspólne komponenty → powłoka → widoki wg ruchu w
 
 | # | Change ID | Zakres | Narzędzie | Prerequisites |
 | --- | --- | --- | --- | --- |
-| DS-01 | `design-tokens-foundation` | Tokeny 4.1–4.6 w `app.css` (OKLCH, stany, domena, radius), usunięcie warstwy `gray-200`, prymitywy z 5.1, warianty `badge`/`alert`, kitchen sink + bramka, reguła w `CLAUDE.md`, `lint:tokens` | `/10x-new` → `/10x-plan` | — |
+| DS-01 / F-03 | `design-tokens-foundation` | Tokeny 4.1–4.6 w `app.css` (OKLCH, stany, domena, radius, `.dark`), usunięcie warstwy `gray-200`, prymitywy z 5.1, warianty `badge`/`alert`, reguła (3 punkty) w `CLAUDE.md` | `/10x-new` → `/10x-plan` | — |
+| DS-01 / F-04 | `design-system-visual-gate` | Kitchen sink, bramka zrzutu Playwright, `lint:tokens`, punkt o kitchen sink w regule w `CLAUDE.md` | `/10x-new` → `/10x-plan` | F-03 |
 | DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (bez `AppShell`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
 | DS-03 | `app-shell-restyle` | `Sidebar`, `AuthenticatedLayout`, `GuestLayout` (+ „© 2024” → rok bieżący) | `/10x-ui` | DS-01 |
 | DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
@@ -245,3 +269,4 @@ Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach —
 | D-6 | `lint:tokens` jako krok CI? | **Potwierdzone 2026-11-14:** tak, jako skrypt grep bez nowych zależności | user | — |
 | D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page | user | — |
 | D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia | user | — |
+| D-9 | Nowe prymitywy w new-york-v4 z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next`; regeneracja 15 starszych komponentów i przejście na `@lucide/vue` to osobna zmiana po F-04. | **Potwierdzone 2026-11-15** | user | — |

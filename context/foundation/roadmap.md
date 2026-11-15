@@ -96,7 +96,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ### F-04: Bramka wizualna design systemu
 
-- **Outcome:** (foundation) strona kitchen sink — jedna strona pokazująca wszystkie tokeny, typografię i komponenty w ich stanach — działa pod `/dev/design-system` tylko w `local` i `testing`; spec Playwright robi jej zrzut i porównuje z zatwierdzonym wzorcem; `npm run lint:tokens` skanuje listę zmigrowanych plików pod kątem klas palety, hexów, wartości arbitralnych i `dark:` i działa jako krok CI.
+- **Outcome:** (foundation) strona kitchen sink — jedna strona pokazująca wszystkie tokeny, typografię i komponenty w ich stanach — działa pod `/dev/design-system` tylko w `local` i `testing`; spec Playwright robi jej zrzut i porównuje z zatwierdzonym wzorcem; `npm run lint:tokens` skanuje listę zmigrowanych plików pod kątem klas palety, hexów, wartości arbitralnych i `dark:` i działa jako krok CI. F-04 dopisuje też do reguły design systemu w `CLAUDE.md` punkt o kitchen sink i `lint:tokens`.
 - **Change ID:** design-system-visual-gate
 - **PRD refs:** DS-01, §5.4, §7.2–7.4, D-4, D-6
 - **Unlocks:** S-07, S-08 i pośrednio S-09…S-13 — każda migracja widoku dopisuje swój plik do listy `lint:tokens` i swój zrzut; ścieżka weryfikacji „widok nie zna palety Tailwinda” (§3, zasada 1).

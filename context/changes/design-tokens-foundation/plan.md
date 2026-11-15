@@ -308,13 +308,13 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Automated
 
-- [x] 2.1 The six primitive folders exist
-- [x] 2.2 No new-package imports in ui/
-- [x] 2.3 cn and @lucide/vue are not dependencies
-- [x] 2.4 Only the six primitives, badge and package files changed
-- [x] 2.5 Badge and alert expose the new variants
-- [x] 2.6 Client and SSR bundles build
-- [x] 2.7 E2E suite passes against Sail
+- [x] 2.1 The six primitive folders exist — cee8145
+- [x] 2.2 No new-package imports in ui/ — cee8145
+- [x] 2.3 cn and @lucide/vue are not dependencies — cee8145
+- [x] 2.4 Only the six primitives, badge and package files changed — cee8145
+- [x] 2.5 Badge and alert expose the new variants — cee8145
+- [x] 2.6 Client and SSR bundles build — cee8145
+- [x] 2.7 E2E suite passes against Sail — cee8145
 
 #### Manual
 
@@ -326,10 +326,10 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Automated
 
-- [ ] 3.1 CLAUDE.md references the design system and the CLI normalisation
-- [ ] 3.2 Decision D-9 recorded
-- [ ] 3.3 The F-03/F-04 split appears in §8
-- [ ] 3.4 The F-04 roadmap entry completes the rule
+- [x] 3.1 CLAUDE.md references the design system and the CLI normalisation
+- [x] 3.2 Decision D-9 recorded
+- [x] 3.3 The F-03/F-04 split appears in §8
+- [x] 3.4 The F-04 roadmap entry completes the rule
 
 #### Manual
 

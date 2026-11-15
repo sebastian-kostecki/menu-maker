@@ -608,11 +608,11 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 #### Automated
 
-- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 1.2 Token scan stays green (new Common files are covered by the existing `resources/js/Components/Common` entry): `vendor/bin/sail npm run lint:tokens`
-- [x] 1.3 `resources/js/lib/format.js` is listed in `scripts/lint-tokens.paths`, and `bash scripts/lint-tokens.test.sh` passes
-- [x] 1.4 Kitchen sink still renders: `vendor/bin/sail pest --filter=DesignSystemPageTest`
-- [x] 1.5 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 8cd2ab4
+- [x] 1.2 Token scan stays green (new Common files are covered by the existing `resources/js/Components/Common` entry): `vendor/bin/sail npm run lint:tokens` — 8cd2ab4
+- [x] 1.3 `resources/js/lib/format.js` is listed in `scripts/lint-tokens.paths`, and `bash scripts/lint-tokens.test.sh` passes — 8cd2ab4
+- [x] 1.4 Kitchen sink still renders: `vendor/bin/sail pest --filter=DesignSystemPageTest` — 8cd2ab4
+- [x] 1.5 Full Pest suite passes: `vendor/bin/sail composer test` — 8cd2ab4
 
 #### Manual
 
@@ -623,10 +623,10 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token scan is green with the four new paths: `vendor/bin/sail npm run lint:tokens`
-- [ ] 2.3 No localStorage reference remains in the page: `grep -n "localStorage" resources/js/Pages/MealPlans/Index.vue` prints nothing
-- [ ] 2.4 Index feature tests pass: `vendor/bin/sail pest --filter=MealPlanControllerTest`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token scan is green with the four new paths: `vendor/bin/sail npm run lint:tokens`
+- [x] 2.3 No localStorage reference remains in the page: `grep -n "localStorage" resources/js/Pages/MealPlans/Index.vue` prints nothing
+- [x] 2.4 Index feature tests pass: `vendor/bin/sail pest --filter=MealPlanControllerTest`
 
 #### Manual
 

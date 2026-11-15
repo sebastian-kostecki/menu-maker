@@ -1,46 +1,27 @@
 <template>
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-lg border">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <!-- Status Filter -->
-      <div class="flex items-center gap-2">
-        <label for="status-filter" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-          Status:
-        </label>
-        <StatusFilter
-          id="status-filter"
-          :model-value="value.status || ''"
-          :options="statuses"
-          @update:model-value="handleStatusChange"
-        />
-      </div>
-
-      <!-- Per Page Select -->
-      <div class="flex items-center gap-2">
-        <label for="per-page-select" class="text-sm font-medium text-gray-700 whitespace-nowrap">
-          Per page:
-        </label>
-        <PerPageSelect
-          id="per-page-select"
-          :model-value="value.perPage || 15"
-          @update:model-value="handlePerPageChange"
-        />
-      </div>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+    <div class="flex flex-col gap-2">
+      <Label for="status-filter">Status</Label>
+      <StatusFilter
+        id="status-filter"
+        :model-value="value.status || ''"
+        :options="statuses"
+        @update:model-value="handleStatusChange"
+      />
     </div>
 
-    <!-- Results Counter -->
-    <div class="text-sm text-gray-600">
-      <span v-if="resultsCount > 0">
-        Showing {{ resultsCount }} {{ resultsCount === 1 ? 'result' : 'results' }}
-      </span>
-      <span v-else>
-        No results found
-      </span>
+    <div class="flex flex-col gap-2">
+      <Label for="per-page-select">Na stronie</Label>
+      <PerPageSelect
+        id="per-page-select"
+        :model-value="value.perPage || 15"
+        @update:model-value="handlePerPageChange"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 // Local type definitions
 type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
 
@@ -55,22 +36,20 @@ interface FiltersState {
   direction?: 'asc' | 'desc'
   perPage?: number
 }
+import { Label } from '@/Components/ui/label'
 import StatusFilter from '@/Components/MealPlans/StatusFilter.vue'
 import PerPageSelect from '@/Components/MealPlans/PerPageSelect.vue'
 
 interface Props {
   value: FiltersState
   statuses: StatusOption[]
-  resultsCount?: number
 }
 
 interface Emits {
   (e: 'update:value', value: FiltersState): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  resultsCount: 0
-})
+const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
@@ -78,7 +57,7 @@ const emit = defineEmits<Emits>()
 const handleStatusChange = (status: string) => {
   emit('update:value', {
     ...props.value,
-    status: status || undefined
+    status: (status || '') as FiltersState['status']
   })
 }
 

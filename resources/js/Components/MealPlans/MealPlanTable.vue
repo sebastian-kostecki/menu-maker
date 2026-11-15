@@ -43,15 +43,25 @@
             :key="item.id"
             :item="item"
           />
-          <TableRow v-if="items.length === 0">
-            <TableCell :colspan="6" class="text-center py-12 text-gray-500 dark:text-gray-400">
-              <div class="flex flex-col items-center gap-2">
-                <Calendar class="h-12 w-12 text-gray-300" />
-                <p class="text-lg font-medium">No meal plans found</p>
-                <p class="text-sm">Create your first meal plan to get started.</p>
-              </div>
-            </TableCell>
-          </TableRow>
+          <TableEmpty v-if="items.length === 0" :colspan="6" class="whitespace-normal">
+            <EmptyState
+              v-if="filtered"
+              :icon="CalendarDays"
+              title="Brak jadłospisów o wybranym statusie"
+            >
+              <Button variant="outline" @click="emit('clear-filters')">
+                Wyczyść filtry
+              </Button>
+            </EmptyState>
+            <EmptyState
+              v-else
+              :icon="CalendarDays"
+              title="Nie masz jeszcze jadłospisów"
+              description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+            >
+              <GenerateMealPlanDialog label="Wygeneruj pierwszy jadłospis" />
+            </EmptyState>
+          </TableEmpty>
         </TableBody>
       </Table>
     </div>
@@ -59,15 +69,18 @@
 </template>
 
 <script setup lang="ts">
-import { Calendar } from 'lucide-vue-next'
+import { CalendarDays } from 'lucide-vue-next'
 import {
   Table,
   TableBody,
-  TableCell,
+  TableEmpty,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/Components/ui/table'
+import { Button } from '@/Components/ui/button'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import MealPlanRow from '@/Components/MealPlans/MealPlanRow.vue'
 
@@ -93,13 +106,15 @@ interface Props {
   items: MealPlanListItem[]
   sort?: string
   direction?: SortDirection
+  filtered?: boolean
 }
 
 interface Emits {
   (e: 'sort-change', value: { column: string, direction: SortDirection }): void
+  (e: 'clear-filters'): void
 }
 
-const props = defineProps<Props>()
+withDefaults(defineProps<Props>(), { filtered: false })
 const emit = defineEmits<Emits>()
 
 // Handle sort change from table headers

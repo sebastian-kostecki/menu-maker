@@ -1,6 +1,6 @@
 <template>
   <Select :model-value="modelValue || 'all'" @update:model-value="handleChange">
-    <SelectTrigger class="w-40">
+    <SelectTrigger :id="id" class="w-40">
       <SelectValue placeholder="Wszystkie statusy" />
     </SelectTrigger>
     <SelectContent>
@@ -33,6 +33,7 @@ interface StatusOption {
 }
 
 interface Props {
+  id?: string
   modelValue?: string
   options: StatusOption[]
 }

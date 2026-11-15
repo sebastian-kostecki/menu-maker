@@ -13,3 +13,7 @@ resources/js/Components/Common
 resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
 resources/js/lib/format.js
+resources/js/Pages/MealPlans/Index.vue
+resources/js/Components/MealPlans/FiltersBar.vue
+resources/js/Components/MealPlans/StatusFilter.vue
+resources/js/Components/MealPlans/PerPageSelect.vue

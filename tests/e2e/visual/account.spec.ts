@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { expectFigtreeLoaded } from './support/fonts';
+import { logIn } from './support/auth';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -17,4 +18,12 @@ test('guest register', async ({ page }) => {
   await expect(page.getByText('© 2026')).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('guest-register.png', { fullPage: true });
+});
+
+test('profile', async ({ page }) => {
+  await logIn(page);
+  await page.goto('/profile');
+  await expect(page.getByRole('heading', { name: 'Profil', level: 1 })).toBeVisible();
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('profile-desktop.png', { fullPage: true });
 });

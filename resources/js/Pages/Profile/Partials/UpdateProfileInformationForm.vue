@@ -1,8 +1,14 @@
 <script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import FormField from '@/Components/Common/FormField.vue';
+import { Button } from '@/Components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
 import { useForm, usePage } from '@inertiajs/vue3';
 
 const user = usePage().props.auth.user;
@@ -14,69 +20,72 @@ const form = useForm({
 </script>
 
 <template>
-    <section>
-        <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Dane profilu
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+    <Card>
+        <CardHeader>
+            <CardTitle as="h2">Dane profilu</CardTitle>
+            <CardDescription>
                 Zaktualizuj imię i adres e-mail powiązane z kontem.
-            </p>
-        </header>
+            </CardDescription>
+        </CardHeader>
 
-        <form
-            @submit.prevent="form.patch(route('profile.update'))"
-            class="mt-6 space-y-6"
-        >
-            <div>
-                <InputLabel for="name" value="Imię" />
+        <CardContent>
+            <form
+                class="grid gap-4"
+                @submit.prevent="form.patch(route('profile.update'))"
+            >
+                <FormField id="name" label="Imię" :error="form.errors.name">
+                    <template #default="{ id, invalid, describedBy }">
+                        <Input
+                            :id="id"
+                            type="text"
+                            v-model="form.name"
+                            required
+                            autofocus
+                            autocomplete="name"
+                            :aria-invalid="invalid || undefined"
+                            :aria-describedby="describedBy"
+                        />
+                    </template>
+                </FormField>
 
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
-
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div>
-                <InputLabel for="email" value="Adres e-mail" />
-
-                <TextInput
+                <FormField
                     id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Zapisz</PrimaryButton>
-
-                <Transition
-                    enter-active-class="transition ease-in-out"
-                    enter-from-class="opacity-0"
-                    leave-active-class="transition ease-in-out"
-                    leave-to-class="opacity-0"
+                    label="Adres e-mail"
+                    :error="form.errors.email"
                 >
-                    <p
-                        v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600 dark:text-gray-400"
+                    <template #default="{ id, invalid, describedBy }">
+                        <Input
+                            :id="id"
+                            type="email"
+                            v-model="form.email"
+                            required
+                            autocomplete="username"
+                            :aria-invalid="invalid || undefined"
+                            :aria-describedby="describedBy"
+                        />
+                    </template>
+                </FormField>
+
+                <div class="flex items-center gap-4">
+                    <Button type="submit" :disabled="form.processing">
+                        Zapisz
+                    </Button>
+
+                    <Transition
+                        enter-active-class="transition ease-in-out"
+                        enter-from-class="opacity-0"
+                        leave-active-class="transition ease-in-out"
+                        leave-to-class="opacity-0"
                     >
-                        Zapisano.
-                    </p>
-                </Transition>
-            </div>
-        </form>
-    </section>
+                        <p
+                            v-if="form.recentlySuccessful"
+                            class="text-sm text-muted-foreground"
+                        >
+                            Zapisano.
+                        </p>
+                    </Transition>
+                </div>
+            </form>
+        </CardContent>
+    </Card>
 </template>

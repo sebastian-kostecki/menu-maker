@@ -446,12 +446,12 @@ None. Same number of components per page; no new dependencies.
 
 #### Automated
 
-- [x] 2.1 Bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token scan passes with `Pages/Auth` listed: `npm run lint:tokens`
-- [x] 2.3 No Breeze import remains in `Pages/Auth`: `grep -rE "Components/(PrimaryButton|TextInput|InputLabel|InputError|Checkbox)\.vue" resources/js/Pages/Auth` prints nothing
-- [x] 2.4 Pest auth suite (Polish messages, session, reset) passes: `vendor/bin/sail pest tests/Feature/Auth`
-- [x] 2.5 Full E2E suite passes; every spec logs in through `/login`, and `login.spec.ts` and `password-reset.spec.ts` cover register, invalid login and reset: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [x] 2.6 Visual gate passes with the updated and new baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
+- [x] 2.1 Bundles build: `vendor/bin/sail npm run build` — 2a8fa6f
+- [x] 2.2 Token scan passes with `Pages/Auth` listed: `npm run lint:tokens` — 2a8fa6f
+- [x] 2.3 No Breeze import remains in `Pages/Auth`: `grep -rE "Components/(PrimaryButton|TextInput|InputLabel|InputError|Checkbox)\.vue" resources/js/Pages/Auth` prints nothing — 2a8fa6f
+- [x] 2.4 Pest auth suite (Polish messages, session, reset) passes: `vendor/bin/sail pest tests/Feature/Auth` — 2a8fa6f
+- [x] 2.5 Full E2E suite passes; every spec logs in through `/login`, and `login.spec.ts` and `password-reset.spec.ts` cover register, invalid login and reset: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e` — 2a8fa6f
+- [x] 2.6 Visual gate passes with the updated and new baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual` — 2a8fa6f
 
 #### Manual
 
@@ -464,13 +464,13 @@ None. Same number of components per page; no new dependencies.
 
 #### Automated
 
-- [ ] 3.1 Bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.2 Token scan passes with `Pages/Profile` listed: `npm run lint:tokens`
-- [ ] 3.3 No Breeze import remains anywhere outside `Components/`: `grep -rE "Components/(PrimaryButton|SecondaryButton|DangerButton|TextInput|InputLabel|InputError|Checkbox|Modal)\.vue" resources/js/Pages resources/js/Layouts` prints nothing
-- [ ] 3.4 Pest profile and password tests pass: `vendor/bin/sail pest tests/Feature/ProfileTest.php tests/Feature/Auth/PasswordUpdateTest.php tests/Feature/Auth/PasswordConfirmationTest.php`
-- [ ] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
-- [ ] 3.6 Full E2E suite including the new `profile.spec.ts` passes: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [ ] 3.7 Visual gate passes with `profile-desktop.png`: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
+- [x] 3.1 Bundles build: `vendor/bin/sail npm run build`
+- [x] 3.2 Token scan passes with `Pages/Profile` listed: `npm run lint:tokens`
+- [x] 3.3 No Breeze import remains anywhere outside `Components/`: `grep -rE "Components/(PrimaryButton|SecondaryButton|DangerButton|TextInput|InputLabel|InputError|Checkbox|Modal)\.vue" resources/js/Pages resources/js/Layouts` prints nothing
+- [x] 3.4 Pest profile and password tests pass: `vendor/bin/sail pest tests/Feature/ProfileTest.php tests/Feature/Auth/PasswordUpdateTest.php tests/Feature/Auth/PasswordConfirmationTest.php`
+- [x] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 3.6 Full E2E suite including the new `profile.spec.ts` passes: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
+- [x] 3.7 Visual gate passes with `profile-desktop.png`: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
 
 #### Manual
 

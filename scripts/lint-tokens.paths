@@ -2,3 +2,8 @@
 # Each migration slice appends the paths it migrated, in its own change.
 # Files under Components/ui/ are always excluded.
 resources/js/Pages/Dev
+resources/js/Components/Common/AppSidebar.vue
+resources/js/Components/Common/UserMenu.vue
+resources/js/lib/navigation.js
+resources/js/Layouts/AuthenticatedLayout.vue
+resources/js/app.js

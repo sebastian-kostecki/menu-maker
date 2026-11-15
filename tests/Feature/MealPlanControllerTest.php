@@ -35,6 +35,25 @@ it('authenticated user can view meal plan index', function (): void {
     );
 });
 
+it('index exposes single-valued pagination meta and links', function (): void {
+    MealPlan::factory()->count(20)->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)
+        ->get(route('meal-plans.index', ['perPage' => 5]));
+
+    $response->assertStatus(200);
+    $response->assertInertia(
+        fn ($page) => $page->has('mealPlans.data', 5)
+            ->where('mealPlans.meta.current_page', 1)
+            ->where('mealPlans.meta.last_page', 4)
+            ->where('mealPlans.meta.total', 20)
+            ->where('mealPlans.meta.per_page', 5)
+            ->where('mealPlans.links.next', fn ($next) => is_string($next))
+            ->has('mealPlans.meta', 6)
+            ->hasAll(['mealPlans.meta.current_page', 'mealPlans.meta.last_page', 'mealPlans.meta.per_page', 'mealPlans.meta.total', 'mealPlans.meta.from', 'mealPlans.meta.to'])
+    );
+});
+
 it('guest cannot access meal plans', function (): void {
     $response = $this->get(route('meal-plans.index'));
 
@@ -51,6 +70,7 @@ it('index can filter by status', function (): void {
     $response->assertStatus(200);
     $response->assertInertia(
         fn ($page) => $page->has('mealPlans.data', 2)
+            ->where('filters.filter.status', 'done')
     );
 });
 

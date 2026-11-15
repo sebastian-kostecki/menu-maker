@@ -20,6 +20,19 @@ class MealPlanCollection extends ResourceCollection
     public $collects = MealPlanResource::class;
 
     /**
+     * Drop the framework's default pagination meta/links: toArray() already
+     * returns them, and merging both turns scalar keys into arrays.
+     *
+     * @param  array{links: array<string, string|null>, meta: array<string, mixed>}  $paginated
+     * @param  array{links?: array<string, string|null>, meta?: array<string, mixed>}  $default
+     * @return array<string, mixed>
+     */
+    public function paginationInformation(Request $request, array $paginated, array $default): array
+    {
+        return [];
+    }
+
+    /**
      * Transform the resource collection into an array.
      *
      * @return array<string, mixed>

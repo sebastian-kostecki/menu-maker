@@ -5,35 +5,35 @@
       <Table>
         <TableHeader>
           <TableRow class="bg-gray-50 dark:bg-gray-800">
-            <TableHead class="w-[200px] font-semibold">
-              <SortableHeader
-                field="start_date"
-                :current-sort="{ field: sort, direction }"
-                @sort-change="handleSortChange"
-              >
-                Date Range
-              </SortableHeader>
-            </TableHead>
-            <TableHead class="w-[120px] font-semibold">
-              <SortableHeader
-                field="status"
-                :current-sort="{ field: sort, direction }"
-                @sort-change="handleSortChange"
-              >
-                Status
-              </SortableHeader>
-            </TableHead>
+            <SortableHeader
+              class="w-[200px] font-semibold"
+              column="start_date"
+              :sort="sort ?? ''"
+              :direction="direction ?? 'asc'"
+              @sort-change="handleSortChange"
+            >
+              Date Range
+            </SortableHeader>
+            <SortableHeader
+              class="w-[120px] font-semibold"
+              column="status"
+              :sort="sort ?? ''"
+              :direction="direction ?? 'asc'"
+              @sort-change="handleSortChange"
+            >
+              Status
+            </SortableHeader>
             <TableHead class="w-[100px] font-semibold">Meals</TableHead>
             <TableHead class="w-[100px] font-semibold">Logs</TableHead>
-            <TableHead class="w-[120px] font-semibold">
-              <SortableHeader
-                field="created_at"
-                :current-sort="{ field: sort, direction }"
-                @sort-change="handleSortChange"
-              >
-                Created
-              </SortableHeader>
-            </TableHead>
+            <SortableHeader
+              class="w-[120px] font-semibold"
+              column="created_at"
+              :sort="sort ?? ''"
+              :direction="direction ?? 'asc'"
+              @sort-change="handleSortChange"
+            >
+              Created
+            </SortableHeader>
             <TableHead class="w-[120px] text-right font-semibold">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -68,7 +68,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table'
-import SortableHeader from '@/Components/MealPlans/SortableHeader.vue'
+import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import MealPlanRow from '@/Components/MealPlans/MealPlanRow.vue'
 
 // Local type definitions
@@ -96,19 +96,19 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'sort-change', value: { field: string, direction: SortDirection }): void
+  (e: 'sort-change', value: { column: string, direction: SortDirection }): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Handle sort change from table headers
-const handleSortChange = ({ field, direction }: { field: string, direction: SortDirection }) => {
-  // Validate sort field
+const handleSortChange = ({ column, direction }: { column: string, direction: SortDirection }) => {
+  // Validate sort column
   const allowedSortFields = ['start_date', 'end_date', 'status', 'created_at']
 
-  if (allowedSortFields.includes(field)) {
-    emit('sort-change', { field, direction })
+  if (allowedSortFields.includes(column)) {
+    emit('sort-change', { column, direction })
   }
 }
 </script>

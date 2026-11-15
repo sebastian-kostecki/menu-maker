@@ -69,12 +69,14 @@
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <DeleteConfirmationDialog
-      :open="showDeleteDialog"
-      :recipe-name="recipe.name || ''"
-      :is-loading="deleteLoading"
+    <ConfirmDialog
+      v-model:open="showDeleteDialog"
+      title="Usuń przepis"
+      :description="`Czy na pewno chcesz usunąć przepis „${recipe.name || ''}”? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      variant="destructive"
+      :processing="deleteLoading"
       @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
     />
   </AuthenticatedLayout>
 </template>
@@ -88,7 +90,7 @@ import RecipeHeader from '@/Components/recipes/RecipeHeader.vue';
 import RecipeMetaBadges from '@/Components/recipes/RecipeMetaBadges.vue';
 import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue';
 import InstructionsSection from '@/Components/recipes/InstructionsSection.vue';
-import DeleteConfirmationDialog from '@/Components/recipes/DeleteConfirmationDialog.vue';
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue';
 import { useDeleteRecipe } from '@/hooks/useDeleteRecipe';
 
 // Props from Inertia
@@ -116,18 +118,14 @@ function handleDeleteRequest() {
   showDeleteDialog.value = true;
 }
 
-function handleDeleteCancel() {
-  showDeleteDialog.value = false;
-}
-
 async function handleDeleteConfirm() {
   try {
     await deleteRecipe(props.recipe.id);
+    // Redirect is handled by the server response
+  } catch {
+    // toast already shown by the hook
+  } finally {
     showDeleteDialog.value = false;
-    // Redirect is handled by the hook
-  } catch (error) {
-    // Error handling is done in the hook
-    console.error('Failed to delete recipe:', error);
   }
 }
 </script>

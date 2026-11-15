@@ -11,6 +11,7 @@ final readonly class PdfMeal
      */
     public function __construct(
         public string $category,
+        public string $categoryValue,
         public string $recipeName,
         public bool $recipeDeleted,
         public array $ingredients,

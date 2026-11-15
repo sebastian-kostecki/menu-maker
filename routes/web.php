@@ -50,4 +50,8 @@ Route::post('/client-errors', ClientErrorController::class)
     ->middleware('throttle:10,1')
     ->name('client-errors.store');
 
+if (app()->environment(['local', 'testing'])) {
+    Route::inertia('/dev/design-system', 'Dev/DesignSystem')->name('dev.design-system');
+}
+
 require __DIR__.'/auth.php';

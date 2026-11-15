@@ -3,7 +3,7 @@ project: menu-maker
 version: 1
 status: draft                    # draft | active | locked
 created: 2026-11-14
-updated: 2026-11-14
+updated: 2026-11-15
 token_source: resources/css/app.css
 primitives_dir: resources/js/Components/ui/
 shared_dir: resources/js/Components/Common/   # potwierdzony, D-3
@@ -103,11 +103,11 @@ Kierunek: ciepłe, kremowe tło (papier, kuchnia), zieleń ziół jako jedyny ko
 
 Pary tło/tekst do alertów, toastów i statusów. Każda para ≥ 6.4:1.
 
-| Token | Tło (OKLCH) | Tekst (OKLCH) | Użycie |
-| --- | --- | --- | --- |
-| `--success` / `--success-foreground` | `0.95 0.04 150` | `0.42 0.10 150` | Jadłospis gotowy, zapisano |
-| `--warning` / `--warning-foreground` | `0.96 0.06 90` | `0.45 0.10 75` | AI zawiodło, ilości bez dopracowania (S-04) |
-| `--info` / `--info-foreground` | `0.95 0.03 240` | `0.45 0.12 250` | Generowanie w toku |
+| Token | Tło (OKLCH) | Tekst (OKLCH) | Hex tło / tekst (≈) | Użycie |
+| --- | --- | --- | --- | --- |
+| `--success` / `--success-foreground` | `0.95 0.04 150` | `0.42 0.10 150` | `#dcf7e1` / `#195c2e` | Jadłospis gotowy, zapisano |
+| `--warning` / `--warning-foreground` | `0.96 0.06 90` | `0.45 0.10 75` | `#fff1c4` / `#754b00` | AI zawiodło, ilości bez dopracowania (S-04) |
+| `--info` / `--info-foreground` | `0.95 0.03 240` | `0.45 0.12 250` | `#ddf2ff` / `#0e5794` | Generowanie w toku |
 
 ### 4.4 Tokeny domeny (nowe)
 
@@ -122,6 +122,8 @@ Kategoria posiłku to najważniejszy kod kolorystyczny aplikacji (siatka tygodni
 Statusy jadłospisu mapują się na tokeny stanów, nie na nowe kolory: `pending` → `muted`, `processing` → `info`, `done` → `success`, `error` → `destructive`.
 
 Kolor nigdy nie jest jedynym nośnikiem informacji: badge zawsze ma etykietę, a siatka ma nagłówki kolumn.
+
+Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warning-foreground`) leżą nieznacznie poza gamutem sRGB (przekroczenie kanału ≤ 0.08). Przeglądarki na ekranach sRGB je przycinają; kontrast po przycięciu nadal ≥ 5.9:1. PDF (S-14) ma używać wartości hex z przycięcia (kolumny „Hex” w 4.3 i 4.4), a nie przeliczać OKLCH na nowo.
 
 ### 4.5 Typografia
 
@@ -156,6 +158,27 @@ Kolor nigdy nie jest jedynym nośnikiem informacji: badge zawsze ma etykietę, a
 
 Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe klasy `dark:` usuwamy przy migracji każdego widoku; blok `.dark` w `app.css` zostaje z wartościami OKLCH odpowiadającymi palecie z 4.2, żeby dark mode był później zmianą wyłącznie w tokenach i przełączniku, bez dotykania widoków.
 
+Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
+
+| Token | `.dark` |
+| --- | --- |
+| `--background` | `oklch(0.20 0.012 60)` |
+| `--foreground`, `--card-foreground`, `--popover-foreground`, `--secondary-foreground` | `oklch(0.95 0.01 85)` |
+| `--card`, `--popover` | `oklch(0.235 0.012 60)` |
+| `--muted`, `--secondary` | `oklch(0.28 0.012 60)` |
+| `--muted-foreground` | `oklch(0.74 0.02 70)` |
+| `--primary`, `--ring` | `oklch(0.72 0.14 150)` |
+| `--primary-foreground` | `oklch(0.20 0.03 150)` |
+| `--accent` / `--accent-foreground` | `oklch(0.32 0.05 150)` / `oklch(0.92 0.04 150)` |
+| `--destructive` / `--destructive-foreground` | `oklch(0.65 0.19 25)` / `oklch(0.20 0.03 25)` |
+| `--border`, `--input` | `oklch(0.32 0.012 60)` |
+| `--success` / `-foreground` | `oklch(0.30 0.06 150)` / `oklch(0.86 0.10 150)` |
+| `--warning` / `-foreground` | `oklch(0.32 0.06 85)` / `oklch(0.88 0.10 90)` |
+| `--info` / `-foreground` | `oklch(0.30 0.06 250)` / `oklch(0.86 0.07 240)` |
+| `--meal-breakfast` / `-foreground` | `oklch(0.32 0.06 75)` / `oklch(0.88 0.10 80)` |
+| `--meal-supper` / `-foreground` | `oklch(0.32 0.07 35)` / `oklch(0.86 0.06 40)` |
+| `--meal-dinner` / `-foreground` | `oklch(0.32 0.06 280)` / `oklch(0.86 0.06 280)` |
+
 ## 5. Komponenty
 
 ### 5.1 Prymitywy (`Components/ui/`)
@@ -164,21 +187,23 @@ Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe kla
 | --- | --- |
 | Są | avatar, badge, button, card, combobox, dialog, dropdown-menu, input, label, select, separator, sheet, sonner, table, textarea |
 | Dodać | `alert-dialog` (potwierdzenia), `alert` (komunikaty AI/PDF), `checkbox` (zamiast Breeze, „Zapamiętaj mnie”), `skeleton` (siatka w trakcie generowania), `collapsible` (składniki w komórce siatki zamiast `<details>`), `pagination` (baza dla `ServerPagination`) |
-| Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`; `alert`: warianty `warning`, `info`, `success` |
+| Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`, `muted`; `alert`: warianty `warning`, `info`, `success` |
 
 Dodanie przez CLI może podbić zależności (`reka-ui` itp.) — to zmiana zależności, wymaga akceptacji (D-5).
+
+Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next` (D-9).
 
 ### 5.2 Komponenty aplikacji (`Components/Common/`)
 
 | Komponent | Zastępuje | Kontrakt |
 | --- | --- | --- |
-| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
-| `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; fokus na „Anuluj” |
-| `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta`, `links` z API Resource; `aria-label="Paginacja"` |
-| `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; `aria-sort` |
-| `EmptyState` | Ad hoc puste tabele | Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
-| `FormField` | `InputLabel` + `InputError` | Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
-| `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary` |
+| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
+| `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `open` (`v-model:open`), `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; emituje `confirm`; fokus na „Anuluj”; zostaje otwarty, dopóki `processing` |
+| `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta` (bez `links`); emituje `page-change`; `aria-label="Paginacja"` |
+| `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; renderuje `TableHead`; `aria-sort`; emituje `sort-change({column, direction})` |
+| `EmptyState` | Ad hoc puste tabele | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
+| `FormField` | `InputLabel` + `InputError` | **Odroczony** do S-13. Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
+| `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Zrealizowany jako `Common/AppSidebar` i `Common/UserMenu`, z `AuthenticatedLayout` jako opakowaniem. Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary`; nawigacja mobilna na `ui/sheet`; zwinięcie panelu zapamiętane w localStorage |
 
 ### 5.3 Komponenty domeny (po migracji)
 
@@ -196,10 +221,23 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
 
 `resources/views/pdf/meal-plan.blade.php` (dompdf) nie czyta zmiennych CSS z aplikacji. Kontrakt:
 
-- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów, z komentarzem „mirror of resources/css/app.css; keep in sync” (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
-- Kategoria w tabeli PDF: tło `--meal-*` w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
-- Ramka komunikatów (`.notices`) na parze `--warning`.
-- Font zostaje `DejaVu Sans` (polskie znaki w dompdf); hierarchia rozmiarów odpowiada rolom z 4.5.
+- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
+- Lustro obejmuje 12 tokenów: `--foreground`, `--muted`, `--muted-foreground`, `--border`, `--warning`, `--warning-foreground` oraz `--meal-breakfast`, `--meal-supper`, `--meal-dinner` wraz z ich `-foreground`. Żaden inny kolor nie jest dozwolony w szablonie, także w `style=""`.
+- Papier jest biały (`--card`), nie `--background`: ciepłe tło ekranu nie trafia do druku.
+- Kategoria w tabeli PDF: para `--meal-*` (tło i tekst) w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
+- Początek dnia oznacza linia 2px w `--muted-foreground` (widoczna w skali szarości); pozostałe ramki to `--border`.
+- Ramka komunikatów (`.notices`) na parze `--warning` / `--warning-foreground`.
+- Font zostaje `DejaVu Sans` (polskie znaki w dompdf; tylko wagi normal i bold, więc „medium/semibold” z 4.5 to `bold`). Role z 4.5 w pt:
+
+| Rola | Element | Rozmiar |
+| --- | --- | --- |
+| Tytuł strony | `h1` | 15pt bold |
+| Tytuł sekcji | `h2` | 12pt bold |
+| Tekst | body | 9pt |
+| Etykieta | `th`, `.day` | 9pt bold |
+| Metadane | `.meta`, `.note`, kategoria | 8pt (`.meta`, `.note` w `--muted-foreground`) |
+
+- Lustro pilnuje `tests/Unit/Services/MealPlanPdfPaletteTest.php`: każdy token lustra ma w `app.css :root` tę samą wartość OKLCH, każdy hex jest przyciętą wartością swojego OKLCH, szablon nie używa hexa spoza listy ani `rgb()`/`hsl()`/`oklch()`/nazwanych kolorów, a żaden wpis nie jest nieużywany. Zmiana palety w `app.css` bez aktualizacji PDF-u zatrzymuje CI.
 
 ## 7. Egzekwowanie
 
@@ -208,9 +246,9 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
    - przed nowym komponentem sprawdź `Components/ui/` i `Components/Common/`;
    - w widokach zakaz klas palety Tailwinda, hexów, wartości arbitralnych i `dark:`;
    - nowy wzorzec trafia do kitchen sink.
-2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Pokazuje tokeny, typografię i wszystkie komponenty z 5.1–5.3 w stanach z 5.4.
-3. **Bramka wizualna** — spec Playwright robiący zrzut kitchen sink i migrowanych widoków (`toHaveScreenshot`); baseline aktualizowany tylko świadomie.
-4. **Skan literałów** — skrypt `npm run lint:tokens` (grep, bez nowych zależności) na liście zmigrowanych plików; lista rośnie z każdą zmianą, na końcu obejmuje całe `resources/js` poza `Components/ui/`. Dołączony do CI (D-6).
+2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Ma 13 sekcji (Kolory, Typografia, Kształt i cienie, Przyciski, Odznaki, Komunikaty, Formularze, Karta i tabela, Ładowanie i rozwijanie, Paginacja, Nakładki, Powłoka, Komponenty aplikacji) z komponentami z 5.1 i 5.2 w stanach z 5.4. Nie ma layoutu aplikacji i nie wymaga logowania.
+3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 26 zrzutów `toHaveScreenshot`: 13 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło), hover i `focus-visible` pozycji nawigacji powłoki oraz 10 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, sheet, menu, menu użytkownika, select, combobox, toast). Tylko chromium, zero tolerancji (`threshold: 0`, `maxDiffPixels: 0` w projekcie `visual`), a spec sprawdza, że Figtree faktycznie się załadował. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera. Drugi spec, `tests/e2e/visual/app-shell.spec.ts`, robi 4 zrzuty prawdziwych stron (logowanie, pulpit desktop, pulpit mobile, szuflada mobile) ze stałym zegarem (`page.clock.setFixedTime`) i zalogowany jako zasiany użytkownik `e2e-planner-visual@example.com` (`E2eMealPlanSeeder`).
+4. **Skan literałów** — `scripts/lint-tokens.sh` (`npm run lint:tokens`, `grep -P`, bez nowych zależności) na liście z `scripts/lint-tokens.paths` (`*.vue`, `*.js`, `*.ts`; `Components/ui/` zawsze pominięte). Flaguje cztery rodzaje literałów: klasy palety Tailwinda (w tym `white`/`black`), hexy, wartości arbitralne i `dark:`. Kody wyjścia: 0 brak trafień, 1 trafienia, 2 błąd konfiguracji (brak pliku listy, pusta lista, nieistniejąca ścieżka). Skaner ma test własny, `scripts/lint-tokens.test.sh`. Oba kroki (test i skan) działają w CI w zadaniu `frontend-build` (D-6). Lista rośnie z każdą zmianą, na końcu obejmuje całe `resources/js` poza `Components/ui/`.
 
 ## 8. Rollout
 
@@ -218,12 +256,13 @@ Kolejność: **tokeny → wspólne komponenty → powłoka → widoki wg ruchu w
 
 | # | Change ID | Zakres | Narzędzie | Prerequisites |
 | --- | --- | --- | --- | --- |
-| DS-01 | `design-tokens-foundation` | Tokeny 4.1–4.6 w `app.css` (OKLCH, stany, domena, radius), usunięcie warstwy `gray-200`, prymitywy z 5.1, warianty `badge`/`alert`, kitchen sink + bramka, reguła w `CLAUDE.md`, `lint:tokens` | `/10x-new` → `/10x-plan` | — |
-| DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (bez `AppShell`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
+| DS-01 / F-03 | `design-tokens-foundation` | Tokeny 4.1–4.6 w `app.css` (OKLCH, stany, domena, radius, `.dark`), usunięcie warstwy `gray-200`, prymitywy z 5.1, warianty `badge`/`alert`, reguła (3 punkty) w `CLAUDE.md` | `/10x-new` → `/10x-plan` | — |
+| DS-01 / F-04 | `design-system-visual-gate` | Kitchen sink, bramka zrzutu Playwright, `lint:tokens`, punkt o kitchen sink w regule w `CLAUDE.md` | `/10x-new` → `/10x-plan` | F-03 |
+| DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (`ConfirmDialog`, `ServerPagination`, `SortableHeader`; bez `AppShell`, `PageHeader`, `EmptyState` i `FormField`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
 | DS-03 | `app-shell-restyle` | `Sidebar`, `AuthenticatedLayout`, `GuestLayout` (+ „© 2024” → rok bieżący) | `/10x-ui` | DS-01 |
-| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
-| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` | `/10x-ui` | DS-02 |
-| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
+| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
+| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` | DS-02 |
+| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
 | DS-07 | `family-members-ui` | `FamilyMembers/*` (przy okazji parked: `Create`/`Edit` → `Form.vue`, jeśli zmieści się w zakresie) | `/10x-ui` | DS-02 |
 | DS-08 | `auth-profile-ui` | `Auth/*`, `Profile/*` — zejście z Breeze na `ui/*` + `FormField` | `/10x-ui` | DS-02, DS-03 |
 | DS-09 | `pdf-design-alignment` | PDF wg sekcji 6 | `/10x-new` → `/10x-plan` | DS-01 |
@@ -245,3 +284,4 @@ Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach —
 | D-6 | `lint:tokens` jako krok CI? | **Potwierdzone 2026-11-14:** tak, jako skrypt grep bez nowych zależności | user | — |
 | D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page | user | — |
 | D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia | user | — |
+| D-9 | Nowe prymitywy w new-york-v4 z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next`; regeneracja 15 starszych komponentów i przejście na `@lucide/vue` to osobna zmiana po F-04. | **Potwierdzone 2026-11-15** | user | — |

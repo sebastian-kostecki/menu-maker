@@ -5,43 +5,43 @@
       <Table>
         <TableHeader>
           <TableRow class="bg-gray-50 dark:bg-gray-800">
-            <TableHead class="w-[300px] font-semibold">
-              <SortableHeader
-                field="name"
-                :current-sort="sort"
-                @sort-change="$emit('sort-change', $event)"
-              >
-                Name
-              </SortableHeader>
-            </TableHead>
-            <TableHead class="w-[120px] font-semibold">
-              <SortableHeader
-                field="category"
-                :current-sort="sort"
-                @sort-change="$emit('sort-change', $event)"
-              >
-                Category
-              </SortableHeader>
-            </TableHead>
-            <TableHead class="w-[100px] font-semibold">
-              <SortableHeader
-                field="calories"
-                :current-sort="sort"
-                @sort-change="$emit('sort-change', $event)"
-              >
-                Calories
-              </SortableHeader>
-            </TableHead>
+            <SortableHeader
+              class="w-[300px] font-semibold"
+              column="name"
+              :sort="sort.field"
+              :direction="sort.direction"
+              @sort-change="$emit('sort-change', $event)"
+            >
+              Name
+            </SortableHeader>
+            <SortableHeader
+              class="w-[120px] font-semibold"
+              column="category"
+              :sort="sort.field"
+              :direction="sort.direction"
+              @sort-change="$emit('sort-change', $event)"
+            >
+              Category
+            </SortableHeader>
+            <SortableHeader
+              class="w-[100px] font-semibold"
+              column="calories"
+              :sort="sort.field"
+              :direction="sort.direction"
+              @sort-change="$emit('sort-change', $event)"
+            >
+              Calories
+            </SortableHeader>
             <TableHead class="w-[100px] font-semibold">Servings</TableHead>
-            <TableHead class="w-[120px] font-semibold">
-              <SortableHeader
-                field="created_at"
-                :current-sort="sort"
-                @sort-change="$emit('sort-change', $event)"
-              >
-                Created
-              </SortableHeader>
-            </TableHead>
+            <SortableHeader
+              class="w-[120px] font-semibold"
+              column="created_at"
+              :sort="sort.field"
+              :direction="sort.direction"
+              @sort-change="$emit('sort-change', $event)"
+            >
+              Created
+            </SortableHeader>
             <TableHead class="w-[120px] text-right font-semibold">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -72,7 +72,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/Components/ui/table';
-import SortableHeader from './SortableHeader.vue';
+import SortableHeader from '@/Components/Common/SortableHeader.vue';
 import RecipeRow from './RecipeRow.vue';
 
 // Props

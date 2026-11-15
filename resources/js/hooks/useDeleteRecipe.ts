@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { toast } from 'vue-sonner';
 
 export function useDeleteRecipe() {
   const isLoading = ref(false);
@@ -12,26 +13,37 @@ export function useDeleteRecipe() {
       isLoading.value = true;
       error.value = null;
 
-      // Use Inertia's delete method with promise support
+      // The promise settles on every outcome: Inertia calls onSuccess/onError only for
+      // redirects and validation errors, while 403/404/500 and network failures reach onFinish only.
       await new Promise((resolve, reject) => {
+        let settled = false;
+        const failureMessage = 'Nie udało się usunąć przepisu.';
+
         router.delete(`/recipes/${recipeId}`, {
           onSuccess: () => {
-            // Success message will be handled by Laravel flash message
+            settled = true;
             resolve();
           },
           onError: (errors) => {
-            const errorMessage = errors?.message || 'Failed to delete recipe. Please try again.';
+            const errorMessage = errors?.message || failureMessage;
             error.value = errorMessage;
+            settled = true;
 
-            // Show error toast if available
-            if (window.toast) {
-              window.toast.error(errorMessage);
-            }
+            toast.error(failureMessage);
 
             reject(new Error(errorMessage));
           },
           onFinish: () => {
             isLoading.value = false;
+
+            if (!settled) {
+              settled = true;
+              error.value = failureMessage;
+
+              toast.error(failureMessage);
+
+              reject(new Error(failureMessage));
+            }
           },
         });
       });

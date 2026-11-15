@@ -15,13 +15,22 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - `vendor/bin/sail composer test`: Pest suite; one test with `vendor/bin/sail pest --filter=<name>`.
 - `vendor/bin/sail composer phpstan`, `vendor/bin/sail composer pint-test` (fix with `composer pint`).
 - `vendor/bin/sail npm run build`: client and SSR bundles; CI fails if it breaks.
+- `vendor/bin/sail npm run lint:tokens`: scans the paths in `scripts/lint-tokens.paths` for the literals banned below (self-test: `bash scripts/lint-tokens.test.sh`).
+- Visual gate (screenshots of the kitchen sink and the app shell): from the host, after `vendor/bin/sail npm run build` with `npm run dev` stopped (no `public/hot`) and after `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder` (the app-shell spec logs in as `e2e-planner-visual@example.com`), `npm run test:visual`. It runs in the version-pinned Playwright Docker image on the `menu-maker_sail` network; `VISUAL_DOCKER_NETWORK` and `VISUAL_BASE_URL` override the defaults.
 - E2E (Playwright, from the host, against Sail): `vendor/bin/sail npm run build`, then `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder` (idempotent; creates the two planner users with 21 recipes each, the cook users and the family-members users, and deletes their plans/recipes/family members, so re-run it before every E2E run; it also pins a two-adult family and recipe kcal so amounts scale by 2.0), then `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`. `.env` must contain `AI_SCALING_DRIVER=fake` (CI sets it too), otherwise generation calls a real AI. `.env` must also use `MAIL_MAILER=smtp` with `MAIL_HOST=mailpit` (the password-reset spec reads the e-mail from Mailpit); Mailpit (started by `sail up -d`, UI on `FORWARD_MAILPIT_DASHBOARD_PORT`, default 8025) must be running, and `MAILPIT_URL` must be set if the dashboard port is not 8025. Do not let Playwright start `php artisan serve` (host PHP). If the default ports are busy, set `APP_PORT` and `VITE_PORT` in `.env`. The Sail `queue` service (started by `sail up -d`) processes plan generation, so it must be running. See `@playwright.config.ts`.
 
 ## Structure & Conventions
 
 - Validation in Form Requests (`app/Http/Requests/`), JSON in API Resources (`app/Http/Resources/`).
 - New PHP files start with `declare(strict_types=1);` (half of `app/` still lacks it; add it when touching a file).
-- Inertia pages: `resources/js/Pages/<Feature>/{Index,Show,Form}.vue`. Feature components go in `resources/js/Components/<Feature>/`, shadcn-vue primitives in `resources/js/Components/ui/` (config: `@components.json`). The shadcn-vue CLI is not installed; add components with `vendor/bin/sail npx shadcn-vue@2 add <component>` (the CLI emits the redesigned style and newer deps: review the diff, never `--overwrite` existing components blindly).
+- Inertia pages: `resources/js/Pages/<Feature>/{Index,Show,Form}.vue`. Feature components go in `resources/js/Components/<Feature>/`, shadcn-vue primitives in `resources/js/Components/ui/` (config: `@components.json`).
+- Design system: tokens live in `resources/css/app.css` and are described in `context/foundation/design-system.md`.
+- Before writing a new component, check `Components/ui/` and `Components/Common/` (reuse `Common/ConfirmDialog`, `Common/ServerPagination` and `Common/SortableHeader`). Add a missing primitive with `vendor/bin/sail npx shadcn-vue@2 add <component>` (the CLI is not installed; it emits the redesigned style and newer deps, so review the diff and never `--overwrite` existing components blindly), then rewrite its imports to `@/lib/utils` and `lucide-vue-next`, run `vendor/bin/sail npm uninstall cn @lucide/vue`, and restore every existing `ui/` file the CLI overwrote (D-9).
+- In new files under `Pages/` and `Components/<Feature>/`, and in a view being migrated in its own slice: no Tailwind palette classes (`gray-*`, `red-*`…), hex colours, arbitrary values or `dark:`. Use token utilities and `Badge`/`Alert` variants. In views not yet migrated, add no new literals and do not restyle the existing ones outside their slice.
+- Verification of that rule:
+  - a new primitive variant or shared pattern gets a demo, with its states, in the kitchen sink `resources/js/Pages/Dev/DesignSystem.vue` (`/dev/design-system`, `local`/`testing` only);
+  - a slice that migrates a view appends its paths to `scripts/lint-tokens.paths` and keeps `npm run lint:tokens` green;
+  - update visual baselines only deliberately, with `npm run test:visual -- --update-snapshots`, and review each changed PNG in the diff.
 - Default locale is `pl` (`config/app.php`), with translations in `lang/pl/`.
 
 ## Testing
@@ -30,7 +39,7 @@ Pest with `RefreshDatabase` on the PostgreSQL `testing` database (`@phpunit.xml`
 
 ## Git & CI
 
-- Work on `develop`; `main` is the release branch. CI (`@.github/workflows/master.yml`) runs on pushes to `main` and on pull requests into `main`: build, Larastan, Pest, config/route/view caching, then E2E.
+- Work on `develop`; `main` is the release branch. CI (`@.github/workflows/master.yml`) runs on pushes to `main` and on pull requests into `main`: build (with the `lint:tokens` self-test and scan), Larastan, Pest, config/route/view caching, E2E, then the visual gate.
 - Commit subjects use Conventional Commits (`feat:`, `fix:`, `chore:`) in imperative English.
 
 ## Specs

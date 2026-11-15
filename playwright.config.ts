@@ -15,11 +15,21 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /visual\//,
       use: { ...devices['Desktop Chrome'] }
     },
     {
       name: 'firefox',
+      testIgnore: /visual\//,
       use: { ...devices['Desktop Firefox'] }
+    },
+    {
+      name: 'visual',
+      testMatch: /visual\/.*\.spec\.ts$/,
+      snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+      updateSnapshots: process.env.CI ? 'none' : 'missing',
+      expect: { toHaveScreenshot: { threshold: 0, maxDiffPixels: 0 } },
+      use: { ...devices['Desktop Chrome'] }
     }
   ],
   webServer: process.env.E2E_SKIP_WEBSERVER

@@ -1,0 +1,705 @@
+<script setup>
+import { ref } from 'vue'
+import { Head } from '@inertiajs/vue3'
+import { toast } from 'vue-sonner'
+import { AlertCircle, CheckCircle2, Info, Loader2, Plus, TriangleAlert } from 'lucide-vue-next'
+import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/Components/ui/alert-dialog'
+import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
+import AppSidebar from '@/Components/Common/AppSidebar.vue'
+import UserMenu from '@/Components/Common/UserMenu.vue'
+import { mainNavigation } from '@/lib/navigation'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import ServerPagination from '@/Components/Common/ServerPagination.vue'
+import SortableHeader from '@/Components/Common/SortableHeader.vue'
+import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
+import StatusTag from '@/Components/MealPlans/StatusTag.vue'
+import { Badge } from '@/Components/ui/badge'
+import { Button } from '@/Components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card'
+import { Checkbox } from '@/Components/ui/checkbox'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
+import {
+  Combobox,
+  ComboboxAnchor,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/Components/ui/combobox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/Components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/Components/ui/dropdown-menu'
+import { Input } from '@/Components/ui/input'
+import { Label } from '@/Components/ui/label'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/Components/ui/pagination'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/Components/ui/select'
+import { Separator } from '@/Components/ui/separator'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/Components/ui/sheet'
+import { Skeleton } from '@/Components/ui/skeleton'
+import { Toaster } from '@/Components/ui/sonner'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmpty,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/Components/ui/table'
+import { Textarea } from '@/Components/ui/textarea'
+
+const colorSwatches = [
+  { token: 'background', classes: 'bg-background text-foreground' },
+  { token: 'foreground', classes: 'bg-foreground text-background' },
+  { token: 'card', classes: 'bg-card text-card-foreground' },
+  { token: 'muted', classes: 'bg-muted text-foreground' },
+  { token: 'muted-foreground', classes: 'bg-muted-foreground text-background' },
+  { token: 'secondary', classes: 'bg-secondary text-secondary-foreground' },
+  { token: 'primary', classes: 'bg-primary text-primary-foreground' },
+  { token: 'accent', classes: 'bg-accent text-accent-foreground' },
+  { token: 'destructive', classes: 'bg-destructive text-destructive-foreground' },
+  { token: 'border', classes: 'bg-border text-foreground' },
+  { token: 'input', classes: 'bg-input text-foreground' },
+  { token: 'ring', classes: 'bg-ring text-primary-foreground' },
+  { token: 'success', classes: 'bg-success text-success-foreground' },
+  { token: 'warning', classes: 'bg-warning text-warning-foreground' },
+  { token: 'info', classes: 'bg-info text-info-foreground' },
+  { token: 'meal-breakfast', classes: 'bg-meal-breakfast text-meal-breakfast-foreground' },
+  { token: 'meal-supper', classes: 'bg-meal-supper text-meal-supper-foreground' },
+  { token: 'meal-dinner', classes: 'bg-meal-dinner text-meal-dinner-foreground' },
+]
+
+const typographyRoles = [
+  { role: 'Tytuł strony', classes: 'text-2xl font-semibold tracking-tight', sample: 'Jadłospis na tydzień' },
+  { role: 'Tytuł sekcji / karty', classes: 'text-lg font-semibold', sample: 'Lista zakupów' },
+  { role: 'Tekst', classes: 'text-sm', sample: 'Zupa pomidorowa z makaronem i świeżą bazylią.' },
+  { role: 'Etykieta', classes: 'text-sm font-medium', sample: 'Nazwa przepisu' },
+  { role: 'Metadane', classes: 'text-xs text-muted-foreground', sample: '420 kcal · 4 porcje · 12 listopada' },
+]
+
+const amounts = [
+  { name: 'Mąka pszenna', amount: '1,25 kg' },
+  { name: 'Mleko 2%', amount: '0,50 l' },
+  { name: 'Masło', amount: '250,00 g' },
+]
+
+const shapes = [
+  { label: 'rounded-sm', classes: 'rounded-sm' },
+  { label: 'rounded-md', classes: 'rounded-md' },
+  { label: 'rounded-lg', classes: 'rounded-lg' },
+  { label: 'rounded-full', classes: 'rounded-full' },
+]
+
+const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']
+const buttonSizes = [
+  { size: 'xs', label: 'Mały xs' },
+  { size: 'sm', label: 'Mały' },
+  { size: 'default', label: 'Domyślny' },
+  { size: 'lg', label: 'Duży' },
+]
+
+const badgeVariants = [
+  { variant: 'default', label: 'Domyślna' },
+  { variant: 'secondary', label: 'Drugorzędna' },
+  { variant: 'destructive', label: 'Błąd' },
+  { variant: 'outline', label: 'Kontur' },
+  { variant: 'breakfast', label: 'Śniadanie' },
+  { variant: 'supper', label: 'Obiad' },
+  { variant: 'dinner', label: 'Kolacja' },
+  { variant: 'success', label: 'Gotowy' },
+  { variant: 'warning', label: 'Ostrzeżenie' },
+  { variant: 'info', label: 'W toku' },
+  { variant: 'muted', label: 'Wyciszona' },
+]
+
+const selectOptions = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
+
+const recipes = [
+  { name: 'Owsianka z jabłkiem', kcal: 320, portions: 2 },
+  { name: 'Rosół z makaronem', kcal: 410, portions: 4 },
+  { name: 'Kanapki z pastą jajeczną', kcal: 380, portions: 3 },
+]
+
+const comboboxValue = ref(undefined)
+const page = ref(2)
+
+const shellItems = mainNavigation.map((item) => ({
+  label: item.label,
+  href: route(item.routeName),
+  icon: item.icon,
+  current: item.routeName === 'recipes.index',
+}))
+const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
+const shellExpandedCollapsed = ref(false)
+const shellCollapsedCollapsed = ref(true)
+const appCategories = ['breakfast', 'supper', 'dinner']
+const appStatuses = ['pending', 'processing', 'done', 'error']
+const appSort = ref({ column: 'name', direction: 'asc' })
+const appPaginationMeta = ref({
+  current_page: 2,
+  last_page: 5,
+  per_page: 10,
+  total: 50,
+  from: 11,
+  to: 20,
+})
+const confirmOpen = ref(false)
+const processingOpen = ref(false)
+
+const handleAppSort = (value) => {
+  appSort.value = value
+}
+
+const handleAppPageChange = (newPage) => {
+  appPaginationMeta.value = {
+    ...appPaginationMeta.value,
+    current_page: newPage,
+    from: (newPage - 1) * 10 + 1,
+    to: newPage * 10,
+  }
+}
+
+const showToast = () => {
+  toast('Zapisano przepis', {
+    description: 'Zmiany są już widoczne w jadłospisie.',
+    duration: Infinity,
+  })
+}
+</script>
+
+<template>
+  <Head title="Design system" />
+
+  <div class="min-h-screen bg-background text-foreground">
+    <Toaster />
+
+    <main class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10">
+      <header class="flex flex-col gap-2">
+        <h1 class="text-2xl font-semibold tracking-tight">Design system</h1>
+        <p class="text-sm text-muted-foreground">
+          Tokeny, typografia i prymitywy interfejsu w stanach referencyjnych.
+        </p>
+      </header>
+
+      <section aria-labelledby="ds-kolory" class="flex flex-col gap-4">
+        <h2 id="ds-kolory" class="text-lg font-semibold">Kolory</h2>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <div
+            v-for="swatch in colorSwatches"
+            :key="swatch.token"
+            :class="['flex h-20 items-end rounded-lg border p-2 text-xs font-medium', swatch.classes]"
+          >
+            {{ swatch.token }}
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-typografia" class="flex flex-col gap-4">
+        <h2 id="ds-typografia" class="text-lg font-semibold">Typografia</h2>
+        <div class="flex flex-col gap-3">
+          <div v-for="item in typographyRoles" :key="item.role" class="flex flex-col gap-1">
+            <span class="text-xs text-muted-foreground">{{ item.role }}</span>
+            <span :class="item.classes">{{ item.sample }}</span>
+          </div>
+        </div>
+        <ul class="flex max-w-sm flex-col rounded-lg border bg-card text-sm">
+          <li
+            v-for="item in amounts"
+            :key="item.name"
+            class="flex items-center justify-between gap-4 border-b px-4 py-2 last:border-b-0"
+          >
+            <span>{{ item.name }}</span>
+            <span class="text-right tabular-nums">{{ item.amount }}</span>
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="ds-ksztalt" class="flex flex-col gap-4">
+        <h2 id="ds-ksztalt" class="text-lg font-semibold">Kształt i cienie</h2>
+        <div class="flex flex-wrap items-center gap-4">
+          <div
+            v-for="shape in shapes"
+            :key="shape.label"
+            :class="['flex size-20 items-center justify-center border bg-muted p-1 text-center text-xs', shape.classes]"
+          >
+            {{ shape.label }}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="rounded-lg border bg-card p-4 text-sm">Karta: ramka, bez cienia</div>
+          <div class="rounded-lg bg-card p-4 text-sm shadow-sm">shadow-sm</div>
+          <div class="rounded-lg bg-card p-4 text-sm shadow-lg">shadow-lg</div>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-przyciski" class="flex flex-col gap-4">
+        <h2 id="ds-przyciski" class="text-lg font-semibold">Przyciski</h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <Button v-for="variant in buttonVariants" :key="variant" :variant="variant">
+            {{ variant }}
+          </Button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <Button v-for="variant in buttonVariants" :key="variant" :variant="variant" disabled>
+            {{ variant }}
+          </Button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <Button v-for="item in buttonSizes" :key="item.size" :size="item.size">
+            {{ item.label }}
+          </Button>
+          <Button size="icon" aria-label="Dodaj przepis">
+            <Plus />
+          </Button>
+          <Button disabled>
+            <Loader2 class="animate-spin" />
+            Zapisywanie…
+          </Button>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-odznaki" class="flex flex-col gap-4">
+        <h2 id="ds-odznaki" class="text-lg font-semibold">Odznaki</h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <Badge v-for="item in badgeVariants" :key="item.variant" :variant="item.variant">
+            {{ item.label }}
+          </Badge>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-komunikaty" class="flex flex-col gap-4">
+        <h2 id="ds-komunikaty" class="text-lg font-semibold">Komunikaty</h2>
+        <div class="flex max-w-2xl flex-col gap-3">
+          <Alert>
+            <Info />
+            <AlertTitle>Wskazówka</AlertTitle>
+            <AlertDescription>Jadłospis generuje się w tle, możesz zamknąć tę stronę.</AlertDescription>
+          </Alert>
+          <Alert variant="destructive">
+            <AlertCircle />
+            <AlertTitle>Nie udało się zapisać</AlertTitle>
+            <AlertDescription>Sprawdź połączenie i spróbuj ponownie.</AlertDescription>
+          </Alert>
+          <Alert variant="warning">
+            <TriangleAlert />
+            <AlertTitle>Ilości bez dopracowania</AlertTitle>
+            <AlertDescription>AI nie odpowiedziało, użyliśmy ilości wyliczonych automatycznie.</AlertDescription>
+          </Alert>
+          <Alert variant="info">
+            <Info />
+            <AlertTitle>Generowanie w toku</AlertTitle>
+            <AlertDescription>Przygotowujemy jadłospis na cały tydzień.</AlertDescription>
+          </Alert>
+          <Alert variant="success">
+            <CheckCircle2 />
+            <AlertTitle>Jadłospis gotowy</AlertTitle>
+            <AlertDescription>Możesz pobrać PDF z listą zakupów.</AlertDescription>
+          </Alert>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-formularze" class="flex flex-col gap-4">
+        <h2 id="ds-formularze" class="text-lg font-semibold">Formularze</h2>
+        <div class="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <Label for="ds-input-default">Nazwa przepisu</Label>
+            <Input id="ds-input-default" model-value="Zupa pomidorowa" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="ds-input-placeholder">Opis</Label>
+            <Input id="ds-input-placeholder" placeholder="Krótki opis przepisu" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="ds-input-disabled">Autor</Label>
+            <Input id="ds-input-disabled" model-value="Jan Kowalski" disabled />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="ds-input-invalid">Liczba porcji</Label>
+            <Input
+              id="ds-input-invalid"
+              model-value="abc"
+              aria-invalid="true"
+              aria-describedby="ds-input-invalid-error"
+            />
+            <p id="ds-input-invalid-error" class="text-sm text-destructive">Podaj liczbę porcji.</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="ds-textarea-default">Instrukcja</Label>
+            <Textarea id="ds-textarea-default" placeholder="Opisz kolejne kroki" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="ds-textarea-disabled">Notatki</Label>
+            <Textarea id="ds-textarea-disabled" model-value="Pole zablokowane" disabled />
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <div class="flex items-center gap-2">
+            <Checkbox id="ds-checkbox-off" />
+            <Label for="ds-checkbox-off">Bez glutenu</Label>
+          </div>
+          <div class="flex items-center gap-2">
+            <Checkbox id="ds-checkbox-on" :model-value="true" />
+            <Label for="ds-checkbox-on">Wegetariańskie</Label>
+          </div>
+          <div class="flex items-center gap-2">
+            <Checkbox id="ds-checkbox-disabled" disabled />
+            <Label for="ds-checkbox-disabled">Niedostępne</Label>
+          </div>
+        </div>
+        <div class="grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <Label>Kategoria (Select)</Label>
+            <Select>
+              <SelectTrigger aria-label="Kategoria">
+                <SelectValue placeholder="Wybierz kategorię" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="option in selectOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label>Kategoria (Combobox)</Label>
+            <Combobox v-model="comboboxValue">
+              <ComboboxAnchor class="w-full">
+                <ComboboxInput
+                  aria-label="Kategoria"
+                  placeholder="Szukaj kategorii"
+                  :display-value="(value) => value?.label ?? ''"
+                />
+              </ComboboxAnchor>
+              <ComboboxList>
+                <ComboboxEmpty class="p-2 text-sm text-muted-foreground">Brak wyników</ComboboxEmpty>
+                <ComboboxItem v-for="option in selectOptions" :key="option.value" :value="option">
+                  {{ option.label }}
+                </ComboboxItem>
+              </ComboboxList>
+            </Combobox>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-karta-tabela" class="flex flex-col gap-4">
+        <h2 id="ds-karta-tabela" class="text-lg font-semibold">Karta i tabela</h2>
+        <Card class="max-w-md">
+          <CardHeader>
+            <CardTitle>Zupa pomidorowa</CardTitle>
+            <CardDescription>Klasyczny przepis na obiad dla całej rodziny.</CardDescription>
+          </CardHeader>
+          <CardContent class="text-sm">Czas przygotowania: 40 minut, 4 porcje.</CardContent>
+          <CardFooter class="gap-2">
+            <Button size="sm">Otwórz</Button>
+            <Button size="sm" variant="outline">Edytuj</Button>
+          </CardFooter>
+        </Card>
+        <div class="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Przepis</TableHead>
+                <TableHead class="text-right">Kalorie</TableHead>
+                <TableHead class="text-right">Porcje</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="recipe in recipes" :key="recipe.name">
+                <TableCell>{{ recipe.name }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ recipe.kcal }}</TableCell>
+                <TableCell class="text-right tabular-nums">{{ recipe.portions }}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+        <div class="rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Przepis</TableHead>
+                <TableHead class="text-right">Kalorie</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableEmpty :colspan="2">Brak przepisów</TableEmpty>
+            </TableBody>
+          </Table>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-ladowanie" class="flex flex-col gap-4">
+        <h2 id="ds-ladowanie" class="text-lg font-semibold">Ładowanie i rozwijanie</h2>
+        <div class="flex max-w-md flex-col gap-2">
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-3/4" />
+          <Skeleton class="h-4 w-1/2" />
+        </div>
+        <div class="flex max-w-md flex-col gap-3">
+          <Collapsible class="rounded-lg border bg-card p-3">
+            <CollapsibleTrigger as-child>
+              <Button variant="ghost" size="sm">Składniki (zwinięte)</Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent class="pt-2 text-sm">Pomidory, bulion, makaron.</CollapsibleContent>
+          </Collapsible>
+          <Collapsible default-open class="rounded-lg border bg-card p-3">
+            <CollapsibleTrigger as-child>
+              <Button variant="ghost" size="sm">Składniki (rozwinięte)</Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent class="pt-2 text-sm">Mąka, jajka, mleko, masło.</CollapsibleContent>
+          </Collapsible>
+        </div>
+        <Separator />
+        <div class="flex items-center gap-3">
+          <Avatar>
+            <AvatarFallback>JK</AvatarFallback>
+          </Avatar>
+          <span class="text-sm">Jan Kowalski</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-paginacja" class="flex flex-col gap-4">
+        <h2 id="ds-paginacja" class="text-lg font-semibold">Paginacja</h2>
+        <Pagination
+          v-slot="{ page: currentPage }"
+          v-model:page="page"
+          :items-per-page="10"
+          :total="50"
+          :sibling-count="1"
+          show-edges
+          aria-label="Paginacja"
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious>
+              <span>Poprzednia</span>
+            </PaginationPrevious>
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem v-if="item.type === 'page'" :value="item.value" :is-active="item.value === currentPage">
+                {{ item.value }}
+              </PaginationItem>
+              <PaginationEllipsis v-else :index="index" />
+            </template>
+            <PaginationNext>
+              <span>Następna</span>
+            </PaginationNext>
+          </PaginationContent>
+        </Pagination>
+      </section>
+
+      <section aria-labelledby="ds-nakladki" class="flex flex-col gap-4">
+        <h2 id="ds-nakladki" class="text-lg font-semibold">Nakładki</h2>
+        <p class="text-sm text-muted-foreground">
+          Select i Combobox z sekcji Formularze to pozostałe dwie nakładki.
+        </p>
+        <div class="flex flex-wrap items-center gap-2">
+          <Dialog>
+            <DialogTrigger as-child>
+              <Button variant="outline">Otwórz dialog</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Nowy przepis</DialogTitle>
+                <DialogDescription>Podaj nazwę, aby dodać przepis do biblioteki.</DialogDescription>
+              </DialogHeader>
+              <div class="flex flex-col gap-2">
+                <Label for="ds-dialog-name">Nazwa</Label>
+                <Input id="ds-dialog-name" placeholder="Np. Zupa pomidorowa" />
+              </div>
+              <DialogFooter>
+                <Button>Zapisz</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <AlertDialog>
+            <AlertDialogTrigger as-child>
+              <Button variant="destructive">Otwórz potwierdzenie</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Usunąć przepis?</AlertDialogTitle>
+                <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction>Usuń</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Sheet>
+            <SheetTrigger as-child>
+              <Button variant="outline">Otwórz panel</Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Filtry</SheetTitle>
+                <SheetDescription>Zawęź listę przepisów według kategorii.</SheetDescription>
+              </SheetHeader>
+            </SheetContent>
+          </Sheet>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button variant="outline">Otwórz menu</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Konto</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Profil</DropdownMenuItem>
+              <DropdownMenuItem>Wyloguj</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="outline" @click="showToast">Pokaż powiadomienie</Button>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-powloka" class="flex flex-col gap-4">
+        <h2 id="ds-powloka" class="text-lg font-semibold">Powłoka</h2>
+        <div class="flex flex-wrap items-start gap-6">
+          <div data-testid="shell-sidebar-expanded" class="h-96 w-64 overflow-hidden rounded-lg border">
+            <AppSidebar
+              :items="shellItems"
+              :collapsed="shellExpandedCollapsed"
+              collapsible
+              @toggle-collapse="shellExpandedCollapsed = !shellExpandedCollapsed"
+            />
+          </div>
+          <div data-testid="shell-sidebar-collapsed" class="h-96 w-16 overflow-hidden rounded-lg border">
+            <AppSidebar
+              :items="shellItems"
+              :collapsed="shellCollapsedCollapsed"
+              collapsible
+              @toggle-collapse="shellCollapsedCollapsed = !shellCollapsedCollapsed"
+            />
+          </div>
+        </div>
+        <div class="flex items-center">
+          <UserMenu :user="shellUser" />
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-komponenty-aplikacji" class="flex flex-col gap-4">
+        <h2 id="ds-komponenty-aplikacji" class="text-lg font-semibold">Komponenty aplikacji</h2>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <CategoryBadge v-for="category in appCategories" :key="category" :category="category" />
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <StatusTag v-for="status in appStatuses" :key="status" :value="status" />
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <SortableHeader
+                column="name"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Nazwa
+              </SortableHeader>
+              <SortableHeader
+                column="kcal"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Kalorie
+              </SortableHeader>
+              <SortableHeader
+                column="portions"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Porcje
+              </SortableHeader>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="recipe in recipes" :key="recipe.name">
+              <TableCell>{{ recipe.name }}</TableCell>
+              <TableCell class="tabular-nums">{{ recipe.kcal }}</TableCell>
+              <TableCell class="tabular-nums">{{ recipe.portions }}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <ServerPagination :meta="appPaginationMeta" @page-change="handleAppPageChange" />
+
+        <div class="flex flex-wrap items-center gap-2">
+          <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
+          <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
+        </div>
+
+        <ConfirmDialog
+          v-model:open="confirmOpen"
+          title="Usuń przepis"
+          description="Czy na pewno chcesz usunąć przepis „Rosół z makaronem”? Tej operacji nie można cofnąć."
+          confirm-label="Usuń"
+          variant="destructive"
+          @confirm="confirmOpen = false"
+        />
+        <ConfirmDialog
+          v-model:open="processingOpen"
+          title="Usuń przepis"
+          description="Czy na pewno chcesz usunąć przepis „Rosół z makaronem”? Tej operacji nie można cofnąć."
+          confirm-label="Usuń"
+          variant="destructive"
+          processing
+        />
+      </section>
+    </main>
+  </div>
+</template>

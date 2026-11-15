@@ -1,0 +1,14 @@
+# Paths scanned by `npm run lint:tokens` (one per line; # comments and blank lines are ignored).
+# Each migration slice appends the paths it migrated, in its own change.
+# Files under Components/ui/ are always excluded.
+resources/js/Pages/Dev
+resources/js/Components/Common/AppSidebar.vue
+resources/js/Components/Common/UserMenu.vue
+resources/js/lib/navigation.js
+resources/js/Layouts/AuthenticatedLayout.vue
+resources/js/app.js
+resources/js/Layouts/GuestLayout.vue
+resources/js/Pages/Dashboard.vue
+resources/js/Components/Common
+resources/js/Components/recipes/CategoryBadge.vue
+resources/js/Components/MealPlans/StatusTag.vue

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CheckCircle2, Info, Loader2, Plus, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CheckCircle2, Info, Loader2, Plus, TriangleAlert, UtensilsCrossed } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -20,6 +20,8 @@ import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import PageHeader from '@/Components/Common/PageHeader.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
@@ -630,6 +632,23 @@ const showToast = () => {
 
       <section aria-labelledby="ds-komponenty-aplikacji" class="flex flex-col gap-4">
         <h2 id="ds-komponenty-aplikacji" class="text-lg font-semibold">Komponenty aplikacji</h2>
+
+        <PageHeader as="h2" title="Jadłospis" description="12.01.2026 – 18.01.2026">
+          <template #actions>
+            <StatusTag value="done" />
+            <Button variant="outline">Pobierz PDF</Button>
+          </template>
+        </PageHeader>
+        <PageHeader as="h2" title="Przepisy" />
+        <EmptyState
+          :icon="UtensilsCrossed"
+          title="Brak posiłków w jadłospisie"
+          description="Wygeneruj jadłospis ponownie, aby uzupełnić tydzień."
+        >
+          <template #action>
+            <Button>Wygeneruj ponownie</Button>
+          </template>
+        </EmptyState>
 
         <div class="flex flex-wrap items-center gap-2">
           <CategoryBadge v-for="category in appCategories" :key="category" :category="category" />

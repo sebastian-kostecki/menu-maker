@@ -2,90 +2,94 @@
   <Head :title="`Jadłospis ${dateRange}`" />
 
   <AuthenticatedLayout>
-    <template #header>
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
-            Jadłospis
-          </h1>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ dateRange }}
-          </p>
-        </div>
-        <div class="flex items-center gap-3">
+    <div class="flex flex-col gap-6">
+      <PageHeader title="Jadłospis" :description="dateRange">
+        <template #actions>
           <StatusTag :value="mealPlan.status as any" />
           <Button v-if="mealPlan.links.pdf" variant="outline" as-child>
             <a :href="mealPlan.links.pdf" target="_blank" rel="noopener">
-              <Download class="mr-2 h-4 w-4" />
+              <FileDown class="size-4" aria-hidden="true" />
               Pobierz PDF
             </a>
           </Button>
           <Button v-if="canRegenerate" variant="outline" @click="showRegenerateDialog = true">
-            <RefreshCw class="mr-2 h-4 w-4" />
+            <RefreshCw class="size-4" aria-hidden="true" />
             Regeneruj
           </Button>
           <ActionDropdown :item="mealPlan" />
-        </div>
-      </div>
-    </template>
+        </template>
+      </PageHeader>
 
-    <div class="space-y-6">
       <template v-if="isGenerating">
-        <p class="text-sm text-gray-600 dark:text-gray-400" role="status">
+        <p class="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+          <Loader2 class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           Generujemy jadłospis…
         </p>
-        <p v-if="isSlow" class="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
-          Generowanie trwa dłużej niż zwykle. Sprawdź, czy działa worker kolejki, albo odśwież stronę.
-        </p>
+        <Alert v-if="isSlow" variant="warning">
+          <TriangleAlert aria-hidden="true" />
+          <AlertDescription>
+            Generowanie trwa dłużej niż zwykle. Sprawdź, czy działa worker kolejki, albo odśwież stronę.
+          </AlertDescription>
+        </Alert>
         <MealPlanGrid :start-date="mealPlan.start_date" skeleton />
       </template>
 
-      <div v-else-if="mealPlan.status === 'error'" class="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-900 dark:bg-red-900/20">
-        <p class="text-sm text-red-700 dark:text-red-300">
-          {{ errorMessage }}
-        </p>
-        <Button class="mt-4" @click="showRegenerateDialog = true">
-          <RefreshCw class="mr-2 h-4 w-4" />
-          Regeneruj
-        </Button>
-      </div>
+      <Alert v-else-if="mealPlan.status === 'error'" variant="destructive">
+        <AlertCircle aria-hidden="true" />
+        <AlertTitle>Generowanie nie powiodło się</AlertTitle>
+        <AlertDescription>{{ errorMessage }}</AlertDescription>
+        <div class="col-start-2 mt-3">
+          <Button @click="showRegenerateDialog = true">
+            <RefreshCw class="size-4" aria-hidden="true" />
+            Regeneruj
+          </Button>
+        </div>
+      </Alert>
 
-      <div v-else-if="!mealPlan.meals || mealPlan.meals.length === 0" class="rounded-lg border border-gray-200 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-800">
-        <ChefHat class="mx-auto h-12 w-12 text-gray-400" />
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          Ten jadłospis nie ma jeszcze posiłków.
-        </p>
-        <Button class="mt-4" @click="showRegenerateDialog = true">
-          <RefreshCw class="mr-2 h-4 w-4" />
-          Regeneruj
-        </Button>
-      </div>
+      <EmptyState
+        v-else-if="!mealPlan.meals || mealPlan.meals.length === 0"
+        :icon="CalendarDays"
+        title="Brak posiłków"
+        description="Ten jadłospis nie ma jeszcze posiłków."
+      >
+        <template #action>
+          <Button @click="showRegenerateDialog = true">
+            <RefreshCw class="size-4" aria-hidden="true" />
+            Regeneruj
+          </Button>
+        </template>
+      </EmptyState>
 
       <template v-else>
-        <div
-          v-if="mealPlan.scaling?.notices.length"
-          class="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-900/20 dark:text-amber-200"
-          data-testid="scaling-notice"
-        >
-          <p v-for="notice in mealPlan.scaling.notices" :key="notice">
-            {{ notice }}
-          </p>
-          <Link
-            v-if="mealPlan.scaling.status === 'as_written'"
-            :href="route('family-members.index')"
-            class="mt-2 inline-block font-medium underline"
-          >
-            Przejdź do profilu rodziny
-          </Link>
+        <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" data-testid="scaling-notice">
+          <TriangleAlert aria-hidden="true" />
+          <AlertDescription>
+            <p v-for="notice in mealPlan.scaling.notices" :key="notice">
+              {{ notice }}
+            </p>
+            <Link
+              v-if="mealPlan.scaling.status === 'as_written'"
+              :href="route('family-members.index')"
+              class="mt-2 inline-block rounded-sm font-medium underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Przejdź do profilu rodziny
+            </Link>
+          </AlertDescription>
+        </Alert>
+        <div class="flex flex-col gap-6 xl:flex-row xl:items-start">
+          <div class="min-w-0 xl:flex-1">
+            <MealPlanGrid :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
+          </div>
+          <div v-if="shoppingList" class="xl:w-72 xl:shrink-0">
+            <ShoppingList :list="shoppingList" />
+          </div>
         </div>
-        <MealPlanGrid :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
-        <ShoppingList v-if="shoppingList" :list="shoppingList" />
       </template>
 
       <div class="flex justify-start">
         <Button variant="outline" as-child>
           <Link :href="route('meal-plans.index')">
-            <ArrowLeft class="mr-2 h-4 w-4" />
+            <ArrowLeft class="size-4" aria-hidden="true" />
             Wróć do jadłospisów
           </Link>
         </Button>
@@ -106,10 +110,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Head, Link, router, usePoll } from '@inertiajs/vue3'
-import { ArrowLeft, ChefHat, Download, RefreshCw } from 'lucide-vue-next'
+import { AlertCircle, ArrowLeft, CalendarDays, FileDown, Loader2, RefreshCw, TriangleAlert } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import { Button } from '@/Components/ui/button'
+import PageHeader from '@/Components/Common/PageHeader.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
@@ -171,7 +178,7 @@ const regenerating = ref(false)
 const isSlow = ref(false)
 
 const isGenerating = computed(() => ['pending', 'processing'].includes(props.mealPlan.status))
-const canRegenerate = computed(() => ['done', 'error'].includes(props.mealPlan.status))
+const canRegenerate = computed(() => props.mealPlan.status === 'done' && (props.mealPlan.meals?.length ?? 0) > 0)
 const errorMessage = computed(
   () => props.mealPlan.generation_meta?.error_message ?? 'Generowanie jadłospisu nie powiodło się.'
 )

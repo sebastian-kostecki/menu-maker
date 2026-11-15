@@ -601,11 +601,11 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [x] 2.1 Build passes
-- [x] 2.2 Token scan passes with the two new paths
-- [x] 2.3 The two files have no literals left
-- [x] 2.4 No details element remains in the grid
-- [x] 2.5 Meal plan E2E passes in both browsers with the updated selector
+- [x] 2.1 Build passes — 180bf2d
+- [x] 2.2 Token scan passes with the two new paths — 180bf2d
+- [x] 2.3 The two files have no literals left — 180bf2d
+- [x] 2.4 No details element remains in the grid — 180bf2d
+- [x] 2.5 Meal plan E2E passes in both browsers with the updated selector — 180bf2d
 
 #### Manual
 
@@ -616,11 +616,11 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Token scan passes with Show.vue added
-- [ ] 3.3 No literals remain in the view
-- [ ] 3.4 Show-page Pest coverage still passes
-- [ ] 3.5 The full E2E suite passes in both browsers
+- [x] 3.1 Build passes
+- [x] 3.2 Token scan passes with Show.vue added
+- [x] 3.3 No literals remain in the view
+- [x] 3.4 Show-page Pest coverage still passes
+- [x] 3.5 The full E2E suite passes in both browsers
 
 #### Manual
 

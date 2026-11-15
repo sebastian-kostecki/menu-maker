@@ -14,3 +14,4 @@ resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
 resources/js/Components/MealPlans/MealPlanGrid.vue
 resources/js/Components/MealPlans/ShoppingList.vue
+resources/js/Pages/MealPlans/Show.vue

@@ -197,11 +197,11 @@ Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `
 
 | Komponent | Zastępuje | Kontrakt |
 | --- | --- | --- |
-| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
+| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | Zrealizowany (S-09). Props `title`, `description?`, `as?: 'h1' \| 'h2'` (domyślnie `h1`); sloty `actions`, `breadcrumbs`. Renderowany na początku obszaru treści, nie w slocie `#header`; jedno `<h1>` na stronę. Fallback paska w layoucie to zwykły tekst „Menu Maker”, nie nagłówek |
 | `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `open` (`v-model:open`), `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; emituje `confirm`; fokus na „Anuluj”; zostaje otwarty, dopóki `processing` |
 | `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta` (bez `links`); emituje `page-change`; `aria-label="Paginacja"` |
 | `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; renderuje `TableHead`; `aria-sort`; emituje `sort-change({column, direction})` |
-| `EmptyState` | Ad hoc puste tabele | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
+| `EmptyState` | Ad hoc puste tabele | Zrealizowany (S-09). Props `icon` (komponent), `title`, `description?`; slot `action` na CTA („Dodaj przepis”, „Wygeneruj jadłospis”, „Regeneruj”) |
 | `FormField` | `InputLabel` + `InputError` | **Odroczony** do S-13. Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
 | `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Zrealizowany jako `Common/AppSidebar` i `Common/UserMenu`, z `AuthenticatedLayout` jako opakowaniem. Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary`; nawigacja mobilna na `ui/sheet`; zwinięcie panelu zapamiętane w localStorage |
 
@@ -209,8 +209,8 @@ Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `
 
 - `CategoryBadge` — tylko `<Badge :variant="category">`, bez klas kolorów.
 - `StatusTag` — `<Badge :variant>` wg mapowania z 4.4, z ikoną spinnera dla `processing`.
-- `MealPlanGrid` — komórka z lewą kreską w kolorze kategorii (`border-l-4 border-meal-*`), składniki w `Collapsible`, skeleton z `ui/skeleton`.
-- `ShoppingList` — `Card` z listą, ilości `tabular-nums` do prawej.
+- `MealPlanGrid` — komórka z lewą kreską w kolorze kategorii (`border-l-4 border-meal-*-foreground`; blada wypełniona wersja `meal-*` jest niewidoczna jako 4-pikselowa linia na bieli), składniki w `Collapsible`, skeleton z `ui/skeleton`.
+- `ShoppingList` — `Card` z listą, ilości `tabular-nums` do prawej. Od `xl` stoi obok siatki (`xl:w-72`), poniżej `xl` pod nią.
 - `IngredientCard`, `RecipeMetaBadges` — tokeny + ikony lucide zamiast `<svg>`.
 
 ### 5.4 Stany, które każdy komponent pokazuje w kitchen sink

@@ -623,10 +623,10 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token scan is green with the four new paths: `vendor/bin/sail npm run lint:tokens`
-- [x] 2.3 No localStorage reference remains in the page: `grep -n "localStorage" resources/js/Pages/MealPlans/Index.vue` prints nothing
-- [x] 2.4 Index feature tests pass: `vendor/bin/sail pest --filter=MealPlanControllerTest`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — b325fba
+- [x] 2.2 Token scan is green with the four new paths: `vendor/bin/sail npm run lint:tokens` — b325fba
+- [x] 2.3 No localStorage reference remains in the page: `grep -n "localStorage" resources/js/Pages/MealPlans/Index.vue` prints nothing — b325fba
+- [x] 2.4 Index feature tests pass: `vendor/bin/sail pest --filter=MealPlanControllerTest` — b325fba
 
 #### Manual
 
@@ -639,11 +639,11 @@ None. The page renders the same paginated data. Removing the localStorage watch 
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.2 Token scan is green with all eight view files listed: `vendor/bin/sail npm run lint:tokens`
-- [ ] 3.3 No English table copy remains: `grep -nE "Date Range|Meals|Logs|Created|Actions|No meal plans|results" resources/js/Components/MealPlans/{MealPlanTable,MealPlanRow,FiltersBar}.vue` prints nothing
-- [ ] 3.4 Generate flow E2E passes unchanged, after `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder`: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npx playwright test tests/e2e/meal-plan.spec.ts --project=chromium --project=firefox`
-- [ ] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 3.2 Token scan is green with all eight view files listed: `vendor/bin/sail npm run lint:tokens`
+- [x] 3.3 No English table copy remains: `grep -nE "Date Range|Meals|Logs|Created|Actions|No meal plans|results" resources/js/Components/MealPlans/{MealPlanTable,MealPlanRow,FiltersBar}.vue` prints nothing
+- [x] 3.4 Generate flow E2E passes unchanged, after `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder`: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npx playwright test tests/e2e/meal-plan.spec.ts --project=chromium --project=firefox`
+- [x] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
 
 #### Manual
 

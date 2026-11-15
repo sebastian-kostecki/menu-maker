@@ -1,71 +1,65 @@
 <template>
-  <div class="space-y-4">
-    <!-- Table -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-      <Table>
-        <TableHeader>
-          <TableRow class="bg-gray-50 dark:bg-gray-800">
-            <SortableHeader
-              class="w-[200px] font-semibold"
-              column="start_date"
-              :sort="sort ?? ''"
-              :direction="direction ?? 'asc'"
-              @sort-change="handleSortChange"
-            >
-              Date Range
-            </SortableHeader>
-            <SortableHeader
-              class="w-[120px] font-semibold"
-              column="status"
-              :sort="sort ?? ''"
-              :direction="direction ?? 'asc'"
-              @sort-change="handleSortChange"
-            >
-              Status
-            </SortableHeader>
-            <TableHead class="w-[100px] font-semibold">Meals</TableHead>
-            <TableHead class="w-[100px] font-semibold">Logs</TableHead>
-            <SortableHeader
-              class="w-[120px] font-semibold"
-              column="created_at"
-              :sort="sort ?? ''"
-              :direction="direction ?? 'asc'"
-              @sort-change="handleSortChange"
-            >
-              Created
-            </SortableHeader>
-            <TableHead class="w-[120px] text-right font-semibold">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <MealPlanRow
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
-          />
-          <TableEmpty v-if="items.length === 0" :colspan="6" class="whitespace-normal">
-            <EmptyState
-              v-if="filtered"
-              :icon="CalendarDays"
-              title="Brak jadłospisów o wybranym statusie"
-            >
-              <Button variant="outline" @click="emit('clear-filters')">
-                Wyczyść filtry
-              </Button>
-            </EmptyState>
-            <EmptyState
-              v-else
-              :icon="CalendarDays"
-              title="Nie masz jeszcze jadłospisów"
-              description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
-            >
-              <GenerateMealPlanDialog label="Wygeneruj pierwszy jadłospis" />
-            </EmptyState>
-          </TableEmpty>
-        </TableBody>
-      </Table>
-    </div>
-  </div>
+  <Table>
+    <TableHeader>
+      <TableRow class="bg-muted">
+        <SortableHeader
+          column="start_date"
+          :sort="sort ?? ''"
+          :direction="direction ?? 'asc'"
+          @sort-change="handleSortChange"
+        >
+          Tydzień
+        </SortableHeader>
+        <SortableHeader
+          column="status"
+          :sort="sort ?? ''"
+          :direction="direction ?? 'asc'"
+          @sort-change="handleSortChange"
+        >
+          Status
+        </SortableHeader>
+        <TableHead class="hidden text-right font-semibold text-foreground sm:table-cell">Posiłki</TableHead>
+        <SortableHeader
+          class="hidden sm:table-cell"
+          column="created_at"
+          :sort="sort ?? ''"
+          :direction="direction ?? 'asc'"
+          @sort-change="handleSortChange"
+        >
+          Utworzono
+        </SortableHeader>
+        <TableHead class="text-right">
+          <span class="sr-only">Akcje</span>
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      <MealPlanRow
+        v-for="item in items"
+        :key="item.id"
+        :item="item"
+      />
+      <TableEmpty v-if="items.length === 0" :colspan="5" class="whitespace-normal">
+        <EmptyState
+          v-if="filtered"
+          :icon="CalendarDays"
+          title="Brak jadłospisów o wybranym statusie"
+        >
+          <Button variant="outline" @click="emit('clear-filters')">
+            Wyczyść filtry
+          </Button>
+        </EmptyState>
+        <EmptyState
+          v-else
+          :icon="CalendarDays"
+          title="Nie masz jeszcze jadłospisów"
+          description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+        >
+          <GenerateMealPlanDialog label="Wygeneruj pierwszy jadłospis" />
+        </EmptyState>
+      </TableEmpty>
+    </TableBody>
+  </Table>
 </template>
 
 <script setup lang="ts">

@@ -171,9 +171,25 @@ const handleFiltersChange = (newFilters: FiltersState) => {
   })
 }
 
-// Handle page change (keeps filters and sort)
+// Handle page change: continue the list the server returned (props.filters echoes the URL),
+// not localFilters, which may hold stale values restored from localStorage.
 const handlePageChange = (page: number) => {
-  router.get(route('meal-plans.index'), { ...buildQuery(), page }, {
+  const query: Record<string, any> = { page }
+
+  if (props.filters.filter?.status) {
+    query['filter[status]'] = props.filters.filter.status
+  }
+  if (props.filters.sort) {
+    query.sort = props.filters.sort
+  }
+  if (props.filters.direction) {
+    query.direction = props.filters.direction
+  }
+  if (props.filters.perPage) {
+    query.perPage = props.filters.perPage
+  }
+
+  router.get(route('meal-plans.index'), query, {
     preserveScroll: true,
     replace: true
   })

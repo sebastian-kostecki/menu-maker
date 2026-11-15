@@ -70,6 +70,7 @@ it('index can filter by status', function (): void {
     $response->assertStatus(200);
     $response->assertInertia(
         fn ($page) => $page->has('mealPlans.data', 2)
+            ->where('filters.filter.status', 'done')
     );
 });
 

@@ -93,8 +93,9 @@ const handleDeleteConfirm = () => {
     },
     onFinish: () => {
       deleting.value = false
+      // The selection stays set so the dialog text does not blank out while it animates closed;
+      // handleDeleteClick overwrites it on the next open.
       showDeleteDialog.value = false
-      memberToDelete.value = null
     }
   })
 }

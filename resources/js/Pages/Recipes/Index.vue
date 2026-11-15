@@ -190,8 +190,9 @@ const handleDeleteConfirm = () => {
       },
       onFinish: () => {
         deleting.value = false;
+        // The selection stays set so the dialog text does not blank out while it animates closed;
+        // handleDeleteRequested overwrites it on the next open.
         showDeleteModal.value = false;
-        selectedRecipe.value = null;
       }
     });
   }

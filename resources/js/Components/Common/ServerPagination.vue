@@ -32,7 +32,10 @@
           >
             {{ item.value }}
           </PaginationItem>
-          <PaginationEllipsis v-else :index="index" />
+          <PaginationEllipsis v-else :index="index">
+            <MoreHorizontal class="size-4" aria-hidden="true" />
+            <span class="sr-only">Więcej stron</span>
+          </PaginationEllipsis>
         </template>
         <PaginationNext>
           <span>Następna</span>
@@ -44,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-vue-next'
 import {
   Pagination,
   PaginationContent,

@@ -51,7 +51,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | proposed |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | proposed |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | proposed |
-| S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | in-progress |
+| S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
 | S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13 | DS-10, D-7, §7.4           | proposed |
 
 ## Streams
@@ -207,7 +207,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** generator PDF nie czyta zmiennych CSS aplikacji, więc kolory są ręcznym lustrem tokenów (§6) — bez komentarza synchronizacji rozjadą się przy pierwszej zmianie palety.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-15: Sprzątanie po starym UI
 
@@ -261,6 +261,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ## Done
 
+- **S-14: Użytkownik może pobrać PDF, w którym kategoria posiłku ma w tabeli to samo tło co na ekranie (z etykietą, czytelną też w druku czarno-białym), komunikaty mają ramkę ostrzeżenia, a hierarchia tekstu odpowiada rolom z §4.5.** — Archived 2026-11-15 → `context/archive/2026-11-15-pdf-design-alignment/`. Lesson: —.
 - **F-04: (foundation) strona kitchen sink — jedna strona pokazująca wszystkie tokeny, typografię i komponenty w ich stanach — działa pod `/dev/design-system` tylko w `local` i `testing`; spec Playwright robi jej zrzut i porównuje z zatwierdzonym wzorcem; `npm run lint:tokens` skanuje listę zmigrowanych plików pod kątem klas palety, hexów, wartości arbitralnych i `dark:` i działa jako krok CI. F-04 dopisuje też do reguły design systemu w `CLAUDE.md` punkt o kitchen sink i `lint:tokens`.** — Archived 2026-11-15 → `context/archive/2026-11-15-design-system-visual-gate/`. Lesson: —.
 - **F-03: (foundation) `app.css` ma paletę bazową, tokeny stanów (`success`, `warning`, `info`) i domeny (`meal-breakfast`, `meal-supper`, `meal-dinner`) w OKLCH z §4.2–4.4, nowy promień i skalę z §4.5–4.6 oraz blok `.dark` z odpowiednikami; warstwa zgodności `gray-200` jest usunięta; sześć prymitywów z §5.1 jest dodanych przez CLI, a `badge` i `alert` mają warianty stanów i kategorii; `CLAUDE.md` zawiera regułę design systemu z §7.1.** — Archived 2026-11-15 → `context/archive/2026-11-15-design-tokens-foundation/`. Lesson: —.
 - **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.

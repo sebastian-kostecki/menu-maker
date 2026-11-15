@@ -1,112 +1,99 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import GuestLayout from '@/Layouts/GuestLayout.vue'
+import FormField from '@/Components/Common/FormField.vue'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 
 const form = useForm({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
-});
+})
 
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
+    })
+}
 </script>
 
 <template>
     <GuestLayout>
         <Head title="Rejestracja" />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Imię" />
+        <form class="grid gap-4" @submit.prevent="submit">
+            <FormField id="name" label="Imię" :error="form.errors.name">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="text"
+                        v-model="form.name"
+                        required
+                        autofocus
+                        autocomplete="name"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
+            <FormField id="email" label="Adres e-mail" :error="form.errors.email">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="email"
+                        v-model="form.email"
+                        required
+                        autocomplete="username"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
+            <FormField id="password" label="Hasło" :error="form.errors.password">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="password"
+                        v-model="form.password"
+                        required
+                        autocomplete="new-password"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-            <div class="mt-4">
-                <InputLabel for="email" value="Adres e-mail" />
+            <FormField
+                id="password_confirmation"
+                label="Potwierdź hasło"
+                :error="form.errors.password_confirmation"
+            >
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="password"
+                        v-model="form.password_confirmation"
+                        required
+                        autocomplete="new-password"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Hasło" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Potwierdź hasło"
-                />
-
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
+            <div class="flex items-center justify-end gap-4">
                 <Link
                     :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                    class="rounded-md text-sm text-muted-foreground underline transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     Masz już konto?
                 </Link>
 
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Zarejestruj się
-                </PrimaryButton>
+                <Button type="submit" :disabled="form.processing">Zarejestruj się</Button>
             </div>
         </form>
     </GuestLayout>

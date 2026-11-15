@@ -525,12 +525,12 @@ None material. The Sheet content mounts only while open. localStorage is read on
 
 #### Automated
 
-- [x] 3.1 PHP suite, style and static analysis pass
-- [x] 3.2 Seeder runs twice without error
-- [x] 3.3 Build and token scan pass
-- [x] 3.4 Baseline generation adds exactly 8 PNGs and modifies none of the 19 existing ones
-- [x] 3.5 The visual gate passes twice in a row without updates
-- [x] 3.6 The full E2E suite still passes
+- [x] 3.1 PHP suite, style and static analysis pass — a015ca5
+- [x] 3.2 Seeder runs twice without error — a015ca5
+- [x] 3.3 Build and token scan pass — a015ca5
+- [x] 3.4 Baseline generation adds exactly 8 PNGs and modifies none of the 19 existing ones — a015ca5
+- [x] 3.5 The visual gate passes twice in a row without updates — a015ca5
+- [x] 3.6 The full E2E suite still passes — a015ca5
 
 #### Manual
 

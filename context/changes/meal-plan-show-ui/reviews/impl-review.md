@@ -75,7 +75,15 @@ Manual rows 1.5–1.6, 2.6–2.7, 3.6–3.8, 4.8–4.10 are all still `[ ]` (pen
   - Tradeoff: one more gate cycle (~5 min).
   - Confidence: HIGH — trial merge shows exactly 3 additive conflicts, no PNG conflicts.
   - Blind spot: develop's family-members E2E specs have not been run together with this branch's seeder.
-- **Decision**: PENDING
+- **Decision**: FIXED — two merges of develop.
+  - 7cef896 (S-12, S-13): the predicted additive conflicts, plus S-13's kitchen-sink changes.
+  - The S-10 merge (meal-plans-index-ui), which landed later with its own `Common/PageHeader` and `Common/EmptyState`. On the user's decision, S-10's components stay canonical and were extended:
+    - `PageHeader` gains a backward-compatible `as` prop and `flex-wrap` on its actions;
+    - Show.vue uses `EmptyState`'s default slot inside a bordered wrapper;
+    - our duplicate kitchen-sink demos were dropped, and S-10's demo passes `as="h2"`.
+  - S-10's done 2026-06-15 fixture is now the deterministic visual plan, with its pinned timestamps kept. The seeder test and the visual spec select it by start date.
+  - Verified on the merged tree: Pest 375, Pint, Larastan, build, lint:tokens (45 files), seeder test, E2E 34/34, and test:visual 40/40 twice.
+  - Baselines: `section-komponenty-aplikacji` and `overlay-confirm-dialog-field` are identical to develop. The meal-plan-show pages grew 4px/8px from S-10's header spacing (reviewed). `section-jadlospis` and `overlay-user-menu` changed in corner anti-aliasing only.
 
 ### F4 — Grid skeleton ignores reduced motion
 

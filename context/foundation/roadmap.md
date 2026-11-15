@@ -47,7 +47,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | done |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | in-progress |
-| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | ready    |
+| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | done |
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | done |
@@ -144,7 +144,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-10, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` buduje S-09 (`meal-plan-show-ui`); S-10 i S-11 ich używają. — Owner: /10x-plan. Block: no.
+  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa. — Owner: /10x-plan. Block: no.
 - **Risk:** to rdzeń produktu pilnowany przez `meal-plan.spec.ts`; zamiana `<details>` na rozwijany komponent zmienia semantykę, więc nowy selektor w specu jest tu sygnałem zmiany znaczenia, który trzeba świadomie przejrzeć (§8), a nie tylko poprawić.
 - **Status:** in-progress
 
@@ -157,10 +157,10 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-09, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` buduje S-09 (`meal-plan-show-ui`); S-10 i S-11 ich używają. — Owner: /10x-plan. Block: no.
+  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa. — Owner: /10x-plan. Block: no.
   - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
-- **Status:** ready
+- **Status:** done
 
 ### S-11: Przepisy w nowym wyglądzie
 
@@ -172,7 +172,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:**
   - Jedna zmiana czy trzy (lista, szczegóły, formularz)? §8 dopuszcza podział „po jednym widoku, jeśli diff rośnie”. — Owner: /10x-plan. Block: no.
-  - `PageHeader` i `EmptyState` buduje S-09 (`meal-plan-show-ui`); S-10 i S-11 ich używają (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
+  - `PageHeader` i `EmptyState` zbudował S-10 (`meal-plans-index-ui`); S-09 rozszerzył `PageHeader` o `as` i zawijanie akcji; S-11 ich używa (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
 - **Risk:** `RecipeRow` ma najwięcej literałów w listach (34), a formularz z `IngredientManager` jest najbardziej interaktywnym widokiem aplikacji i ma własny spec E2E (`recipe-form.spec.ts`).
 - **Status:** ready
 
@@ -266,6 +266,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ## Done
 
+- **S-10: Użytkownik może przeglądać listę swoich jadłospisów, filtrować ją i otwierać dialog generowania w nowym wyglądzie, ze statusami na wspólnych wariantach.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plans-index-ui/`. Lesson: —.
 - **S-13: Użytkownik może logować się, rejestrować, resetować hasło i edytować profil na ekranach z tymi samymi przyciskami, polami i checkboxem „Zapamiętaj mnie” co reszta aplikacji.** — Archived 2026-11-15 → `context/archive/2026-11-15-auth-profile-ui/`. Lesson: —.
 - **S-14: Użytkownik może pobrać PDF, w którym kategoria posiłku ma w tabeli to samo tło co na ekranie (z etykietą, czytelną też w druku czarno-białym), komunikaty mają ramkę ostrzeżenia, a hierarchia tekstu odpowiada rolom z §4.5.** — Archived 2026-11-15 → `context/archive/2026-11-15-pdf-design-alignment/`. Lesson: —.
 - **S-08: Użytkownik może poruszać się po aplikacji w nawigacji bocznej i menu użytkownika opartych na tokenach marki (aktywny element wyróżniony `primary`/`accent`), a ekrany gościa mają ten sam wygląd i bieżący rok w stopce zamiast „© 2024”.** — Archived 2026-11-15 → `context/archive/2026-11-15-app-shell-restyle/`. Lesson: —.

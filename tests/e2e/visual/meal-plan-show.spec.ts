@@ -20,7 +20,11 @@ async function openSeededPlan(page: Page) {
   await page.goto('/meal-plans');
   const pageJson = await page.locator('script[data-page="app"]').textContent();
   expect(pageJson, 'Inertia page JSON in script[data-page="app"]').not.toBeNull();
-  const url: string = JSON.parse(pageJson!).props.mealPlans.data[0].links.self;
+  // The visual user also owns the plans-list fixtures; pick the deterministic plan by its start date.
+  const plans: { start_date: string; links: { self: string } }[] = JSON.parse(pageJson!).props.mealPlans.data;
+  const plan = plans.find((candidate) => candidate.start_date === '2026-06-15');
+  expect(plan, 'seeded plan starting 2026-06-15 in the plans list').toBeDefined();
+  const url = plan!.links.self;
   await page.goto(url);
 
   await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();

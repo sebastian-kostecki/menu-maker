@@ -46,19 +46,14 @@
         </div>
       </Alert>
 
-      <EmptyState
-        v-else-if="!mealPlan.meals || mealPlan.meals.length === 0"
-        :icon="CalendarDays"
-        title="Brak posiłków"
-        description="Ten jadłospis nie ma jeszcze posiłków."
-      >
-        <template #action>
+      <div v-else-if="!mealPlan.meals || mealPlan.meals.length === 0" class="rounded-lg border bg-card p-8">
+        <EmptyState :icon="CalendarDays" title="Brak posiłków" description="Ten jadłospis nie ma jeszcze posiłków.">
           <Button @click="showRegenerateDialog = true">
             <RefreshCw class="size-4" aria-hidden="true" />
             Regeneruj
           </Button>
-        </template>
-      </EmptyState>
+        </EmptyState>
+      </div>
 
       <template v-else>
         <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" role="status" data-testid="scaling-notice">

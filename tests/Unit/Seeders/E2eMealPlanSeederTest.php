@@ -22,9 +22,13 @@ beforeEach(function (): void {
     $this->seed(E2eMealPlanSeeder::class);
 });
 
-it('gives the visual user exactly one done plan with the fixed week', function (): void {
+it('gives the visual user the four list fixtures, with one deterministic done plan for the fixed week', function (): void {
     $user = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail();
-    $plan = $user->mealPlans()->sole();
+    $plan = $user->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_PLAN_START)->sole();
+
+    expect($user->mealPlans()->orderByDesc('created_at')->pluck('status')->all())->toBe(['done', 'done', 'processing', 'error'])
+        ->and($plan->created_at->toDateTimeString())->toBe('2026-06-12 09:30:00')
+        ->and($plan->updated_at->toDateTimeString())->toBe('2026-06-12 09:30:00');
 
     expect($plan->status)->toBe('done')
         ->and($plan->start_date->toDateString())->toBe('2026-06-15')
@@ -50,7 +54,7 @@ it('gives the visual user exactly one done plan with the fixed week', function (
 });
 
 it('puts the recipes of each category on consecutive days from the plan start', function (): void {
-    $plan = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->sole();
+    $plan = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_PLAN_START)->sole();
     $days = array_map(
         fn (int $offset): string => $plan->start_date->copy()->addDays($offset)->toDateString(),
         range(0, 6),
@@ -65,7 +69,7 @@ it('puts the recipes of each category on consecutive days from the plan start', 
 });
 
 it('displays the known shopping list for the visual plan', function (): void {
-    $plan = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->sole();
+    $plan = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_PLAN_START)->sole();
 
     $list = (new ShoppingListResource(app(ShoppingListBuilder::class)->forMealPlan($plan)))->resolve();
 

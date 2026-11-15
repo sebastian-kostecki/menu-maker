@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CheckCircle2, Info, Loader2, Plus, TriangleAlert, UtensilsCrossed } from 'lucide-vue-next'
+import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -19,11 +19,12 @@ import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
 import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
+import PageHeader from '@/Components/Common/PageHeader.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
-import EmptyState from '@/Components/Common/EmptyState.vue'
-import PageHeader from '@/Components/Common/PageHeader.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
@@ -235,6 +236,8 @@ const planShoppingList = {
   recipes_without_ingredients: ['Sałatka grecka'],
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
+const demoPlanCount = 22
+const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
 const processingOpen = ref(false)
 const fieldOpen = ref(false)
@@ -671,6 +674,8 @@ const showToast = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profil</DropdownMenuItem>
               <DropdownMenuItem>Wyloguj</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive">Usuń</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -705,23 +710,6 @@ const showToast = () => {
 
       <section aria-labelledby="ds-komponenty-aplikacji" class="flex flex-col gap-4">
         <h2 id="ds-komponenty-aplikacji" class="text-lg font-semibold">Komponenty aplikacji</h2>
-
-        <PageHeader as="h2" title="Jadłospis" description="12.01.2026 – 18.01.2026">
-          <template #actions>
-            <StatusTag value="done" />
-            <Button variant="outline">Pobierz PDF</Button>
-          </template>
-        </PageHeader>
-        <PageHeader as="h2" title="Przepisy" />
-        <EmptyState
-          :icon="UtensilsCrossed"
-          title="Brak posiłków w jadłospisie"
-          description="Wygeneruj jadłospis ponownie, aby uzupełnić tydzień."
-        >
-          <template #action>
-            <Button>Wygeneruj ponownie</Button>
-          </template>
-        </EmptyState>
 
         <div class="flex flex-wrap items-center gap-2">
           <CategoryBadge v-for="category in appCategories" :key="category" :category="category" />
@@ -774,6 +762,35 @@ const showToast = () => {
           <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
           <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
           <Button variant="destructive" @click="fieldOpen = true">Potwierdź z polem</Button>
+        </div>
+
+        <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
+          <PageHeader
+            as="h2"
+            title="Jadłospisy"
+            :description="`Przeglądaj wygenerowane jadłospisy · ${demoPlanCount} ${pluralize(demoPlanCount, demoPlanForms)}`"
+          >
+            <template #actions>
+              <Button><Plus />Wygeneruj jadłospis</Button>
+            </template>
+          </PageHeader>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border bg-card p-6">
+            <EmptyState
+              :icon="CalendarDays"
+              title="Nie masz jeszcze jadłospisów"
+              description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+            >
+              <Button>Wygeneruj pierwszy jadłospis</Button>
+            </EmptyState>
+          </div>
+          <div class="rounded-lg border bg-card p-6">
+            <EmptyState :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
+              <Button variant="outline">Wyczyść filtry</Button>
+            </EmptyState>
+          </div>
         </div>
 
         <ConfirmDialog

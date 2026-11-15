@@ -1,10 +1,10 @@
 ---
 change_id: design-system-visual-gate
 title: Design system visual gate
-status: impl_reviewed
+status: archived
 created: 2026-11-15
 updated: 2026-11-15
-archived_at: null
+archived_at: 2026-11-15T13:41:38Z
 ---
 
 ## Notes

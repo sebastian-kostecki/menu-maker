@@ -187,7 +187,7 @@ Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
 | --- | --- |
 | Są | avatar, badge, button, card, combobox, dialog, dropdown-menu, input, label, select, separator, sheet, sonner, table, textarea |
 | Dodać | `alert-dialog` (potwierdzenia), `alert` (komunikaty AI/PDF), `checkbox` (zamiast Breeze, „Zapamiętaj mnie”), `skeleton` (siatka w trakcie generowania), `collapsible` (składniki w komórce siatki zamiast `<details>`), `pagination` (baza dla `ServerPagination`) |
-| Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`; `alert`: warianty `warning`, `info`, `success` |
+| Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`, `muted`; `alert`: warianty `warning`, `info`, `success` |
 
 Dodanie przez CLI może podbić zależności (`reka-ui` itp.) — to zmiana zależności, wymaga akceptacji (D-5).
 
@@ -197,12 +197,12 @@ Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `
 
 | Komponent | Zastępuje | Kontrakt |
 | --- | --- | --- |
-| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
-| `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; fokus na „Anuluj” |
-| `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta`, `links` z API Resource; `aria-label="Paginacja"` |
-| `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; `aria-sort` |
-| `EmptyState` | Ad hoc puste tabele | Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
-| `FormField` | `InputLabel` + `InputError` | Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
+| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
+| `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `open` (`v-model:open`), `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; emituje `confirm`; fokus na „Anuluj”; zostaje otwarty, dopóki `processing` |
+| `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta` (bez `links`); emituje `page-change`; `aria-label="Paginacja"` |
+| `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; renderuje `TableHead`; `aria-sort`; emituje `sort-change({column, direction})` |
+| `EmptyState` | Ad hoc puste tabele | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
+| `FormField` | `InputLabel` + `InputError` | **Odroczony** do S-13. Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
 | `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary` |
 
 ### 5.3 Komponenty domeny (po migracji)
@@ -233,8 +233,8 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
    - przed nowym komponentem sprawdź `Components/ui/` i `Components/Common/`;
    - w widokach zakaz klas palety Tailwinda, hexów, wartości arbitralnych i `dark:`;
    - nowy wzorzec trafia do kitchen sink.
-2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Ma 11 sekcji (Kolory, Typografia, Kształt i cienie, Przyciski, Odznaki, Komunikaty, Formularze, Karta i tabela, Ładowanie i rozwijanie, Paginacja, Nakładki) z komponentami z 5.1 w stanach z 5.4. Nie ma layoutu aplikacji i nie wymaga logowania.
-3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 19 zrzutów `toHaveScreenshot`: 11 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło) i 7 nakładek (dialog, alert dialog, sheet, menu, select, combobox, toast). Tylko chromium, zero tolerancji (`threshold: 0`, `maxDiffPixels: 0` w projekcie `visual`), a spec sprawdza, że Figtree faktycznie się załadował. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera.
+2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Ma 12 sekcji (Kolory, Typografia, Kształt i cienie, Przyciski, Odznaki, Komunikaty, Formularze, Karta i tabela, Ładowanie i rozwijanie, Paginacja, Nakładki, Komponenty aplikacji) z komponentami z 5.1 i 5.2 w stanach z 5.4. Nie ma layoutu aplikacji i nie wymaga logowania.
+3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 22 zrzuty `toHaveScreenshot`: 12 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło) i 9 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, sheet, menu, select, combobox, toast). Tylko chromium, zero tolerancji (`threshold: 0`, `maxDiffPixels: 0` w projekcie `visual`), a spec sprawdza, że Figtree faktycznie się załadował. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera.
 4. **Skan literałów** — `scripts/lint-tokens.sh` (`npm run lint:tokens`, `grep -P`, bez nowych zależności) na liście z `scripts/lint-tokens.paths` (`*.vue`, `*.js`, `*.ts`; `Components/ui/` zawsze pominięte). Flaguje cztery rodzaje literałów: klasy palety Tailwinda (w tym `white`/`black`), hexy, wartości arbitralne i `dark:`. Kody wyjścia: 0 brak trafień, 1 trafienia, 2 błąd konfiguracji (brak pliku listy, pusta lista, nieistniejąca ścieżka). Skaner ma test własny, `scripts/lint-tokens.test.sh`. Oba kroki (test i skan) działają w CI w zadaniu `frontend-build` (D-6). Lista rośnie z każdą zmianą, na końcu obejmuje całe `resources/js` poza `Components/ui/`.
 
 ## 8. Rollout
@@ -245,11 +245,11 @@ Kolejność: **tokeny → wspólne komponenty → powłoka → widoki wg ruchu w
 | --- | --- | --- | --- | --- |
 | DS-01 / F-03 | `design-tokens-foundation` | Tokeny 4.1–4.6 w `app.css` (OKLCH, stany, domena, radius, `.dark`), usunięcie warstwy `gray-200`, prymitywy z 5.1, warianty `badge`/`alert`, reguła (3 punkty) w `CLAUDE.md` | `/10x-new` → `/10x-plan` | — |
 | DS-01 / F-04 | `design-system-visual-gate` | Kitchen sink, bramka zrzutu Playwright, `lint:tokens`, punkt o kitchen sink w regule w `CLAUDE.md` | `/10x-new` → `/10x-plan` | F-03 |
-| DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (bez `AppShell`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
+| DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (`ConfirmDialog`, `ServerPagination`, `SortableHeader`; bez `AppShell`, `PageHeader`, `EmptyState` i `FormField`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
 | DS-03 | `app-shell-restyle` | `Sidebar`, `AuthenticatedLayout`, `GuestLayout` (+ „© 2024” → rok bieżący) | `/10x-ui` | DS-01 |
-| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
-| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` | `/10x-ui` | DS-02 |
-| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
+| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
+| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` | DS-02 |
+| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
 | DS-07 | `family-members-ui` | `FamilyMembers/*` (przy okazji parked: `Create`/`Edit` → `Form.vue`, jeśli zmieści się w zakresie) | `/10x-ui` | DS-02 |
 | DS-08 | `auth-profile-ui` | `Auth/*`, `Profile/*` — zejście z Breeze na `ui/*` + `FormField` | `/10x-ui` | DS-02, DS-03 |
 | DS-09 | `pdf-design-alignment` | PDF wg sekcji 6 | `/10x-new` → `/10x-plan` | DS-01 |

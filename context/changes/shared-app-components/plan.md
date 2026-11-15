@@ -700,9 +700,9 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [x] 4.1 Build passes
-- [x] 4.2 Literal scan passes with both badge files listed
-- [x] 4.3 E2E suite passes
+- [x] 4.1 Build passes — 09e7e9e
+- [x] 4.2 Literal scan passes with both badge files listed — 09e7e9e
+- [x] 4.3 E2E suite passes — 09e7e9e
 
 #### Manual
 
@@ -713,12 +713,12 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [ ] 5.1 Build passes
-- [ ] 5.2 lint:tokens self-test and scan pass
-- [ ] 5.3 Visual gate passes with 22 baselines
+- [x] 5.1 Build passes
+- [x] 5.2 lint:tokens self-test and scan pass
+- [x] 5.3 Visual gate passes with 22 baselines
 - [ ] 5.4 Only the 3 new PNGs and section-odznaki.png changed
-- [ ] 5.5 Kitchen-sink Pest test passes
-- [ ] 5.6 Full Pest suite passes
+- [x] 5.5 Kitchen-sink Pest test passes
+- [x] 5.6 Full Pest suite passes
 
 #### Manual
 

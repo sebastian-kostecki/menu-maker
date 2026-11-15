@@ -491,13 +491,13 @@ None material. The Sheet content mounts only while open. localStorage is read on
 
 #### Automated
 
-- [ ] 1.1 Client and SSR build passes
-- [ ] 1.2 Token scan is green with the new paths
-- [ ] 1.3 Scanner self-test still passes
-- [ ] 1.4 Sidebar.vue is gone and no shell file imports Breeze dropdowns
-- [ ] 1.5 The new behaviour spec passes in chromium and firefox
-- [ ] 1.6 The full E2E suite still passes
-- [ ] 1.7 The existing visual gate is unchanged
+- [x] 1.1 Client and SSR build passes — a5b971d
+- [x] 1.2 Token scan is green with the new paths — a5b971d
+- [x] 1.3 Scanner self-test still passes — a5b971d
+- [x] 1.4 Sidebar.vue is gone and no shell file imports Breeze dropdowns — a5b971d
+- [x] 1.5 The new behaviour spec passes in chromium and firefox — a5b971d
+- [x] 1.6 The full E2E suite still passes — a5b971d
+- [x] 1.7 The existing visual gate is unchanged — a5b971d
 
 #### Manual
 
@@ -511,10 +511,10 @@ None material. The Sheet content mounts only while open. localStorage is read on
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Token scan is green, including both files
-- [ ] 2.3 The /10x-ui hard-coded value scan finds nothing in the shell files
-- [ ] 2.4 Guest-screen specs still pass
+- [x] 2.1 Build passes
+- [x] 2.2 Token scan is green, including both files
+- [x] 2.3 The /10x-ui hard-coded value scan finds nothing in the shell files
+- [x] 2.4 Guest-screen specs still pass
 
 #### Manual
 

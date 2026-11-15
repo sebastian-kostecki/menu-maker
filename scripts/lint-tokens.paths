@@ -7,3 +7,5 @@ resources/js/Components/Common/UserMenu.vue
 resources/js/lib/navigation.js
 resources/js/Layouts/AuthenticatedLayout.vue
 resources/js/app.js
+resources/js/Layouts/GuestLayout.vue
+resources/js/Pages/Dashboard.vue

@@ -23,9 +23,9 @@ milestone_status: open           # open | done
 **M-2: Spójny wygląd aplikacji i PDF-u** — Status: open
 
 - **Intent:** Każdy widok aplikacji i PDF korzysta z jednego kontraktu wizualnego — kolorów marki, kolorów pory dnia dla kategorii posiłków i wspólnych komponentów — a CI pilnuje, żeby żaden zmigrowany widok nie wrócił do surowych kolorów.
-- **Source materials:** `context/foundation/design-system.md` (v1, 2026-11-14). Kotwice zakresu to kroki rolloutu `DS-01`…`DS-10` z jego sekcji „8. Rollout”; numery sekcji (`§4.2` itd.) odnoszą się do tego samego pliku.
+- **Source materials:** `context/foundation/design-system.md` (v1, 2026-11-14) oraz `.ai/core/ui-plan.md` §2.1 (widok pulpitu, dla DS-11). Kotwice zakresu to kroki rolloutu `DS-01`…`DS-11` z sekcji „8. Rollout” design systemu; numery sekcji (`§4.2` itd.) odnoszą się do tego samego pliku.
 - **Done when:** every F-NN and S-NN below is `done`.
-- **Scope anchors:** DS-01…DS-10 (§8), w granicach decyzji D-1…D-8 (§9, wszystkie potwierdzone 2026-11-14). `DS-01` jest tu podzielony na dwa elementy bazowe: F-03 (tokeny i prymitywy) i F-04 (ścieżka weryfikacji z §7).
+- **Scope anchors:** DS-01…DS-11 (§8), w granicach decyzji D-1…D-8 (§9, wszystkie potwierdzone 2026-11-14). `DS-01` jest tu podzielony na dwa elementy bazowe: F-03 (tokeny i prymitywy) i F-04 (ścieżka weryfikacji z §7).
 - **Numbering:** identyfikatory kontynuują numerację M-1 (F-03…, S-07…), żeby nie zderzyć się z wpisami w `## Done`.
 
 ## Vision recap
@@ -49,10 +49,11 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | done |
 | S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | done |
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | done |
-| S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
+| S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | done     |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | done |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
-| S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13 | DS-10, D-7, §7.4           | proposed |
+| S-16 | dashboard-ui              | zobaczyć na pulpicie prawdziwe liczby przepisów i jadłospisów, ostatni gotowy jadłospis i szybkie akcje | S-07, S-08                       | DS-11, ui-plan §2.1         | in-progress |
+| S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13, S-16 | DS-10, D-7, §7.4     | proposed |
 
 ## Streams
 
@@ -62,7 +63,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | ------ | --------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | A      | Kontrakt i bramka           | `F-03` → `F-04` → `S-07`               | Cel „quality”: zrzut i `lint:tokens` istnieją, zanim pierwszy widok zostanie zmigrowany.              |
 | B      | Powłoka i główny przepływ   | `S-08` → `S-09` → `S-13` → `S-15`      | Dołącza do strumienia A przy `F-04`; `S-09` i `S-13` potrzebują też `S-07`; `S-15` czeka na strumień C. |
-| C      | Listy i formularze          | `S-10`, `S-11`, `S-12` (równolegle)    | Odgałęzia się od strumienia A przy `S-07`; trzy niezależne widoki dla osobnych sesji agentów.         |
+| C      | Widoki aplikacji            | `S-10`, `S-11`, `S-12`, `S-16` (równolegle) | Odgałęzia się od strumienia A przy `S-07` (`S-16` potrzebuje też `S-08`); niezależne widoki dla osobnych sesji agentów. |
 | D      | PDF                         | `S-14`                                 | Odgałęzia się od strumienia A przy `F-03`; nie potrzebuje bramki ani wspólnych komponentów.           |
 
 ## Baseline
@@ -132,7 +133,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-07, S-10, S-11, S-12, S-14
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** powłoka otacza każdy widok, więc ta zmiana przesuwa zrzuty wszystkich stron naraz; `Dashboard.vue` dostaje tu tylko tokeny w miejsce literałów (pełny restyle zostaje w Parked), żeby końcowy skan w S-15 przeszedł.
+- **Risk:** powłoka otacza każdy widok, więc ta zmiana przesuwa zrzuty wszystkich stron naraz; `Dashboard.vue` dostaje tu tylko tokeny w miejsce literałów (pełny restyle i prawdziwe dane w S-16), żeby końcowy skan w S-15 przeszedł.
 - **Status:** done
 
 ### S-09: Widok jadłospisu w nowym wyglądzie (north star)
@@ -141,7 +142,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Change ID:** meal-plan-show-ui
 - **PRD refs:** DS-04, §5.3 (`MealPlanGrid`, `ShoppingList`, `StatusTag`), §5.4, §4.5
 - **Prerequisites:** S-07, S-08
-- **Parallel with:** S-10, S-11, S-12, S-13, S-14
+- **Parallel with:** S-10, S-11, S-12, S-13, S-14, S-16
 - **Blockers:** —
 - **Unknowns:**
   - S-10 i S-11 zbudowały je równolegle; scalone przy merge'u S-11 do `develop` (`EmptyState` z CTA w domyślnym slocie i `headingLevel`, `PageHeader` z okruszkami i slotem `description`, jeden `lib/format.js`). S-09 ich używa. — Owner: /10x-plan. Block: no.
@@ -182,12 +183,12 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Change ID:** family-members-ui
 - **PRD refs:** DS-07
 - **Prerequisites:** S-07
-- **Parallel with:** S-08, S-09, S-10, S-11, S-13, S-14
+- **Parallel with:** S-08, S-09, S-10, S-11, S-13, S-14, S-16
 - **Blockers:** —
 - **Unknowns:**
-  - Czy przy okazji ujednolicić `Create`/`Edit` do `Form.vue` (dziś w Parked), jeśli zmieści się w zakresie? — Owner: /10x-plan. Block: no.
+  - ~~Czy przy okazji ujednolicić `Create`/`Edit` do `Form.vue` (dziś w Parked), jeśli zmieści się w zakresie?~~ Rozstrzygnięte w planie `family-members-ui`: strony rodziny skonsolidowane do `Pages/FamilyMembers/Index.vue`.
 - **Risk:** jedyny widok bez własnego specu E2E — weryfikacja opiera się na zrzucie i testach feature kontrolera.
-- **Status:** ready
+- **Status:** done
 
 ### S-13: Ekrany konta bez Breeze
 
@@ -214,12 +215,26 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Risk:** generator PDF nie czyta zmiennych CSS aplikacji, więc kolory są ręcznym lustrem tokenów (§6) — bez komentarza synchronizacji rozjadą się przy pierwszej zmianie palety.
 - **Status:** done
 
+### S-16: Pulpit z prawdziwymi danymi
+
+- **Outcome:** Użytkownik może po zalogowaniu zobaczyć na pulpicie prawdziwą liczbę swoich przepisów i jadłospisów oraz ostatni gotowy jadłospis z dostępem do PDF, a z tego samego miejsca dodać przepis albo wygenerować jadłospis; nowy użytkownik bez przepisów widzi stan pusty z pierwszym krokiem zamiast zer.
+- **Change ID:** dashboard-ui
+- **PRD refs:** DS-11, `.ai/core/ui-plan.md` §2.1, §5.2 (`PageHeader`, `EmptyState`), §4.7
+- **Prerequisites:** S-07, S-08
+- **Parallel with:** S-09, S-12
+- **Blockers:** —
+- **Unknowns:**
+  - „Ostatni wygenerowany PDF” z `ui-plan.md` §2.1 nie ma już danych: PDF powstaje na żądanie, a jego kolumny usunięto 2026-11-14. Rekomendacja: karta „Ostatni jadłospis” — najnowszy jadłospis w statusie `done`, jego daty i akcja „Pobierz PDF”. — Owner: user. Block: no.
+  - Czy statystyki mają też mówić, czy użytkownik może już wygenerować tydzień (ile przepisów brakuje w każdej kategorii), czy tylko liczyć? — Owner: /10x-plan. Block: no.
+- **Risk:** pierwszy pulpit czytający dane z bazy — liczby muszą być ograniczone do właściciela, a trasa pulpitu nie ma dziś ani kontrolera, ani testu; przycisk „Wygeneruj jadłospis” korzysta z dialogu z S-10, więc zmiana nie może zmienić wysyłanego żądania.
+- **Status:** in-progress
+
 ### S-15: Sprzątanie po starym UI
 
 - **Outcome:** Użytkownik może wejść na `/` i trafić do logowania lub do aplikacji zamiast domyślnej strony Laravela, a w aplikacji nie zostaje żaden komponent Breeze; `lint:tokens` obejmuje całe `resources/js` poza `Components/ui/` i blokuje CI przy nowym literale.
 - **Change ID:** legacy-ui-cleanup
 - **PRD refs:** DS-10, D-7, §7.4
-- **Prerequisites:** S-08, S-09, S-10, S-11, S-12, S-13
+- **Prerequisites:** S-08, S-09, S-10, S-11, S-12, S-13, S-16
 - **Parallel with:** S-14
 - **Blockers:** —
 - **Unknowns:** —
@@ -237,10 +252,11 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 | S-09       | meal-plan-show-ui         | Widok jadłospisu: siatka tygodnia i lista zakupów                 | yes                   | North star. Run `/10x-plan meal-plan-show-ui`; `/10x-ui` |
 | S-10       | meal-plans-index-ui       | Lista jadłospisów, filtry i dialog generowania                    | yes                   | Run `/10x-plan meal-plans-index-ui`; `/10x-ui` |
 | S-11       | recipes-ui                | Lista, szczegóły i formularz przepisu                             | yes                   | Run `/10x-plan recipes-ui`; `/10x-ui`, ewentualnie po jednym widoku |
-| S-12       | family-members-ui         | Członkowie rodziny w nowym wyglądzie                              | yes                   | Run `/10x-plan family-members-ui`; `/10x-ui` |
+| S-12       | family-members-ui         | Członkowie rodziny w nowym wyglądzie                              | no                    | Zrobione |
 | S-13       | auth-profile-ui           | Ekrany konta i profilu bez komponentów Breeze                     | yes                   | Run `/10x-plan auth-profile-ui`; `/10x-ui` |
 | S-14       | pdf-design-alignment      | PDF z kolorami kategorii i ramką ostrzeżeń jak na ekranie         | no                    | Zrobione |
-| S-15       | legacy-ui-cleanup         | Usunięcie Breeze, przekierowanie `/`, pełny `lint:tokens` w CI    | no                    | Czeka na S-08…S-13 |
+| S-16       | dashboard-ui              | Pulpit z prawdziwymi statystykami i szybkimi akcjami              | yes                   | Run `/10x-plan dashboard-ui`; `/10x-ui` |
+| S-15       | legacy-ui-cleanup         | Usunięcie Breeze, przekierowanie `/`, pełny `lint:tokens` w CI    | no                    | Czeka na S-16 (reszta zrobiona) |
 
 ## Open Roadmap Questions
 
@@ -250,7 +266,6 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 ## Parked
 
 - **Dark mode** — Why parked: D-1 (MVP tylko w trybie jasnym); `design-system.md` §8 przewiduje go jako osobną zmianę po DS-10, wyłącznie w tokenach i przełączniku.
-- **Pełny restyle `Dashboard.vue` i dashboard z prawdziwymi statystykami** — Why parked: poza PRD i poza rolloutem (§8); w M-2 dashboard dostaje tylko tokeny w S-08.
 - **Własna strona startowa pod `/`** — Why parked: D-7 (przekierowanie zamiast landing page; PRD jej nie przewiduje).
 - **Ujednolicenie stron `FamilyMembers` do konwencji `Index/Show/Form.vue`** — Why parked: dług techniczny bez efektu dla użytkownika; S-12 może go wchłonąć, jeśli zmieści się w zakresie.
 - **Import przepisów z URL** — Why parked: PRD §4.
@@ -266,6 +281,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ## Done
 
+- **S-12: Użytkownik może dodawać, edytować i usuwać członków rodziny w nowym wyglądzie.** — Archived 2026-11-15 → `context/archive/2026-11-15-family-members-ui/`. Lesson: —.
 - **S-09: Użytkownik może zobaczyć wygenerowany jadłospis jako siatkę tygodnia, w której każda komórka ma kreskę w kolorze kategorii i rozwijane składniki, w trakcie generowania widzi szkielet siatki, przy dopracowaniu bez AI — ostrzeżenie na tokenie `warning`, a obok listę zakupów z ilościami wyrównanymi do prawej i sformatowanymi po polsku.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plan-show-ui/`. Lesson: —.
 - **S-11: Użytkownik może przeglądać listę przepisów, oglądać szczegóły przepisu i dodawać lub edytować przepis ze składnikami w nowym wyglądzie.** — Archived 2026-11-15 → `context/archive/2026-11-15-recipes-ui/`. Lesson: —.
 - **S-10: Użytkownik może przeglądać listę swoich jadłospisów, filtrować ją i otwierać dialog generowania w nowym wyglądzie, ze statusami na wspólnych wariantach.** — Archived 2026-11-15 → `context/archive/2026-11-15-meal-plans-index-ui/`. Lesson: —.

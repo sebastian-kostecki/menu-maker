@@ -267,9 +267,10 @@ Kolejność: **tokeny → wspólne komponenty → powłoka → widoki wg ruchu w
 | DS-07 | `family-members-ui` | `FamilyMembers/*` (przy okazji parked: `Create`/`Edit` → `Form.vue`, jeśli zmieści się w zakresie) | `/10x-ui` | DS-02 |
 | DS-08 | `auth-profile-ui` | `Auth/*`, `Profile/*` — zejście z Breeze na `ui/*` + `FormField` | `/10x-ui` | DS-02, DS-03 |
 | DS-09 | `pdf-design-alignment` | PDF wg sekcji 6 | `/10x-new` → `/10x-plan` | DS-01 |
-| DS-10 | `legacy-ui-cleanup` | Usunięcie komponentów Breeze, `ApplicationLogo`, decyzja o `Welcome.vue` (D-7), `lint:tokens` na całe `resources/js` w CI | `/10x-new` → `/10x-plan` | DS-03…DS-08 |
+| DS-11 | `dashboard-ui` | `Dashboard.vue` na `PageHeader`, `Card` i `EmptyState`: prawdziwe liczby przepisów i jadłospisów (zapytania ograniczone do właściciela, kontroler zamiast domknięcia w trasie), ostatni gotowy jadłospis z „Pobierz PDF” zamiast „Ostatni PDF” (PDF nie jest zapisywany), szybkie akcje „Dodaj przepis” / „Wygeneruj jadłospis” (dialog z DS-05), bez emoji; wg `.ai/core/ui-plan.md` §2.1 | `/10x-ui` | DS-02, DS-03 |
+| DS-10 | `legacy-ui-cleanup` | Usunięcie komponentów Breeze, `ApplicationLogo`, decyzja o `Welcome.vue` (D-7), `lint:tokens` na całe `resources/js` w CI | `/10x-new` → `/10x-plan` | DS-03…DS-08, DS-11 |
 
-Poza rolloutem: `Dashboard.vue` (45 literałów) jest w roadmapie w „Parked” — dostaje tokeny przy okazji DS-03, a pełny restyle dopiero gdy wycinek dashboardu zostanie odblokowany. Dark mode (D-1) — osobna zmiana po DS-10.
+`Dashboard.vue` dostał tokeny przy okazji DS-03; pełny restyle z prawdziwymi danymi to DS-11 (dodany 2026-11-15, w roadmapie S-16). Poza rolloutem: dark mode (D-1) — osobna zmiana po DS-10.
 
 Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach — każda zmiana widoku uruchamia je bez modyfikacji; zmiana selektora to sygnał, że zmieniła się semantyka, nie wygląd.
 

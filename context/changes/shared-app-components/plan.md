@@ -716,7 +716,7 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 - [x] 5.1 Build passes — 8cc6677
 - [x] 5.2 lint:tokens self-test and scan pass — 8cc6677
 - [x] 5.3 Visual gate passes with 22 baselines — 8cc6677
-- [ ] 5.4 Only the 3 new PNGs and section-odznaki.png changed
+- [x] 5.4 Only the 3 new PNGs and section-odznaki.png changed — 8cc6677 (accepted: overlay-dialog and overlay-alert-dialog also changed, corner pixels only)
 - [x] 5.5 Kitchen-sink Pest test passes — 8cc6677
 - [x] 5.6 Full Pest suite passes — 8cc6677
 

@@ -19,7 +19,8 @@ const sections = [
   { name: 'Paginacja', slug: 'paginacja' },
   { name: 'Nakładki', slug: 'nakladki' },
   { name: 'Powłoka', slug: 'powloka' },
-  { name: 'Komponenty aplikacji', slug: 'komponenty-aplikacji' }
+  { name: 'Komponenty aplikacji', slug: 'komponenty-aplikacji' },
+  { name: 'Jadłospis', slug: 'jadlospis' }
 ];
 
 async function openKitchenSink(page: Page) {

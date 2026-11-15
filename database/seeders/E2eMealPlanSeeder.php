@@ -7,19 +7,27 @@ namespace Database\Seeders;
 use App\Enums\MealCategory;
 use App\Models\FamilyMember;
 use App\Models\Ingredient;
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
+use App\Services\IngredientScaling\Drivers\FakeIngredientRefiner;
+use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanGenerator;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use RuntimeException;
 
 /**
  * Re-runnable fixtures for the Playwright specs: one planner user, one recipe-author (cook) user and one family-members user per browser project.
+ *
+ * The visual planner additionally owns four meal plans with pinned dates for the plans list; the done one starting
+ * 2026-06-15 is reproducible (its pinned recipes, scaled with the fake refiner), so the real meal plan page can be
+ * screenshotted.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -48,9 +56,13 @@ class E2eMealPlanSeeder extends Seeder
         'e2e-family-firefox@example.com',
     ];
 
+    public const PASSWORD = 'Password123!';
+
     public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
 
-    public const PASSWORD = 'Password123!';
+    public const VISUAL_PLAN_START = '2026-06-15';
+
+    public const VISUAL_PLAN_END = '2026-06-21';
 
     public function run(): void
     {
@@ -81,7 +93,7 @@ class E2eMealPlanSeeder extends Seeder
             $this->syncFamily($user);
 
             if ($email === self::VISUAL_EMAIL) {
-                $this->syncVisualMealPlans($user);
+                DB::transaction(fn () => $this->syncVisualMealPlans($user));
             }
 
             RateLimiter::clear('generate-meal-plan:'.$user->id);
@@ -118,12 +130,14 @@ class E2eMealPlanSeeder extends Seeder
     /**
      * Give the visual user four meal plans with pinned dates and timestamps, so the plans list screenshots are stable.
      *
-     * The "pending" status is deliberately absent: filtering by it yields the filtered empty state.
+     * The "pending" status is deliberately absent: filtering by it yields the filtered empty state. The done plan
+     * starting VISUAL_PLAN_START is built deterministically (see buildVisualPlan()), so the meal plan page can be
+     * screenshotted too; the other done plan is a random draw, which the list does not show.
      */
     private function syncVisualMealPlans(User $user): void
     {
         $fixtures = [
-            ['status' => 'done', 'start' => '2026-06-15', 'end' => '2026-06-21', 'created' => '2026-06-12 09:30:00'],
+            ['status' => 'done', 'start' => self::VISUAL_PLAN_START, 'end' => self::VISUAL_PLAN_END, 'created' => '2026-06-12 09:30:00'],
             ['status' => 'done', 'start' => '2026-06-08', 'end' => '2026-06-14', 'created' => '2026-06-05 18:15:00'],
             ['status' => 'processing', 'start' => '2026-06-22', 'end' => '2026-06-28', 'created' => '2026-06-02 12:00:00'],
             ['status' => 'error', 'start' => '2026-06-01', 'end' => '2026-06-07', 'created' => '2026-05-28 08:45:00'],
@@ -141,10 +155,53 @@ class E2eMealPlanSeeder extends Seeder
             ]);
             $mealPlan->saveQuietly();
 
-            if ($fixture['status'] === 'done') {
+            if ($fixture['start'] === self::VISUAL_PLAN_START) {
+                $this->buildVisualPlan($user, $mealPlan);
+            } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
             }
         }
+    }
+
+    /**
+     * Fill the visual done plan identically on every run: the user's pinned recipes (syncVisualRecipes()), fixed
+     * week, fake-scaled ingredients.
+     *
+     * Recipes are taken per category in the pinned `created_at desc` order (the visualRecipes() order), not by id:
+     * syncVisualRecipes() may recreate rows, so ids differ between a fresh database and a re-seeded one.
+     * Mirrors what GenerateMealPlanJob stores, without the queue, the random draw or any AI call.
+     */
+    private function buildVisualPlan(User $user, MealPlan $plan): void
+    {
+        foreach (MealCategory::values() as $category) {
+            $recipes = Recipe::where('user_id', $user->id)
+                ->where('category', $category)
+                ->orderByDesc('created_at')
+                ->limit(MealPlanGenerator::MEALS_PER_CATEGORY)
+                ->get();
+
+            foreach ($recipes as $offset => $recipe) {
+                Meal::create([
+                    'meal_plan_id' => $plan->id,
+                    'recipe_id' => $recipe->id,
+                    'meal_date' => $plan->start_date->copy()->addDays($offset),
+                    'meal_category' => $category,
+                ]);
+            }
+        }
+
+        $outcome = app()->make(MealIngredientScaler::class, ['refiner' => new FakeIngredientRefiner])->scale($plan);
+
+        // Keep the pinned updated_at: the plans list must not change between runs.
+        $plan->timestamps = false;
+        $plan->forceFill([
+            'generation_meta' => [
+                'generated_at' => $plan->start_date,
+                'regenerate' => false,
+                'version' => 'scaled-v1',
+                'scaling' => $outcome->toArray(),
+            ],
+        ])->saveQuietly();
     }
 
     /**
@@ -174,7 +231,7 @@ class E2eMealPlanSeeder extends Seeder
      */
     private function syncVisualRecipes(User $user): void
     {
-        $recipes = $this->visualRecipes();
+        $recipes = self::visualRecipes();
 
         Recipe::onlyTrashed()->where('user_id', $user->id)->forceDelete();
         Recipe::where('user_id', $user->id)->whereNotIn('name', array_column($recipes, 'name'))->forceDelete();
@@ -203,7 +260,7 @@ class E2eMealPlanSeeder extends Seeder
      *
      * @return list<array{name: string, category: string, servings: int, instructions: string}>
      */
-    private function visualRecipes(): array
+    public static function visualRecipes(): array
     {
         $breakfast = MealCategory::Breakfast->value;
         $supper = MealCategory::Supper->value;

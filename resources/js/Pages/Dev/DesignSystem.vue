@@ -23,6 +23,8 @@ import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
+import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
@@ -196,6 +198,44 @@ const appPaginationMeta = ref({
   from: 11,
   to: 20,
 })
+const planStartDate = '2026-06-15'
+const planRecipeNames = [
+  'Owsianka z jabłkiem', 'Rosół z makaronem', 'Kasza z warzywami',
+  'Jajecznica ze szczypiorkiem', 'Pomidorowa z ryżem', 'Pierogi ruskie',
+  'Kanapki z pastą jajeczną', 'Gulasz wieprzowy', 'Sałatka grecka',
+  'Naleśniki z serem', 'Zupa krem z dyni', 'Makaron z pesto',
+  'Płatki z mlekiem', 'Kotlet z ziemniakami', 'Leczo z kiełbasą',
+  'Tosty z awokado', 'Barszcz czerwony', 'Ryba z pieca',
+  'Omlet z warzywami', 'Chili sin carne', 'Tortilla z kurczakiem',
+]
+const planMeals = planRecipeNames
+  .map((name, index) => {
+    const day = Math.floor(index / 3)
+
+    return {
+      id: index + 1,
+      meal_date: `2026-06-${String(15 + day).padStart(2, '0')}`,
+      meal_category: appCategories[index % 3],
+      recipe: { id: index + 1, name, calories: 1200 + index * 40, servings: 4, deleted: index === 4 },
+      ingredients: index === 0
+        ? [
+            { ingredient_id: 1, name: 'Płatki owsiane', display: '200 g' },
+            { ingredient_id: 2, name: 'Jabłko', display: '2 szt.' },
+            { ingredient_id: 3, name: 'Mleko', display: '0,5 l' },
+          ]
+        : [],
+    }
+  })
+  .filter((meal) => meal.id !== 8)
+const planShoppingList = {
+  items: [
+    { ingredient_id: 1, name: 'Jajka', quantity: '42', unit: 'szt.', display: '42 szt.' },
+    { ingredient_id: 2, name: 'Mąka', quantity: '4200', unit: 'g', display: '4,2 kg' },
+    { ingredient_id: 3, name: 'Mleko', quantity: '2.1', unit: 'l', display: '2,1 l' },
+  ],
+  recipes_without_ingredients: ['Sałatka grecka'],
+}
+const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
@@ -726,6 +766,7 @@ const showToast = () => {
 
         <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
           <PageHeader
+            as="h2"
             title="Jadłospisy"
             :description="`Przeglądaj wygenerowane jadłospisy · ${demoPlanCount} ${pluralize(demoPlanCount, demoPlanForms)}`"
           >
@@ -791,7 +832,7 @@ const showToast = () => {
         </ConfirmDialog>
 
         <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
-          <PageHeader title="Zupa pomidorowa z makaronem i świeżą bazylią">
+          <PageHeader as="h2" title="Zupa pomidorowa z makaronem i świeżą bazylią">
             <template #breadcrumbs>
               <a href="#ds-komponenty-aplikacji" class="hover:text-foreground hover:underline">Przepisy</a>
               <span aria-hidden="true"> / </span>
@@ -809,6 +850,31 @@ const showToast = () => {
 
         <div class="rounded-lg border bg-card p-6">
           <EmptyState :icon="SearchX" title="Brak wyników" />
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-jadlospis" class="flex flex-col gap-4">
+        <h2 id="ds-jadlospis" class="text-lg font-semibold">Jadłospis</h2>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden slot pusty, jeden usunięty przepis, jedna lista składników)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Siatka w trakcie generowania</p>
+          <MealPlanGrid :start-date="planStartDate" skeleton />
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <p class="text-xs text-muted-foreground">Lista zakupów</p>
+            <ShoppingList :list="planShoppingList" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="text-xs text-muted-foreground">Lista zakupów bez pozycji</p>
+            <ShoppingList :list="emptyShoppingList" />
+          </div>
         </div>
       </section>
     </main>

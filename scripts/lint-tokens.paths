@@ -27,3 +27,6 @@ resources/js/Components/MealPlans/ActionDropdown.vue
 resources/js/Components/MealPlans/GenerateMealPlanDialog.vue
 resources/js/Pages/Recipes
 resources/js/Components/recipes
+resources/js/Components/MealPlans/MealPlanGrid.vue
+resources/js/Components/MealPlans/ShoppingList.vue
+resources/js/Pages/MealPlans/Show.vue

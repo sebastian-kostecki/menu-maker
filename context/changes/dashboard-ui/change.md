@@ -1,7 +1,7 @@
 ---
 change_id: dashboard-ui
 title: Dashboard with real data
-status: implementing
+status: implemented
 created: 2026-11-15
 updated: 2026-11-15
 ---

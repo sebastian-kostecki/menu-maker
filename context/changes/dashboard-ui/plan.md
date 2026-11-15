@@ -433,11 +433,11 @@ No schema or data migration. Rollback means reverting the route to the closure; 
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token scan is green, including the new folder: `vendor/bin/sail npm run lint:tokens`
-- [x] 2.3 Token-scan self-test passes: `bash scripts/lint-tokens.test.sh`
-- [x] 2.4 Dashboard feature tests still pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php`
-- [x] 2.5 No dashboard-reachable E2E locator collides with the new names (grep reviewed)
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 40d869f
+- [x] 2.2 Token scan is green, including the new folder: `vendor/bin/sail npm run lint:tokens` — 40d869f
+- [x] 2.3 Token-scan self-test passes: `bash scripts/lint-tokens.test.sh` — 40d869f
+- [x] 2.4 Dashboard feature tests still pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php` — 40d869f
+- [x] 2.5 No dashboard-reachable E2E locator collides with the new names (grep reviewed) — 40d869f
 
 #### Manual
 
@@ -451,13 +451,13 @@ No schema or data migration. Rollback means reverting the route to the closure; 
 
 #### Automated
 
-- [ ] 3.1 Seeder is idempotent (two runs in a row)
-- [ ] 3.2 Seeder tests pass: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php`
-- [ ] 3.3 Full suite, Larastan and style pass
-- [ ] 3.4 Bundles build and the token scan is green
-- [ ] 3.5 Baseline delta is exactly 3 modified and 1 new app-shell dashboard PNG (`git status --porcelain -uall tests/e2e/__screenshots__`)
-- [ ] 3.6 Visual gate is stable twice in a row: `npm run test:visual && npm run test:visual`
-- [ ] 3.7 Full E2E passes after a re-seed
+- [x] 3.1 Seeder is idempotent (two runs in a row)
+- [x] 3.2 Seeder tests pass: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php`
+- [x] 3.3 Full suite, Larastan and style pass
+- [x] 3.4 Bundles build and the token scan is green
+- [x] 3.5 Baseline delta is exactly 3 modified and 1 new app-shell dashboard PNG (`git status --porcelain -uall tests/e2e/__screenshots__`)
+- [x] 3.6 Visual gate is stable twice in a row: `npm run test:visual && npm run test:visual`
+- [x] 3.7 Full E2E passes after a re-seed
 
 #### Manual
 

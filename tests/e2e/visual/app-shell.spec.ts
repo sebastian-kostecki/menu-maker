@@ -28,6 +28,13 @@ test('dashboard desktop', async ({ page }) => {
   await expect(page).toHaveScreenshot('dashboard-desktop.png', { fullPage: true });
 });
 
+test('dashboard empty desktop', async ({ page }) => {
+  await logIn(page, 'e2e-dashboard-empty-visual@example.com');
+  await expect(page.getByRole('heading', { name: 'Zacznij od pierwszego przepisu' })).toBeVisible();
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('dashboard-empty-desktop.png', { fullPage: true });
+});
+
 test('dashboard mobile', async ({ page }) => {
   await page.setViewportSize(MOBILE);
   await logIn(page);

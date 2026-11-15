@@ -14,3 +14,6 @@ resources/js/Components/recipes/CategoryBadge.vue
 resources/js/Components/MealPlans/StatusTag.vue
 resources/js/Pages/Auth
 resources/js/Pages/Profile
+resources/js/Pages/FamilyMembers
+resources/js/Components/FamilyMembers
+resources/js/lib/pluralizePl.js

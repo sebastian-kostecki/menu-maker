@@ -47,14 +47,17 @@ const formatLocalDate = (date) => {
   return `${date.getFullYear()}-${month}-${day}`
 }
 
-const maxDate = computed(() => {
+const localYesterday = () => {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
   return formatLocalDate(yesterday)
-})
+}
+
+const maxDate = ref(localYesterday())
 
 const resetForm = () => {
+  maxDate.value = localYesterday()
   errors.value = {}
   form.value = props.member
     ? {
@@ -105,6 +108,12 @@ const validateForm = () => {
   return Object.keys(newErrors).length === 0
 }
 
+const handleRequestFailure = () => {
+  toast.error('Nie udało się zapisać członka rodziny')
+
+  return false
+}
+
 const handleSubmit = () => {
   if (isSubmitting.value || !validateForm()) {
     return
@@ -122,15 +131,17 @@ const handleSubmit = () => {
       errors.value = serverErrors
       toast.error('Sprawdź poprawność wprowadzonych danych')
     },
+    onHttpException: handleRequestFailure,
+    onNetworkError: handleRequestFailure,
     onFinish: () => {
       isSubmitting.value = false
     },
   }
 
   if (isEditing.value) {
-    router.put(`/family-members/${props.member.id}`, form.value, options)
+    router.put(route('family-members.update', props.member.id), form.value, options)
   } else {
-    router.post('/family-members', form.value, options)
+    router.post(route('family-members.store'), form.value, options)
   }
 }
 

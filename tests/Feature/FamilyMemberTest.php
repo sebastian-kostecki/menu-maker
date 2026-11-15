@@ -90,6 +90,26 @@ it('user can delete family member', function (): void {
     ]);
 });
 
+it('update and delete never redirect to a foreign referer', function (): void {
+    $familyMember = FamilyMember::factory()->create(['user_id' => $this->user->id]);
+
+    $this->actingAs($this->user)
+        ->from('https://evil.example/family-members?page=3')
+        ->put(route('family-members.update', $familyMember), [
+            'first_name' => 'Jane',
+            'birth_date' => '1995-05-05',
+            'gender' => 'female',
+            'weight_kg' => '60',
+            'height_cm' => '165',
+        ])
+        ->assertRedirect(route('family-members.index', ['page' => 3]));
+
+    $this->actingAs($this->user)
+        ->from('https://evil.example/')
+        ->delete(route('family-members.destroy', $familyMember))
+        ->assertRedirect(route('family-members.index'));
+});
+
 it('applies validation rules on store', function (): void {
     $response = $this->actingAs($this->user)
         ->post(route('family-members.store'), []);

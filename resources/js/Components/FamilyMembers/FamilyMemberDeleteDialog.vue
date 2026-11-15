@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { AlertTriangle } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
@@ -20,6 +20,22 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const isDeleting = ref(false)
+const displayedName = ref(props.member?.first_name ?? '')
+
+watch(
+  () => props.member,
+  (member) => {
+    if (member) {
+      displayedName.value = member.first_name
+    }
+  },
+)
+
+const handleRequestFailure = () => {
+  toast.error('Nie udało się usunąć członka rodziny')
+
+  return false
+}
 
 const handleConfirm = () => {
   if (!props.member) {
@@ -29,15 +45,15 @@ const handleConfirm = () => {
   const name = props.member.first_name
   isDeleting.value = true
 
-  router.delete(`/family-members/${props.member.id}`, {
+  router.delete(route('family-members.destroy', props.member.id), {
     preserveScroll: true,
     onSuccess: () => {
       emit('close')
       toast.success(`Członek rodziny "${name}" został usunięty`)
     },
-    onError: () => {
-      toast.error('Nie udało się usunąć członka rodziny')
-    },
+    onError: handleRequestFailure,
+    onHttpException: handleRequestFailure,
+    onNetworkError: handleRequestFailure,
     onFinish: () => {
       isDeleting.value = false
     },
@@ -60,7 +76,7 @@ const handleOpenChange = (value) => {
           Usuń członka rodziny
         </DialogTitle>
         <DialogDescription>
-          Czy na pewno chcesz usunąć {{ member?.first_name }}? Tej operacji nie można cofnąć.
+          Czy na pewno chcesz usunąć {{ displayedName }}? Tej operacji nie można cofnąć.
         </DialogDescription>
       </DialogHeader>
 

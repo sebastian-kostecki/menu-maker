@@ -53,7 +53,7 @@ class FamilyMemberController extends Controller
     {
         $familyMember->update($request->validated());
 
-        return redirect()->back();
+        return $this->redirectToPreviousIndexPage();
     }
 
     /**
@@ -63,6 +63,20 @@ class FamilyMemberController extends Controller
     {
         $familyMember->delete();
 
-        return redirect()->back();
+        return $this->redirectToPreviousIndexPage();
+    }
+
+    /**
+     * Redirect to the index page the user came from, keeping only its `page` query
+     * so a foreign Referer can never redirect off-site.
+     */
+    private function redirectToPreviousIndexPage(): RedirectResponse
+    {
+        $previousQuery = parse_url(url()->previous(), PHP_URL_QUERY);
+        parse_str(is_string($previousQuery) ? $previousQuery : '', $previousParameters);
+
+        $page = filter_var($previousParameters['page'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 2]]);
+
+        return redirect()->route('family-members.index', $page === false ? [] : ['page' => $page]);
     }
 }

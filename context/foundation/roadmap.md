@@ -51,7 +51,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | proposed |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | proposed |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | proposed |
-| S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | proposed |
+| S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | in-progress |
 | S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13 | DS-10, D-7, §7.4           | proposed |
 
 ## Streams
@@ -207,7 +207,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** generator PDF nie czyta zmiennych CSS aplikacji, więc kolory są ręcznym lustrem tokenów (§6) — bez komentarza synchronizacji rozjadą się przy pierwszej zmianie palety.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-15: Sprzątanie po starym UI
 

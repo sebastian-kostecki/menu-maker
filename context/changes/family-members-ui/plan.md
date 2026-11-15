@@ -391,11 +391,11 @@ No schema change. The `date:Y-m-d` cast changes only the JSON shape of `birth_da
 
 #### Automated
 
-- [x] 3.1 Seeder is idempotent and runs
-- [x] 3.2 Bundles build before E2E: `vendor/bin/sail npm run build`
-- [x] 3.3 New spec passes in both browsers
-- [x] 3.4 Whole E2E suite still passes (re-seed first)
-- [x] 3.5 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 3.1 Seeder is idempotent and runs — 0e4671a
+- [x] 3.2 Bundles build before E2E: `vendor/bin/sail npm run build` — 0e4671a
+- [x] 3.3 New spec passes in both browsers — 0e4671a
+- [x] 3.4 Whole E2E suite still passes (re-seed first) — 0e4671a
+- [x] 3.5 Pint passes: `vendor/bin/sail composer pint-test` — 0e4671a
 
 #### Manual
 

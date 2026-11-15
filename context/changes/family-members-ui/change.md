@@ -1,7 +1,7 @@
 ---
 change_id: family-members-ui
 title: Family members UI
-status: implementing
+status: implemented
 created: 2026-11-15
 updated: 2026-11-15
 archived_at: null

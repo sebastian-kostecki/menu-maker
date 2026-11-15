@@ -1,16 +1,15 @@
 <template>
-  <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-xs hover:shadow-md transition-shadow duration-200">
-    <div class="flex items-center justify-between">
-      <h3 class="font-medium text-gray-900 text-lg">{{ ingredient.name }}</h3>
-      <Badge variant="secondary" class="ml-2 font-mono text-sm">
-        {{ formatQuantity(ingredient.quantity) }} {{ ingredient.unit.code }}
-      </Badge>
+  <div class="rounded-lg border bg-card p-4">
+    <div class="flex items-center justify-between gap-2">
+      <h3 class="text-sm font-medium">{{ ingredient.name }}</h3>
+      <Badge variant="secondary" class="tabular-nums">{{ `${formatNumber(ingredient.quantity)} ${ingredient.unit.code}` }}</Badge>
     </div>
   </div>
 </template>
 
 <script setup>
 import { Badge } from '@/Components/ui/badge';
+import { formatNumber } from '@/lib/format';
 
 defineProps({
   ingredient: {
@@ -18,10 +17,4 @@ defineProps({
     required: true,
   },
 });
-
-function formatQuantity(quantity) {
-  // Format quantity to remove unnecessary decimals
-  const value = Number(quantity);
-  return value % 1 === 0 ? value.toString() : value.toFixed(2).replace(/\.?0+$/, '');
-}
 </script>

@@ -518,12 +518,12 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [x] 2.1 Build passes
-- [x] 2.2 Token scan green
-- [x] 2.3 Dead dropdown gone
-- [x] 2.4 No English list copy left
-- [x] 2.5 Recipe controller tests pass
-- [x] 2.6 List E2E specs pass
+- [x] 2.1 Build passes — 4b38a2f
+- [x] 2.2 Token scan green — 4b38a2f
+- [x] 2.3 Dead dropdown gone — 4b38a2f
+- [x] 2.4 No English list copy left — 4b38a2f
+- [x] 2.5 Recipe controller tests pass — 4b38a2f
+- [x] 2.6 List E2E specs pass — 4b38a2f
 
 #### Manual
 
@@ -536,12 +536,12 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Token scan green
-- [ ] 3.3 No hand-written SVG and no RecipeHeader left
-- [ ] 3.4 No English details copy left
-- [ ] 3.5 Recipe controller tests pass
-- [ ] 3.6 Recipe E2E specs pass
+- [x] 3.1 Build passes
+- [x] 3.2 Token scan green
+- [x] 3.3 No hand-written SVG and no RecipeHeader left
+- [x] 3.4 No English details copy left
+- [x] 3.5 Recipe controller tests pass
+- [x] 3.6 Recipe E2E specs pass
 
 #### Manual
 

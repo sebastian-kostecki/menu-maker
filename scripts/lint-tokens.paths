@@ -21,3 +21,9 @@ resources/js/Components/recipes/SearchInput.vue
 resources/js/Components/recipes/CategoryFilterDropdown.vue
 resources/js/Components/recipes/ResetFiltersButton.vue
 resources/js/Components/recipes/CreateRecipeButton.vue
+resources/js/Pages/Recipes/Show.vue
+resources/js/Components/recipes/ActionBar.vue
+resources/js/Components/recipes/RecipeMetaBadges.vue
+resources/js/Components/recipes/IngredientCardGrid.vue
+resources/js/Components/recipes/IngredientCard.vue
+resources/js/Components/recipes/InstructionsSection.vue

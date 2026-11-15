@@ -431,10 +431,10 @@ None. Same number of components per page; no new dependencies.
 
 #### Automated
 
-- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 1.2 Token scan passes (covers `Components/Common` and `Pages/Dev`): `npm run lint:tokens`
-- [x] 1.3 Existing ConfirmDialog behaviour E2E stays green: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npx playwright test tests/e2e/confirm-dialog.spec.ts`
-- [x] 1.4 Visual gate passes with the regenerated baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
+- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 8347100
+- [x] 1.2 Token scan passes (covers `Components/Common` and `Pages/Dev`): `npm run lint:tokens` — 8347100
+- [x] 1.3 Existing ConfirmDialog behaviour E2E stays green: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npx playwright test tests/e2e/confirm-dialog.spec.ts` — 8347100
+- [x] 1.4 Visual gate passes with the regenerated baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual` — 8347100
 
 #### Manual
 
@@ -446,12 +446,12 @@ None. Same number of components per page; no new dependencies.
 
 #### Automated
 
-- [ ] 2.1 Bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token scan passes with `Pages/Auth` listed: `npm run lint:tokens`
-- [ ] 2.3 No Breeze import remains in `Pages/Auth`: `grep -rE "Components/(PrimaryButton|TextInput|InputLabel|InputError|Checkbox)\.vue" resources/js/Pages/Auth` prints nothing
-- [ ] 2.4 Pest auth suite (Polish messages, session, reset) passes: `vendor/bin/sail pest tests/Feature/Auth`
-- [ ] 2.5 Full E2E suite passes; every spec logs in through `/login`, and `login.spec.ts` and `password-reset.spec.ts` cover register, invalid login and reset: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [ ] 2.6 Visual gate passes with the updated and new baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
+- [x] 2.1 Bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token scan passes with `Pages/Auth` listed: `npm run lint:tokens`
+- [x] 2.3 No Breeze import remains in `Pages/Auth`: `grep -rE "Components/(PrimaryButton|TextInput|InputLabel|InputError|Checkbox)\.vue" resources/js/Pages/Auth` prints nothing
+- [x] 2.4 Pest auth suite (Polish messages, session, reset) passes: `vendor/bin/sail pest tests/Feature/Auth`
+- [x] 2.5 Full E2E suite passes; every spec logs in through `/login`, and `login.spec.ts` and `password-reset.spec.ts` cover register, invalid login and reset: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
+- [x] 2.6 Visual gate passes with the updated and new baselines: `vendor/bin/sail artisan db:seed --class=E2eMealPlanSeeder && VISUAL_DOCKER_NETWORK=auth-profile-ui_sail VISUAL_BASE_URL=http://laravel.test npm run test:visual`
 
 #### Manual
 

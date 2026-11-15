@@ -1,0 +1,6 @@
+# Review follow-ups: meal-plan-show-ui
+
+Source: `reviews/impl-review.md` (2026-11-15).
+
+- [ ] **F7 — Roadmap S-09 status.** When the change is merged/archived, set S-09 to `done` in `context/foundation/roadmap.md` (table row `:49` and item `- **Status:**` `:149`). It stays `in-progress` until then on purpose.
+- [ ] **F8 (residual) — Energy band drift.** The visual family's birth dates are `now()->subYears(40)` while the plan date is fixed at 2026-06-15, so the 31–50 band (and the ×2.0 amounts) holds until about 2036. Pin the visual user's birth dates relative to `VISUAL_PLAN_START` if that ever matters.

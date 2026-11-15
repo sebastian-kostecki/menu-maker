@@ -16,6 +16,7 @@ use App\Services\IngredientScaling\Drivers\FakeIngredientRefiner;
 use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanGenerator;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use RuntimeException;
@@ -150,6 +151,14 @@ class E2eMealPlanSeeder extends Seeder
      * Mirrors what GenerateMealPlanJob stores, without the queue, the random draw or any AI call.
      */
     private function seedVisualPlan(User $user): void
+    {
+        DB::transaction(fn () => $this->buildVisualPlan($user));
+    }
+
+    /**
+     * Body of seedVisualPlan(), run inside one transaction so a failure never leaves a half-built pending plan.
+     */
+    private function buildVisualPlan(User $user): void
     {
         $plan = MealPlan::create([
             'user_id' => $user->id,

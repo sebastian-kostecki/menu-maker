@@ -61,7 +61,7 @@
       </EmptyState>
 
       <template v-else>
-        <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" data-testid="scaling-notice">
+        <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" role="status" data-testid="scaling-notice">
           <TriangleAlert aria-hidden="true" />
           <AlertDescription>
             <p v-for="notice in mealPlan.scaling.notices" :key="notice">

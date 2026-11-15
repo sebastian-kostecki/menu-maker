@@ -486,6 +486,8 @@ Seed a deterministic done plan for the visual user, screenshot the real page at 
 - Allowed to change, corner pixels only: `overlay-dialog.png`, `overlay-alert-dialog.png`.
 - Nothing else changes.
 
+> **Deviation (impl-review F5):** the run left both allowed overlays unchanged but changed `overlay-user-menu.png` instead: 19 pixels in its top-right rounded corner (x 217–223, y 0–6), the same corner artefact on another overlay. It was accepted as such. Future slices should phrase the allowance as "any `overlay-*.png`, corner pixels only".
+
 #### 5. Docs
 
 **Files**: `context/foundation/design-system.md` (§7.2, §7.3), `CLAUDE.md` (Visual gate bullet)

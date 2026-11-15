@@ -12,9 +12,9 @@
       <tbody>
         <template v-if="skeleton">
           <tr v-for="index in 7" :key="index" class="border-b border-border last:border-0">
-            <td class="px-4 py-4"><Skeleton class="h-4 w-24" /></td>
+            <td class="px-4 py-4"><Skeleton class="h-4 w-24 motion-reduce:animate-none" /></td>
             <td v-for="category in MEAL_CATEGORIES" :key="category" class="px-4 py-4">
-              <Skeleton class="h-4 w-32" />
+              <Skeleton class="h-4 w-32 motion-reduce:animate-none" />
             </td>
           </tr>
         </template>

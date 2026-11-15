@@ -27,7 +27,8 @@ async function logIn(page: Page) {
 async function openSeededPlan(page: Page) {
   await page.goto('/meal-plans');
   const pageJson = await page.locator('script[data-page="app"]').textContent();
-  const url: string = JSON.parse(pageJson ?? '{}').props.mealPlans.data[0].links.self;
+  expect(pageJson, 'Inertia page JSON in script[data-page="app"]').not.toBeNull();
+  const url: string = JSON.parse(pageJson!).props.mealPlans.data[0].links.self;
   await page.goto(url);
 
   await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();

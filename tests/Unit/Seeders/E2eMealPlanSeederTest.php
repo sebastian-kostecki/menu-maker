@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Resources\ShoppingListResource;
 use App\Models\MealPlan;
 use App\Models\User;
+use App\Services\IngredientScaling\ScalingOutcome;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Database\Seeders\E2eMealPlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,6 +30,8 @@ it('gives the visual user exactly one done plan with the fixed week', function (
         ->and($plan->start_date->toDateString())->toBe('2026-06-15')
         ->and($plan->end_date->toDateString())->toBe('2026-06-21')
         ->and($plan->generation_meta['version'])->toBe('scaled-v1')
+        // Only a successful refinement yields "refined"; a real driver without a key falls back to "computed".
+        ->and($plan->generation_meta['scaling']['status'])->toBe(ScalingOutcome::STATUS_REFINED)
         ->and($plan->meals()->count())->toBe(21);
 
     $expected = [];

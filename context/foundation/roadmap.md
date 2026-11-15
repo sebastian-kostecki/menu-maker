@@ -42,7 +42,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 
 | ID   | Change ID                 | Outcome (user can …)                                                                                   | Prerequisites                     | PRD refs                    | Status   |
 | ---- | ------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- | --------------------------- | -------- |
-| F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | in-progress |
+| F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | done     |
 | F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | proposed |
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | proposed |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | proposed |
@@ -92,7 +92,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** zmiana tokenów od razu przemaluje komponenty `ui/` (przyciski staną się zielone) na widokach, które jeszcze mają literały — to zamierzone (§8), ale wymaga sprawdzenia kontrastu z §4.2 po konwersji i przeglądu diffu `package.json` po `shadcn-vue add` (D-5). Tabelę §8 w `design-system.md` trzeba przy tej zmianie zaktualizować o podział DS-01 na F-03 i F-04.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-04: Bramka wizualna design systemu
 
@@ -261,6 +261,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 ## Done
 
+- **F-03: (foundation) `app.css` ma paletę bazową, tokeny stanów (`success`, `warning`, `info`) i domeny (`meal-breakfast`, `meal-supper`, `meal-dinner`) w OKLCH z §4.2–4.4, nowy promień i skalę z §4.5–4.6 oraz blok `.dark` z odpowiednikami; warstwa zgodności `gray-200` jest usunięta; sześć prymitywów z §5.1 jest dodanych przez CLI, a `badge` i `alert` mają warianty stanów i kategorii; `CLAUDE.md` zawiera regułę design systemu z §7.1.** — Archived 2026-11-15 → `context/archive/2026-11-15-design-tokens-foundation/`. Lesson: —.
 - **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.
 - **S-03: Użytkownik może jednym kliknięciem wygenerować jadłospis 7 dni × 3 posiłki, w którym przepisy są losowane z jego własnych przepisów według kategorii bez powtórzeń w tygodniu, zobaczyć go w interfejsie i regenerować bez limitu.** — Archived 2026-11-13 → `context/archive/2026-11-13-real-weekly-meal-plan/`. Lesson: —.
 - **S-02: Użytkownik może zapisać przepis tylko z nazwą, kategorią, co najmniej jednym składnikiem (nazwa, jednostka g/kg/ml/l/szt., ilość), sposobem przygotowania, kalorycznością i liczbą porcji, a potem przejrzeć, edytować i usunąć go z potwierdzeniem.** — Archived 2026-11-14 → `context/archive/2026-11-13-recipe-required-ingredients/`. Lesson: —.

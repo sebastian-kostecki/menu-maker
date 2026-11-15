@@ -1,9 +1,10 @@
 ---
 change_id: design-tokens-foundation
 title: Tokeny marki w OKLCH, prymitywy shadcn-vue i reguła design systemu
-status: impl_reviewed
+status: archived
 created: 2026-11-15
 updated: 2026-11-15
+archived_at: 2026-11-15T12:52:27Z
 ---
 
 ## Notes

@@ -267,7 +267,7 @@ None. PDFs are rendered per request, so every existing plan gets the new look im
 
 #### Automated
 
-- [x] 2.1 Guard test passes: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php`
-- [x] 2.2 Guard catches drift: temporarily change `--meal-dinner` in `app.css :root` and see the guard fail naming `--meal-dinner`; changing one listed hex in the mirror comment, adding an unlisted hex to the template's `<style>`, and adding `style="color: black"` to a cell each also fail it; revert all
-- [x] 2.3 Full suite passes: `vendor/bin/sail composer test`
-- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.1 Guard test passes: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php` — e77f3af
+- [x] 2.2 Guard catches drift: temporarily change `--meal-dinner` in `app.css :root` and see the guard fail naming `--meal-dinner`; changing one listed hex in the mirror comment, adding an unlisted hex to the template's `<style>`, and adding `style="color: black"` to a cell each also fail it; revert all — e77f3af
+- [x] 2.3 Full suite passes: `vendor/bin/sail composer test` — e77f3af
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test` — e77f3af

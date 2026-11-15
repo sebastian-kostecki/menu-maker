@@ -18,7 +18,7 @@ it('adds user_id to the log context for authenticated requests', function (): vo
 });
 
 it('does not add user_id to the log context for guests', function (): void {
-    $this->get('/')->assertOk();
+    $this->get('/login')->assertOk();
 
     expect(Context::has('user_id'))->toBeFalse();
 });

@@ -2,7 +2,7 @@
   <Head :title="recipe.name" />
 
   <AuthenticatedLayout>
-    <template #header>
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader :title="recipe.name || ''">
         <template #breadcrumbs>
           <div class="flex items-center gap-2">
@@ -24,9 +24,7 @@
           />
         </template>
       </PageHeader>
-    </template>
 
-    <div class="mx-auto flex max-w-6xl flex-col gap-6">
       <RecipeMetaBadges
         :calories="recipe.calories || 0"
         :servings="recipe.servings || 1"

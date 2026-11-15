@@ -76,7 +76,7 @@ test('user can delete the account', async ({ page }) => {
 
   await dialog.getByLabel('Hasło', { exact: true }).fill(password);
   await dialog.getByRole('button', { name: 'Usuń konto' }).click();
-  await page.waitForURL((url) => url.pathname === '/');
+  await page.waitForURL((url) => url.pathname === '/login');
 
   await page.goto('/login');
   await page.getByLabel('Adres e-mail').fill(email);

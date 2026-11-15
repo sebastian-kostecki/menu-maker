@@ -1,33 +1,4 @@
 # Paths scanned by `npm run lint:tokens` (one per line; # comments and blank lines are ignored).
-# Each migration slice appends the paths it migrated, in its own change.
+# The list covers all of resources/js; slices no longer append to it.
 # Files under Components/ui/ are always excluded.
-resources/js/Pages/Dev
-resources/js/Components/Common/AppSidebar.vue
-resources/js/Components/Common/UserMenu.vue
-resources/js/lib/navigation.js
-resources/js/Layouts/AuthenticatedLayout.vue
-resources/js/app.js
-resources/js/Layouts/GuestLayout.vue
-resources/js/Pages/Dashboard.vue
-resources/js/Components/Common
-resources/js/Components/MealPlans/StatusTag.vue
-resources/js/Pages/Auth
-resources/js/Pages/Profile
-resources/js/Pages/FamilyMembers
-resources/js/Components/FamilyMembers
-resources/js/lib/pluralizePl.js
-resources/js/lib/format.js
-resources/js/Pages/MealPlans/Index.vue
-resources/js/Components/MealPlans/FiltersBar.vue
-resources/js/Components/MealPlans/StatusFilter.vue
-resources/js/Components/MealPlans/PerPageSelect.vue
-resources/js/Components/MealPlans/MealPlanTable.vue
-resources/js/Components/MealPlans/MealPlanRow.vue
-resources/js/Components/MealPlans/ActionDropdown.vue
-resources/js/Components/MealPlans/GenerateMealPlanDialog.vue
-resources/js/Pages/Recipes
-resources/js/Components/recipes
-resources/js/Components/MealPlans/MealPlanGrid.vue
-resources/js/Components/MealPlans/ShoppingList.vue
-resources/js/Pages/MealPlans/Show.vue
-resources/js/Components/Dashboard
+resources/js

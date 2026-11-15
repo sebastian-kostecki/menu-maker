@@ -25,11 +25,9 @@ const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealP
   <Head title="Pulpit" />
 
   <AuthenticatedLayout>
-    <template #header>
-      <PageHeader title="Pulpit" />
-    </template>
-
     <div class="mx-auto flex max-w-6xl flex-col gap-6">
+      <PageHeader title="Pulpit" />
+
       <EmptyState
         v-if="isFirstRun"
         class="py-12"

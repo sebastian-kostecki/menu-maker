@@ -53,7 +53,7 @@ test('user logs out through the user menu', async ({ page }, testInfo) => {
 
   await page.getByRole('button', { name: 'Menu użytkownika' }).click();
   await page.getByRole('menuitem', { name: 'Wyloguj' }).click();
-  await page.waitForURL(url => url.pathname === '/');
+  await page.waitForURL(url => url.pathname === '/login');
 
   await page.goto('/dashboard');
   await expect(page).toHaveURL(/\/login/);

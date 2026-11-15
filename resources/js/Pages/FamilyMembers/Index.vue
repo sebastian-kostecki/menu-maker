@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { Plus, Users } from 'lucide-vue-next'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import PageHeader from '@/Components/Common/PageHeader.vue'
 import FamilyMemberDeleteDialog from '@/Components/FamilyMembers/FamilyMemberDeleteDialog.vue'
 import FamilyMemberDialog from '@/Components/FamilyMembers/FamilyMemberDialog.vue'
 import FamilyMemberPagination from '@/Components/FamilyMembers/FamilyMemberPagination.vue'
@@ -42,24 +43,21 @@ const openEditDialog = (member) => {
   <Head title="Członkowie rodziny" />
 
   <AuthenticatedLayout>
-    <template #header>
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold tracking-tight">Członkowie rodziny</h1>
-          <p class="mt-1 text-sm text-muted-foreground">
-            Zarządzaj członkami swojej rodziny
-            <span v-if="familyMembers.total > 0" class="ml-2">({{ totalLabel }})</span>
-          </p>
-        </div>
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
+      <PageHeader title="Członkowie rodziny">
+        <template #description>
+          Zarządzaj członkami swojej rodziny
+          <span v-if="familyMembers.total > 0" class="ml-2">({{ totalLabel }})</span>
+        </template>
 
-        <Button @click="openCreateDialog">
-          <Plus class="size-4" />
-          Dodaj członka
-        </Button>
-      </div>
-    </template>
+        <template #actions>
+          <Button @click="openCreateDialog">
+            <Plus class="size-4" />
+            Dodaj członka
+          </Button>
+        </template>
+      </PageHeader>
 
-    <div class="mx-auto max-w-6xl">
       <div class="overflow-hidden rounded-lg border border-border bg-card">
         <div v-if="familyMembers.total === 0" class="flex flex-col items-center gap-2 px-6 py-12 text-center">
           <Users class="size-10 text-muted-foreground" />

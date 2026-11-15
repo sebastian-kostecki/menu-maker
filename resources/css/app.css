@@ -1,9 +1,7 @@
 @import 'tailwindcss';
 
-@plugin '@tailwindcss/forms';
 @import 'tw-animate-css';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @custom-variant dark (&:is(.dark *));

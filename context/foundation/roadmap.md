@@ -46,11 +46,11 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | done |
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | done |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
-| S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | proposed |
-| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | proposed |
-| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | proposed |
-| S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | proposed |
-| S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | proposed |
+| S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | ready    |
+| S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | ready    |
+| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
+| S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
+| S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | ready    |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
 | S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13 | DS-10, D-7, §7.4           | proposed |
 
@@ -146,7 +146,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Unknowns:**
   - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
 - **Risk:** to rdzeń produktu pilnowany przez `meal-plan.spec.ts`; zamiana `<details>` na rozwijany komponent zmienia semantykę, więc nowy selektor w specu jest tu sygnałem zmiany znaczenia, który trzeba świadomie przejrzeć (§8), a nie tylko poprawić.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-10: Lista jadłospisów w nowym wyglądzie
 
@@ -160,7 +160,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
   - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
   - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-11: Przepisy w nowym wyglądzie
 
@@ -174,7 +174,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
   - Jedna zmiana czy trzy (lista, szczegóły, formularz)? §8 dopuszcza podział „po jednym widoku, jeśli diff rośnie”. — Owner: /10x-plan. Block: no.
   - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/` (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
 - **Risk:** `RecipeRow` ma najwięcej literałów w listach (34), a formularz z `IngredientManager` jest najbardziej interaktywnym widokiem aplikacji i ma własny spec E2E (`recipe-form.spec.ts`).
-- **Status:** proposed
+- **Status:** ready
 
 ### S-12: Rodzina w nowym wyglądzie
 
@@ -187,7 +187,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Unknowns:**
   - Czy przy okazji ujednolicić `Create`/`Edit` do `Form.vue` (dziś w Parked), jeśli zmieści się w zakresie? — Owner: /10x-plan. Block: no.
 - **Risk:** jedyny widok bez własnego specu E2E — weryfikacja opiera się na zrzucie i testach feature kontrolera.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-13: Ekrany konta bez Breeze
 
@@ -200,7 +200,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Unknowns:**
   - `FormField` (odroczony z S-07) powstaje tutaj, razem z pierwszym wywołaniem na ekranach `Auth/*` i `Profile/*`. — Owner: /10x-plan. Block: no.
 - **Risk:** pierwszy ekran każdego użytkownika i dwa specy E2E (`login.spec.ts`, `password-reset.spec.ts`); zejście z Breeze nie może zgubić polskich komunikatów walidacji z S-01.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-14: PDF zgodny z ekranem
 
@@ -230,16 +230,16 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 | Roadmap ID | Change ID                 | Suggested issue title                                             | Ready for `/10x-plan` | Notes |
 | ---------- | ------------------------- | ----------------------------------------------------------------- | --------------------- | ----- |
-| F-03       | design-tokens-foundation  | Tokeny marki w OKLCH, prymitywy shadcn-vue i reguła design systemu | yes                   | Run `/10x-plan design-tokens-foundation` |
-| F-04       | design-system-visual-gate | Kitchen sink, zrzut Playwright i `lint:tokens` w CI               | no                    | Czeka na F-03 |
-| S-07       | shared-app-components     | Wspólny dialog, paginacja, sortowanie i warianty kategorii        | no                    | Czeka na F-04 |
-| S-08       | app-shell-restyle         | Powłoka aplikacji i ekrany gościa w kolorach marki                | no                    | Czeka na F-04; `/10x-ui` |
-| S-09       | meal-plan-show-ui         | Widok jadłospisu: siatka tygodnia i lista zakupów                 | no                    | North star. Czeka na S-07, S-08; `/10x-ui` |
-| S-10       | meal-plans-index-ui       | Lista jadłospisów, filtry i dialog generowania                    | no                    | Czeka na S-07; `/10x-ui` |
-| S-11       | recipes-ui                | Lista, szczegóły i formularz przepisu                             | no                    | Czeka na S-07; `/10x-ui`, ewentualnie po jednym widoku |
-| S-12       | family-members-ui         | Członkowie rodziny w nowym wyglądzie                              | no                    | Czeka na S-07; `/10x-ui` |
-| S-13       | auth-profile-ui           | Ekrany konta i profilu bez komponentów Breeze                     | no                    | Czeka na S-07, S-08; `/10x-ui` |
-| S-14       | pdf-design-alignment      | PDF z kolorami kategorii i ramką ostrzeżeń jak na ekranie         | no                    | Czeka na F-03 |
+| F-03       | design-tokens-foundation  | Tokeny marki w OKLCH, prymitywy shadcn-vue i reguła design systemu | no                    | Zrobione |
+| F-04       | design-system-visual-gate | Kitchen sink, zrzut Playwright i `lint:tokens` w CI               | no                    | Zrobione |
+| S-07       | shared-app-components     | Wspólny dialog, paginacja, sortowanie i warianty kategorii        | no                    | Zrobione |
+| S-08       | app-shell-restyle         | Powłoka aplikacji i ekrany gościa w kolorach marki                | no                    | Zrobione |
+| S-09       | meal-plan-show-ui         | Widok jadłospisu: siatka tygodnia i lista zakupów                 | yes                   | North star. Run `/10x-plan meal-plan-show-ui`; `/10x-ui` |
+| S-10       | meal-plans-index-ui       | Lista jadłospisów, filtry i dialog generowania                    | yes                   | Run `/10x-plan meal-plans-index-ui`; `/10x-ui` |
+| S-11       | recipes-ui                | Lista, szczegóły i formularz przepisu                             | yes                   | Run `/10x-plan recipes-ui`; `/10x-ui`, ewentualnie po jednym widoku |
+| S-12       | family-members-ui         | Członkowie rodziny w nowym wyglądzie                              | yes                   | Run `/10x-plan family-members-ui`; `/10x-ui` |
+| S-13       | auth-profile-ui           | Ekrany konta i profilu bez komponentów Breeze                     | yes                   | Run `/10x-plan auth-profile-ui`; `/10x-ui` |
+| S-14       | pdf-design-alignment      | PDF z kolorami kategorii i ramką ostrzeżeń jak na ekranie         | no                    | Zrobione |
 | S-15       | legacy-ui-cleanup         | Usunięcie Breeze, przekierowanie `/`, pełny `lint:tokens` w CI    | no                    | Czeka na S-08…S-13 |
 
 ## Open Roadmap Questions

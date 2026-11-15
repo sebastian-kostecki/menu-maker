@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Enums\MealCategory;
 use App\Models\FamilyMember;
 use App\Models\Ingredient;
+use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
@@ -46,6 +47,8 @@ class E2eMealPlanSeeder extends Seeder
         'e2e-family-firefox@example.com',
     ];
 
+    public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
+
     public const PASSWORD = 'Password123!';
 
     public function run(): void
@@ -82,6 +85,10 @@ class E2eMealPlanSeeder extends Seeder
             $this->syncPinnedCalories($user);
             $this->syncFamily($user);
 
+            if ($email === self::VISUAL_EMAIL) {
+                $this->syncVisualMealPlans($user);
+            }
+
             RateLimiter::clear('generate-meal-plan:'.$user->id);
         }
 
@@ -110,6 +117,38 @@ class E2eMealPlanSeeder extends Seeder
             );
 
             FamilyMember::where('user_id', $familyUser->id)->delete();
+        }
+    }
+
+    /**
+     * Give the visual user four meal plans with pinned dates and timestamps, so the plans list screenshots are stable.
+     *
+     * The "pending" status is deliberately absent: filtering by it yields the filtered empty state.
+     */
+    private function syncVisualMealPlans(User $user): void
+    {
+        $fixtures = [
+            ['status' => 'done', 'start' => '2026-06-15', 'end' => '2026-06-21', 'created' => '2026-06-12 09:30:00'],
+            ['status' => 'done', 'start' => '2026-06-08', 'end' => '2026-06-14', 'created' => '2026-06-05 18:15:00'],
+            ['status' => 'processing', 'start' => '2026-06-22', 'end' => '2026-06-28', 'created' => '2026-06-02 12:00:00'],
+            ['status' => 'error', 'start' => '2026-06-01', 'end' => '2026-06-07', 'created' => '2026-05-28 08:45:00'],
+        ];
+
+        foreach ($fixtures as $fixture) {
+            $mealPlan = new MealPlan;
+            $mealPlan->forceFill([
+                'user_id' => $user->id,
+                'start_date' => $fixture['start'],
+                'end_date' => $fixture['end'],
+                'status' => $fixture['status'],
+                'created_at' => $fixture['created'],
+                'updated_at' => $fixture['created'],
+            ]);
+            $mealPlan->saveQuietly();
+
+            if ($fixture['status'] === 'done') {
+                app(MealPlanGenerator::class)->generate($mealPlan);
+            }
         }
     }
 

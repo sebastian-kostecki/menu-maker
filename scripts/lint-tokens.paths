@@ -17,3 +17,12 @@ resources/js/Pages/Profile
 resources/js/Pages/FamilyMembers
 resources/js/Components/FamilyMembers
 resources/js/lib/pluralizePl.js
+resources/js/lib/format.js
+resources/js/Pages/MealPlans/Index.vue
+resources/js/Components/MealPlans/FiltersBar.vue
+resources/js/Components/MealPlans/StatusFilter.vue
+resources/js/Components/MealPlans/PerPageSelect.vue
+resources/js/Components/MealPlans/MealPlanTable.vue
+resources/js/Components/MealPlans/MealPlanRow.vue
+resources/js/Components/MealPlans/ActionDropdown.vue
+resources/js/Components/MealPlans/GenerateMealPlanDialog.vue

@@ -4,19 +4,42 @@
     <meta charset="utf-8">
     <title>{{ $document->title }}</title>
     <style>
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #111; }
-        h1 { font-size: 15pt; margin: 0 0 10px; }
-        h2 { font-size: 13pt; margin: 0 0 10px; }
+        /*
+         * Mirror of resources/css/app.css :root (dompdf cannot read CSS variables). Keep in sync;
+         * guarded by tests/Unit/Services/MealPlanPdfPaletteTest.php. Hexes are the sRGB-clipped
+         * values from context/foundation/design-system.md 4.2-4.4.
+         * --foreground  oklch(0.24 0.02 60)  #261d16
+         * --muted  oklch(0.955 0.012 85)  #f4f0e7
+         * --muted-foreground  oklch(0.50 0.02 60)  #6c6158
+         * --border  oklch(0.90 0.012 85)  #e2ded5
+         * --warning  oklch(0.96 0.06 90)  #fff1c4
+         * --warning-foreground  oklch(0.45 0.10 75)  #754b00
+         * --meal-breakfast  oklch(0.95 0.06 85)  #ffecc1
+         * --meal-breakfast-foreground  oklch(0.45 0.10 70)  #784900
+         * --meal-supper  oklch(0.94 0.045 40)  #ffe2d5
+         * --meal-supper-foreground  oklch(0.47 0.14 35)  #99351b
+         * --meal-dinner  oklch(0.94 0.035 280)  #e6e9ff
+         * --meal-dinner-foreground  oklch(0.45 0.12 280)  #4a4b96
+         */
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #261d16; }
+        h1 { font-size: 15pt; font-weight: bold; margin: 0 0 10px; }
+        h2 { font-size: 12pt; font-weight: bold; margin: 0 0 10px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #999; padding: 4px 5px; vertical-align: top; text-align: left; }
-        th { background: #e8e8e8; }
+        th, td { border: 1px solid #e2ded5; padding: 4px 5px; vertical-align: top; text-align: left; }
+        th { background: #f4f0e7; font-size: 9pt; font-weight: bold; }
         thead { display: table-header-group; }
         tr { page-break-inside: avoid; }
-        tr.day-start td { border-top: 2px solid #444; }
-        .day { font-weight: bold; }
+        tr.day-start td { border-top: 2px solid #6c6158; }
+        .day { font-size: 9pt; font-weight: bold; }
         td.day-continued { border-top: none; }
+        td.category { font-size: 8pt; font-weight: bold; }
+        td.meal-breakfast { background: #ffecc1; color: #784900; }
+        td.meal-supper { background: #ffe2d5; color: #99351b; }
+        td.meal-dinner { background: #e6e9ff; color: #4a4b96; }
+        td.quantity { text-align: right; }
+        .meta, .note { font-size: 8pt; color: #6c6158; }
         .note { margin-top: 10px; }
-        .notices { margin: 0 0 10px; padding: 6px 8px; border: 1px solid #c9a227; background: #fff8e1; }
+        .notices { margin: 0 0 10px; padding: 6px 8px; border: 1px solid #e2ded5; border-radius: 4px; background: #fff1c4; color: #754b00; }
         .notices p { margin: 0 0 3px; }
     </style>
 </head>
@@ -50,8 +73,8 @@
                         @else
                             <td class="day-continued"></td>
                         @endif
-                        <td>{{ $meal->category }}</td>
-                        <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) (usunięty)@endif</td>
+                        <td class="category meal-{{ $meal->categoryValue }}">{{ $meal->category }}</td>
+                        <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif</td>
                         <td>
                             @forelse ($meal->ingredients as $line)
                                 {{ $line }}<br>
@@ -77,7 +100,7 @@
                     @foreach ($document->shoppingList->items as $item)
                         <tr>
                             <td style="width: 70%">{{ $item->name }}</td>
-                            <td>{{ $item->display }}</td>
+                            <td class="quantity">{{ $item->display }}</td>
                         </tr>
                     @endforeach
                 </tbody>

@@ -1,10 +1,10 @@
 ---
 change_id: auth-profile-ui
 title: Auth profile ui
-status: impl_reviewed
+status: archived
 created: 2026-11-15
 updated: 2026-11-15
-archived_at: null
+archived_at: 2026-11-15T16:37:19Z
 ---
 
 ## Notes

@@ -50,7 +50,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | ready    |
 | S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
-| S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | ready    |
+| S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | in-progress |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
 | S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13 | DS-10, D-7, §7.4           | proposed |
 
@@ -200,7 +200,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Unknowns:**
   - `FormField` (odroczony z S-07) powstaje tutaj, razem z pierwszym wywołaniem na ekranach `Auth/*` i `Profile/*`. — Owner: /10x-plan. Block: no.
 - **Risk:** pierwszy ekran każdego użytkownika i dwa specy E2E (`login.spec.ts`, `password-reset.spec.ts`); zejście z Breeze nie może zgubić polskich komunikatów walidacji z S-01.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-14: PDF zgodny z ekranem
 

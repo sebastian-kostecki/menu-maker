@@ -536,12 +536,12 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Token scan green
-- [x] 3.3 No hand-written SVG and no RecipeHeader left
-- [x] 3.4 No English details copy left
-- [x] 3.5 Recipe controller tests pass
-- [x] 3.6 Recipe E2E specs pass
+- [x] 3.1 Build passes — d54c624
+- [x] 3.2 Token scan green — d54c624
+- [x] 3.3 No hand-written SVG and no RecipeHeader left — d54c624
+- [x] 3.4 No English details copy left — d54c624
+- [x] 3.5 Recipe controller tests pass — d54c624
+- [x] 3.6 Recipe E2E specs pass — d54c624
 
 #### Manual
 
@@ -552,11 +552,11 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 #### Automated
 
-- [ ] 4.1 Build passes
-- [ ] 4.2 Token scan green over both directories
-- [ ] 4.3 Paths list uses directory entries only
-- [ ] 4.4 Recipe controller tests pass
-- [ ] 4.5 Recipe E2E specs pass
+- [x] 4.1 Build passes
+- [x] 4.2 Token scan green over both directories
+- [x] 4.3 Paths list uses directory entries only
+- [x] 4.4 Recipe controller tests pass
+- [x] 4.5 Recipe E2E specs pass
 
 #### Manual
 

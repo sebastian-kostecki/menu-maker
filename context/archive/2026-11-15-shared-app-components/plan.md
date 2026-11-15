@@ -662,7 +662,7 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Manual
 
-- [ ] 1.5 Meal-plan list with more than 5 plans shows the plan count and renders pagination
+- [x] 1.5 Meal-plan list with more than 5 plans shows the plan count and renders pagination
 
 ### Phase 2: ServerPagination and SortableHeader in Common
 
@@ -676,9 +676,9 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Manual
 
-- [ ] 2.6 Recipe pagination is one Polish „Paginacja” nav and keeps search, category and sort
-- [ ] 2.7 Meal-plan pagination appears and keeps the status filter and sort
-- [ ] 2.8 Sortable headers toggle once per click/Enter/Space and set aria-sort; a new column starts ascending
+- [x] 2.6 Recipe pagination is one Polish „Paginacja” nav and keeps search, category and sort
+- [x] 2.7 Meal-plan pagination appears and keeps the status filter and sort
+- [x] 2.8 Sortable headers toggle once per click/Enter/Space and set aria-sort; a new column starts ascending
 
 ### Phase 3: ConfirmDialog in Common
 
@@ -692,9 +692,9 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Manual
 
-- [ ] 3.6 Recipe delete (list and details page) shows the Polish dialog, focus on Anuluj, spinner, Esc blocked while running
-- [ ] 3.7 Meal-plan delete and regenerate (menu and details page) behave the same with existing toasts
-- [ ] 3.8 Family-member delete shows success toast; a forced failure shows the error toast
+- [x] 3.6 Recipe delete (list and details page) shows the Polish dialog, focus on Anuluj, spinner, Esc blocked while running
+- [x] 3.7 Meal-plan delete and regenerate (menu and details page) behave the same with existing toasts
+- [x] 3.8 Family-member delete shows success toast; a forced failure shows the error toast
 
 ### Phase 4: Category and status badges
 
@@ -706,8 +706,8 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Manual
 
-- [ ] 4.4 Recipe list and details page show time-of-day category badges with labels
-- [ ] 4.5 Meal-plan list and details page show the four status variants; spinner respects reduced motion
+- [x] 4.4 Recipe list and details page show time-of-day category badges with labels
+- [x] 4.5 Meal-plan list and details page show the four status variants; spinner respects reduced motion
 
 ### Phase 5: Kitchen sink, gates and docs
 
@@ -722,6 +722,6 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Manual
 
-- [ ] 5.7 Each new and changed PNG reviewed
-- [ ] 5.8 Kitchen-sink „Komponenty aplikacji” demos work interactively
-- [ ] 5.9 design-system.md, CLAUDE.md and roadmap read consistently with the code
+- [x] 5.7 Each new and changed PNG reviewed
+- [x] 5.8 Kitchen-sink „Komponenty aplikacji” demos work interactively
+- [x] 5.9 design-system.md, CLAUDE.md and roadmap read consistently with the code

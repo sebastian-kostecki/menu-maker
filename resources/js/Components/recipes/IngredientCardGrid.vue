@@ -1,6 +1,7 @@
 <template>
   <EmptyState
     v-if="ingredients.length === 0"
+    class="py-12"
     :icon="Package"
     title="Brak składników"
     description="Ten przepis nie ma jeszcze żadnych składników."

@@ -9,6 +9,7 @@
     </div>
     <EmptyState
       v-else
+      class="py-12"
       :icon="ScrollText"
       title="Brak sposobu przygotowania"
       description="Sposób przygotowania tego przepisu nie został jeszcze dodany."

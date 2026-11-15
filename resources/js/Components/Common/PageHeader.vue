@@ -8,7 +8,7 @@ defineProps<Props>()
 </script>
 
 <template>
-  <div class="flex min-w-0 flex-col gap-1">
+  <header class="flex min-w-0 flex-col gap-1">
     <nav v-if="$slots.breadcrumbs" aria-label="Ścieżka nawigacji" class="text-sm text-muted-foreground">
       <slot name="breadcrumbs" />
     </nav>
@@ -23,5 +23,5 @@ defineProps<Props>()
         <slot name="actions" />
       </div>
     </div>
-  </div>
+  </header>
 </template>

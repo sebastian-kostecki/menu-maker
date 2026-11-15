@@ -60,6 +60,7 @@ const handleConfirm = () => {
         <AlertDialogTitle>{{ title }}</AlertDialogTitle>
         <AlertDialogDescription>{{ description }}</AlertDialogDescription>
       </AlertDialogHeader>
+      <slot v-if="$slots.default" />
       <AlertDialogFooter>
         <AlertDialogCancel :disabled="processing">Anuluj</AlertDialogCancel>
         <Button

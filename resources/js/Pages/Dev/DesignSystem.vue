@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -19,9 +19,11 @@ import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
 import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
-import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
-import EmptyState from '@/Components/Common/EmptyState.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import { pluralize } from '@/lib/format'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
@@ -194,8 +196,11 @@ const appPaginationMeta = ref({
   from: 11,
   to: 20,
 })
+const demoPlanCount = 22
+const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
 const processingOpen = ref(false)
+const fieldOpen = ref(false)
 
 const handleAppSort = (value) => {
   appSort.value = value
@@ -364,16 +369,47 @@ const showToast = () => {
             <Label for="ds-input-disabled">Autor</Label>
             <Input id="ds-input-disabled" model-value="Jan Kowalski" disabled />
           </div>
-          <div class="flex flex-col gap-2">
-            <Label for="ds-input-invalid">Liczba porcji</Label>
-            <Input
-              id="ds-input-invalid"
-              model-value="abc"
-              aria-invalid="true"
-              aria-describedby="ds-input-invalid-error"
-            />
-            <p id="ds-input-invalid-error" class="text-sm text-destructive">Podaj liczbę porcji.</p>
-          </div>
+          <FormField id="ds-field-default" label="Nazwa przepisu">
+            <template #default="{ id }">
+              <Input :id="id" model-value="Zupa pomidorowa" />
+            </template>
+          </FormField>
+          <FormField
+            id="ds-field-description"
+            label="Liczba porcji"
+            description="Dla ilu osób przygotowujesz przepis."
+          >
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                model-value="4"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+          <FormField id="ds-field-error" label="Liczba porcji" error="Podaj liczbę porcji.">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                model-value="abc"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+          <FormField id="ds-field-password" label="Hasło">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                type="password"
+                model-value="sekretne-haslo"
+                autocomplete="new-password"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
           <div class="flex flex-col gap-2">
             <Label for="ds-textarea-default">Instrukcja</Label>
             <Textarea id="ds-textarea-default" placeholder="Opisz kolejne kroki" />
@@ -598,6 +634,8 @@ const showToast = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profil</DropdownMenuItem>
               <DropdownMenuItem>Wyloguj</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive">Usuń</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -683,6 +721,35 @@ const showToast = () => {
         <div class="flex flex-wrap items-center gap-2">
           <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
           <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
+          <Button variant="destructive" @click="fieldOpen = true">Potwierdź z polem</Button>
+        </div>
+
+        <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
+          <PageHeader
+            title="Jadłospisy"
+            :description="`Przeglądaj wygenerowane jadłospisy · ${demoPlanCount} ${pluralize(demoPlanCount, demoPlanForms)}`"
+          >
+            <template #actions>
+              <Button><Plus />Wygeneruj jadłospis</Button>
+            </template>
+          </PageHeader>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border bg-card p-6">
+            <EmptyState
+              :icon="CalendarDays"
+              title="Nie masz jeszcze jadłospisów"
+              description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+            >
+              <Button>Wygeneruj pierwszy jadłospis</Button>
+            </EmptyState>
+          </div>
+          <div class="rounded-lg border bg-card p-6">
+            <EmptyState :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
+              <Button variant="outline">Wyczyść filtry</Button>
+            </EmptyState>
+          </div>
         </div>
 
         <ConfirmDialog
@@ -701,8 +768,29 @@ const showToast = () => {
           variant="destructive"
           processing
         />
+        <ConfirmDialog
+          v-model:open="fieldOpen"
+          title="Usuń konto"
+          description="Po usunięciu konta wszystkie Twoje dane zostaną trwale skasowane. Podaj hasło, aby potwierdzić."
+          confirm-label="Usuń konto"
+          variant="destructive"
+          @confirm="fieldOpen = false"
+        >
+          <FormField id="ds-delete-password" label="Hasło" error="Podane hasło jest nieprawidłowe.">
+            <template #default="{ id, invalid, describedBy }">
+              <Input
+                :id="id"
+                type="password"
+                model-value="zle-haslo"
+                autocomplete="current-password"
+                :aria-invalid="invalid || undefined"
+                :aria-describedby="describedBy"
+              />
+            </template>
+          </FormField>
+        </ConfirmDialog>
 
-        <div class="flex flex-col gap-6 rounded-lg border bg-card p-4">
+        <div class="flex flex-col gap-6 rounded-lg border bg-card p-6">
           <PageHeader title="Zupa pomidorowa z makaronem i świeżą bazylią">
             <template #breadcrumbs>
               <a href="#ds-komponenty-aplikacji" class="hover:text-foreground hover:underline">Przepisy</a>
@@ -717,24 +805,10 @@ const showToast = () => {
               <Button variant="secondary">Kopiuj przepis</Button>
             </template>
           </PageHeader>
-          <PageHeader title="Jadłospisy" />
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-lg border bg-card">
-            <EmptyState
-              :icon="ChefHat"
-              title="Brak przepisów"
-              description="Dodaj pierwszy przepis, aby zaplanować tydzień."
-            >
-              <template #action>
-                <Button>Dodaj przepis</Button>
-              </template>
-            </EmptyState>
-          </div>
-          <div class="rounded-lg border bg-card">
-            <EmptyState :icon="SearchX" title="Brak wyników" />
-          </div>
+        <div class="rounded-lg border bg-card p-6">
+          <EmptyState :icon="SearchX" title="Brak wyników" />
         </div>
       </section>
     </main>

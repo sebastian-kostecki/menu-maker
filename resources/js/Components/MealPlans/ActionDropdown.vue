@@ -1,15 +1,19 @@
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" size="sm" class="h-8 w-8 p-0">
-        <MoreHorizontal class="h-4 w-4" />
-        <span class="sr-only">Otwórz menu</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        class="size-8"
+        :aria-label="`Akcje: ${formatDateRange(item.start_date, item.end_date)}`"
+      >
+        <MoreHorizontal aria-hidden="true" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-56">
       <!-- View Details -->
       <DropdownMenuItem @click="handleViewDetails">
-        <Eye class="mr-2 h-4 w-4" />
+        <Eye />
         Szczegóły
       </DropdownMenuItem>
 
@@ -18,7 +22,7 @@
         :disabled="!canDownloadPdf"
         @click="handleDownloadPdf"
       >
-        <Download class="mr-2 h-4 w-4" />
+        <Download />
         Pobierz PDF
       </DropdownMenuItem>
 
@@ -29,17 +33,17 @@
         :disabled="!canRegenerate"
         @click="handleRegenerateClick"
       >
-        <RefreshCw class="mr-2 h-4 w-4" />
+        <RefreshCw />
         Regeneruj
       </DropdownMenuItem>
 
       <!-- Delete -->
       <DropdownMenuItem
         :disabled="!canDelete"
+        variant="destructive"
         @click="handleDeleteClick"
-        class="text-red-600 focus:text-red-600 focus:bg-red-50"
       >
-        <Trash2 class="mr-2 h-4 w-4" />
+        <Trash2 />
         Usuń
       </DropdownMenuItem>
     </DropdownMenuContent>
@@ -85,6 +89,7 @@ import {
 } from '@/Components/ui/dropdown-menu'
 import { Button } from '@/Components/ui/button'
 import { toast } from 'vue-sonner'
+import { formatDateRange } from '@/lib/format'
 // Local type definition
 interface MealPlanListItem {
   id: number

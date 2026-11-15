@@ -1,10 +1,23 @@
-const defaultNumberFormat = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 })
+const LOCALE = 'pl-PL'
 
-const dateFormat = new Intl.DateTimeFormat('pl-PL', {
+const defaultNumberFormat = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2 })
+
+const dateFormat = new Intl.DateTimeFormat(LOCALE, {
   day: 'numeric',
   month: 'short',
   year: 'numeric',
 })
+
+const pluralRules = new Intl.PluralRules(LOCALE)
+
+const isValidDate = (date) => !Number.isNaN(date.getTime())
+
+// Only the Y-m-d prefix is read, so a full ISO timestamp still parses as a local date.
+const parseYmd = (ymd) => {
+  const [year, month, day] = String(ymd ?? '').slice(0, 10).split('-').map(Number)
+
+  return new Date(year, month - 1, day)
+}
 
 /**
  * Formatuje liczbę (lub liczbę zapisaną jako tekst) po polsku, np. 1,5.
@@ -25,7 +38,7 @@ export function formatNumber(value, options) {
     return defaultNumberFormat.format(number)
   }
 
-  return new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2, ...options }).format(number)
+  return new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2, ...options }).format(number)
 }
 
 /**
@@ -38,33 +51,54 @@ export function formatDate(value) {
 
   const date = value instanceof Date ? value : new Date(value)
 
-  if (Number.isNaN(date.getTime())) {
+  if (!isValidDate(date)) {
     return ''
   }
 
   return dateFormat.format(date)
 }
 
-/**
- * Wybiera polską formę liczebnika: [jeden, kilka, wiele]. Ułamki (np. 2,5 porcji) dostają formę „wiele”.
- */
-export function pluralize(count, [one, few, many]) {
-  const number = Number(count)
+// Invalid input renders as '' instead of throwing a RangeError during render.
+export const formatDateRange = (startYmd, endYmd) => {
+  const start = parseYmd(startYmd)
+  const end = parseYmd(endYmd)
 
-  if (!Number.isInteger(number)) {
-    return many
+  if (!isValidDate(start) || !isValidDate(end)) {
+    return ''
   }
 
-  const abs = Math.abs(number)
+  return new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' }).formatRange(start, end)
+}
 
-  if (abs === 1) {
+export const formatDateTime = (iso) => {
+  const date = new Date(iso ?? '')
+
+  if (!isValidDate(date)) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat(LOCALE, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date)
+}
+
+/**
+ * Wybiera polską formę liczebnika, np. pluralize(3, { one: 'porcja', few: 'porcje', many: 'porcji' }).
+ * Ułamki dostają formę `many` (Intl.PluralRules zwraca dla nich „other”).
+ */
+export const pluralize = (count, { one, few, many }) => {
+  const category = pluralRules.select(count)
+
+  if (category === 'one') {
     return one
   }
 
-  const lastDigit = abs % 10
-  const lastTwoDigits = abs % 100
-
-  if (lastDigit >= 2 && lastDigit <= 4 && !(lastTwoDigits >= 12 && lastTwoDigits <= 14)) {
+  if (category === 'few') {
     return few
   }
 

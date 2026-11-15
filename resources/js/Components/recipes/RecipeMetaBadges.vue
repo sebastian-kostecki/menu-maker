@@ -7,7 +7,7 @@
 
     <Badge variant="outline" class="gap-2 px-3 py-1">
       <Users class="size-4" aria-hidden="true" />
-      <span class="font-medium">{{ servings }} {{ pluralize(servings, ['porcja', 'porcje', 'porcji']) }}</span>
+      <span class="font-medium">{{ servings }} {{ pluralize(servings, { one: 'porcja', few: 'porcje', many: 'porcji' }) }}</span>
     </Badge>
   </div>
 </template>

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { logInAsVisualUser as logIn } from './support/login';
 import { expectFigtreeLoaded } from './support/fonts';
+import { logIn } from './support/auth';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,

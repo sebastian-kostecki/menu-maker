@@ -7,7 +7,7 @@
         <template #description>
           Zarządzaj swoją kolekcją przepisów
           <span v-if="recipes.meta.total > 0">
-            ({{ recipes.meta.total }} {{ pluralize(recipes.meta.total, ['przepis', 'przepisy', 'przepisów']) }})
+            ({{ recipes.meta.total }} {{ pluralize(recipes.meta.total, { one: 'przepis', few: 'przepisy', many: 'przepisów' }) }})
           </span>
         </template>
       </PageHeader>
@@ -16,18 +16,17 @@
     <div class="mx-auto flex max-w-6xl flex-col gap-6">
       <EmptyState
         v-if="noRecipes"
+        class="py-12"
         :icon="ChefHat"
         title="Brak przepisów"
         description="Dodaj pierwszy przepis, aby zaplanować tydzień."
       >
-        <template #action>
-          <Button as-child>
-            <Link :href="route('recipes.create')">
-              <Plus class="size-4" aria-hidden="true" />
-              Dodaj przepis
-            </Link>
-          </Button>
-        </template>
+        <Button as-child>
+          <Link :href="route('recipes.create')">
+            <Plus class="size-4" aria-hidden="true" />
+            Dodaj przepis
+          </Link>
+        </Button>
       </EmptyState>
 
       <template v-else>
@@ -43,15 +42,14 @@
 
         <EmptyState
           v-if="noResults"
+          class="py-12"
           :icon="SearchX"
           title="Brak wyników"
           description="Na tej stronie nie ma przepisów lub żaden nie pasuje do filtrów."
         >
-          <template #action>
-            <Button variant="outline" @click="handleReset">
-              Wyczyść filtry
-            </Button>
-          </template>
+          <Button variant="outline" @click="handleReset">
+            Wyczyść filtry
+          </Button>
         </EmptyState>
 
         <template v-else>

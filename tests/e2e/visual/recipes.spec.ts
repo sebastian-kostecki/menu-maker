@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { logInAsVisualUser as logIn } from './support/login';
+import { logIn } from './support/auth';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,

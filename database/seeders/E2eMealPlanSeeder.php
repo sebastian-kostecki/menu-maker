@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Enums\MealCategory;
 use App\Models\FamilyMember;
 use App\Models\Ingredient;
+use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use RuntimeException;
 
 /**
- * Re-runnable fixtures for the Playwright specs: one planner user and one recipe-author (cook) user per browser project.
+ * Re-runnable fixtures for the Playwright specs: one planner user, one recipe-author (cook) user and one family-members user per browser project.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -37,6 +38,14 @@ class E2eMealPlanSeeder extends Seeder
     public const COOK_EMAILS = [
         'e2e-cook-chromium@example.com',
         'e2e-cook-firefox@example.com',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    public const FAMILY_EMAILS = [
+        'e2e-family-chromium@example.com',
+        'e2e-family-firefox@example.com',
     ];
 
     public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
@@ -71,6 +80,10 @@ class E2eMealPlanSeeder extends Seeder
             $this->syncPinnedCalories($user);
             $this->syncFamily($user);
 
+            if ($email === self::VISUAL_EMAIL) {
+                $this->syncVisualMealPlans($user);
+            }
+
             RateLimiter::clear('generate-meal-plan:'.$user->id);
         }
 
@@ -86,6 +99,51 @@ class E2eMealPlanSeeder extends Seeder
 
             $cook->recipes()->withTrashed()->forceDelete();
             FamilyMember::where('user_id', $cook->id)->delete();
+        }
+
+        foreach (self::FAMILY_EMAILS as $email) {
+            $familyUser = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'E2E Family',
+                    'password' => Hash::make(self::PASSWORD),
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            FamilyMember::where('user_id', $familyUser->id)->delete();
+        }
+    }
+
+    /**
+     * Give the visual user four meal plans with pinned dates and timestamps, so the plans list screenshots are stable.
+     *
+     * The "pending" status is deliberately absent: filtering by it yields the filtered empty state.
+     */
+    private function syncVisualMealPlans(User $user): void
+    {
+        $fixtures = [
+            ['status' => 'done', 'start' => '2026-06-15', 'end' => '2026-06-21', 'created' => '2026-06-12 09:30:00'],
+            ['status' => 'done', 'start' => '2026-06-08', 'end' => '2026-06-14', 'created' => '2026-06-05 18:15:00'],
+            ['status' => 'processing', 'start' => '2026-06-22', 'end' => '2026-06-28', 'created' => '2026-06-02 12:00:00'],
+            ['status' => 'error', 'start' => '2026-06-01', 'end' => '2026-06-07', 'created' => '2026-05-28 08:45:00'],
+        ];
+
+        foreach ($fixtures as $fixture) {
+            $mealPlan = new MealPlan;
+            $mealPlan->forceFill([
+                'user_id' => $user->id,
+                'start_date' => $fixture['start'],
+                'end_date' => $fixture['end'],
+                'status' => $fixture['status'],
+                'created_at' => $fixture['created'],
+                'updated_at' => $fixture['created'],
+            ]);
+            $mealPlan->saveQuietly();
+
+            if ($fixture['status'] === 'done') {
+                app(MealPlanGenerator::class)->generate($mealPlan);
+            }
         }
     }
 

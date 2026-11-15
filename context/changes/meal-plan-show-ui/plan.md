@@ -632,13 +632,13 @@ No schema or data migration. The seeder change affects only the visual user's fi
 
 #### Automated
 
-- [x] 4.1 PHP suite, style and static analysis pass
-- [x] 4.2 Seeder test passes
-- [x] 4.3 Seeder runs twice without error
-- [x] 4.4 Build and token scan pass
-- [x] 4.5 Baseline generation matches the expected delta
-- [x] 4.6 The visual gate passes twice in a row without updates
-- [x] 4.7 The full E2E suite still passes
+- [x] 4.1 PHP suite, style and static analysis pass — 007ed27
+- [x] 4.2 Seeder test passes — 007ed27
+- [x] 4.3 Seeder runs twice without error — 007ed27
+- [x] 4.4 Build and token scan pass — 007ed27
+- [x] 4.5 Baseline generation matches the expected delta — 007ed27
+- [x] 4.6 The visual gate passes twice in a row without updates — 007ed27
+- [x] 4.7 The full E2E suite still passes — 007ed27
 
 #### Manual
 

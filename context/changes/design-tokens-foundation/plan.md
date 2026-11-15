@@ -292,11 +292,11 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Automated
 
-- [x] 1.1 No HSL, gray-200 or chart tokens remain
-- [x] 1.2 All 12 new state/domain tokens are mapped
-- [x] 1.3 Client and SSR bundles build
-- [x] 1.4 Pest suite passes
-- [x] 1.5 E2E suite passes against Sail
+- [x] 1.1 No HSL, gray-200 or chart tokens remain — 241b3bc
+- [x] 1.2 All 12 new state/domain tokens are mapped — 241b3bc
+- [x] 1.3 Client and SSR bundles build — 241b3bc
+- [x] 1.4 Pest suite passes — 241b3bc
+- [x] 1.5 E2E suite passes against Sail — 241b3bc
 
 #### Manual
 
@@ -308,13 +308,13 @@ There is no data migration. To roll back, revert the phase commits: tokens and p
 
 #### Automated
 
-- [ ] 2.1 The six primitive folders exist
-- [ ] 2.2 No new-package imports in ui/
-- [ ] 2.3 cn and @lucide/vue are not dependencies
-- [ ] 2.4 Only the six primitives, badge and package files changed
-- [ ] 2.5 Badge and alert expose the new variants
-- [ ] 2.6 Client and SSR bundles build
-- [ ] 2.7 E2E suite passes against Sail
+- [x] 2.1 The six primitive folders exist
+- [x] 2.2 No new-package imports in ui/
+- [x] 2.3 cn and @lucide/vue are not dependencies
+- [x] 2.4 Only the six primitives, badge and package files changed
+- [x] 2.5 Badge and alert expose the new variants
+- [x] 2.6 Client and SSR bundles build
+- [x] 2.7 E2E suite passes against Sail
 
 #### Manual
 

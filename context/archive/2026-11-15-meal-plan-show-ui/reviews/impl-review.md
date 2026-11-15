@@ -123,7 +123,7 @@ Manual rows 1.5–1.6, 2.6–2.7, 3.6–3.8, 4.8–4.10 are all still `[ ]` (pen
 - **Location**: context/foundation/roadmap.md:49, :149
 - **Detail**: Phase 1 was to change only the Unknown text in S-09/S-10/S-11 ("Change nothing else in those items"), but it also set S-09 `ready` → `in-progress` (normal bookkeeping, harmless). change.md is now `implemented` and the roadmap was not updated, so the two disagree.
 - **Fix**: Set S-09 to `done` in the table and item when the change is archived/merged (as the earlier slices did in their roadmap-sync commit).
-- **Decision**: DEFERRED — set S-09 to `done` at merge/archive; queued in follow-ups/review-fixes.md
+- **Decision**: FIXED — S-09 set to `done` by `/10x-archive` (2026-11-15)
 
 ### F8 — Fixture robustness nits (seeder and visual spec)
 

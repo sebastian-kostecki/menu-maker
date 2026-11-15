@@ -58,7 +58,6 @@
             <ServerPagination
               v-if="recipes.data.length > 0"
               :meta="recipes.meta"
-              :links="recipes.links"
               @page-change="handlePageChange"
             />
           </div>
@@ -83,7 +82,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue';
 import RecipesTable from '@/Components/recipes/RecipesTable.vue';
-import ServerPagination from '@/Components/recipes/ServerPagination.vue';
+import ServerPagination from '@/Components/Common/ServerPagination.vue';
 import ConfirmDeleteModal from '@/Components/recipes/ConfirmDeleteModal.vue';
 import { useLocalStorageStateSync } from '@/lib/useLocalStorageStateSync.js';
 
@@ -159,13 +158,9 @@ const handleReset = () => {
 };
 
 // Sort change handler
-const handleSortChange = (field) => {
-  if (sortState.field === field) {
-    sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortState.field = field;
-    sortState.direction = 'asc';
-  }
+const handleSortChange = ({ column, direction }) => {
+  sortState.field = column;
+  sortState.direction = direction;
   updateFilters();
 };
 

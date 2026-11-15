@@ -655,10 +655,10 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [x] 1.1 The new regression test fails before the fix and passes after
-- [x] 1.2 Full Pest suite passes
-- [x] 1.3 Larastan passes
-- [x] 1.4 Pint passes
+- [x] 1.1 The new regression test fails before the fix and passes after — 4b36d79
+- [x] 1.2 Full Pest suite passes — 4b36d79
+- [x] 1.3 Larastan passes — 4b36d79
+- [x] 1.4 Pint passes — 4b36d79
 
 #### Manual
 
@@ -668,11 +668,11 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Literal scan passes with Components/Common listed
-- [ ] 2.3 No references to the deleted duplicates remain
-- [ ] 2.4 Pest suite passes
-- [ ] 2.5 E2E suite passes
+- [x] 2.1 Build passes
+- [x] 2.2 Literal scan passes with Components/Common listed
+- [x] 2.3 No references to the deleted duplicates remain
+- [x] 2.4 Pest suite passes
+- [x] 2.5 E2E suite passes
 
 #### Manual
 

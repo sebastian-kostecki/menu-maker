@@ -26,7 +26,8 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('family-members', FamilyMemberController::class)
-        ->except(['show'])
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->where(['family_member' => '[0-9]+'])
         ->names('family-members');
 
     Route::resource('recipes', RecipeController::class);

@@ -111,6 +111,15 @@ test.describe('overlays', () => {
     await expect(overlay).toHaveScreenshot('overlay-confirm-dialog-processing.png');
   });
 
+  test('confirm dialog with field', async ({ page }) => {
+    await openKitchenSink(page);
+    await page.getByRole('button', { name: 'Potwierdź z polem', exact: true }).click();
+    const overlay = page.getByRole('alertdialog');
+    await expect(overlay).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect(overlay).toHaveScreenshot('overlay-confirm-dialog-field.png');
+  });
+
   test('sheet', async ({ page }) => {
     await openKitchenSink(page);
     await page.getByRole('button', { name: 'Otwórz panel' }).click();

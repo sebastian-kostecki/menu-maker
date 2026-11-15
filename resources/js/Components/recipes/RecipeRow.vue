@@ -10,7 +10,7 @@
       <CategoryBadge :category="recipe.category" />
     </TableCell>
     <TableCell class="text-right tabular-nums text-muted-foreground">
-      {{ formatNumber(recipe.calories, { maximumFractionDigits: 0 }) }} kcal
+      {{ formatNumber(recipe.calories) }} kcal
     </TableCell>
     <TableCell class="text-right tabular-nums text-muted-foreground">
       {{ recipe.servings }}

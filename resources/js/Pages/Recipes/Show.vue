@@ -6,7 +6,7 @@
       <PageHeader :title="recipe.name || ''">
         <template #breadcrumbs>
           <div class="flex items-center gap-2">
-            <Link :href="route('recipes.index')" class="hover:text-foreground hover:underline">Przepisy</Link>
+            <Link :href="route('recipes.index')" class="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Przepisy</Link>
             <span aria-hidden="true">/</span>
             <span aria-current="page" class="text-foreground">{{ recipe.name }}</span>
           </div>

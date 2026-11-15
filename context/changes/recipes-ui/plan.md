@@ -482,7 +482,12 @@ None beyond module-level `Intl` formatter instances in `lib/format.js` (avoid co
 
 ## Migration Notes
 
-- Kitchen-sink baseline delta from Phase 1 must be listed here by file name with its reason when it lands (expected: `section-komponenty-aplikacji.png`; possibly `overlay-*` dialog PNGs through corner pixels).
+- Kitchen-sink baseline delta from Phase 1 (0597e4c), each reviewed:
+  - `section-komponenty-aplikacji.png`: new PageHeader and EmptyState demos in the section.
+  - `overlay-confirm-dialog.png`, `overlay-confirm-dialog-processing.png`: the demos raise the page height, which shifts the overlay corner pixels.
+  - `overlay-user-menu.png`: the same corner-pixel shift. This is an accepted deviation from criterion 1.5, which allowed only `overlay-*` dialog PNGs; the user menu overlay is not a dialog. `overlay-dialog.png` and `overlay-alert-dialog.png` did not change.
+- Addendum (impl-review F1, 2026-11-15): one exception to "no change to filtering". On `/recipes`, every search sent `category=all` (the toolbar's UI-only "all" value). `v-model` on a `reactive` const also replaced `filterState`, and with an empty query string `props.filters` arrives as a JSON `[]`, so `sort` became `Array.prototype.sort`. The result: every search ended on "Brak wyników". Fixed client-side only (`RecipesToolbar.vue` maps "all" → `null`; `Index.vue` merges with `Object.assign` and normalises an array `filters`), with no backend change. It is guarded by the new `tests/e2e/recipe-search.spec.ts`. The "Dodano" sort header is now correctly marked active by default (its icon changes from ⇕ to ▾, a 10×12 px area), so `recipes-index-desktop.png` was refreshed deliberately. In `recipes-index-mobile.png` that column is outside the scrolled table and the image is unchanged.
+- Addendum (impl-review F5, 2026-11-15): `recipe-form.spec.ts` was flaky in Firefox under parallel load (already noted in the ai-ingredient-scaling review). The cause: `fill` on "Sposób przygotowania" ran while the category Select was still closing, and the Select's focus return to its trigger swallowed the typed text. The spec now waits for the listbox to be hidden before typing. No selector changed. It passed 16/16 with `--repeat-each=16 --workers=4`.
 - The visual user's existing local faker recipes are replaced on the next seeder run; this affects only `e2e-planner-visual@example.com`.
 - Parallel slices: S-09 `meal-plan-show-ui` and S-10 `meal-plans-index-ui` consume `PageHeader`/`EmptyState`/`lib/format.js` from this change; if either implements first, it must rebase onto this branch or wait. S-09 may also edit `E2eMealPlanSeeder` for the visual user — expect a merge in that file.
 

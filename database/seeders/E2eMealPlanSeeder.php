@@ -207,11 +207,13 @@ class E2eMealPlanSeeder extends Seeder
             MealCategory::Dinner->value => '810',
         ];
 
-        foreach ($caloriesByCategory as $category => $calories) {
-            Recipe::where('user_id', $user->id)
-                ->where('category', $category)
-                ->update(['calories' => $calories]);
-        }
+        Recipe::withoutTimestamps(function () use ($user, $caloriesByCategory): void {
+            foreach ($caloriesByCategory as $category => $calories) {
+                Recipe::where('user_id', $user->id)
+                    ->where('category', $category)
+                    ->update(['calories' => $calories]);
+            }
+        });
     }
 
     /**

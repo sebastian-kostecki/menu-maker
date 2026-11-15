@@ -8,10 +8,10 @@ const dateFormat = new Intl.DateTimeFormat('pl-PL', {
 
 /**
  * Formatuje liczbę (lub liczbę zapisaną jako tekst) po polsku, np. 1,5.
- * Zwraca pusty tekst dla null, '' i wartości nienumerycznych.
+ * Zwraca pusty tekst dla null, pustego (lub samych spacji) tekstu i wartości nienumerycznych.
  */
 export function formatNumber(value, options) {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
     return ''
   }
 
@@ -46,10 +46,16 @@ export function formatDate(value) {
 }
 
 /**
- * Wybiera polską formę liczebnika: [jeden, kilka, wiele].
+ * Wybiera polską formę liczebnika: [jeden, kilka, wiele]. Ułamki (np. 2,5 porcji) dostają formę „wiele”.
  */
 export function pluralize(count, [one, few, many]) {
-  const abs = Math.abs(count)
+  const number = Number(count)
+
+  if (!Number.isInteger(number)) {
+    return many
+  }
+
+  const abs = Math.abs(number)
 
   if (abs === 1) {
     return one

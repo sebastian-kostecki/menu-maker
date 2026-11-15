@@ -100,11 +100,11 @@ const handleReset = () => {
   emit('reset');
 };
 
-// Update model value
+// Update model value ("all" to wartość tylko dla UI — rodzic dostaje null)
 const updateModelValue = () => {
   emit('update:modelValue', {
     search: searchValue.value,
-    category: categoryValue.value
+    category: categoryValue.value === 'all' ? null : categoryValue.value
   });
 };
 </script>

@@ -33,7 +33,8 @@
       <template v-else>
         <!-- Pasek filtrów i wyszukiwania -->
         <RecipesToolbar
-          v-model="filterState"
+          :model-value="filterState"
+          @update:model-value="(value) => Object.assign(filterState, value)"
           :categories="categories"
           @search="handleSearch"
           @category-change="handleCategoryChange"
@@ -120,16 +121,19 @@ const noRecipes = computed(() =>
 );
 const noResults = computed(() => props.recipes.data.length === 0 && !noRecipes.value);
 
+// Bez parametrów w URL serwer wysyła `filters` jako pustą tablicę JSON, a `[].sort` to funkcja
+const initialFilters = Array.isArray(props.filters) ? {} : props.filters;
+
 // Filter state
 const filterState = reactive({
-  search: props.filters.search || '',
-  category: props.filters.category || null
+  search: initialFilters.search || '',
+  category: initialFilters.category || null
 });
 
 // Sort state
 const sortState = reactive({
-  field: props.filters.sort || 'created_at',
-  direction: props.filters.direction || 'desc'
+  field: initialFilters.sort || 'created_at',
+  direction: initialFilters.direction || 'desc'
 });
 
 // Delete modal state

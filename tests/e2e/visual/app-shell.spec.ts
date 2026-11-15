@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { logInAsVisualUser as logIn } from './support/login';
 import { expectFigtreeLoaded } from './support/fonts';
 
 test.skip(
@@ -12,15 +13,6 @@ test.beforeEach(async ({ page }) => {
   // The guest footer prints the current year; pin it so the screenshots stay stable.
   await page.clock.setFixedTime(new Date('2026-06-15T10:00:00'));
 });
-
-async function logIn(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel('Adres e-mail').fill('e2e-planner-visual@example.com');
-  await page.getByLabel('Hasło').fill('Password123!');
-  await page.getByRole('button', { name: 'Zaloguj się' }).click();
-  await page.waitForURL('**/dashboard');
-  await expectFigtreeLoaded(page);
-}
 
 test('guest login', async ({ page }) => {
   await page.goto('/login');

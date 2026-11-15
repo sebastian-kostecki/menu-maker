@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { logInAsVisualUser as logIn } from './support/login';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -15,15 +15,6 @@ test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-06-15T10:00:00'));
 });
 
-async function logIn(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel('Adres e-mail').fill('e2e-planner-visual@example.com');
-  await page.getByLabel('Hasło').fill('Password123!');
-  await page.getByRole('button', { name: 'Zaloguj się' }).click();
-  await page.waitForURL('**/dashboard');
-  await expectFigtreeLoaded(page);
-}
-
 async function openIndex(page: Page) {
   await page.goto('/recipes');
   await expect(page.getByRole('heading', { level: 1, name: 'Przepisy' })).toBeVisible();
@@ -33,7 +24,7 @@ async function openIndex(page: Page) {
 async function openShow(page: Page) {
   await openIndex(page);
   await page.getByRole('link', { name: NEWEST_RECIPE, exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: NEWEST_RECIPE })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: NEWEST_RECIPE, exact: true })).toBeVisible();
 }
 
 async function openCreate(page: Page) {
@@ -60,7 +51,7 @@ test('recipes index no results', async ({ page }) => {
   await logIn(page);
   await openIndex(page);
   await page.getByRole('searchbox', { name: 'Szukaj przepisów' }).fill('zzzzzz');
-  await expect(page.getByRole('heading', { name: 'Brak wyników' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Brak wyników', exact: true })).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('recipes-index-no-results.png', { fullPage: true });
 });

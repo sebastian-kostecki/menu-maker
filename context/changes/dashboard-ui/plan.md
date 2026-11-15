@@ -418,12 +418,12 @@ No schema or data migration. Rollback means reverting the route to the closure; 
 
 #### Automated
 
-- [x] 1.1 Dashboard feature tests pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php`
-- [x] 1.2 Auth redirect tests still pass: `vendor/bin/sail pest tests/Feature/Auth`
-- [x] 1.3 Full suite passes: `vendor/bin/sail composer test`
-- [x] 1.4 Larastan passes with no new baseline entries: `vendor/bin/sail composer phpstan` and `git diff --exit-code phpstan-baseline.neon`
-- [x] 1.5 Code style passes: `vendor/bin/sail composer pint-test`
-- [x] 1.6 Route is wired to the controller: `vendor/bin/sail artisan route:list --name=dashboard` shows `DashboardController`
+- [x] 1.1 Dashboard feature tests pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php` — 4e67597
+- [x] 1.2 Auth redirect tests still pass: `vendor/bin/sail pest tests/Feature/Auth` — 4e67597
+- [x] 1.3 Full suite passes: `vendor/bin/sail composer test` — 4e67597
+- [x] 1.4 Larastan passes with no new baseline entries: `vendor/bin/sail composer phpstan` and `git diff --exit-code phpstan-baseline.neon` — 4e67597
+- [x] 1.5 Code style passes: `vendor/bin/sail composer pint-test` — 4e67597
+- [x] 1.6 Route is wired to the controller: `vendor/bin/sail artisan route:list --name=dashboard` shows `DashboardController` — 4e67597
 
 #### Manual
 
@@ -433,11 +433,11 @@ No schema or data migration. Rollback means reverting the route to the closure; 
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token scan is green, including the new folder: `vendor/bin/sail npm run lint:tokens`
-- [ ] 2.3 Token-scan self-test passes: `bash scripts/lint-tokens.test.sh`
-- [ ] 2.4 Dashboard feature tests still pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php`
-- [ ] 2.5 No dashboard-reachable E2E locator collides with the new names (grep reviewed)
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token scan is green, including the new folder: `vendor/bin/sail npm run lint:tokens`
+- [x] 2.3 Token-scan self-test passes: `bash scripts/lint-tokens.test.sh`
+- [x] 2.4 Dashboard feature tests still pass: `vendor/bin/sail pest tests/Feature/DashboardControllerTest.php`
+- [x] 2.5 No dashboard-reachable E2E locator collides with the new names (grep reviewed)
 
 #### Manual
 

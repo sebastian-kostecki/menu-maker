@@ -44,7 +44,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ---- | ------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- | --------------------------- | -------- |
 | F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | done     |
 | F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | done |
-| S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | proposed |
+| S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | done |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | proposed |
 | S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | proposed |
@@ -119,9 +119,9 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader`, `EmptyState` i `FormField` bez żadnego wywołania w tej zmianie byłyby kodem na zapas — wprowadzić je tutaj z co najmniej jednym wywołaniem, czy dopiero w pierwszym widoku, który ich używa (S-09, S-13)? — Owner: /10x-plan. Block: no.
+  - ~~`PageHeader`, `EmptyState` i `FormField` bez żadnego wywołania w tej zmianie byłyby kodem na zapas — wprowadzić je tutaj z co najmniej jednym wywołaniem, czy dopiero w pierwszym widoku, który ich używa (S-09, S-13)?~~ Rozstrzygnięte: odroczone. `PageHeader` i `EmptyState` powstają w pierwszym z widoków S-09, S-10, S-11, który ich potrzebuje; `FormField` w S-13.
 - **Risk:** cztery obecne dialogi zachowują się różnie (Breeze `Modal` kontra `ui/dialog`), więc ujednolicenie zmienia obsługę klawiatury i fokusu; specy E2E przepisów i jadłospisów pilnują, że role i teksty zostają.
-- **Status:** proposed
+- **Status:** done
 
 ### S-08: Powłoka aplikacji w kolorach marki
 
@@ -143,7 +143,8 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Prerequisites:** S-07, S-08
 - **Parallel with:** S-10, S-11, S-12, S-13, S-14
 - **Blockers:** —
-- **Unknowns:** —
+- **Unknowns:**
+  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
 - **Risk:** to rdzeń produktu pilnowany przez `meal-plan.spec.ts`; zamiana `<details>` na rozwijany komponent zmienia semantykę, więc nowy selektor w specu jest tu sygnałem zmiany znaczenia, który trzeba świadomie przejrzeć (§8), a nie tylko poprawić.
 - **Status:** proposed
 
@@ -155,7 +156,9 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Prerequisites:** S-07
 - **Parallel with:** S-08, S-09, S-11, S-12, S-13, S-14
 - **Blockers:** —
-- **Unknowns:** —
+- **Unknowns:**
+  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
+  - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
 - **Status:** proposed
 
@@ -169,6 +172,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:**
   - Jedna zmiana czy trzy (lista, szczegóły, formularz)? §8 dopuszcza podział „po jednym widoku, jeśli diff rośnie”. — Owner: /10x-plan. Block: no.
+  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/` (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
 - **Risk:** `RecipeRow` ma najwięcej literałów w listach (34), a formularz z `IngredientManager` jest najbardziej interaktywnym widokiem aplikacji i ma własny spec E2E (`recipe-form.spec.ts`).
 - **Status:** proposed
 
@@ -193,7 +197,8 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Prerequisites:** S-07, S-08
 - **Parallel with:** S-09, S-10, S-11, S-12, S-14
 - **Blockers:** —
-- **Unknowns:** —
+- **Unknowns:**
+  - `FormField` (odroczony z S-07) powstaje tutaj, razem z pierwszym wywołaniem na ekranach `Auth/*` i `Profile/*`. — Owner: /10x-plan. Block: no.
 - **Risk:** pierwszy ekran każdego użytkownika i dwa specy E2E (`login.spec.ts`, `password-reset.spec.ts`); zejście z Breeze nie może zgubić polskich komunikatów walidacji z S-01.
 - **Status:** proposed
 
@@ -263,6 +268,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 
 - **S-14: Użytkownik może pobrać PDF, w którym kategoria posiłku ma w tabeli to samo tło co na ekranie (z etykietą, czytelną też w druku czarno-białym), komunikaty mają ramkę ostrzeżenia, a hierarchia tekstu odpowiada rolom z §4.5.** — Archived 2026-11-15 → `context/archive/2026-11-15-pdf-design-alignment/`. Lesson: —.
 - **S-08: Użytkownik może poruszać się po aplikacji w nawigacji bocznej i menu użytkownika opartych na tokenach marki (aktywny element wyróżniony `primary`/`accent`), a ekrany gościa mają ten sam wygląd i bieżący rok w stopce zamiast „© 2024”.** — Archived 2026-11-15 → `context/archive/2026-11-15-app-shell-restyle/`. Lesson: —.
+- **S-07: Użytkownik może potwierdzać usuwanie w jednym, takim samym dialogu (fokus na „Anuluj”) w przepisach, jadłospisach i rodzinie, korzystać z tej samej paginacji i sortowania w listach przepisów i jadłospisów oraz rozpoznawać kategorie posiłków i statusy jadłospisu po nowych kolorach pory dnia, zawsze z etykietą.** — Archived 2026-11-15 → `context/archive/2026-11-15-shared-app-components/`. Lesson: —.
 - **F-04: (foundation) strona kitchen sink — jedna strona pokazująca wszystkie tokeny, typografię i komponenty w ich stanach — działa pod `/dev/design-system` tylko w `local` i `testing`; spec Playwright robi jej zrzut i porównuje z zatwierdzonym wzorcem; `npm run lint:tokens` skanuje listę zmigrowanych plików pod kątem klas palety, hexów, wartości arbitralnych i `dark:` i działa jako krok CI. F-04 dopisuje też do reguły design systemu w `CLAUDE.md` punkt o kitchen sink i `lint:tokens`.** — Archived 2026-11-15 → `context/archive/2026-11-15-design-system-visual-gate/`. Lesson: —.
 - **F-03: (foundation) `app.css` ma paletę bazową, tokeny stanów (`success`, `warning`, `info`) i domeny (`meal-breakfast`, `meal-supper`, `meal-dinner`) w OKLCH z §4.2–4.4, nowy promień i skalę z §4.5–4.6 oraz blok `.dark` z odpowiednikami; warstwa zgodności `gray-200` jest usunięta; sześć prymitywów z §5.1 jest dodanych przez CLI, a `badge` i `alert` mają warianty stanów i kategorii; `CLAUDE.md` zawiera regułę design systemu z §7.1.** — Archived 2026-11-15 → `context/archive/2026-11-15-design-tokens-foundation/`. Lesson: —.
 - **F-01: (foundation) wyjątki z żądań HTTP i z zadań w kolejce trafiają do narzędzia śledzenia błędów z identyfikatorem użytkownika i jadłospisu; nieudana generacja nie znika po cichu.** — Archived 2026-11-13 → `context/archive/2026-11-13-error-tracking-baseline/`. Lesson: —.

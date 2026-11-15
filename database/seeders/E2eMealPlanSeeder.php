@@ -88,6 +88,7 @@ class E2eMealPlanSeeder extends Seeder
             );
 
             $cook->recipes()->withTrashed()->forceDelete();
+            FamilyMember::where('user_id', $cook->id)->delete();
         }
     }
 

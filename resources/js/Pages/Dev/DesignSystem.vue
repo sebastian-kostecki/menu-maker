@@ -19,6 +19,11 @@ import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
 import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import ServerPagination from '@/Components/Common/ServerPagination.vue'
+import SortableHeader from '@/Components/Common/SortableHeader.vue'
+import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
+import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import { Badge } from '@/Components/ui/badge'
 import { Button } from '@/Components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card'
@@ -149,6 +154,7 @@ const badgeVariants = [
   { variant: 'success', label: 'Gotowy' },
   { variant: 'warning', label: 'Ostrzeżenie' },
   { variant: 'info', label: 'W toku' },
+  { variant: 'muted', label: 'Wyciszona' },
 ]
 
 const selectOptions = [
@@ -175,6 +181,32 @@ const shellItems = mainNavigation.map((item) => ({
 const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
 const shellExpandedCollapsed = ref(false)
 const shellCollapsedCollapsed = ref(true)
+const appCategories = ['breakfast', 'supper', 'dinner']
+const appStatuses = ['pending', 'processing', 'done', 'error']
+const appSort = ref({ column: 'name', direction: 'asc' })
+const appPaginationMeta = ref({
+  current_page: 2,
+  last_page: 5,
+  per_page: 10,
+  total: 50,
+  from: 11,
+  to: 20,
+})
+const confirmOpen = ref(false)
+const processingOpen = ref(false)
+
+const handleAppSort = (value) => {
+  appSort.value = value
+}
+
+const handleAppPageChange = (newPage) => {
+  appPaginationMeta.value = {
+    ...appPaginationMeta.value,
+    current_page: newPage,
+    from: (newPage - 1) * 10 + 1,
+    to: newPage * 10,
+  }
+}
 
 const showToast = () => {
   toast('Zapisano przepis', {
@@ -594,6 +626,79 @@ const showToast = () => {
         <div class="flex items-center">
           <UserMenu :user="shellUser" />
         </div>
+      </section>
+
+      <section aria-labelledby="ds-komponenty-aplikacji" class="flex flex-col gap-4">
+        <h2 id="ds-komponenty-aplikacji" class="text-lg font-semibold">Komponenty aplikacji</h2>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <CategoryBadge v-for="category in appCategories" :key="category" :category="category" />
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <StatusTag v-for="status in appStatuses" :key="status" :value="status" />
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <SortableHeader
+                column="name"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Nazwa
+              </SortableHeader>
+              <SortableHeader
+                column="kcal"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Kalorie
+              </SortableHeader>
+              <SortableHeader
+                column="portions"
+                :sort="appSort.column"
+                :direction="appSort.direction"
+                @sort-change="handleAppSort"
+              >
+                Porcje
+              </SortableHeader>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="recipe in recipes" :key="recipe.name">
+              <TableCell>{{ recipe.name }}</TableCell>
+              <TableCell class="tabular-nums">{{ recipe.kcal }}</TableCell>
+              <TableCell class="tabular-nums">{{ recipe.portions }}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <ServerPagination :meta="appPaginationMeta" @page-change="handleAppPageChange" />
+
+        <div class="flex flex-wrap items-center gap-2">
+          <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
+          <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
+        </div>
+
+        <ConfirmDialog
+          v-model:open="confirmOpen"
+          title="Usuń przepis"
+          description="Czy na pewno chcesz usunąć przepis „Rosół z makaronem”? Tej operacji nie można cofnąć."
+          confirm-label="Usuń"
+          variant="destructive"
+          @confirm="confirmOpen = false"
+        />
+        <ConfirmDialog
+          v-model:open="processingOpen"
+          title="Usuń przepis"
+          description="Czy na pewno chcesz usunąć przepis „Rosół z makaronem”? Tej operacji nie można cofnąć."
+          confirm-label="Usuń"
+          variant="destructive"
+          processing
+        />
       </section>
     </main>
   </div>

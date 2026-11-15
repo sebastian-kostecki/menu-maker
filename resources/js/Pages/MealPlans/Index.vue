@@ -43,8 +43,8 @@
 
             <!-- Pagination -->
             <ServerPagination
-              :links="mealPlans.links"
               :meta="mealPlans.meta"
+              @page-change="handlePageChange"
             />
           </div>
         </div>
@@ -116,7 +116,7 @@ interface FiltersState {
 interface MealPlanCollectionProps {
   mealPlans: MealPlanCollection
   filters: {
-    'filter.status'?: MealPlanStatus
+    filter?: { status?: MealPlanStatus }
     sort?: FiltersState['sort']
     direction?: SortDirection
     perPage?: number
@@ -125,24 +125,21 @@ interface MealPlanCollectionProps {
 }
 import FiltersBar from '@/Components/MealPlans/FiltersBar.vue'
 import MealPlanTable from '@/Components/MealPlans/MealPlanTable.vue'
-import ServerPagination from '@/Components/MealPlans/ServerPagination.vue'
+import ServerPagination from '@/Components/Common/ServerPagination.vue'
 
 // Props from Inertia
 const props = defineProps<MealPlanCollectionProps>()
 
 // Local filters state synchronized with query params
 const localFilters = ref<FiltersState>({
-  status: props.filters['filter.status'] || '',
+  status: props.filters.filter?.status || '',
   sort: props.filters.sort || 'created_at',
   direction: props.filters.direction || 'desc',
   perPage: props.filters.perPage || 15
 })
 
-// Handle filters change
-const handleFiltersChange = (newFilters: FiltersState) => {
-  localFilters.value = { ...localFilters.value, ...newFilters }
-
-  // Convert filters to query params format
+// Build query params from the local filters
+const buildQuery = (): Record<string, any> => {
   const queryParams: Record<string, any> = {}
 
   if (localFilters.value.status) {
@@ -161,17 +158,47 @@ const handleFiltersChange = (newFilters: FiltersState) => {
     queryParams.perPage = localFilters.value.perPage
   }
 
-  // Navigate with new filters
-  router.get(route('meal-plans.index'), queryParams, {
+  return queryParams
+}
+
+// Handle filters change (goes back to page 1)
+const handleFiltersChange = (newFilters: FiltersState) => {
+  localFilters.value = { ...localFilters.value, ...newFilters }
+
+  router.get(route('meal-plans.index'), buildQuery(), {
+    preserveScroll: true,
+    replace: true
+  })
+}
+
+// Handle page change: continue the list the server returned (props.filters echoes the URL),
+// not localFilters, which may hold stale values restored from localStorage.
+const handlePageChange = (page: number) => {
+  const query: Record<string, any> = { page }
+
+  if (props.filters.filter?.status) {
+    query['filter[status]'] = props.filters.filter.status
+  }
+  if (props.filters.sort) {
+    query.sort = props.filters.sort
+  }
+  if (props.filters.direction) {
+    query.direction = props.filters.direction
+  }
+  if (props.filters.perPage) {
+    query.perPage = props.filters.perPage
+  }
+
+  router.get(route('meal-plans.index'), query, {
     preserveScroll: true,
     replace: true
   })
 }
 
 // Handle sorting change
-const handleSortChange = ({ field, direction }: { field: string, direction: SortDirection }) => {
+const handleSortChange = ({ column, direction }: { column: string, direction: SortDirection }) => {
   handleFiltersChange({
-    sort: field as FiltersState['sort'],
+    sort: column as FiltersState['sort'],
     direction
   })
 }
@@ -192,7 +219,7 @@ const loadFiltersFromStorage = () => {
     if (savedFilters) {
       const parsed = JSON.parse(savedFilters)
       // Only use saved filters if not overridden by URL params
-      if (!props.filters['filter.status'] && parsed.status) {
+      if (!props.filters.filter?.status && parsed.status) {
         localFilters.value.status = parsed.status
       }
       if (!props.filters.perPage && parsed.perPage) {

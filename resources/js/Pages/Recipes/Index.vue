@@ -58,7 +58,6 @@
             <ServerPagination
               v-if="recipes.data.length > 0"
               :meta="recipes.meta"
-              :links="recipes.links"
               @page-change="handlePageChange"
             />
           </div>
@@ -66,12 +65,15 @@
       </div>
     </div>
 
-    <!-- Delete confirmation modal -->
-    <ConfirmDeleteModal
-      :open="showDeleteModal"
-      :recipe-name="selectedRecipe?.name || ''"
+    <!-- Delete confirmation dialog -->
+    <ConfirmDialog
+      v-model:open="showDeleteModal"
+      title="Usuń przepis"
+      :description="`Czy na pewno chcesz usunąć przepis „${selectedRecipe?.name ?? ''}”? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      variant="destructive"
+      :processing="deleting"
       @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
     />
   </AuthenticatedLayout>
 </template>
@@ -83,8 +85,9 @@ import { router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue';
 import RecipesTable from '@/Components/recipes/RecipesTable.vue';
-import ServerPagination from '@/Components/recipes/ServerPagination.vue';
-import ConfirmDeleteModal from '@/Components/recipes/ConfirmDeleteModal.vue';
+import ServerPagination from '@/Components/Common/ServerPagination.vue';
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue';
+import { toast } from 'vue-sonner';
 import { useLocalStorageStateSync } from '@/lib/useLocalStorageStateSync.js';
 
 // Define props interface
@@ -121,6 +124,7 @@ const sortState = reactive({
 // Delete modal state
 const showDeleteModal = ref(false);
 const selectedRecipe = ref(null);
+const deleting = ref(false);
 
 // Initialize localStorage sync for filters and sort
 const { syncToStorage } = useLocalStorageStateSync();
@@ -159,13 +163,9 @@ const handleReset = () => {
 };
 
 // Sort change handler
-const handleSortChange = (field) => {
-  if (sortState.field === field) {
-    sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortState.field = field;
-    sortState.direction = 'asc';
-  }
+const handleSortChange = ({ column, direction }) => {
+  sortState.field = column;
+  sortState.direction = direction;
   updateFilters();
 };
 
@@ -182,19 +182,20 @@ const handleDeleteRequested = (recipe) => {
 
 const handleDeleteConfirm = () => {
   if (selectedRecipe.value) {
+    deleting.value = true;
     router.delete(route('recipes.destroy', selectedRecipe.value.id), {
       preserveScroll: true,
-      onSuccess: () => {
+      onError: () => {
+        toast.error('Nie udało się usunąć przepisu.');
+      },
+      onFinish: () => {
+        deleting.value = false;
+        // The selection stays set so the dialog text does not blank out while it animates closed;
+        // handleDeleteRequested overwrites it on the next open.
         showDeleteModal.value = false;
-        selectedRecipe.value = null;
       }
     });
   }
-};
-
-const handleDeleteCancel = () => {
-  showDeleteModal.value = false;
-  selectedRecipe.value = null;
 };
 
 // Update filters and make API call

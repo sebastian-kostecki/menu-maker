@@ -1,39 +1,20 @@
 <template>
-  <Badge :variant="getBadgeVariant(category)" :class="getBadgeClass(category)">
-    {{ getCategoryLabel(category) }}
-  </Badge>
+  <Badge :variant="variant">{{ label }}</Badge>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Badge } from '@/Components/ui/badge';
-import { mealCategoryLabel } from '@/lib/mealCategories';
+import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories';
 
-defineProps({
+const props = defineProps({
   category: {
     type: String,
     default: 'breakfast',
   },
 });
 
-function getCategoryLabel(category) {
-  return mealCategoryLabel(category);
-}
-
-function getBadgeVariant(category) {
-  const variants = {
-    breakfast: 'default',
-    supper: 'secondary',
-    dinner: 'outline'
-  };
-  return variants[category];
-}
-
-function getBadgeClass(category) {
-  const classes = {
-    breakfast: 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200',
-    supper: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200',
-    dinner: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
-  };
-  return classes[category];
-}
+const isKnownCategory = computed(() => MEAL_CATEGORIES.includes(props.category));
+const variant = computed(() => (isKnownCategory.value ? props.category : 'outline'));
+const label = computed(() => (isKnownCategory.value ? mealCategoryLabel(props.category) : props.category));
 </script>

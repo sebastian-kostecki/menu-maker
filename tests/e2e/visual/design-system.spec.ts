@@ -18,7 +18,8 @@ const sections = [
   { name: 'Ładowanie i rozwijanie', slug: 'ladowanie-i-rozwijanie' },
   { name: 'Paginacja', slug: 'paginacja' },
   { name: 'Nakładki', slug: 'nakladki' },
-  { name: 'Powłoka', slug: 'powloka' }
+  { name: 'Powłoka', slug: 'powloka' },
+  { name: 'Komponenty aplikacji', slug: 'komponenty-aplikacji' }
 ];
 
 async function openKitchenSink(page: Page) {
@@ -90,6 +91,24 @@ test.describe('overlays', () => {
     await expect(overlay).toBeVisible();
     await page.mouse.move(0, 0);
     await expect(overlay).toHaveScreenshot('overlay-alert-dialog.png');
+  });
+
+  test('confirm dialog', async ({ page }) => {
+    await openKitchenSink(page);
+    await page.getByRole('button', { name: 'Otwórz ConfirmDialog', exact: true }).click();
+    const overlay = page.getByRole('alertdialog');
+    await expect(overlay).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect(overlay).toHaveScreenshot('overlay-confirm-dialog.png');
+  });
+
+  test('confirm dialog processing', async ({ page }) => {
+    await openKitchenSink(page);
+    await page.getByRole('button', { name: 'Pokaż dialog w toku', exact: true }).click();
+    const overlay = page.getByRole('alertdialog');
+    await expect(overlay).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect(overlay).toHaveScreenshot('overlay-confirm-dialog-processing.png');
   });
 
   test('sheet', async ({ page }) => {

@@ -10,9 +10,7 @@
       </button>
     </TableCell>
     <TableCell>
-      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="categoryClasses">
-        {{ mealCategoryLabel(recipe.category) }}
-      </span>
+      <CategoryBadge :category="recipe.category" />
     </TableCell>
     <TableCell class="text-gray-600 dark:text-gray-300">
       {{ formatCalories(recipe.calories) }}
@@ -48,7 +46,7 @@
           size="sm"
           @click="handleDeleteRecipe"
           class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-          :aria-label="`Delete ${recipe.name}`"
+          :aria-label="`Usuń ${recipe.name}`"
         >
           <Trash2 class="h-4 w-4" />
         </Button>
@@ -58,12 +56,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Eye, Edit, Trash2 } from 'lucide-vue-next';
 import { TableCell, TableRow } from '@/Components/ui/table';
 import { Button } from '@/Components/ui/button';
-import { mealCategoryLabel } from '@/lib/mealCategories';
+import CategoryBadge from '@/Components/recipes/CategoryBadge.vue';
 
 // Props
 const props = defineProps({
@@ -84,20 +81,6 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits(['delete-requested']);
-
-// Computed
-const categoryClasses = computed(() => {
-  switch (props.recipe.category) {
-    case 'breakfast':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-    case 'dinner':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-    case 'supper':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300';
-  }
-});
 
 // Methods
 const formatCalories = (calories) => {

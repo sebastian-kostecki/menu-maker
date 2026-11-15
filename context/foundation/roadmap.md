@@ -53,7 +53,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | done |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
 | S-16 | dashboard-ui              | zobaczyć na pulpicie prawdziwe liczby przepisów i jadłospisów, ostatni gotowy jadłospis i szybkie akcje | S-07, S-08                       | DS-11, ui-plan §2.1         | done |
-| S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13, S-16 | DS-10, D-7, §7.4     | planning |
+| S-15 | legacy-ui-cleanup         | wejść na `/` i trafić do logowania lub aplikacji zamiast domyślnej strony Laravela                     | S-08, S-09, S-10, S-11, S-12, S-13, S-16 | DS-10, D-7, §7.4     | in-progress |
 
 ## Streams
 
@@ -239,7 +239,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** stoi na końcu, bo usuwa komponenty dopiero wtedy, gdy żaden widok ich nie importuje; rozszerzenie skanu na całe `resources/js` ujawni literały, których nie objęła żadna migracja — każdy trzeba wtedy zmigrować albo świadomie wyłączyć.
-- **Status:** planning
+- **Status:** in-progress
 
 ## Backlog Handoff
 

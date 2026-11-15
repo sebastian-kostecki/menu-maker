@@ -347,16 +347,16 @@ No data changes. Rollback is a `git revert` per phase, because each phase is sel
 
 #### Automated
 
-- [ ] 1.1 Legacy files are gone
-- [ ] 1.2 No reference to the splash page remains
-- [ ] 1.3 The scan list is the whole tree and green
-- [ ] 1.4 Scanner self-test passes
-- [ ] 1.5 New and changed PHP tests pass
-- [ ] 1.6 Full suite, Larastan and style pass
-- [ ] 1.7 Routes still cache
-- [ ] 1.8 Bundles build
-- [ ] 1.9 Visual gate passes with no baseline change
-- [ ] 1.10 Full E2E passes after a re-seed
+- [x] 1.1 Legacy files are gone
+- [x] 1.2 No reference to the splash page remains
+- [x] 1.3 The scan list is the whole tree and green
+- [x] 1.4 Scanner self-test passes
+- [x] 1.5 New and changed PHP tests pass
+- [x] 1.6 Full suite, Larastan and style pass
+- [x] 1.7 Routes still cache
+- [x] 1.8 Bundles build
+- [x] 1.9 Visual gate passes with no baseline change
+- [x] 1.10 Full E2E passes after a re-seed
 
 #### Manual
 

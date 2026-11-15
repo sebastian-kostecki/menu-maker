@@ -103,11 +103,11 @@ Kierunek: ciepłe, kremowe tło (papier, kuchnia), zieleń ziół jako jedyny ko
 
 Pary tło/tekst do alertów, toastów i statusów. Każda para ≥ 6.4:1.
 
-| Token | Tło (OKLCH) | Tekst (OKLCH) | Użycie |
-| --- | --- | --- | --- |
-| `--success` / `--success-foreground` | `0.95 0.04 150` | `0.42 0.10 150` | Jadłospis gotowy, zapisano |
-| `--warning` / `--warning-foreground` | `0.96 0.06 90` | `0.45 0.10 75` | AI zawiodło, ilości bez dopracowania (S-04) |
-| `--info` / `--info-foreground` | `0.95 0.03 240` | `0.45 0.12 250` | Generowanie w toku |
+| Token | Tło (OKLCH) | Tekst (OKLCH) | Hex tło / tekst (≈) | Użycie |
+| --- | --- | --- | --- | --- |
+| `--success` / `--success-foreground` | `0.95 0.04 150` | `0.42 0.10 150` | `#dcf7e1` / `#195c2e` | Jadłospis gotowy, zapisano |
+| `--warning` / `--warning-foreground` | `0.96 0.06 90` | `0.45 0.10 75` | `#fff1c4` / `#754b00` | AI zawiodło, ilości bez dopracowania (S-04) |
+| `--info` / `--info-foreground` | `0.95 0.03 240` | `0.45 0.12 250` | `#ddf2ff` / `#0e5794` | Generowanie w toku |
 
 ### 4.4 Tokeny domeny (nowe)
 
@@ -123,7 +123,7 @@ Statusy jadłospisu mapują się na tokeny stanów, nie na nowe kolory: `pending
 
 Kolor nigdy nie jest jedynym nośnikiem informacji: badge zawsze ma etykietę, a siatka ma nagłówki kolumn.
 
-Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warning-foreground`) leżą nieznacznie poza gamutem sRGB (przekroczenie kanału ≤ 0.08). Przeglądarki na ekranach sRGB je przycinają; kontrast po przycięciu nadal ≥ 5.9:1. PDF (S-14) ma używać wartości hex z przycięcia (kolumna „Hex” w 4.4), a nie przeliczać OKLCH na nowo.
+Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warning-foreground`) leżą nieznacznie poza gamutem sRGB (przekroczenie kanału ≤ 0.08). Przeglądarki na ekranach sRGB je przycinają; kontrast po przycięciu nadal ≥ 5.9:1. PDF (S-14) ma używać wartości hex z przycięcia (kolumny „Hex” w 4.3 i 4.4), a nie przeliczać OKLCH na nowo.
 
 ### 4.5 Typografia
 
@@ -221,10 +221,23 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
 
 `resources/views/pdf/meal-plan.blade.php` (dompdf) nie czyta zmiennych CSS z aplikacji. Kontrakt:
 
-- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów, z komentarzem „mirror of resources/css/app.css; keep in sync” (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
-- Kategoria w tabeli PDF: tło `--meal-*` w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
-- Ramka komunikatów (`.notices`) na parze `--warning`.
-- Font zostaje `DejaVu Sans` (polskie znaki w dompdf); hierarchia rozmiarów odpowiada rolom z 4.5.
+- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
+- Lustro obejmuje 12 tokenów: `--foreground`, `--muted`, `--muted-foreground`, `--border`, `--warning`, `--warning-foreground` oraz `--meal-breakfast`, `--meal-supper`, `--meal-dinner` wraz z ich `-foreground`. Żaden inny kolor nie jest dozwolony w szablonie, także w `style=""`.
+- Papier jest biały (`--card`), nie `--background`: ciepłe tło ekranu nie trafia do druku.
+- Kategoria w tabeli PDF: para `--meal-*` (tło i tekst) w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
+- Początek dnia oznacza linia 2px w `--muted-foreground` (widoczna w skali szarości); pozostałe ramki to `--border`.
+- Ramka komunikatów (`.notices`) na parze `--warning` / `--warning-foreground`.
+- Font zostaje `DejaVu Sans` (polskie znaki w dompdf; tylko wagi normal i bold, więc „medium/semibold” z 4.5 to `bold`). Role z 4.5 w pt:
+
+| Rola | Element | Rozmiar |
+| --- | --- | --- |
+| Tytuł strony | `h1` | 15pt bold |
+| Tytuł sekcji | `h2` | 12pt bold |
+| Tekst | body | 9pt |
+| Etykieta | `th`, `.day` | 9pt bold |
+| Metadane | `.meta`, `.note`, kategoria | 8pt (`.meta`, `.note` w `--muted-foreground`) |
+
+- Lustro pilnuje `tests/Unit/Services/MealPlanPdfPaletteTest.php`: każdy token lustra ma w `app.css :root` tę samą wartość OKLCH, każdy hex jest przyciętą wartością swojego OKLCH, szablon nie używa hexa spoza listy ani `rgb()`/`hsl()`/`oklch()`/nazwanych kolorów, a żaden wpis nie jest nieużywany. Zmiana palety w `app.css` bez aktualizacji PDF-u zatrzymuje CI.
 
 ## 7. Egzekwowanie
 

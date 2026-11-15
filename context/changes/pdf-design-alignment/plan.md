@@ -251,10 +251,10 @@ None. PDFs are rendered per request, so every existing plan gets the new look im
 
 #### Automated
 
-- [x] 1.1 PDF exporter tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php`
-- [x] 1.2 Template contains no pre-token greys: `grep -nE '#(111|999|e8e8e8|444|c9a227|fff8e1)\b' resources/views/pdf/meal-plan.blade.php` returns nothing
-- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan`
-- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 PDF exporter tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php` — decc7cb
+- [x] 1.2 Template contains no pre-token greys: `grep -nE '#(111|999|e8e8e8|444|c9a227|fff8e1)\b' resources/views/pdf/meal-plan.blade.php` returns nothing — decc7cb
+- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan` — decc7cb
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test` — decc7cb
 
 #### Manual
 
@@ -267,7 +267,7 @@ None. PDFs are rendered per request, so every existing plan gets the new look im
 
 #### Automated
 
-- [ ] 2.1 Guard test passes: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php`
-- [ ] 2.2 Guard catches drift: temporarily change `--meal-dinner` in `app.css :root` and see the guard fail naming `--meal-dinner`; changing one listed hex in the mirror comment, adding an unlisted hex to the template's `<style>`, and adding `style="color: black"` to a cell each also fail it; revert all
-- [ ] 2.3 Full suite passes: `vendor/bin/sail composer test`
-- [ ] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.1 Guard test passes: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php`
+- [x] 2.2 Guard catches drift: temporarily change `--meal-dinner` in `app.css :root` and see the guard fail naming `--meal-dinner`; changing one listed hex in the mirror comment, adding an unlisted hex to the template's `<style>`, and adding `style="color: black"` to a cell each also fail it; revert all
+- [x] 2.3 Full suite passes: `vendor/bin/sail composer test`
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`

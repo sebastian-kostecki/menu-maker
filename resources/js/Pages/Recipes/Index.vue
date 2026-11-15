@@ -2,7 +2,7 @@
   <Head title="Przepisy" />
 
   <AuthenticatedLayout>
-    <template #header>
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader title="Przepisy">
         <template #description>
           Zarządzaj swoją kolekcją przepisów
@@ -11,9 +11,7 @@
           </span>
         </template>
       </PageHeader>
-    </template>
 
-    <div class="mx-auto flex max-w-6xl flex-col gap-6">
       <EmptyState
         v-if="noRecipes"
         class="py-12"

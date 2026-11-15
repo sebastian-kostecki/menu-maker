@@ -2,7 +2,7 @@
   <Head :title="pageTitle" />
 
   <AuthenticatedLayout>
-    <template #header>
+    <div class="mx-auto flex max-w-2xl flex-col gap-6">
       <PageHeader :title="pageTitle">
         <template #breadcrumbs>
           <div class="flex items-center gap-2">
@@ -12,18 +12,18 @@
           </div>
         </template>
       </PageHeader>
-    </template>
 
-    <div class="mx-auto max-w-2xl rounded-lg border bg-card p-6">
-      <RecipeForm
-        :form="form"
-        :categories="categories"
-        :ingredients="ingredients"
-        :units="units"
-        :is-editing="!!recipe?.data"
-        @submit="handleSubmit"
-        @cancel="handleCancel"
-      />
+      <div class="rounded-lg border bg-card p-6">
+        <RecipeForm
+          :form="form"
+          :categories="categories"
+          :ingredients="ingredients"
+          :units="units"
+          :is-editing="!!recipe?.data"
+          @submit="handleSubmit"
+          @cancel="handleCancel"
+        />
+      </div>
     </div>
   </AuthenticatedLayout>
 </template>

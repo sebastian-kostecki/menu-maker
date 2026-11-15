@@ -59,6 +59,11 @@ final class MarkdownRecipeParser
     private const SCALE = 6;
 
     /**
+     * A bare number at or above this is more likely grams with a missing unit than a piece count.
+     */
+    private const SUSPICIOUS_PIECES = '20';
+
+    /**
      * @param  string  $name  Recipe name, usually the file name without the extension.
      * @param  numeric-string|null  $defaultCalories  Used when the front matter has no "kalorie".
      * @param  int|null  $defaultServings  Used when the front matter has no "porcje".
@@ -243,6 +248,10 @@ final class MarkdownRecipeParser
 
             $key = mb_strtolower($name);
             [$amount, $unitCode] = $quantity;
+
+            if ($unitCode === 'szt' && bccomp($amount, self::SUSPICIOUS_PIECES, 2) >= 0 && preg_match('/^[\d.,\/\s]+$/u', $rawQuantity) === 1) {
+                $warnings[] = "składnik „{$name}”: „{$rawQuantity}” bez jednostki potraktowano jako sztuki (może brakować „g”?)";
+            }
 
             if (! isset($byName[$key])) {
                 $byName[$key] = new ParsedIngredient($name, $amount, $unitCode);

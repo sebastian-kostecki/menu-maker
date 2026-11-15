@@ -148,6 +148,13 @@ it('sums a repeated ingredient in the same unit and keeps the first row otherwis
         ->and($recipe->warnings)->toHaveCount(2);
 });
 
+it('warns when a large quantity has no unit', function (): void {
+    $recipe = parseRecipe("---\nkategoria: kolacja\nkalorie: 900\nporcje: 2\n---\n# Składniki\n| a | b |\n| - | - |\n| mozzarella | 125 |\n| jajka | 2 |\n# Sposób przygotowania\n- piecz");
+
+    expect(ingredientMap($recipe))->toBe(['Mozzarella' => ['125.00', 'szt'], 'Jajka' => ['2.00', 'szt']])
+        ->and($recipe->warnings)->toBe(['składnik „Mozzarella”: „125” bez jednostki potraktowano jako sztuki (może brakować „g”?)']);
+});
+
 it('warns when the steps only point to the source', function (): void {
     $recipe = parseRecipe("---\nkategoria: obiad\nźródło: Lidlomix\nkalorie: 900\nporcje: 2\n---\n# Składniki\n| a | b |\n| - | - |\n| ryż | 100 g |\n# Sposób przygotowania\n- Według Lidlomixa");
 

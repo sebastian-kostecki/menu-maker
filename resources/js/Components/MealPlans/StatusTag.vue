@@ -1,11 +1,13 @@
 <template>
-  <Badge :variant="badgeVariant" :class="badgeClasses">
+  <Badge :variant="badgeVariant">
+    <Loader2 v-if="value === 'processing'" class="mr-1 size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
     {{ statusLabel }}
   </Badge>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Loader2 } from 'lucide-vue-next'
 import { Badge } from '@/Components/ui/badge'
 // Local type definition
 type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
@@ -16,7 +18,6 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// Status label mapping
 const statusLabels: Record<MealPlanStatus, string> = {
   pending: 'Oczekuje',
   processing: 'Generowanie',
@@ -24,40 +25,14 @@ const statusLabels: Record<MealPlanStatus, string> = {
   error: 'Błąd'
 }
 
-// Badge variant based on status
-const badgeVariant = computed(() => {
-  switch (props.value) {
-    case 'pending':
-      return 'secondary'
-    case 'processing':
-      return 'default'
-    case 'done':
-      return 'default'
-    case 'error':
-      return 'destructive'
-    default:
-      return 'secondary'
-  }
-})
+const statusVariants: Record<MealPlanStatus, string> = {
+  pending: 'muted',
+  processing: 'info',
+  done: 'success',
+  error: 'destructive'
+}
 
-// Additional classes for custom colors
-const badgeClasses = computed(() => {
-  switch (props.value) {
-    case 'pending':
-      return 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-    case 'processing':
-      return 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-    case 'done':
-      return 'bg-green-100 text-green-800 hover:bg-green-200'
-    case 'error':
-      return 'bg-red-100 text-red-800 hover:bg-red-200'
-    default:
-      return ''
-  }
-})
+const badgeVariant = computed(() => statusVariants[props.value] ?? 'muted')
 
-// Status label
-const statusLabel = computed(() => {
-  return statusLabels[props.value] || props.value
-})
+const statusLabel = computed(() => statusLabels[props.value] || props.value)
 </script>

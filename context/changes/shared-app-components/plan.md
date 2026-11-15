@@ -684,11 +684,11 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Literal scan passes
-- [x] 3.3 No references to the old dialogs remain
-- [x] 3.4 Pest suite passes
-- [x] 3.5 E2E suite including confirm-dialog.spec.ts passes in chromium and firefox
+- [x] 3.1 Build passes — 17cb2e8
+- [x] 3.2 Literal scan passes — 17cb2e8
+- [x] 3.3 No references to the old dialogs remain — 17cb2e8
+- [x] 3.4 Pest suite passes — 17cb2e8
+- [x] 3.5 E2E suite including confirm-dialog.spec.ts passes in chromium and firefox — 17cb2e8
 
 #### Manual
 
@@ -700,9 +700,9 @@ No data migration. The `meta` shape the meal-plan Inertia page receives changes 
 
 #### Automated
 
-- [ ] 4.1 Build passes
-- [ ] 4.2 Literal scan passes with both badge files listed
-- [ ] 4.3 E2E suite passes
+- [x] 4.1 Build passes
+- [x] 4.2 Literal scan passes with both badge files listed
+- [x] 4.3 E2E suite passes
 
 #### Manual
 

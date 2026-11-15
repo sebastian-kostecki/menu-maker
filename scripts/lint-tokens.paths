@@ -3,3 +3,5 @@
 # Files under Components/ui/ are always excluded.
 resources/js/Pages/Dev
 resources/js/Components/Common
+resources/js/Components/recipes/CategoryBadge.vue
+resources/js/Components/MealPlans/StatusTag.vue

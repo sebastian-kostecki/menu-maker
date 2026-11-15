@@ -564,13 +564,13 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [x] 3.1 The gate is green against committed baselines, twice in a row
-- [x] 3.2 Exactly 19 baselines are committed
-- [x] 3.3 A deliberate break is caught
-- [x] 3.4 The behaviour E2E suite runs only chromium and firefox and stays green
-- [x] 3.5 The visual project skips outside Docker
-- [x] 3.6 The wrapper refuses a dev-server state
-- [x] 3.7 The wrapper passes shellcheck
+- [x] 3.1 The gate is green against committed baselines, twice in a row — dc0f900
+- [x] 3.2 Exactly 19 baselines are committed — dc0f900
+- [x] 3.3 A deliberate break is caught — dc0f900
+- [x] 3.4 The behaviour E2E suite runs only chromium and firefox and stays green — dc0f900
+- [x] 3.5 The visual project skips outside Docker — dc0f900
+- [x] 3.6 The wrapper refuses a dev-server state — dc0f900
+- [x] 3.7 The wrapper passes shellcheck — dc0f900
 
 #### Manual
 
@@ -581,9 +581,9 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [ ] 4.1 CLAUDE.md names all three tools
-- [ ] 4.2 design-system §7 describes the built tools
-- [ ] 4.3 The roadmap unknown is resolved
+- [x] 4.1 CLAUDE.md names all three tools
+- [x] 4.2 design-system §7 describes the built tools
+- [x] 4.3 The roadmap unknown is resolved
 
 #### Manual
 

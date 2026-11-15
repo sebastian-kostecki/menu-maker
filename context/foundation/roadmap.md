@@ -43,7 +43,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ID   | Change ID                 | Outcome (user can …)                                                                                   | Prerequisites                     | PRD refs                    | Status   |
 | ---- | ------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------- | --------------------------- | -------- |
 | F-03 | design-tokens-foundation  | (foundation) tokeny marki, stanów i domeny w OKLCH, brakujące prymitywy i warianty; reguła w CLAUDE.md | —                                 | DS-01, §4.1–4.6, §5.1, §7.1 | done     |
-| F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | proposed |
+| F-04 | design-system-visual-gate | (foundation) kitchen sink pod `/dev/design-system`, zrzut Playwright i `lint:tokens` w CI              | F-03                              | DS-01, §7.2–7.4, D-4, D-6   | in-progress |
 | S-07 | shared-app-components     | widzieć jeden dialog potwierdzenia, tę samą paginację i sortowanie, kategorie i statusy w nowych kolorach | F-03, F-04                     | DS-02, §5.2, §5.3, D-3, D-8 | proposed |
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | proposed |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | proposed |
@@ -104,9 +104,9 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-14
 - **Blockers:** —
 - **Unknowns:**
-  - Czy zrzuty `toHaveScreenshot` są powtarzalne między lokalnym Sail a runnerem GitHub Actions (fonty, antyaliasing), czy wzorce trzeba generować tylko w CI? — Owner: team. Block: no.
+  - Rozwiązane (2026-11-15, plan `design-system-visual-gate`): wzorce są generowane i porównywane wyłącznie w obrazie `mcr.microsoft.com/playwright:v<zainstalowana wersja>-noble`, lokalnie (`npm run test:visual`) i w CI, więc fonty i antyaliasing są te same.
 - **Risk:** niestabilne zrzuty zamieniłyby bramkę w szum, który się ignoruje; dlatego bramka powstaje przed pierwszą migracją widoku i na samej stronie kitchen sink, zanim zacznie pilnować widoków z danymi.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Slices
 

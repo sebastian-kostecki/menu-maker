@@ -373,11 +373,11 @@ No schema change. The `date:Y-m-d` cast changes only the JSON shape of `birth_da
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Only Index.vue remains in the page folder
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — ef22f61
+- [x] 2.2 Only Index.vue remains in the page folder — ef22f61
 - [x] 2.3 No palette, dark or arbitrary classes in the feature
-- [x] 2.4 No references to deleted components or routes remain
-- [x] 2.5 Full Pest suite still passes: `vendor/bin/sail composer test`
+- [x] 2.4 No references to deleted components or routes remain — ef22f61
+- [x] 2.5 Full Pest suite still passes: `vendor/bin/sail composer test` — ef22f61
 
 #### Manual
 
@@ -391,11 +391,11 @@ No schema change. The `date:Y-m-d` cast changes only the JSON shape of `birth_da
 
 #### Automated
 
-- [ ] 3.1 Seeder is idempotent and runs
-- [ ] 3.2 Bundles build before E2E: `vendor/bin/sail npm run build`
-- [ ] 3.3 New spec passes in both browsers
-- [ ] 3.4 Whole E2E suite still passes (re-seed first)
-- [ ] 3.5 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 3.1 Seeder is idempotent and runs
+- [x] 3.2 Bundles build before E2E: `vendor/bin/sail npm run build`
+- [x] 3.3 New spec passes in both browsers
+- [x] 3.4 Whole E2E suite still passes (re-seed first)
+- [x] 3.5 Pint passes: `vendor/bin/sail composer pint-test`
 
 #### Manual
 

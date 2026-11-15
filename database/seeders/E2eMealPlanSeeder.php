@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use RuntimeException;
 
 /**
- * Re-runnable fixtures for the Playwright specs: one planner user and one recipe-author (cook) user per browser project.
+ * Re-runnable fixtures for the Playwright specs: one planner user, one recipe-author (cook) user and one family-members user per browser project.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -35,6 +35,14 @@ class E2eMealPlanSeeder extends Seeder
     public const COOK_EMAILS = [
         'e2e-cook-chromium@example.com',
         'e2e-cook-firefox@example.com',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    public const FAMILY_EMAILS = [
+        'e2e-family-chromium@example.com',
+        'e2e-family-firefox@example.com',
     ];
 
     public const PASSWORD = 'Password123!';
@@ -87,6 +95,19 @@ class E2eMealPlanSeeder extends Seeder
             );
 
             $cook->recipes()->withTrashed()->forceDelete();
+        }
+
+        foreach (self::FAMILY_EMAILS as $email) {
+            $familyUser = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'E2E Family',
+                    'password' => Hash::make(self::PASSWORD),
+                    'email_verified_at' => now(),
+                ],
+            );
+
+            FamilyMember::where('user_id', $familyUser->id)->delete();
         }
     }
 

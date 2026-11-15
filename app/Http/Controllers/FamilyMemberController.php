@@ -21,24 +21,18 @@ class FamilyMemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(): Response|RedirectResponse
     {
         $familyMembers = FamilyMember::where('user_id', Auth::id())
             ->orderBy('first_name')
             ->paginate(15);
 
+        if ($familyMembers->currentPage() > $familyMembers->lastPage()) {
+            return redirect()->route('family-members.index', ['page' => $familyMembers->lastPage()]);
+        }
+
         return Inertia::render('FamilyMembers/Index', [
             'familyMembers' => $familyMembers,
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('FamilyMembers/Create', [
-            'genders' => ['male', 'female'],
         ]);
     }
 
@@ -49,19 +43,7 @@ class FamilyMemberController extends Controller
     {
         $request->user()->familyMembers()->create($request->validated());
 
-        return redirect()->route('family-members.index')
-            ->with('success', 'Family member created successfully.');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(FamilyMember $familyMember): Response
-    {
-        return Inertia::render('FamilyMembers/Edit', [
-            'familyMember' => $familyMember,
-            'genders' => ['male', 'female'],
-        ]);
+        return redirect()->route('family-members.index');
     }
 
     /**
@@ -71,8 +53,7 @@ class FamilyMemberController extends Controller
     {
         $familyMember->update($request->validated());
 
-        return redirect()->route('family-members.index')
-            ->with('success', 'Family member updated successfully.');
+        return redirect()->back();
     }
 
     /**
@@ -82,7 +63,6 @@ class FamilyMemberController extends Controller
     {
         $familyMember->delete();
 
-        return redirect()->route('family-members.index')
-            ->with('success', 'Family member deleted successfully.');
+        return redirect()->back();
     }
 }

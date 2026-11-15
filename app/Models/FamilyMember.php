@@ -22,7 +22,7 @@ class FamilyMember extends Model
     ];
 
     protected $casts = [
-        'birth_date' => 'date',
+        'birth_date' => 'date:Y-m-d',
         'weight_kg' => 'decimal:1',
         'height_cm' => 'decimal:1',
     ];

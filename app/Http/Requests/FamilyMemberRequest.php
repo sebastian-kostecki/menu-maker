@@ -62,13 +62,14 @@ class FamilyMemberRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'first_name.required' => 'The first name field is required.',
-            'first_name.max' => 'The first name may not be greater than 255 characters.',
-            'birth_date.required' => 'The birth date field is required.',
-            'birth_date.date' => 'The birth date must be a valid date.',
-            'birth_date.before' => 'The birth date must be before today.',
-            'gender.required' => 'The gender field is required.',
-            'gender.in' => 'The selected gender is invalid.',
+            'first_name.required' => 'Imię jest wymagane',
+            'first_name.string' => 'Imię jest wymagane',
+            'first_name.max' => 'Imię nie może być dłuższe niż 255 znaków',
+            'birth_date.required' => 'Data urodzenia jest wymagana',
+            'birth_date.date' => 'Podaj poprawną datę urodzenia',
+            'birth_date.before' => 'Data urodzenia musi być wcześniejsza niż dzisiaj',
+            'gender.required' => 'Płeć jest wymagana',
+            'gender.in' => 'Nieprawidłowa wartość płci',
             'weight_kg.required' => 'Podaj wagę (wymagana od 19 lat).',
             'weight_kg.numeric' => 'Waga musi wynosić od 30 do 300 kg.',
             'weight_kg.between' => 'Waga musi wynosić od 30 do 300 kg.',

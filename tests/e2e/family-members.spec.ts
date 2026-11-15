@@ -42,7 +42,7 @@ test('user adds, validates, edits and deletes a family member', async ({ page },
   await expect(page.getByRole('row', { name: /Ewa E2E/ })).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Usuń Ewa Edytowana' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Usuń', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Usuń', exact: true }).click();
 
   await expect(page.getByRole('heading', { name: 'Brak członków rodziny' })).toBeVisible();
 });

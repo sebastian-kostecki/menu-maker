@@ -1,17 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { AlertTriangle } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import { Button } from '@/Components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/Components/ui/dialog'
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 
 const props = defineProps({
   member: { type: Object, default: null },
@@ -21,6 +12,11 @@ const emit = defineEmits(['close'])
 
 const isDeleting = ref(false)
 const displayedName = ref(props.member?.first_name ?? '')
+
+const isOpen = computed(() => props.member !== null)
+const description = computed(
+  () => `Czy na pewno chcesz usunąć ${displayedName.value}? Tej operacji nie można cofnąć.`,
+)
 
 watch(
   () => props.member,
@@ -38,7 +34,7 @@ const handleRequestFailure = () => {
 }
 
 const handleConfirm = () => {
-  if (!props.member) {
+  if (!props.member || isDeleting.value) {
     return
   }
 
@@ -61,33 +57,21 @@ const handleConfirm = () => {
 }
 
 const handleOpenChange = (value) => {
-  if (!value && !isDeleting.value) {
+  if (!value) {
     emit('close')
   }
 }
 </script>
 
 <template>
-  <Dialog :open="member !== null" @update:open="handleOpenChange">
-    <DialogContent class="sm:max-w-md">
-      <DialogHeader>
-        <DialogTitle class="flex items-center gap-2 text-destructive">
-          <AlertTriangle class="size-5" />
-          Usuń członka rodziny
-        </DialogTitle>
-        <DialogDescription>
-          Czy na pewno chcesz usunąć {{ displayedName }}? Tej operacji nie można cofnąć.
-        </DialogDescription>
-      </DialogHeader>
-
-      <DialogFooter class="gap-2">
-        <Button variant="outline" :disabled="isDeleting" @click="handleOpenChange(false)">
-          Anuluj
-        </Button>
-        <Button variant="destructive" :disabled="isDeleting" @click="handleConfirm">
-          {{ isDeleting ? 'Usuwanie...' : 'Usuń' }}
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <ConfirmDialog
+    :open="isOpen"
+    title="Usuń członka rodziny"
+    :description="description"
+    confirm-label="Usuń"
+    variant="destructive"
+    :processing="isDeleting"
+    @update:open="handleOpenChange"
+    @confirm="handleConfirm"
+  />
 </template>

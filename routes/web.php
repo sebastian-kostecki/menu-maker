@@ -3,30 +3,21 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ClientErrorController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::redirect('/', '/dashboard');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('/dashboard', DashboardController::class)->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('family-members', FamilyMemberController::class)
-        ->except(['show'])
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->where(['family_member' => '[0-9]+'])
         ->names('family-members');
 
     Route::resource('recipes', RecipeController::class);
@@ -48,5 +39,9 @@ Route::middleware('auth')->group(function () {
 Route::post('/client-errors', ClientErrorController::class)
     ->middleware('throttle:10,1')
     ->name('client-errors.store');
+
+if (app()->environment(['local', 'testing'])) {
+    Route::inertia('/dev/design-system', 'Dev/DesignSystem')->name('dev.design-system');
+}
 
 require __DIR__.'/auth.php';

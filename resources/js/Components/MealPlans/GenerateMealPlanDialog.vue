@@ -3,7 +3,7 @@
     <DialogTrigger as-child>
       <slot>
         <Button :variant="variant">
-          <Plus class="mr-2 h-4 w-4" />
+          <Plus />
           {{ label }}
         </Button>
       </slot>
@@ -19,20 +19,29 @@
 
         <div class="space-y-2">
           <Label for="start_date">Data rozpoczęcia</Label>
-          <Input id="start_date" v-model="form.start_date" type="date" required />
-          <p v-if="form.errors.start_date" class="text-sm text-red-600">
+          <Input
+            id="start_date"
+            v-model="form.start_date"
+            type="date"
+            required
+            :aria-invalid="form.errors.start_date ? true : undefined"
+            :aria-describedby="form.errors.start_date ? 'start_date_error' : undefined"
+          />
+          <p v-if="form.errors.start_date" id="start_date_error" class="text-sm text-destructive">
             {{ form.errors.start_date }}
           </p>
         </div>
 
-        <div v-if="recipeErrors.length > 0" class="space-y-1 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          <p v-for="message in recipeErrors" :key="message">{{ message }}</p>
-          <Link :href="route('recipes.create')" class="font-medium underline">
-            Dodaj przepis
-          </Link>
-        </div>
+        <Alert v-if="recipeErrors.length > 0" variant="destructive">
+          <AlertDescription class="space-y-1">
+            <p v-for="message in recipeErrors" :key="message">{{ message }}</p>
+            <Link :href="route('recipes.create')" class="font-medium underline">
+              Dodaj przepis
+            </Link>
+          </AlertDescription>
+        </Alert>
 
-        <p v-if="form.errors.rate_limit" class="text-sm text-red-600">
+        <p v-if="form.errors.rate_limit" class="text-sm text-destructive">
           {{ form.errors.rate_limit }}
         </p>
 
@@ -41,6 +50,7 @@
             Anuluj
           </Button>
           <Button type="submit" :disabled="form.processing">
+            <Loader2 v-if="form.processing" class="animate-spin motion-reduce:animate-none" aria-hidden="true" />
             Wygeneruj
           </Button>
         </DialogFooter>
@@ -52,7 +62,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
-import { Plus } from 'lucide-vue-next'
+import { Loader2, Plus } from 'lucide-vue-next'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
 import { Button } from '@/Components/ui/button'
 import {
   Dialog,

@@ -1,66 +1,59 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import GuestLayout from '@/Layouts/GuestLayout.vue'
+import FormField from '@/Components/Common/FormField.vue'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
+import { Head, useForm } from '@inertiajs/vue3'
 
 defineProps({
     status: {
         type: String,
     },
-});
+})
 
 const form = useForm({
     email: '',
-});
+})
 
 const submit = () => {
-    form.post(route('password.email'));
-};
+    form.post(route('password.email'))
+}
 </script>
 
 <template>
     <GuestLayout>
         <Head title="Nie pamiętasz hasła?" />
 
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mb-4 text-sm text-muted-foreground">
             Nie pamiętasz hasła? Podaj swój adres e-mail, a wyślemy Ci link do
             resetu hasła, który pozwoli ustawić nowe.
-        </div>
+        </p>
 
-        <div
-            v-if="status"
-            class="mb-4 text-sm font-medium text-green-600 dark:text-green-400"
-        >
-            {{ status }}
-        </div>
+        <Alert v-if="status" variant="success" class="mb-4">
+            <AlertDescription>{{ status }}</AlertDescription>
+        </Alert>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Adres e-mail" />
+        <form class="grid gap-4" @submit.prevent="submit">
+            <FormField id="email" label="Adres e-mail" :error="form.errors.email">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="email"
+                        v-model="form.email"
+                        required
+                        autofocus
+                        autocomplete="username"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
+            <div class="flex items-center justify-end gap-4">
+                <Button type="submit" :disabled="form.processing">
                     Wyślij link do resetu hasła
-                </PrimaryButton>
+                </Button>
             </div>
         </form>
     </GuestLayout>

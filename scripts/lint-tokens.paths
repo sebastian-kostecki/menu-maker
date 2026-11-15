@@ -1,0 +1,4 @@
+# Paths scanned by `npm run lint:tokens` (one per line; # comments and blank lines are ignored).
+# The list covers all of resources/js; slices no longer append to it.
+# Files under Components/ui/ are always excluded.
+resources/js

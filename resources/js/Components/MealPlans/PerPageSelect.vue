@@ -1,6 +1,6 @@
 <template>
   <Select :model-value="modelValue.toString()" @update:model-value="handleChange">
-    <SelectTrigger class="w-20">
+    <SelectTrigger :id="id" class="w-20">
       <SelectValue />
     </SelectTrigger>
     <SelectContent>
@@ -25,6 +25,7 @@ import {
 } from '@/Components/ui/select'
 
 interface Props {
+  id?: string
   modelValue: number
 }
 

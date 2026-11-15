@@ -1,10 +1,9 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import GuestLayout from '@/Layouts/GuestLayout.vue'
+import FormField from '@/Components/Common/FormField.vue'
+import { Button } from '@/Components/ui/button'
+import { Input } from '@/Components/ui/input'
+import { Head, useForm } from '@inertiajs/vue3'
 
 const props = defineProps({
     email: {
@@ -15,86 +14,76 @@ const props = defineProps({
         type: String,
         required: true,
     },
-});
+})
 
 const form = useForm({
     token: props.token,
     email: props.email,
     password: '',
     password_confirmation: '',
-});
+})
 
 const submit = () => {
     form.post(route('password.store'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
+    })
+}
 </script>
 
 <template>
     <GuestLayout>
         <Head title="Reset hasła" />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Adres e-mail" />
+        <form class="grid gap-4" @submit.prevent="submit">
+            <FormField id="email" label="Adres e-mail" :error="form.errors.email">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="email"
+                        v-model="form.email"
+                        required
+                        autofocus
+                        autocomplete="username"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+            <FormField id="password" label="Nowe hasło" :error="form.errors.password">
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="password"
+                        v-model="form.password"
+                        required
+                        autocomplete="new-password"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+            <FormField
+                id="password_confirmation"
+                label="Potwierdź hasło"
+                :error="form.errors.password_confirmation"
+            >
+                <template #default="{ id, invalid, describedBy }">
+                    <Input
+                        :id="id"
+                        type="password"
+                        v-model="form.password_confirmation"
+                        required
+                        autocomplete="new-password"
+                        :aria-invalid="invalid || undefined"
+                        :aria-describedby="describedBy"
+                    />
+                </template>
+            </FormField>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Nowe hasło" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Potwierdź hasło"
-                />
-
-                <TextInput
-                    id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
-                    required
-                    autocomplete="new-password"
-                />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Zresetuj hasło
-                </PrimaryButton>
+            <div class="flex items-center justify-end gap-4">
+                <Button type="submit" :disabled="form.processing">Zresetuj hasło</Button>
             </div>
         </form>
     </GuestLayout>

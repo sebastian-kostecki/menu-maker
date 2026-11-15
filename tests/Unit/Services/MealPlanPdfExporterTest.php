@@ -47,7 +47,26 @@ it('orders days by date and meals by category regardless of insertion order', fu
 
     expect($document->title)->toBe('Jadłospis 16.11.2026 – 22.11.2026')
         ->and(array_map(fn ($day) => $day->label, $document->days))->toBe(['Poniedziałek 16.11', 'Wtorek 17.11'])
-        ->and(array_map(fn ($meal) => $meal->category, $document->days[0]->meals))->toBe(['Śniadanie', 'Obiad', 'Kolacja']);
+        ->and(array_map(fn ($meal) => $meal->category, $document->days[0]->meals))->toBe(['Śniadanie', 'Obiad', 'Kolacja'])
+        ->and(array_map(fn ($meal) => $meal->categoryValue, $document->days[0]->meals))->toBe(['breakfast', 'supper', 'dinner']);
+});
+
+it('colours each category cell with its meal class and frames the scaling notices', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => ['status' => 'as_written']]]);
+    addMeal($plan, Recipe::factory()->dinner()->for($user)->create(), '2026-11-16');
+    addMeal($plan, Recipe::factory()->breakfast()->for($user)->create(), '2026-11-16');
+    addMeal($plan, Recipe::factory()->supper()->for($user)->create(), '2026-11-16');
+
+    $html = view('pdf.meal-plan', ['document' => app(MealPlanPdfExporter::class)->document($plan)])->render();
+
+    expect($html)->toContain(
+        'class="category meal-breakfast">Śniadanie<',
+        'class="category meal-supper">Obiad<',
+        'class="category meal-dinner">Kolacja<',
+        '<div class="notices">',
+    );
 });
 
 it('lists the stored ingredient quantities in recipe order, without conversion', function (): void {

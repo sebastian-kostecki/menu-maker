@@ -358,12 +358,12 @@ No schema change. The `date:Y-m-d` cast changes only the JSON shape of `birth_da
 
 #### Automated
 
-- [x] 1.1 Family member feature tests pass: `vendor/bin/sail pest tests/Feature/FamilyMemberTest.php`
-- [x] 1.2 Policy and request unit tests still pass: `vendor/bin/sail pest tests/Unit/FamilyMemberPolicyTest.php tests/Unit/FamilyMemberRequestValidationTest.php`
-- [x] 1.3 Full suite passes: `vendor/bin/sail composer test`
-- [x] 1.4 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan`
-- [x] 1.5 Pint passes: `vendor/bin/sail composer pint-test`
-- [x] 1.6 Route list shows only index/store/update/destroy for family-members: `vendor/bin/sail artisan route:list --name=family-members`
+- [x] 1.1 Family member feature tests pass: `vendor/bin/sail pest tests/Feature/FamilyMemberTest.php` — 33235cc
+- [x] 1.2 Policy and request unit tests still pass: `vendor/bin/sail pest tests/Unit/FamilyMemberPolicyTest.php tests/Unit/FamilyMemberRequestValidationTest.php` — 33235cc
+- [x] 1.3 Full suite passes: `vendor/bin/sail composer test` — 33235cc
+- [x] 1.4 Larastan passes without baseline changes: `vendor/bin/sail composer phpstan` — 33235cc
+- [x] 1.5 Pint passes: `vendor/bin/sail composer pint-test` — 33235cc
+- [x] 1.6 Route list shows only index/store/update/destroy for family-members: `vendor/bin/sail artisan route:list --name=family-members` — 33235cc
 
 #### Manual
 
@@ -373,11 +373,11 @@ No schema change. The `date:Y-m-d` cast changes only the JSON shape of `birth_da
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Only Index.vue remains in the page folder
-- [ ] 2.3 No palette, dark or arbitrary classes in the feature
-- [ ] 2.4 No references to deleted components or routes remain
-- [ ] 2.5 Full Pest suite still passes: `vendor/bin/sail composer test`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Only Index.vue remains in the page folder
+- [x] 2.3 No palette, dark or arbitrary classes in the feature
+- [x] 2.4 No references to deleted components or routes remain
+- [x] 2.5 Full Pest suite still passes: `vendor/bin/sail composer test`
 
 #### Manual
 

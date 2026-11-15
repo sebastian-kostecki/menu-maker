@@ -139,7 +139,7 @@ Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warni
 | Metadane | `text-xs text-muted-foreground` | kcal, porcje, daty |
 
 - Liczby w tabelach i na liście zakupów: `tabular-nums`, wyrównane do prawej.
-- Formatowanie liczb i dat po polsku (`Intl.NumberFormat('pl-PL')`: `1,25 kg`), jedna funkcja w `resources/js/lib/`.
+- Formatowanie liczb i dat po polsku (`Intl.NumberFormat('pl-PL')`: `1,25 kg`), `resources/js/lib/format.js` (`formatNumber`, `formatDate`, `pluralize`).
 
 ### 4.6 Kształt, odstępy, cienie
 
@@ -197,11 +197,11 @@ Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `
 
 | Komponent | Zastępuje | Kontrakt |
 | --- | --- | --- |
-| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). `title`, `description?`, sloty `actions`, `breadcrumbs`; jedno `<h1>` na stronę |
+| `PageHeader` | Ręczne nagłówki w każdej stronie i slot `#header` | **Zrealizowany w S-11 (`recipes-ui`)**. Wstawiany w slot `#header` `AuthenticatedLayout`. Props `title`, `description?`; sloty `breadcrumbs` (w `<nav aria-label="Ścieżka nawigacji">`), `description`, `actions`; jedno `<h1 class="text-2xl font-semibold tracking-tight">` na stronę, łamane przy długich tytułach |
 | `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `open` (`v-model:open`), `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; emituje `confirm`; fokus na „Anuluj”; zostaje otwarty, dopóki `processing` |
 | `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta` (bez `links`); emituje `page-change`; `aria-label="Paginacja"` |
 | `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; renderuje `TableHead`; `aria-sort`; emituje `sort-change({column, direction})` |
-| `EmptyState` | Ad hoc puste tabele | **Odroczony** do pierwszego widoku, który go potrzebuje (S-09/S-10/S-11). Ikona, tytuł, opis, slot CTA („Dodaj przepis”, „Wygeneruj jadłospis”) |
+| `EmptyState` | Ad hoc puste tabele | **Zrealizowany w S-11 (`recipes-ui`)**. Props `icon?` (lucide), `title`, `description?`, `headingLevel?` (2 lub 3); slot `action` na CTA („Dodaj przepis”, „Wygeneruj jadłospis”); działa samodzielnie i w komórce tabeli |
 | `FormField` | `InputLabel` + `InputError` | **Odroczony** do S-13. Label + kontrolka + błąd, `aria-describedby`, `aria-invalid` |
 | `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Zrealizowany jako `Common/AppSidebar` i `Common/UserMenu`, z `AuthenticatedLayout` jako opakowaniem. Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary`; nawigacja mobilna na `ui/sheet`; zwinięcie panelu zapamiętane w localStorage |
 
@@ -260,9 +260,9 @@ Kolejność: **tokeny → wspólne komponenty → powłoka → widoki wg ruchu w
 | DS-01 / F-04 | `design-system-visual-gate` | Kitchen sink, bramka zrzutu Playwright, `lint:tokens`, punkt o kitchen sink w regule w `CLAUDE.md` | `/10x-new` → `/10x-plan` | F-03 |
 | DS-02 | `shared-app-components` | `Components/Common/*` z 5.2 (`ConfirmDialog`, `ServerPagination`, `SortableHeader`; bez `AppShell`, `PageHeader`, `EmptyState` i `FormField`), migracja wywołań duplikatów (dialogi, paginacja, sortowanie), `CategoryBadge` i `StatusTag` na wariantach | `/10x-new` → `/10x-plan` | DS-01 |
 | DS-03 | `app-shell-restyle` | `Sidebar`, `AuthenticatedLayout`, `GuestLayout` (+ „© 2024” → rok bieżący) | `/10x-ui` | DS-01 |
-| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
-| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` | DS-02 |
-| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` + `PageHeader`/`EmptyState` (pierwszy, kto potrzebuje) | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
+| DS-04 | `meal-plan-show-ui` | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` + używa `PageHeader`/`EmptyState` z DS-06 (`recipes-ui`) — rdzeń produktu, najwięcej literałów w głównym przepływie | `/10x-ui` | DS-02, DS-03 |
+| DS-05 | `meal-plans-index-ui` | `MealPlans/Index`, `MealPlanTable/Row`, `FiltersBar`, `GenerateMealPlanDialog` + używa `PageHeader`/`EmptyState` z DS-06 (`recipes-ui`) | `/10x-ui` | DS-02 |
+| DS-06 | `recipes-ui` | `Recipes/Index` (`RecipeRow`, 34 literały), `Show`, `Form`, `IngredientManager` + buduje `PageHeader`/`EmptyState` | `/10x-ui` (po jednym widoku, jeśli diff rośnie) | DS-02 |
 | DS-07 | `family-members-ui` | `FamilyMembers/*` (przy okazji parked: `Create`/`Edit` → `Form.vue`, jeśli zmieści się w zakresie) | `/10x-ui` | DS-02 |
 | DS-08 | `auth-profile-ui` | `Auth/*`, `Profile/*` — zejście z Breeze na `ui/*` + `FormField` | `/10x-ui` | DS-02, DS-03 |
 | DS-09 | `pdf-design-alignment` | PDF wg sekcji 6 | `/10x-new` → `/10x-plan` | DS-01 |

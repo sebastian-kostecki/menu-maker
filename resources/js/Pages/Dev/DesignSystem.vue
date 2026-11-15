@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CheckCircle2, Info, Loader2, Plus, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -20,6 +20,8 @@ import AppSidebar from '@/Components/Common/AppSidebar.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
+import PageHeader from '@/Components/Common/PageHeader.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import SortableHeader from '@/Components/Common/SortableHeader.vue'
 import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
@@ -699,6 +701,41 @@ const showToast = () => {
           variant="destructive"
           processing
         />
+
+        <div class="flex flex-col gap-6 rounded-lg border bg-card p-4">
+          <PageHeader title="Zupa pomidorowa z makaronem i świeżą bazylią">
+            <template #breadcrumbs>
+              <a href="#ds-komponenty-aplikacji" class="hover:text-foreground hover:underline">Przepisy</a>
+              <span aria-hidden="true"> / </span>
+              <span aria-current="page">Zupa pomidorowa</span>
+            </template>
+            <template #description>
+              <CategoryBadge category="dinner" />
+            </template>
+            <template #actions>
+              <Button variant="outline">Edytuj przepis</Button>
+              <Button variant="secondary">Kopiuj przepis</Button>
+            </template>
+          </PageHeader>
+          <PageHeader title="Jadłospisy" />
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="rounded-lg border bg-card">
+            <EmptyState
+              :icon="ChefHat"
+              title="Brak przepisów"
+              description="Dodaj pierwszy przepis, aby zaplanować tydzień."
+            >
+              <template #action>
+                <Button>Dodaj przepis</Button>
+              </template>
+            </EmptyState>
+          </div>
+          <div class="rounded-lg border bg-card">
+            <EmptyState :icon="SearchX" title="Brak wyników" />
+          </div>
+        </div>
       </section>
     </main>
   </div>

@@ -48,7 +48,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-08 | app-shell-restyle         | poruszać się po aplikacji w nawigacji i menu użytkownika w kolorach marki, także na ekranach gościa    | F-03, F-04                        | DS-03, §5.2                 | done |
 | S-09 | meal-plan-show-ui         | zobaczyć jadłospis jako siatkę tygodnia w kolorach pory dnia, z listą zakupów obok                     | S-07, S-08                        | DS-04, §5.3, §5.4           | ready    |
 | S-10 | meal-plans-index-ui       | przeglądać, filtrować i generować jadłospisy w nowym wyglądzie                                         | S-07                              | DS-05                       | ready    |
-| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | ready    |
+| S-11 | recipes-ui                | przeglądać, dodawać i edytować przepisy w nowym wyglądzie                                              | S-07                              | DS-06                       | in-progress |
 | S-12 | family-members-ui         | zarządzać członkami rodziny w nowym wyglądzie                                                          | S-07                              | DS-07                       | ready    |
 | S-13 | auth-profile-ui           | logować się, rejestrować, resetować hasło i edytować profil na tych samych przyciskach i polach co reszta | S-07, S-08                     | DS-08, §5.1                 | ready    |
 | S-14 | pdf-design-alignment      | pobrać PDF, w którym kategorie posiłków mają te same kolory co na ekranie                              | F-03                              | DS-09, §6                   | done |
@@ -144,7 +144,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-10, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
+  - Buduje je S-11 (`recipes-ui`); S-09/S-10 ich używają. — Owner: /10x-plan. Block: no.
 - **Risk:** to rdzeń produktu pilnowany przez `meal-plan.spec.ts`; zamiana `<details>` na rozwijany komponent zmienia semantykę, więc nowy selektor w specu jest tu sygnałem zmiany znaczenia, który trzeba świadomie przejrzeć (§8), a nie tylko poprawić.
 - **Status:** ready
 
@@ -157,7 +157,7 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-09, S-11, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/`. — Owner: /10x-plan. Block: no.
+  - Buduje je S-11 (`recipes-ui`); S-09/S-10 ich używają. — Owner: /10x-plan. Block: no.
   - S-07 naprawiło już odczyt `filters.filter.status` w `MealPlans/Index` (wcześniej zawsze `undefined`); w S-10 zostaje reszta porządków filtrów (localStorage, UI filtrów). — Owner: /10x-plan. Block: no.
 - **Risk:** dialog generowania uruchamia zadanie w kolejce — zmiana wyglądu nie może zmienić wysyłanego żądania; pilnuje tego `meal-plan.spec.ts`.
 - **Status:** ready
@@ -171,10 +171,10 @@ Weryfikacja UI: Playwright z czterema specami w `tests/e2e/` opartymi na rolach 
 - **Parallel with:** S-08, S-09, S-10, S-12, S-13, S-14
 - **Blockers:** —
 - **Unknowns:**
-  - Jedna zmiana czy trzy (lista, szczegóły, formularz)? §8 dopuszcza podział „po jednym widoku, jeśli diff rośnie”. — Owner: /10x-plan. Block: no.
-  - `PageHeader` i `EmptyState` nie powstały w S-07; pierwszy z widoków S-09, S-10, S-11, który ich potrzebuje, buduje je w `Components/Common/` (m.in. podwójny komunikat pustej listy w `Recipes/Index`). — Owner: /10x-plan. Block: no.
+  - ~~Jedna zmiana czy trzy (lista, szczegóły, formularz)?~~ Rozstrzygnięte: jedna zmiana, po jednej fazie na widok.
+  - ~~`PageHeader` i `EmptyState` nie powstały w S-07 (m.in. podwójny komunikat pustej listy w `Recipes/Index`).~~ Rozstrzygnięte: komponenty powstają w tej zmianie (faza 1).
 - **Risk:** `RecipeRow` ma najwięcej literałów w listach (34), a formularz z `IngredientManager` jest najbardziej interaktywnym widokiem aplikacji i ma własny spec E2E (`recipe-form.spec.ts`).
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-12: Rodzina w nowym wyglądzie
 

@@ -581,9 +581,9 @@ There is no data migration. For later slices:
 
 #### Automated
 
-- [x] 4.1 CLAUDE.md names all three tools
-- [x] 4.2 design-system §7 describes the built tools
-- [x] 4.3 The roadmap unknown is resolved
+- [x] 4.1 CLAUDE.md names all three tools — 4a59210
+- [x] 4.2 design-system §7 describes the built tools — 4a59210
+- [x] 4.3 The roadmap unknown is resolved — 4a59210
 
 #### Manual
 

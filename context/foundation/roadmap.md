@@ -51,8 +51,8 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ID   | Change ID                  | Outcome (user can …)                                                                       | Prerequisites | PRD refs     | Status   |
 | ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
-| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | proposed |
-| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-17          | MS-04        | proposed |
+| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | planning |
+| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | proposed |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
@@ -62,9 +62,8 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 | Stream | Theme                    | Chain                    | Note                                                                                               |
 | ------ | ------------------------ | ------------------------ | -------------------------------------------------------------------------------------------------- |
-| A      | Szkic i edycje komórki   | `S-17` → `S-18`          | Cel „quality”: model szkicu dostaje pełne pokrycie na pierwszej edycji, zanim dojdą kolejne.        |
-| B      | Gotowane raz, jedzone dwa razy | `S-19` → `S-20`    | Odgałęzia się od strumienia A przy `S-17`; jeden mechanizm (decyzja 2026-11-16), `S-20` go tylko rozszerza.          |
-| C      | PDF z przepisami         | `S-21`                   | Niezależny od szkicu; może iść w osobnej sesji agenta równolegle do strumienia A.                  |
+| A      | Szkic i edycje komórki   | `S-17` → `S-18` → `S-19` → `S-20` | Cel „quality”: jeden łańcuch (decyzja 2026-11-16) — powiązanie „gotowane raz, jedzone dwa razy” powstaje na gotowym pustym posiłku, a `S-20` tylko je rozszerza. |
+| B      | PDF z przepisami         | `S-21`                   | Niezależny od szkicu; może iść w osobnej sesji agenta równolegle do strumienia A.                  |
 
 ## Baseline
 
@@ -79,7 +78,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Observability:** present — logi i alerty mailowe, `report()` w zadaniu generowania.
 - **PDF:** present — dompdf na żądanie; tabela ma kolumnę „Przygotowanie” (40% szerokości) z pełnym tekstem przepisu, potem lista zakupów.
 
-Poza roadmapą trwa zmiana `recipe-markdown-import` (import przepisów z Markdowna, `in-progress`); jej otwarty punkt — tylko 6 kolacji przy wymogu 7 na kategorię — dotyczy S-18.
+Zmiana `recipe-markdown-import` (import przepisów z Markdowna) jest zarchiwizowana (`context/archive/2026-11-15-recipe-markdown-import/`); jej otwarty punkt — tylko 6 kolacji przy wymogu 7 na kategorię — rozwiązuje S-18.
 
 ## Foundations
 
@@ -108,27 +107,27 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 - **Change ID:** meal-plan-empty-slot
 - **PRD refs:** MS-03
 - **Prerequisites:** S-17
-- **Parallel with:** S-19, S-21
+- **Parallel with:** S-21
 - **Blockers:** —
 - **Unknowns:**
   - Rozstrzygnięte 2026-11-16: wymóg 7 przepisów na kategorię znika; braki zostają pustymi komórkami w szkicu (rozwiązuje też otwarty punkt `recipe-markdown-import`: 6 kolacji).
-  - Czy przy zerze przepisów w kategorii generowanie nadal ma odmawiać (dziś komunikat z linkiem „Dodaj przepis”)? — Owner: user. Block: no.
+  - Rozstrzygnięte 2026-11-16: generowanie odmawia (komunikat z linkiem „Dodaj przepis”) tylko wtedy, gdy użytkownik nie ma żadnego przepisu; kategoria bez przepisów daje puste komórki w szkicu z informacją nad siatką.
 - **Risk:** Wymaga posiłku bez przepisu, czyli zmiany założenia, na którym stoją siatka, skalowanie, lista zakupów i PDF; po S-17, żeby ta zmiana weszła w już działający szkic.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-19: Ten sam obiad dwa dni z rzędu
 
 - **Outcome:** Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.
 - **Change ID:** meal-plan-repeat-dinner
 - **PRD refs:** MS-04
-- **Prerequisites:** S-17
-- **Parallel with:** S-18, S-21
+- **Prerequisites:** S-18
+- **Parallel with:** S-21
 - **Blockers:** —
 - **Unknowns:**
   - Rozstrzygnięte 2026-11-16: pierwszy dzień ma składniki przeskalowane na oba posiłki, drugi pokazuje „z wczoraj” bez własnych składników; na liście zakupów danie występuje raz, w podwójnej ilości.
   - Rozstrzygnięte 2026-11-16: jeden mechanizm „gotowane raz, jedzone dwa razy” (posiłek wskazuje kolejny posiłek, który z niego korzysta), wspólny z S-20.
-  - Co się dzieje z powiązanym dniem, gdy użytkownik podmieni przepis albo opróżni pierwszy posiłek? — Owner: user. Block: no (domyślnie powiązanie znika, drugi posiłek staje się pusty).
-- **Risk:** Zmienia zasadę „jeden posiłek = jedno skalowanie” i sumowanie listy zakupów; wprowadza mechanizm powiązania, który S-20 rozszerza na inną kategorię, więc idzie przed nim.
+  - Rozstrzygnięte 2026-11-16: gdy użytkownik podmieni przepis albo opróżni pierwszy posiłek, powiązanie znika, a drugi posiłek staje się pusty (stąd S-18 jako warunek wstępny).
+- **Risk:** Po S-18, bo rozpięcie powiązania zostawia pusty posiłek; zmienia zasadę „jeden posiłek = jedno skalowanie” i sumowanie listy zakupów; wprowadza mechanizm powiązania, który S-20 rozszerza na inną kategorię, więc idzie przed nim.
 - **Status:** proposed
 
 ### S-20: Kolacja na śniadanie następnego dnia
@@ -137,11 +136,11 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 - **Change ID:** dinner-to-breakfast-carryover
 - **PRD refs:** MS-05
 - **Prerequisites:** S-19
-- **Parallel with:** S-18, S-21
+- **Parallel with:** S-21
 - **Blockers:** —
 - **Unknowns:**
   - Rozstrzygnięte 2026-11-16: ten sam mechanizm co S-19, ilości liczone tak samo (kolacja przeskalowana na oba posiłki, śniadanie bez własnych składników).
-  - Jak śniadanie z przepisem kategorii „kolacja” ma wyglądać na ekranie i w PDF (kolor kategorii komórki czy przepisu)? — Owner: user. Block: no.
+  - Rozstrzygnięte 2026-11-16: śniadanie z przepisem kategorii „kolacja” ma na ekranie i w PDF kolor pory dnia komórki (śniadanie) z dopiskiem „z kolacji”.
 - **Risk:** Po S-19, bo rozszerza jego mechanizm powiązania o parę posiłków z różnych kategorii i dni; ryzykiem jest tylko prezentacja kategorii, nie ilości.
 - **Status:** proposed
 
@@ -163,8 +162,8 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 | Roadmap ID | Change ID                     | Suggested issue title                                         | Ready for `/10x-plan` | Notes |
 | ---------- | ----------------------------- | ------------------------------------------------------------- | --------------------- | ----- |
 | S-17       | meal-plan-draft-with-swap     | Szkic jadłospisu z podmianą przepisu i zatwierdzeniem         | yes                   | North star. Run `/10x-plan meal-plan-draft-with-swap` |
-| S-18       | meal-plan-empty-slot          | Pusty posiłek w jadłospisie                                   | no                    | Czeka na S-17 |
-| S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | no                    | Czeka na S-17 |
+| S-18       | meal-plan-empty-slot          | Pusty posiłek w jadłospisie                                   | yes                   | Run `/10x-plan meal-plan-empty-slot`; zalecany jako następny |
+| S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | no                    | Czeka na S-18 (rozpięcie powiązania zostawia pusty posiłek) |
 | S-20       | dinner-to-breakfast-carryover | Kolacja na śniadanie następnego dnia                          | no                    | Czeka na S-19 |
 | S-21       | pdf-recipe-pages              | PDF z przepisami na osobnych stronach i przełącznikiem        | yes                   | Run `/10x-plan pdf-recipe-pages`; równolegle do S-17 |
 

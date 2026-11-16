@@ -87,9 +87,10 @@ class MealPlanPdfExporter
             ->output();
     }
 
-    public function filename(MealPlan $mealPlan): string
+    public function filename(MealPlan $mealPlan, bool $withRecipes = false): string
     {
-        return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'.pdf';
+        return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d')
+            .($withRecipes ? '-z-przepisami' : '').'.pdf';
     }
 
     /**

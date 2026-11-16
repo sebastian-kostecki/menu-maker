@@ -392,10 +392,10 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [x] 1.1 Exporter and palette tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php tests/Unit/Services/MealPlanPdfPaletteTest.php`
-- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
-- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Exporter and palette tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php tests/Unit/Services/MealPlanPdfPaletteTest.php` — aa03408
+- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test` — aa03408
+- [x] 1.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan` — aa03408
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test` — aa03408
 
 #### Manual
 
@@ -405,11 +405,11 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [ ] 2.1 PDF feature and request tests pass: `vendor/bin/sail pest tests/Feature/MealPlanControllerTest.php tests/Unit/MealPlanRequestValidationTest.php tests/Feature/DashboardControllerTest.php`
-- [ ] 2.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [ ] 2.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
-- [ ] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
-- [ ] 2.5 Route list still shows a single `meal-plans.pdf` route: `vendor/bin/sail artisan route:list --name=meal-plans.pdf`
+- [x] 2.1 PDF feature and request tests pass: `vendor/bin/sail pest tests/Feature/MealPlanControllerTest.php tests/Unit/MealPlanRequestValidationTest.php tests/Feature/DashboardControllerTest.php`
+- [x] 2.2 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 2.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 2.5 Route list still shows a single `meal-plans.pdf` route: `vendor/bin/sail artisan route:list --name=meal-plans.pdf`
 
 #### Manual
 

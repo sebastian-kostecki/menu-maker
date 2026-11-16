@@ -224,7 +224,8 @@ it('marks soft-deleted recipes in the PDF', function (): void {
 it('builds the filename from the plan dates', function (): void {
     $plan = fixedPlan(User::factory()->create());
 
-    expect(app(MealPlanPdfExporter::class)->filename($plan))->toBe('jadlospis-2026-11-16-2026-11-22.pdf');
+    expect(app(MealPlanPdfExporter::class)->filename($plan))->toBe('jadlospis-2026-11-16-2026-11-22.pdf')
+        ->and(app(MealPlanPdfExporter::class)->filename($plan, true))->toBe('jadlospis-2026-11-16-2026-11-22-z-przepisami.pdf');
 });
 
 it('has no recipe pages unless asked for', function (): void {

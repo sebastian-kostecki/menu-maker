@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Http\Requests\DownloadMealPlanPdfRequest;
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Models\MealPlan;
@@ -157,6 +158,21 @@ class MealPlanRequestValidationTest extends TestCase
         $validator = Validator::make([], $rules);
         $this->assertFalse($validator->passes());
         $this->assertArrayHasKey('regenerate', $validator->errors()->toArray());
+    }
+
+    public function test_download_meal_plan_pdf_request_validates_recipes_flag(): void
+    {
+        $rules = (new DownloadMealPlanPdfRequest)->rules();
+
+        foreach ([[], ['recipes' => '1'], ['recipes' => '0'], ['recipes' => true], ['recipes' => false]] as $input) {
+            $this->assertTrue(Validator::make($input, $rules)->passes());
+        }
+
+        foreach (['abc', 'true'] as $invalid) {
+            $validator = Validator::make(['recipes' => $invalid], $rules);
+            $this->assertFalse($validator->passes());
+            $this->assertArrayHasKey('recipes', $validator->errors()->toArray());
+        }
     }
 
     public function test_regenerate_meal_plan_request_ignores_force_flag_and_limiter(): void

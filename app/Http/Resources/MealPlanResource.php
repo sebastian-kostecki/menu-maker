@@ -107,6 +107,7 @@ class MealPlanResource extends JsonResource
             'links' => [
                 'self' => route('meal-plans.show', $this->id),
                 'pdf' => $this->status === 'done' ? route('meal-plans.pdf', $this->id) : null,
+                'pdf_with_recipes' => $this->status === 'done' ? route('meal-plans.pdf', [$this->id, 'recipes' => 1]) : null,
             ],
         ];
     }

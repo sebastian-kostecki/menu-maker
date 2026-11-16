@@ -38,6 +38,8 @@ services:
             - traefik.http.routers.menu.rule=Host(`menu.kostecki.dev`)
             - traefik.http.routers.menu.entrypoints=websecure
             - traefik.http.routers.menu.tls.certresolver=letsencrypt
+            # Security headers shared by the apps: kostecki-dev-infra traefik/dynamic/app-security.yml
+            - traefik.http.routers.menu.middlewares=app-security@file
             - traefik.http.services.menu.loadbalancer.server.port=80
 
     pgsql:

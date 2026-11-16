@@ -55,7 +55,7 @@ set_env() {
 }
 
 echo "==> Preparing throwaway ${ENV_FILE}..."
-docker network inspect proxy > /dev/null 2>&1 || docker network create proxy > /dev/null
+docker network inspect proxy-menu > /dev/null 2>&1 || docker network create --internal proxy-menu > /dev/null
 mkdir -p "${BACKUP_HOST_DIR}"
 
 cp .env.prod.example "${ENV_FILE}"

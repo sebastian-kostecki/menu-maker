@@ -714,11 +714,11 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Automated
 
-- [ ] 4.1 Build passes
-- [ ] 4.2 Seeder runs and its test passes
-- [ ] 4.3 E2E passes
-- [ ] 4.4 Visual gate passes after the deliberate update
-- [ ] 4.5 Full Pest suite passes
+- [x] 4.1 Build passes — 8025109
+- [x] 4.2 Seeder runs and its test passes — 8025109
+- [x] 4.3 E2E passes — 8025109
+- [x] 4.4 Visual gate passes after the deliberate update — 8025109
+- [x] 4.5 Full Pest suite passes — 8025109
 
 #### Manual
 

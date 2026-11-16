@@ -139,6 +139,15 @@ test.describe('overlays', () => {
     await expect(overlay).toHaveScreenshot('overlay-dropdown-menu.png');
   });
 
+  test('pdf download menu', async ({ page }) => {
+    await openKitchenSink(page);
+    await section(page, 'Jadłospis').getByRole('button', { name: 'Pobierz PDF' }).click();
+    const overlay = page.getByRole('menu');
+    await expect(overlay).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect(overlay).toHaveScreenshot('overlay-pdf-download-menu.png');
+  });
+
   test('user menu', async ({ page }) => {
     await openKitchenSink(page);
     await page.getByRole('button', { name: 'Menu użytkownika' }).click();

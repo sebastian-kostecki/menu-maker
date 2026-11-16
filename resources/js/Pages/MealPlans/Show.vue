@@ -6,12 +6,10 @@
       <PageHeader title="Jadłospis" :description="dateRange">
         <template #actions>
           <StatusTag :value="mealPlan.status as any" />
-          <Button v-if="mealPlan.links.pdf" variant="outline" as-child>
-            <a :href="mealPlan.links.pdf" target="_blank" rel="noopener">
-              <FileDown class="size-4" aria-hidden="true" />
-              Pobierz PDF
-            </a>
-          </Button>
+          <PdfDownloadMenu
+            v-if="mealPlan.links.pdf && mealPlan.links.pdf_with_recipes"
+            :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes }"
+          />
           <Button v-if="canRegenerate" variant="outline" @click="showRegenerateDialog = true">
             <RefreshCw class="size-4" aria-hidden="true" />
             Regeneruj
@@ -105,7 +103,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Head, Link, router, usePoll } from '@inertiajs/vue3'
-import { AlertCircle, ArrowLeft, CalendarDays, FileDown, Loader2, RefreshCw, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, ArrowLeft, CalendarDays, Loader2, RefreshCw, TriangleAlert } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
@@ -113,6 +111,7 @@ import { Button } from '@/Components/ui/button'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
+import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
@@ -155,6 +154,7 @@ interface MealPlan {
   links: {
     self: string
     pdf: string | null
+    pdf_with_recipes: string | null
   }
 }
 

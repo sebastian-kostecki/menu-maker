@@ -405,11 +405,11 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [x] 2.1 PDF feature and request tests pass: `vendor/bin/sail pest tests/Feature/MealPlanControllerTest.php tests/Unit/MealPlanRequestValidationTest.php tests/Feature/DashboardControllerTest.php`
-- [x] 2.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [x] 2.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
-- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test`
-- [x] 2.5 Route list still shows a single `meal-plans.pdf` route: `vendor/bin/sail artisan route:list --name=meal-plans.pdf`
+- [x] 2.1 PDF feature and request tests pass: `vendor/bin/sail pest tests/Feature/MealPlanControllerTest.php tests/Unit/MealPlanRequestValidationTest.php tests/Feature/DashboardControllerTest.php` — b860dcc
+- [x] 2.2 Full Pest suite passes: `vendor/bin/sail composer test` — b860dcc
+- [x] 2.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan` — b860dcc
+- [x] 2.4 Pint passes: `vendor/bin/sail composer pint-test` — b860dcc
+- [x] 2.5 Route list still shows a single `meal-plans.pdf` route: `vendor/bin/sail artisan route:list --name=meal-plans.pdf` — b860dcc
 
 #### Manual
 
@@ -419,11 +419,11 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
-- [ ] 3.3 E2E meal-plan spec passes against Sail after re-seeding `E2eMealPlanSeeder`
-- [ ] 3.4 Visual gate passes with only the expected baselines changed: `npm run test:visual`
-- [ ] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 3.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 3.3 E2E meal-plan spec passes against Sail after re-seeding `E2eMealPlanSeeder`
+- [x] 3.4 Visual gate passes with only the expected baselines changed: `npm run test:visual`
+- [x] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
 
 #### Manual
 

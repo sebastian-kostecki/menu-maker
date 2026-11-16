@@ -48,20 +48,20 @@ class MealPlanResource extends JsonResource
                     fn (Meal $a, Meal $b): int => MealCategory::displayIndex($a->meal_category)
                         <=> MealCategory::displayIndex($b->meal_category),
                 ])->values()->map(function (Meal $meal) {
+                    $recipe = $meal->relationLoaded('recipe') ? $meal->recipe : null;
+
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
                         'meal_category' => $meal->meal_category,
-                        'recipe' => $this->when($meal->relationLoaded('recipe') && $meal->recipe !== null, function () use ($meal) {
-                            return [
-                                'deleted' => $meal->recipe->trashed(),
-                                'id' => $meal->recipe->id,
-                                'name' => $meal->recipe->name,
-                                'category' => $meal->recipe->category,
-                                'calories' => $meal->recipe->calories,
-                                'servings' => $meal->recipe->servings,
-                            ];
-                        }),
+                        ...($recipe === null ? [] : ['recipe' => [
+                            'deleted' => $recipe->trashed(),
+                            'id' => $recipe->id,
+                            'name' => $recipe->name,
+                            'category' => $recipe->category,
+                            'calories' => $recipe->calories,
+                            'servings' => $recipe->servings,
+                        ]]),
                         'ingredients' => $this->when($meal->relationLoaded('ingredients'), function () use ($meal) {
                             return $meal->ingredients
                                 ->filter(fn (MealIngredient $mealIngredient): bool => bccomp((string) $mealIngredient->quantity, '0', 2) !== 0)

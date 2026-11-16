@@ -73,6 +73,22 @@
             To szkic jadłospisu. Możesz podmienić przepisy; ilości i listę zakupów policzymy po zatwierdzeniu.
           </AlertDescription>
         </Alert>
+        <Alert v-if="mealPlan.status === 'draft' && shortCategories?.length" variant="info" role="status" data-testid="short-categories-notice">
+          <Info aria-hidden="true" />
+          <AlertDescription>
+            <p>
+              Za mało przepisów, żeby wypełnić cały tydzień:
+              {{ shortCategories.map((short) => `${short.label} (${short.recipes} z 7)`).join(', ') }}.
+            </p>
+            <p>Puste posiłki możesz uzupełnić przepisem, który już jest w tygodniu, albo dodać nowy przepis.</p>
+            <Link
+              :href="route('recipes.create')"
+              class="mt-2 inline-block rounded-sm font-medium underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Dodaj przepis
+            </Link>
+          </AlertDescription>
+        </Alert>
         <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" role="status" data-testid="scaling-notice">
           <TriangleAlert aria-hidden="true" />
           <AlertDescription>
@@ -158,7 +174,7 @@ import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
-import type { RecipeOption, RecipeOptions } from '@/types/meal-plan'
+import type { RecipeOption, RecipeOptions, ShortCategory } from '@/types/meal-plan'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 
 interface Recipe {
@@ -206,6 +222,7 @@ interface Props {
   mealPlan: MealPlan
   shoppingList: ShoppingListPayload | null
   recipeOptions?: RecipeOptions | null
+  shortCategories?: ShortCategory[] | null
 }
 
 const props = defineProps<Props>()

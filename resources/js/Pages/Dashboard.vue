@@ -1,7 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Button } from '@/Components/ui/button'
-import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Head, Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
@@ -11,12 +10,11 @@ import StatCard from '@/Components/Dashboard/StatCard.vue'
 import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import { formatDateRange } from '@/lib/format'
-import { Plus, ChefHat, CalendarDays, TriangleAlert } from 'lucide-vue-next'
+import { Plus, ChefHat, CalendarDays } from 'lucide-vue-next'
 
 const props = defineProps({
   stats: { type: Object, required: true },
   latestMealPlan: { type: Object, default: null },
-  recipeShortfall: { type: Array, default: () => [] },
 })
 
 const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealPlans === 0)
@@ -34,7 +32,7 @@ const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealP
         class="py-12"
         :icon="ChefHat"
         title="Zacznij od pierwszego przepisu"
-        description="Dodaj przepisy do śniadań, obiadów i kolacji. Gdy będzie ich dość, wygenerujesz z nich jadłospis na cały tydzień."
+        description="Dodaj przepisy do śniadań, obiadów i kolacji, a potem wygeneruj z nich jadłospis na cały tydzień."
       >
         <Button as-child>
           <Link :href="route('recipes.create')">Dodaj pierwszy przepis</Link>
@@ -42,19 +40,6 @@ const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealP
       </EmptyState>
 
       <template v-else>
-        <Alert v-if="recipeShortfall.length" variant="warning">
-          <TriangleAlert aria-hidden="true" />
-          <AlertTitle>Nie można jeszcze wygenerować tygodnia</AlertTitle>
-          <AlertDescription>
-            <p v-for="message in recipeShortfall" :key="message">{{ message }}</p>
-          </AlertDescription>
-          <div class="col-start-2 mt-3">
-            <Button variant="outline" as-child>
-              <Link :href="route('recipes.create')">Dodaj brakujące przepisy</Link>
-            </Button>
-          </div>
-        </Alert>
-
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <StatCard label="Przepisy" :value="stats.recipes" :icon="ChefHat" />
           <StatCard label="Jadłospisy" :value="stats.mealPlans" :icon="CalendarDays" />

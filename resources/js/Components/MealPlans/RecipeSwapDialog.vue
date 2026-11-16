@@ -2,19 +2,25 @@
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>Zmień przepis</DialogTitle>
+        <DialogTitle>{{ meal && !meal.recipe ? 'Wybierz przepis' : 'Zmień przepis' }}</DialogTitle>
         <DialogDescription>{{ description }}</DialogDescription>
       </DialogHeader>
 
-      <Combobox :open="true" :model-value="undefined" @update:model-value="handleSelect">
+      <Combobox v-model:search-term="searchTerm" :open="true" :model-value="undefined" ignore-filter @update:model-value="handleSelect">
         <ComboboxAnchor class="w-full">
           <ComboboxInput aria-label="Szukaj przepisu" placeholder="Szukaj przepisu" />
         </ComboboxAnchor>
         <ComboboxContent position="inline" class="mt-2 max-h-72 overflow-y-auto rounded-md border bg-popover text-popover-foreground">
           <ComboboxViewport class="p-1">
-            <ComboboxEmpty class="p-2 text-sm text-muted-foreground">Brak przepisów</ComboboxEmpty>
+            <ComboboxItem :value="EMPTY_OPTION" text-value="Nie robimy (pusty posiłek)" :disabled="saving" class="flex-col items-start gap-0.5">
+              <span class="flex w-full items-center justify-between gap-2">
+                <span class="font-medium">Nie robimy (pusty posiłek)</span>
+                <span v-if="meal && !meal.recipe" class="text-xs text-muted-foreground">obecny</span>
+              </span>
+            </ComboboxItem>
+            <p v-if="!filteredItems.length" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
             <ComboboxItem
-              v-for="option in items"
+              v-for="option in filteredItems"
               :key="option.id"
               :value="option"
               :text-value="option.name"
@@ -38,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 // ui/combobox's ComboboxList always portals out and is sized as a popper; inside a Dialog the list must stay
 // inline (position="inline") within the dialog's focus trap, so the reka-ui parts are used directly here.
@@ -47,7 +53,6 @@ import { toast } from 'vue-sonner'
 import {
   Combobox,
   ComboboxAnchor,
-  ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
 } from '@/Components/ui/combobox'
@@ -76,7 +81,17 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits<{ (e: 'update:open', value: boolean): void }>()
 
+const EMPTY_OPTION = { empty: true } as const
+
 const saving = ref(false)
+const searchTerm = ref('')
+
+watch(
+  () => props.open,
+  () => {
+    searchTerm.value = ''
+  }
+)
 
 const currentRecipeId = computed(() => props.meal?.recipe?.id ?? null)
 
@@ -98,8 +113,14 @@ const items = computed(() =>
   })
 )
 
+const filteredItems = computed(() => {
+  const term = searchTerm.value.trim().toLocaleLowerCase('pl')
+
+  return term ? items.value.filter((option) => option.name.toLocaleLowerCase('pl').includes(term)) : items.value
+})
+
 const handleSelect = (option: unknown) => {
-  const picked = option as RecipeOption | undefined
+  const picked = option as RecipeOption | typeof EMPTY_OPTION | undefined
 
   if (!picked || !props.meal || saving.value) {
     return
@@ -115,7 +136,7 @@ const handleSelect = (option: unknown) => {
 
   router.patch(
     route('meal-plans.meals.update', { meal_plan: props.mealPlanId, meal: props.meal.id }),
-    { recipe_id: picked.id },
+    { recipe_id: 'empty' in picked ? null : picked.id },
     {
       preserveScroll: true,
       only: ['mealPlan'],

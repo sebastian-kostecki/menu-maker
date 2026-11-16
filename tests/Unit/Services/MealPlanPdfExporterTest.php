@@ -105,22 +105,49 @@ it('handles recipes without ingredients and soft-deleted recipes', function (): 
         ->and($meals[1]->recipeDeleted)->toBeTrue();
 });
 
-it('skips meals without a recipe and omits days left empty', function (): void {
+function addEmptyMeal(MealPlan $plan, string $date, string $category): void
+{
+    Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => null,
+        'meal_date' => $date,
+        'meal_category' => $category,
+    ]);
+}
+
+it('keeps a meal without a recipe as an empty row and adds no recipe page', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);
     $kept = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Zostaje']);
-    $lost = Recipe::factory()->supper()->for($user)->create(['name' => 'Znika']);
     addMeal($plan, $kept, '2026-11-16');
-    addMeal($plan, $lost, '2026-11-16');
-    addMeal($plan, $lost, '2026-11-17');
+    addEmptyMeal($plan, '2026-11-16', 'supper');
 
-    $plan->load('meals.recipe');
-    $plan->meals->where('recipe_id', $lost->id)->each(fn (Meal $meal) => $meal->setRelation('recipe', null));
+    $document = app(MealPlanPdfExporter::class)->document($plan, true);
+    $meals = $document->days[0]->meals;
 
-    $days = app(MealPlanPdfExporter::class)->document($plan)->days;
+    expect($document->days)->toHaveCount(1)
+        ->and($meals)->toHaveCount(2)
+        ->and($meals[0]->empty)->toBeFalse()
+        ->and($meals[1]->empty)->toBeTrue()
+        ->and($meals[1]->recipeName)->toBe('Bez posiłku')
+        ->and($meals[1]->recipeDeleted)->toBeFalse()
+        ->and($meals[1]->ingredients)->toBe([])
+        ->and($document->recipes)->toHaveCount(1);
+});
 
-    expect(array_map(fn ($day) => $day->label, $days))->toBe(['Poniedziałek 16.11'])
-        ->and(array_map(fn ($meal) => $meal->recipeName, $days[0]->meals))->toBe(['Zostaje']);
+it('keeps a day whose meals are all empty', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    addEmptyMeal($plan, '2026-11-17', 'breakfast');
+    addEmptyMeal($plan, '2026-11-17', 'supper');
+    addEmptyMeal($plan, '2026-11-17', 'dinner');
+
+    $days = app(MealPlanPdfExporter::class)->document($plan, true)->days;
+
+    expect($days)->toHaveCount(1)
+        ->and($days[0]->label)->toBe('Wtorek 17.11')
+        ->and($days[0]->meals)->toHaveCount(3)
+        ->and(array_map(fn ($meal) => $meal->empty, $days[0]->meals))->toBe([true, true, true]);
 });
 
 it('lists the scaled snapshot, not the current recipe amounts, and skips zero quantities', function (): void {

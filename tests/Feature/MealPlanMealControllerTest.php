@@ -122,6 +122,7 @@ it('owner empties a draft meal with recipe_id null', function (): void {
     );
 
     $response->assertJsonMissingPath('data.meals.0.recipe.id');
+    $response->assertJsonMissingPath('data.meals.0.recipe');
     $response->assertOk();
     expect($meal->fresh()->recipe_id)->toBeNull()
         ->and($plan->meals()->count())->toBe(1);

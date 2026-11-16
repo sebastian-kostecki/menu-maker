@@ -72,7 +72,20 @@
                   </CollapsibleContent>
                 </Collapsible>
               </div>
-              <span v-else class="text-muted-foreground">—</span>
+              <div v-else class="border-l-4 pl-3" :class="categoryBarClass(category)">
+                <div class="text-muted-foreground">Bez posiłku</div>
+                <Button
+                  v-if="editable && day.meals[category]"
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  class="mt-2"
+                  :aria-label="`Wybierz przepis: ${day.weekday} – ${mealCategoryLabel(category)}`"
+                  @click="emit('swap', day.meals[category])"
+                >
+                  Wybierz
+                </Button>
+              </div>
             </td>
           </tr>
         </template>

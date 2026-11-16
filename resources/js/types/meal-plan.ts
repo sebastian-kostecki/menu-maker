@@ -70,4 +70,10 @@ export interface RecipeOption {
   calories: string | null
 }
 
+export interface ShortCategory {
+  category: 'breakfast' | 'supper' | 'dinner'
+  label: string
+  recipes: number
+}
+
 export type RecipeOptions = Record<'breakfast' | 'supper' | 'dinner', RecipeOption[]>

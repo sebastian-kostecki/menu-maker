@@ -532,10 +532,10 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [x] 1.1 Migration applies and rolls back cleanly
-- [x] 1.2 Pest suite passes
-- [x] 1.3 Larastan passes with no new baseline entries
-- [x] 1.4 Pint passes
+- [x] 1.1 Migration applies and rolls back cleanly — 48e0e58
+- [x] 1.2 Pest suite passes — 48e0e58
+- [x] 1.3 Larastan passes with no new baseline entries — 48e0e58
+- [x] 1.4 Pint passes — 48e0e58
 
 #### Manual
 
@@ -545,10 +545,10 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build
-- [ ] 2.2 Token lint passes
-- [ ] 2.3 Pest suite passes
-- [ ] 2.4 Larastan passes with no new baseline entries
+- [x] 2.1 Client and SSR bundles build
+- [x] 2.2 Token lint passes
+- [x] 2.3 Pest suite passes
+- [x] 2.4 Larastan passes with no new baseline entries
 
 #### Manual
 

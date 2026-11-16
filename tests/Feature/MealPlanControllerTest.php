@@ -64,6 +64,16 @@ it('guest cannot access meal plans', function (): void {
     $response->assertRedirect(route('login'));
 });
 
+it('meals_count counts only meals with a recipe', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $mealPlan = mealPlanWithRecipes($this->user, 'draft', $recipe, $recipe, $recipe);
+    $mealPlan->meals()->limit(1)->update(['recipe_id' => null]);
+
+    $this->actingAs($this->user)->getJson(route('meal-plans.index'))
+        ->assertOk()
+        ->assertJsonPath('data.0.meals_count', 2);
+});
+
 it('index can filter by status', function (): void {
     MealPlan::factory()->pending()->for($this->user)->create();
     MealPlan::factory()->done()->count(2)->for($this->user)->create();
@@ -160,6 +170,21 @@ it('store creates a draft with 21 drawn meals and queues nothing', function (): 
     Queue::assertNothingPushed();
 });
 
+it('store with 6 kolacje creates a draft with one empty kolacja', function (): void {
+    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
+    Recipe::factory()->count(7)->supper()->for($this->user)->create();
+    Recipe::factory()->count(6)->dinner()->for($this->user)->create();
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
+        'start_date' => now()->addDays(7)->format('Y-m-d'),
+    ])->assertStatus(201);
+
+    $mealPlan = MealPlan::where('user_id', $this->user->id)->firstOrFail();
+    expect($mealPlan->meals()->count())->toBe(21)
+        ->and($mealPlan->meals()->whereNull('recipe_id')->count())->toBe(1)
+        ->and($mealPlan->meals()->whereNull('recipe_id')->value('meal_category'))->toBe('dinner');
+});
+
 it('store is not limited to 5 per hour and leaves the approval limiter untouched', function (): void {
     seedFullWeekOfRecipes($this->user);
     RateLimiter::clear('generate-meal-plan:'.$this->user->id);
@@ -191,12 +216,12 @@ it('store and redraw share a 30 per minute throttle that leaves client error rep
     ])->assertNoContent();
 });
 
-it('store turns a run-time shortfall into a recipes error and creates no plan', function (): void {
+it('store turns a run-time loss of all recipes into a recipes error and creates no plan', function (): void {
     seedFullWeekOfRecipes($this->user);
 
     // Recipes vanish after the request passed validation.
     $this->app->afterResolving(GenerateMealPlanRequest::class, function (): void {
-        Recipe::query()->where('user_id', $this->user->id)->byCategory('dinner')->delete();
+        Recipe::query()->where('user_id', $this->user->id)->delete();
     });
 
     $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
@@ -204,7 +229,7 @@ it('store turns a run-time shortfall into a recipes error and creates no plan', 
     ]);
 
     $response->assertStatus(422)->assertJsonValidationErrors(['recipes']);
-    expect($response->json('errors.recipes.0'))->toContain('Kolacja');
+    expect($response->json('errors.recipes.0'))->toBe(MealPlanGenerator::NO_RECIPES_MESSAGE);
     $this->assertDatabaseCount('meal_plans', 0);
     $this->assertDatabaseCount('meals', 0);
 });
@@ -237,17 +262,18 @@ it('redraw is refused for every non-draft status', function (string $status): vo
     Queue::assertNothingPushed();
 })->with(['done', 'error', 'pending', 'processing']);
 
-it('redraw keeps the meals on a shortfall', function (): void {
+it('redraw refuses a user without recipes and keeps the meals', function (): void {
     seedFullWeekOfRecipes($this->user);
     $mealPlan = MealPlan::factory()->draft()->for($this->user)->create();
     app(MealPlanGenerator::class)->generate($mealPlan);
     $before = $mealPlan->meals()->pluck('id')->sort()->values()->all();
 
-    Recipe::query()->where('user_id', $this->user->id)->byCategory('dinner')->limit(2)->get()->each->delete();
+    Recipe::query()->where('user_id', $this->user->id)->get()->each->delete();
 
     $response = $this->actingAs($this->user)->putJson(route('meal-plans.update', $mealPlan), ['regenerate' => true]);
 
     $response->assertStatus(422)->assertJsonValidationErrors(['recipes']);
+    expect($response->json('errors.recipes.0'))->toBe(MealPlanGenerator::NO_RECIPES_MESSAGE);
     expect($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($before);
 });
 
@@ -317,6 +343,37 @@ it('approve is refused for an empty draft', function (): void {
     Queue::assertNothingPushed();
 });
 
+it('approve is refused when every meal is empty', function (): void {
+    Queue::fake();
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $mealPlan = mealPlanWithRecipes($this->user, 'draft', $recipe);
+    $mealPlan->meals()->update(['recipe_id' => null]);
+
+    $response = $this->actingAs($this->user)->postJson(route('meal-plans.approve', $mealPlan));
+
+    $response->assertStatus(422)->assertJsonValidationErrors(['meals' => ApproveMealPlanRequest::EMPTY_DRAFT_MESSAGE]);
+    expect($mealPlan->fresh()->status)->toBe('draft');
+    Queue::assertNothingPushed();
+});
+
+it('approve succeeds with one filled meal and the job scales only it', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $mealPlan = mealPlanWithRecipes($this->user, 'draft', $recipe);
+    $emptyMeal = Meal::query()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => null,
+        'meal_date' => $mealPlan->start_date->copy()->addDays(3),
+        'meal_category' => 'supper',
+    ]);
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.approve', $mealPlan))->assertStatus(202);
+
+    expect($mealPlan->fresh()->status)->toBe('done')
+        ->and(MealIngredient::query()->where('meal_id', $emptyMeal->id)->count())->toBe(0)
+        ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(1);
+});
+
 it('approve is limited to 5 per hour', function (): void {
     Queue::fake();
     RateLimiter::clear('generate-meal-plan:'.$this->user->id);
@@ -360,6 +417,22 @@ it('approve that lost the race is refused', function (): void {
     $this->actingAs($this->user)->postJson(route('meal-plans.approve', $mealPlan))
         ->assertStatus(422)
         ->assertJsonValidationErrors(['status']);
+    Queue::assertNothingPushed();
+});
+
+it('approve whose last filled meal was emptied after validation is refused as an empty draft', function (): void {
+    Queue::fake();
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $mealPlan = mealPlanWithRecipes($this->user, 'draft', $recipe);
+
+    $this->app->afterResolving(ApproveMealPlanRequest::class, function () use ($mealPlan): void {
+        $mealPlan->meals()->update(['recipe_id' => null]);
+    });
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.approve', $mealPlan))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['meals' => ApproveMealPlanRequest::EMPTY_DRAFT_MESSAGE]);
+    expect($mealPlan->fresh()->status)->toBe('draft');
     Queue::assertNothingPushed();
 });
 
@@ -530,11 +603,8 @@ it('responds with JSON when expected', function (): void {
     ]);
 });
 
-it('refuses generation when a category is short', function (): void {
+it('store refuses a user without recipes and creates no plan', function (): void {
     Queue::fake();
-    Recipe::factory()->count(7)->breakfast()->for($this->user)->create();
-    Recipe::factory()->count(7)->supper()->for($this->user)->create();
-    Recipe::factory()->count(4)->dinner()->for($this->user)->create();
 
     $response = $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
         'start_date' => now()->addDays(7)->format('Y-m-d'),
@@ -542,12 +612,12 @@ it('refuses generation when a category is short', function (): void {
 
     $response->assertStatus(422);
     $response->assertJsonValidationErrors(['recipes']);
-    expect($response->json('errors.recipes.0'))->toContain('Kolacja')->toContain('Dodaj jeszcze 3');
+    expect($response->json('errors.recipes.0'))->toBe(MealPlanGenerator::NO_RECIPES_MESSAGE);
     $this->assertDatabaseCount('meal_plans', 0);
     Queue::assertNothingPushed();
 });
 
-it('does not touch the approval rate limit on a shortfall', function (): void {
+it('does not touch the approval rate limit when a user has no recipes', function (): void {
     RateLimiter::clear('generate-meal-plan:'.$this->user->id);
 
     $this->actingAs($this->user)->postJson(route('meal-plans.store'), [
@@ -849,5 +919,39 @@ it('a done plan passes no recipe options', function (): void {
         ->assertInertia(
             fn ($page) => $page->component('MealPlans/Show', false)
                 ->where('recipeOptions', null)
+        );
+});
+
+it('a draft with a gap in a short category passes shortCategories', function (): void {
+    $plan = MealPlan::factory()->draft()->for($this->user)->create();
+    $recipe = Recipe::factory()->dinner()->for($this->user)->create();
+    Meal::query()->create(['meal_plan_id' => $plan->id, 'recipe_id' => $recipe->id, 'meal_date' => $plan->start_date, 'meal_category' => 'dinner']);
+    Meal::query()->create(['meal_plan_id' => $plan->id, 'recipe_id' => null, 'meal_date' => $plan->start_date->copy()->addDay(), 'meal_category' => 'dinner']);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('shortCategories', 1)
+                ->where('shortCategories.0', ['category' => 'dinner', 'label' => 'Kolacja', 'recipes' => 1])
+        );
+});
+
+it('shortCategories omits a short category without empty meals', function (): void {
+    $plan = MealPlan::factory()->draft()->for($this->user)->create();
+    $recipe = Recipe::factory()->dinner()->for($this->user)->create();
+    Meal::query()->create(['meal_plan_id' => $plan->id, 'recipe_id' => $recipe->id, 'meal_date' => $plan->start_date, 'meal_category' => 'dinner']);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)->has('shortCategories', 0)
+        );
+});
+
+it('a done plan passes null shortCategories', function (): void {
+    $plan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)->where('shortCategories', null)
         );
 });

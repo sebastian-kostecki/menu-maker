@@ -29,7 +29,6 @@ class MealPlanPdfExporter
         $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
         $byDate = $mealPlan->meals
-            ->filter(fn (Meal $meal): bool => $meal->recipe !== null)
             ->groupBy(fn (Meal $meal): string => $meal->meal_date->format('Y-m-d'))
             ->sortKeys();
 
@@ -48,7 +47,7 @@ class MealPlanPdfExporter
                 $lines = $this->ingredientLines($meal);
                 $pdfMeals[] = $this->pdfMeal($meal, $lines);
 
-                if (! $withRecipes) {
+                if (! $withRecipes || $meal->recipe === null) {
                     continue;
                 }
 
@@ -121,6 +120,10 @@ class MealPlanPdfExporter
     {
         $recipe = $meal->recipe;
         $category = MealCategory::from($meal->meal_category);
+
+        if ($recipe === null) {
+            return new PdfMeal($category->label(), $category->value, 'Bez posiłku', false, [], true);
+        }
 
         return new PdfMeal(
             $category->label(),

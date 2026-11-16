@@ -15,5 +15,6 @@ final readonly class PdfMeal
         public string $recipeName,
         public bool $recipeDeleted,
         public array $ingredients,
+        public bool $empty = false,
     ) {}
 }

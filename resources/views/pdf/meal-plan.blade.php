@@ -73,14 +73,19 @@
                             <td class="day-continued"></td>
                         @endif
                         <td class="category meal-{{ $meal->categoryValue }}">{{ $meal->category }}</td>
-                        <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif</td>
-                        <td>
-                            @forelse ($meal->ingredients as $line)
-                                {{ $line }}<br>
-                            @empty
-                                —
-                            @endforelse
-                        </td>
+                        @if ($meal->empty)
+                            <td><span class="meta">{{ $meal->recipeName }}</span></td>
+                            <td></td>
+                        @else
+                            <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif</td>
+                            <td>
+                                @forelse ($meal->ingredients as $line)
+                                    {{ $line }}<br>
+                                @empty
+                                    —
+                                @endforelse
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

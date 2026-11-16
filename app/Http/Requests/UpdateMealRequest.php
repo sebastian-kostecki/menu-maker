@@ -36,7 +36,8 @@ class UpdateMealRequest extends FormRequest
 
         return [
             'recipe_id' => [
-                'required',
+                'present',
+                'nullable',
                 'integer',
                 Rule::exists('recipes', 'id')
                     ->where('user_id', $meal->mealPlan->user_id)

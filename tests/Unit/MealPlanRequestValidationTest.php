@@ -12,6 +12,7 @@ use App\Http\Requests\ReturnMealPlanToDraftRequest;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\MealPlanGenerator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
@@ -217,7 +218,7 @@ class MealPlanRequestValidationTest extends TestCase
         }
     }
 
-    public function test_regenerate_meal_plan_request_reports_shortfall_on_recipes(): void
+    public function test_regenerate_meal_plan_request_refuses_a_user_without_recipes(): void
     {
         $mealPlan = MealPlan::factory()->draft()->for($this->user)->create();
 
@@ -241,7 +242,7 @@ class MealPlanRequestValidationTest extends TestCase
         $request->withValidator($validator);
 
         $this->assertFalse($validator->passes());
-        $this->assertCount(3, $validator->errors()->get('recipes'));
+        $this->assertSame([MealPlanGenerator::NO_RECIPES_MESSAGE], $validator->errors()->get('recipes'));
     }
 
     public function test_approve_request_accepts_a_draft_with_meals(): void
@@ -266,6 +267,17 @@ class MealPlanRequestValidationTest extends TestCase
     public function test_approve_request_refuses_an_empty_draft(): void
     {
         $mealPlan = MealPlan::factory()->draft()->for($this->user)->create();
+
+        $validator = $this->validatorFor(new ApproveMealPlanRequest, $mealPlan);
+
+        $this->assertFalse($validator->passes());
+        $this->assertSame(ApproveMealPlanRequest::EMPTY_DRAFT_MESSAGE, $validator->errors()->first('meals'));
+    }
+
+    public function test_approve_request_refuses_a_draft_whose_meals_are_all_empty(): void
+    {
+        $mealPlan = mealPlanWithRecipes($this->user, 'draft', Recipe::factory()->for($this->user)->create());
+        $mealPlan->meals()->update(['recipe_id' => null]);
 
         $validator = $this->validatorFor(new ApproveMealPlanRequest, $mealPlan);
 

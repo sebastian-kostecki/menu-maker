@@ -78,6 +78,11 @@ class MealRequestValidationTest extends TestCase
         $this->assertTrue($this->validatorFor(['recipe_id' => $this->meal->recipe_id])->passes());
     }
 
+    public function test_accepts_a_null_recipe_id_to_empty_the_meal(): void
+    {
+        $this->assertTrue($this->validatorFor(['recipe_id' => null])->passes());
+    }
+
     public function test_requires_an_integer_recipe_id(): void
     {
         $this->assertArrayHasKey('recipe_id', $this->validatorFor([])->errors()->toArray());

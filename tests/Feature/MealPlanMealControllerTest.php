@@ -106,11 +106,49 @@ it("swap is refused for another user's recipe", function (): void {
     expect($meal->fresh()->recipe_id)->toBe($this->current->id);
 });
 
-it('swap requires a recipe id', function (): void {
+it('a missing recipe_id key is refused', function (): void {
     [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
 
     $this->actingAs($this->user)->patchJson(route('meal-plans.meals.update', [$plan, $meal]), [])
         ->assertStatus(422)->assertJsonValidationErrors(['recipe_id']);
+});
+
+it('owner empties a draft meal with recipe_id null', function (): void {
+    [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
+
+    $response = $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $meal]),
+        ['recipe_id' => null],
+    );
+
+    $response->assertJsonMissingPath('data.meals.0.recipe.id');
+    $response->assertJsonMissingPath('data.meals.0.recipe');
+    $response->assertOk();
+    expect($meal->fresh()->recipe_id)->toBeNull()
+        ->and($plan->meals()->count())->toBe(1);
+});
+
+it('owner fills an empty meal', function (): void {
+    [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
+    $meal->update(['recipe_id' => null]);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $meal]),
+        ['recipe_id' => $this->candidate->id],
+    )->assertOk()->assertJsonPath('data.meals.0.recipe.id', $this->candidate->id);
+
+    expect($meal->fresh()->recipe_id)->toBe($this->candidate->id);
+});
+
+it('emptying is refused when the plan is not a draft', function (): void {
+    [$plan, $meal] = planWithBreakfast($this->user, 'done', $this->current);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $meal]),
+        ['recipe_id' => null],
+    )->assertStatus(422)->assertJsonValidationErrors(['status' => UpdateMealRequest::NOT_DRAFT_MESSAGE]);
+
+    expect($meal->fresh()->recipe_id)->toBe($this->current->id);
 });
 
 it('swap is refused when the plan is not a draft', function (string $status): void {

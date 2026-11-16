@@ -48,14 +48,38 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(recipeCells).toHaveCount(21);
   await expect(dinnerCell.locator('a')).toHaveText(swappedName);
 
+  // Typing a recipe name and pressing Enter picks a recipe: the "Nie robimy" row is hidden while searching.
+  const breakfastCell = grid.locator('tbody tr').first().locator('td').nth(0);
+  await grid.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).first().click();
+  const searchName = (await swapDialog.getByRole('option').filter({ hasNotText: 'Nie robimy' }).first().locator('span.font-medium').textContent())!.trim();
+  await swapDialog.getByRole('combobox', { name: 'Szukaj przepisu' }).fill(searchName);
+  await expect(swapDialog.getByRole('option', { name: /Nie robimy/ })).toHaveCount(0);
+  await page.keyboard.press('Enter');
+  await expect(swapDialog).toBeHidden();
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeHidden();
+  await expect(recipeCells).toHaveCount(21);
+
+  // Empty the first Śniadanie: "Nie robimy" turns it into a meal without a recipe.
+  await grid.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).first().click();
+  await page.getByRole('dialog').getByRole('option', { name: /Nie robimy \(pusty posiłek\)/ }).click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
+  await expect(breakfastCell.getByRole('button', { name: 'Wybierz' })).toBeVisible();
+  await expect(recipeCells).toHaveCount(20);
+
+  await page.reload();
+  await expect(recipeCells).toHaveCount(20);
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
+
   const approve = async () => {
     await page.getByRole('button', { name: 'Zatwierdź' }).click();
     // The old draft grid also has 21 cells: wait for the pending state first, so the approval is proven.
     await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
   };
   await approve();
-  await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
+  await expect(recipeCells).toHaveCount(20, { timeout: 15_000 });
   await expect(dinnerCell.locator('a')).toHaveText(swappedName);
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
 
   const expectScaledGrid = async () => {
     await expect(page.getByTestId('scaling-notice')).toBeHidden();
@@ -66,19 +90,25 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   };
 
   const shoppingItems = page.getByTestId('shopping-list').getByRole('listitem');
-  const expectShoppingList = async () => {
+  const expectShoppingList = async (expected: [string, string][]) => {
     await expect(shoppingItems).toHaveCount(3);
-    const expected: [string, string][] = [
-      ['Jajka', '42 szt.'],
-      ['Mąka', '4,2 kg'],
-      ['Mleko', '2,1 l'],
-    ];
     for (const [index, [name, quantity]] of expected.entries()) {
       await expect(shoppingItems.nth(index)).toContainText(name);
       await expect(shoppingItems.nth(index)).toContainText(quantity);
     }
   };
-  await expectShoppingList();
+  // 20 meals with a recipe: each contributes 2 szt. Jajka, 200 g Mąka and 100 ml Mleko.
+  const totalsWithEmptyMeal: [string, string][] = [
+    ['Jajka', '40 szt.'],
+    ['Mąka', '4 kg'],
+    ['Mleko', '2 l'],
+  ];
+  const totalsFull: [string, string][] = [
+    ['Jajka', '42 szt.'],
+    ['Mąka', '4,2 kg'],
+    ['Mleko', '2,1 l'],
+  ];
+  await expectShoppingList(totalsWithEmptyMeal);
   await expectScaledGrid();
 
   const expectPdfDownload = async () => {
@@ -106,19 +136,27 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   };
   await expectPdfDownload();
 
-  // Back to a draft: the swapped recipe stays, the shopping list and the PDF go away.
+  // Back to a draft: the swapped recipe and the empty meal stay, the shopping list and the PDF go away.
   await page.getByRole('button', { name: 'Wróć do szkicu' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Wróć do szkicu', exact: true }).click();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
-  await expect(recipeCells).toHaveCount(21);
+  await expect(recipeCells).toHaveCount(20);
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
   await expect(dinnerCell.locator('a')).toHaveText(swappedName);
   await expect(page.getByTestId('shopping-list')).toBeHidden();
   await expect(pdfButton).toBeHidden();
 
+  // Fill the empty meal back with a recipe.
+  await breakfastCell.getByRole('button', { name: 'Wybierz' }).click();
+  const fillDialog = page.getByRole('dialog');
+  await fillDialog.getByRole('option').filter({ hasText: 'jest już' }).first().click();
+  await expect(fillDialog).toBeHidden();
+  await expect(recipeCells).toHaveCount(21);
+
   await approve();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
   await expect(dinnerCell.locator('a')).toHaveText(swappedName);
-  await expectShoppingList();
+  await expectShoppingList(totalsFull);
   await expectScaledGrid();
   await expectPdfDownload();
 });

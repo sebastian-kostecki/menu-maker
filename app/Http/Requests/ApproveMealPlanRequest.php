@@ -13,7 +13,7 @@ class ApproveMealPlanRequest extends FormRequest
 {
     public const NOT_DRAFT_MESSAGE = 'Zatwierdzić można tylko szkic jadłospisu.';
 
-    public const EMPTY_DRAFT_MESSAGE = 'Szkic jest pusty. Wylosuj przepisy ponownie.';
+    public const EMPTY_DRAFT_MESSAGE = 'Szkic nie ma żadnego posiłku z przepisem. Wybierz przepis albo wylosuj ponownie.';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -58,7 +58,7 @@ class ApproveMealPlanRequest extends FormRequest
                 return;
             }
 
-            if (! $mealPlan->meals()->exists()) {
+            if (! $mealPlan->meals()->whereNotNull('recipe_id')->exists()) {
                 $validator->errors()->add('meals', self::EMPTY_DRAFT_MESSAGE);
             }
         });

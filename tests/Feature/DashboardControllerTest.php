@@ -98,37 +98,24 @@ it('has no latest plan when the user has no plans', function (): void {
         ->assertInertia(fn ($page) => $page->where('latestMealPlan', null));
 });
 
-it('lists exactly one shortfall message per short category', function (): void {
-    Recipe::factory()->count(7)->breakfast()->create(['user_id' => $this->user->id]);
-    Recipe::factory()->count(3)->supper()->create(['user_id' => $this->user->id]);
-    Recipe::factory()->count(7)->dinner()->create(['user_id' => $this->user->id]);
+it('no longer passes a recipe shortfall', function (): void {
+    Recipe::factory()->count(2)->supper()->create(['user_id' => $this->user->id]);
 
     $this->actingAs($this->user)->get(route('dashboard'))
         ->assertInertia(
-            fn ($page) => $page->where('recipeShortfall', [
-                'Za mało przepisów w kategorii Obiad: masz 3, potrzeba 7. Dodaj jeszcze 4.',
-            ])
+            fn ($page) => $page
+                ->missing('recipeShortfall')
+                ->where('stats.recipes', 2)
         );
 });
 
-it('has an empty shortfall with seven recipes in each category', function (): void {
-    Recipe::factory()->count(7)->breakfast()->create(['user_id' => $this->user->id]);
-    Recipe::factory()->count(7)->supper()->create(['user_id' => $this->user->id]);
-    Recipe::factory()->count(7)->dinner()->create(['user_id' => $this->user->id]);
-
-    $this->actingAs($this->user)->get(route('dashboard'))
-        ->assertInertia(
-            fn ($page) => $page->where('recipeShortfall', [])->where('stats.recipes', 21)
-        );
-});
-
-it('gives a brand-new user zero stats, no plan and three shortfall messages', function (): void {
+it('gives a brand-new user zero stats and no plan', function (): void {
     $this->actingAs($this->user)->get(route('dashboard'))
         ->assertInertia(
             fn ($page) => $page
                 ->where('stats.recipes', 0)
                 ->where('stats.mealPlans', 0)
                 ->where('latestMealPlan', null)
-                ->has('recipeShortfall', 3)
+                ->missing('recipeShortfall')
         );
 });

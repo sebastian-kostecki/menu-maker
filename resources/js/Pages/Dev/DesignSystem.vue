@@ -213,11 +213,18 @@ const planRecipeNames = [
 const planMeals = planRecipeNames
   .map((name, index) => {
     const day = Math.floor(index / 3)
-
-    return {
+    const base = {
       id: index + 1,
       meal_date: `2026-06-${String(15 + day).padStart(2, '0')}`,
       meal_category: appCategories[index % 3],
+    }
+
+    if (index + 1 === 8) {
+      return { ...base, ingredients: [] }
+    }
+
+    return {
+      ...base,
       recipe: { id: index + 1, name, calories: 1200 + index * 40, servings: 4, deleted: index === 4 },
       ingredients: index === 0
         ? [
@@ -228,7 +235,6 @@ const planMeals = planRecipeNames
         : [],
     }
   })
-  .filter((meal) => meal.id !== 8)
 const planShoppingList = {
   items: [
     { ingredient_id: 1, name: 'Jajka', quantity: '42', unit: 'szt.', display: '42 szt.' },
@@ -867,12 +873,12 @@ const showToast = () => {
         <h2 id="ds-jadlospis" class="text-lg font-semibold">Jadłospis</h2>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden slot pusty, jeden usunięty przepis, jedna lista składników)</p>
+          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce)</p>
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="swapOpen = true" />
           <div>
             <Button variant="outline" @click="swapOpen = true">Otwórz okno wyboru przepisu</Button>

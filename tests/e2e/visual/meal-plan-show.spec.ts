@@ -67,7 +67,9 @@ async function openSeededDraft(page: Page) {
 
   await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
   await expect(page.getByText('29.06.2026 – 05.07.2026')).toBeVisible();
-  await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(21);
+  // One pinned empty meal (Wednesday breakfast): 20 recipe links.
+  await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(20);
+  await expect(page.getByText('Bez posiłku').first()).toBeVisible();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
   await expectFigtreeLoaded(page);
 }
@@ -98,6 +100,7 @@ test('meal plan draft swap dialog', async ({ page }) => {
   await page.getByRole('button', { name: /^Zmień przepis: .* – Obiad$/ }).first().click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('Zmień przepis', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('Nie robimy (pusty posiłek)')).toBeVisible();
   await expect(dialog.getByText('obecny')).toBeVisible();
   await expect(dialog.getByText(/jest już/).first()).toBeVisible();
 

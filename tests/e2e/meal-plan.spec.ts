@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('user generates and regenerates a weekly meal plan', async ({ page }, testInfo) => {
+test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ page }, testInfo) => {
   const email = `e2e-planner-${testInfo.project.name}@example.com`;
 
   await page.goto('/login');
@@ -22,6 +22,36 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   for (const header of ['Śniadanie', 'Obiad', 'Kolacja']) {
     await expect(grid.getByRole('columnheader', { name: header })).toBeVisible();
   }
+
+  // A fresh plan is a draft: no amounts, no shopping list, no PDF yet.
+  await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
+  await expect(page.getByTestId('shopping-list')).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Pobierz PDF' })).toBeHidden();
+
+  // Swap the first Obiad for a recipe that is already used elsewhere in the week.
+  const dinnerCell = grid.locator('tbody tr').first().locator('td').nth(1);
+  const originalName = (await dinnerCell.locator('a').textContent())!.trim();
+  await grid.getByRole('button', { name: /^Zmień przepis: .* – Obiad$/ }).first().click();
+  const swapDialog = page.getByRole('dialog');
+  const swapOption = swapDialog.getByRole('option').filter({ hasText: 'jest już' }).first();
+  const swappedName = (await swapOption.locator('span.font-medium').textContent())!.trim();
+  expect(swappedName).not.toBe(originalName);
+  await swapOption.click();
+  await expect(swapDialog).toBeHidden();
+  await expect(dinnerCell.locator('a')).toHaveText(swappedName);
+
+  await page.reload();
+  await expect(recipeCells).toHaveCount(21);
+  await expect(dinnerCell.locator('a')).toHaveText(swappedName);
+
+  const approve = async () => {
+    await page.getByRole('button', { name: 'Zatwierdź' }).click();
+    // The old draft grid also has 21 cells: wait for the pending state first, so the approval is proven.
+    await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
+  };
+  await approve();
+  await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
+  await expect(dinnerCell.locator('a')).toHaveText(swappedName);
 
   const expectScaledGrid = async () => {
     await expect(page.getByTestId('scaling-notice')).toBeHidden();
@@ -61,13 +91,18 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   };
   await expectPdfDownload();
 
-  await page.getByRole('button', { name: 'Regeneruj' }).click();
-  await page.getByRole('alertdialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
-
-  // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
-  await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
+  // Back to a draft: the swapped recipe stays, the shopping list and the PDF go away.
+  await page.getByRole('button', { name: 'Wróć do szkicu' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Wróć do szkicu', exact: true }).click();
+  await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
+  await expect(recipeCells).toHaveCount(21);
+  await expect(dinnerCell.locator('a')).toHaveText(swappedName);
+  await expect(page.getByTestId('shopping-list')).toBeHidden();
   await expect(pdfLink).toBeHidden();
+
+  await approve();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
+  await expect(dinnerCell.locator('a')).toHaveText(swappedName);
   await expectShoppingList();
   await expectScaledGrid();
   await expectPdfDownload();

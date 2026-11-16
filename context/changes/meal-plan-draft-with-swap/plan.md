@@ -697,9 +697,9 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build
-- [x] 3.2 Token lint passes
-- [x] 3.3 Pest suite still passes
+- [x] 3.1 Client and SSR bundles build — bbaf623
+- [x] 3.2 Token lint passes — bbaf623
+- [x] 3.3 Pest suite still passes — bbaf623
 
 #### Manual
 

@@ -1,10 +1,10 @@
 ---
 change_id: meal-plan-draft-with-swap
 title: Meal plan draft with per-meal recipe swap and approval before AI scaling (S-17)
-status: impl_reviewed
+status: archived
 created: 2026-11-16
 updated: 2026-11-16
-archived_at: null
+archived_at: 2026-11-16T07:55:27Z
 ---
 
 ## Notes

@@ -226,6 +226,7 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
 - Lustro obejmuje 12 tokenów: `--foreground`, `--muted`, `--muted-foreground`, `--border`, `--warning`, `--warning-foreground` oraz `--meal-breakfast`, `--meal-supper`, `--meal-dinner` wraz z ich `-foreground`. Żaden inny kolor nie jest dozwolony w szablonie, także w `style=""`.
 - Papier jest biały (`--card`), nie `--background`: ciepłe tło ekranu nie trafia do druku.
 - Kategoria w tabeli PDF: para `--meal-*` (tło i tekst) w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
+- Strony przepisów (wariant „z przepisami”) idą po liście zakupów, po jednej na przepis, każda od nowej strony; etykieta kategorii to komórka `td.category.meal-*` z parą `--meal-*`, a bloki „Składniki” i „Przygotowanie” to zwykłe bloki (nie wiersz tabeli), z etykietą 9pt bold (`<strong>`, jak „Etykieta”).
 - Początek dnia oznacza linia 2px w `--muted-foreground` (widoczna w skali szarości); pozostałe ramki to `--border`.
 - Ramka komunikatów (`.notices`) na parze `--warning` / `--warning-foreground`.
 - Font zostaje `DejaVu Sans` (polskie znaki w dompdf; tylko wagi normal i bold, więc „medium/semibold” z 4.5 to `bold`). Role z 4.5 w pt:

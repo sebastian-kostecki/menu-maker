@@ -57,11 +57,10 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 11%">Dzień</th>
-                <th style="width: 9%">Posiłek</th>
-                <th style="width: 16%">Nazwa</th>
-                <th style="width: 24%">Składniki</th>
-                <th style="width: 40%">Przygotowanie</th>
+                <th style="width: 12%">Dzień</th>
+                <th style="width: 10%">Posiłek</th>
+                <th style="width: 30%">Nazwa</th>
+                <th style="width: 48%">Składniki</th>
             </tr>
         </thead>
         @foreach ($document->days as $day)
@@ -82,7 +81,6 @@
                                 —
                             @endforelse
                         </td>
-                        <td>{!! nl2br(e($meal->instructions)) !!}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -111,5 +109,34 @@
             <p class="note">Bez składników (nie ma ich na liście): {{ implode(', ', $document->shoppingList->recipesWithoutIngredients) }}.</p>
         @endif
     </section>
+
+    @foreach ($document->recipes as $recipe)
+        <section style="page-break-before: always">
+            <h2>{{ $recipe->name }}@if ($recipe->deleted) <span class="meta">(usunięty)</span>@endif</h2>
+
+            <table style="width: 15%; margin: 0 0 10px">
+                <tr><td class="category meal-{{ $recipe->categoryValue }}">{{ $recipe->category }}</td></tr>
+            </table>
+
+            <p><strong>Składniki</strong></p>
+            @if (collect($recipe->ingredientGroups)->every(fn ($group) => count($group->lines) === 0))
+                <p>Bez składników</p>
+            @else
+                @foreach ($recipe->ingredientGroups as $group)
+                    <p>
+                        <span class="meta">{{ implode(' · ', $group->dayLabels) }}</span><br>
+                        @forelse ($group->lines as $line)
+                            {{ $line }}<br>
+                        @empty
+                            —
+                        @endforelse
+                    </p>
+                @endforeach
+            @endif
+
+            <p><strong>Przygotowanie</strong></p>
+            <p>{!! nl2br(e($recipe->instructions)) !!}</p>
+        </section>
+    @endforeach
 </body>
 </html>

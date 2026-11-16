@@ -19,11 +19,18 @@
 
       <!-- Download PDF -->
       <DropdownMenuItem
-        :disabled="!canDownloadPdf"
-        @click="handleDownloadPdf"
+        :disabled="!item.links.pdf_with_recipes"
+        @click="handleDownloadPdf(item.links.pdf_with_recipes)"
       >
-        <Download />
-        Pobierz PDF
+        <ChefHat />
+        PDF z przepisami
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        :disabled="!item.links.pdf"
+        @click="handleDownloadPdf(item.links.pdf)"
+      >
+        <FileDown />
+        PDF bez przepisów
       </DropdownMenuItem>
 
       <DropdownMenuSeparator />
@@ -76,7 +83,8 @@ import { router } from '@inertiajs/vue3'
 import {
   MoreHorizontal,
   Eye,
-  Download,
+  ChefHat,
+  FileDown,
   RefreshCw,
   Trash2
 } from 'lucide-vue-next'
@@ -103,6 +111,7 @@ interface MealPlanListItem {
   links: {
     self: string
     pdf: string | null
+    pdf_with_recipes: string | null
   }
 }
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
@@ -121,7 +130,6 @@ const regenerating = ref(false)
 const deleting = ref(false)
 
 // Action availability based on status
-const canDownloadPdf = computed(() => !!props.item.links.pdf)
 const canRegenerate = computed(() =>
   props.item.status === 'done' || props.item.status === 'error'
 )
@@ -133,10 +141,10 @@ const handleViewDetails = () => {
 }
 
 // Handle PDF download
-const handleDownloadPdf = () => {
-  if (!canDownloadPdf.value) return
+const handleDownloadPdf = (url: string | null) => {
+  if (!url) return
 
-  window.open(props.item.links.pdf as string, '_blank', 'noopener')
+  window.open(url, '_blank', 'noopener')
 }
 
 // Handle regenerate confirmation dialog

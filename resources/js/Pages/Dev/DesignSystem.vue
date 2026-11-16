@@ -23,6 +23,7 @@ import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
@@ -864,6 +865,13 @@ const showToast = () => {
         <div class="flex flex-col gap-2">
           <p class="text-xs text-muted-foreground">Siatka w trakcie generowania</p>
           <MealPlanGrid :start-date="planStartDate" skeleton />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Pobieranie PDF</p>
+          <div>
+            <PdfDownloadMenu :links="{ pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' }" />
+          </div>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">

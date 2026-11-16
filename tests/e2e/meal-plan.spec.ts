@@ -47,17 +47,29 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   await expectShoppingList();
   await expectScaledGrid();
 
-  const pdfLink = page.getByRole('link', { name: 'Pobierz PDF' });
+  const pdfButton = page.getByRole('button', { name: 'Pobierz PDF' });
   const expectPdfDownload = async () => {
-    await expect(pdfLink).toBeVisible();
-    await expect(pdfLink).toHaveAttribute('target', '_blank');
-    const response = await page.request.get((await pdfLink.getAttribute('href'))!);
-    expect(response.status()).toBe(200);
-    expect(response.headers()['content-type']).toContain('application/pdf');
-    const disposition = response.headers()['content-disposition'];
-    expect(disposition).toMatch(/^inline/);
-    expect(disposition).toContain('jadlospis-');
-    expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
+    await expect(pdfButton).toBeVisible();
+    await pdfButton.click();
+    const withRecipesHref = await page.getByRole('menuitem', { name: 'Z przepisami', exact: true }).getAttribute('href');
+    const withoutRecipesHref = await page.getByRole('menuitem', { name: 'Bez przepisów', exact: true }).getAttribute('href');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toBeHidden();
+
+    for (const [href, withRecipes] of [[withRecipesHref, true], [withoutRecipesHref, false]] as const) {
+      const response = await page.request.get(href!);
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toContain('application/pdf');
+      const disposition = response.headers()['content-disposition'];
+      expect(disposition).toMatch(/^inline/);
+      expect(disposition).toContain('jadlospis-');
+      if (withRecipes) {
+        expect(disposition).toContain('-z-przepisami');
+      } else {
+        expect(disposition).not.toContain('-z-przepisami');
+      }
+      expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
+    }
   };
   await expectPdfDownload();
 
@@ -66,7 +78,7 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
 
   // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
   await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
-  await expect(pdfLink).toBeHidden();
+  await expect(pdfButton).toBeHidden();
   await expect(recipeCells).toHaveCount(21, { timeout: 15_000 });
   await expectShoppingList();
   await expectScaledGrid();

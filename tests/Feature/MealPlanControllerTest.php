@@ -557,23 +557,61 @@ it('owner gets the rendered PDF inline and uncached', function (): void {
         ->and(strpos($text, 'Łosoś pieczony'))->toBeLessThan(strpos($text, 'Lista zakupów'));
 });
 
-it("user cannot download another user's PDF whatever its status", function (string $status): void {
-    $mealPlan = MealPlan::factory()->{$status}()->for($this->otherUser)->create();
+it('PDF with recipes names the file after the variant and includes the method', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->dinner()->create([
+        'name' => 'Łosoś pieczony',
+        'instructions' => 'Piecz rybę dwadzieścia minut.',
+    ]);
+    attachIngredient($recipe, 'Mąka', '600', 'g');
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $recipe);
 
-    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertForbidden();
-})->with(['done', 'pending']);
+    $response = $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, 'recipes' => 1]));
 
-it('PDF is not available until the plan is done', function (string $status): void {
-    $mealPlan = MealPlan::factory()->{$status}()->for($this->user)->create();
+    $response->assertOk();
+    $response->assertHeader(
+        'Content-Disposition',
+        'inline; filename="jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'-z-przepisami.pdf"'
+    );
+    expect(pdfText($response->getContent()))->toContain('Piecz rybę dwadzieścia minut.');
 
-    $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan))->assertNotFound();
-})->with(['pending', 'processing', 'error']);
+    $plain = $this->actingAs($this->user)->get(route('meal-plans.pdf', $mealPlan));
+    expect(pdfText($plain->getContent()))->not->toContain('Piecz rybę dwadzieścia minut.');
+});
 
-it('guest is redirected to login from the PDF route', function (): void {
+it('PDF rejects an invalid recipes flag', function (): void {
     $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
-    $this->get(route('meal-plans.pdf', $mealPlan))->assertRedirect(route('login'));
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, 'recipes' => 'abc']))
+        ->assertInvalid(['recipes']);
 });
+
+it("user cannot download another user's PDF whatever its status", function (string $status, array $query): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->otherUser)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, ...$query]))->assertForbidden();
+})->with(['done', 'pending'])->with([
+    'without recipes' => [[]],
+    'with recipes' => [['recipes' => 1]],
+    'invalid flag' => [['recipes' => 'abc']],
+]);
+
+it('PDF is not available until the plan is done', function (string $status, array $query): void {
+    $mealPlan = MealPlan::factory()->{$status}()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, ...$query]))->assertNotFound();
+})->with(['pending', 'processing', 'error'])->with([
+    'without recipes' => [[]],
+    'with recipes' => [['recipes' => 1]],
+]);
+
+it('guest is redirected to login from the PDF route', function (array $query): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $this->get(route('meal-plans.pdf', [$mealPlan, ...$query]))->assertRedirect(route('login'));
+})->with([
+    'without recipes' => [[]],
+    'with recipes' => [['recipes' => 1]],
+]);
 
 it('PDF reflects the current meals after regeneration', function (): void {
     $old = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Stary Żurek']);
@@ -593,16 +631,18 @@ it('PDF reflects the current meals after regeneration', function (): void {
     expect($text)->toContain('Nowy Bigos')->not->toContain('Stary Żurek');
 });
 
-it('exposes the PDF link only for a done plan and no stored path', function (): void {
+it('exposes the PDF links only for a done plan and no stored path', function (): void {
     $done = MealPlan::factory()->done()->for($this->user)->create();
     $pending = MealPlan::factory()->pending()->for($this->user)->create();
 
     $this->actingAs($this->user)->get(route('meal-plans.show', $done))->assertInertia(
         fn ($page) => $page->where('mealPlan.links.pdf', route('meal-plans.pdf', $done))
+            ->where('mealPlan.links.pdf_with_recipes', route('meal-plans.pdf', [$done, 'recipes' => 1]))
             ->missing('mealPlan.pdf_path')
     );
     $this->actingAs($this->user)->get(route('meal-plans.show', $pending))->assertInertia(
         fn ($page) => $page->where('mealPlan.links.pdf', null)
+            ->where('mealPlan.links.pdf_with_recipes', null)
     );
 });
 
@@ -612,10 +652,14 @@ it('exposes the PDF link on the list only for done plans', function (): void {
 
     $this->actingAs($this->user)->get(route('meal-plans.index'))->assertInertia(
         function ($page) use ($done, $pending): void {
-            $links = collect($page->toArray()['props']['mealPlans']['data'])->pluck('links.pdf', 'id');
+            $plans = collect($page->toArray()['props']['mealPlans']['data']);
+            $links = $plans->pluck('links.pdf', 'id');
+            $linksWithRecipes = $plans->pluck('links.pdf_with_recipes', 'id');
 
             expect($links[$done->id])->toBe(route('meal-plans.pdf', $done))
-                ->and($links[$pending->id])->toBeNull();
+                ->and($links[$pending->id])->toBeNull()
+                ->and($linksWithRecipes[$done->id])->toBe(route('meal-plans.pdf', [$done, 'recipes' => 1]))
+                ->and($linksWithRecipes[$pending->id])->toBeNull();
         }
     );
 });

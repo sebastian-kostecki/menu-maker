@@ -8,9 +8,10 @@ import { computed } from 'vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import StatCard from '@/Components/Dashboard/StatCard.vue'
+import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import { formatDateRange } from '@/lib/format'
-import { Plus, ChefHat, CalendarDays, FileDown, TriangleAlert } from 'lucide-vue-next'
+import { Plus, ChefHat, CalendarDays, TriangleAlert } from 'lucide-vue-next'
 
 const props = defineProps({
   stats: { type: Object, required: true },
@@ -71,12 +72,10 @@ const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealP
                   <Button variant="outline" as-child>
                     <Link :href="latestMealPlan.links.self">Otwórz jadłospis</Link>
                   </Button>
-                  <Button v-if="latestMealPlan.links.pdf" variant="outline" as-child>
-                    <a :href="latestMealPlan.links.pdf" target="_blank" rel="noopener">
-                      <FileDown class="size-4" aria-hidden="true" />
-                      Pobierz PDF
-                    </a>
-                  </Button>
+                  <PdfDownloadMenu
+                    v-if="latestMealPlan.links.pdf && latestMealPlan.links.pdf_with_recipes"
+                    :links="{ pdf: latestMealPlan.links.pdf, pdf_with_recipes: latestMealPlan.links.pdf_with_recipes }"
+                  />
                 </div>
               </template>
               <p v-else class="text-sm text-muted-foreground">

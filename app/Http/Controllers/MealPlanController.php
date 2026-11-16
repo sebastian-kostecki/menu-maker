@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DownloadMealPlanPdfRequest;
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
 use App\Http\Resources\MealPlanCollection;
@@ -188,20 +189,20 @@ class MealPlanController extends Controller
     }
 
     /**
-     * Render the PDF (plan table, then shopping list) of a finished meal plan and show it inline.
+     * Render the PDF (plan table, shopping list, optionally recipe pages) of a finished meal plan and show it inline.
+     * The Form Request authorizes first, so a non-owner cannot tell from a 404 whether the plan is ready.
      */
-    public function downloadPdf(MealPlan $mealPlan, MealPlanPdfExporter $exporter): Response
+    public function downloadPdf(DownloadMealPlanPdfRequest $request, MealPlan $mealPlan, MealPlanPdfExporter $exporter): Response
     {
-        // Authorize first, so a non-owner cannot tell from a 404 whether the plan is ready.
-        $this->authorize('downloadPdf', $mealPlan);
+        $withRecipes = $request->boolean('recipes');
 
         if ($mealPlan->status !== 'done') {
             abort(404, 'PDF jest dostępny tylko dla gotowego jadłospisu.');
         }
 
-        return response($exporter->render($mealPlan), 200, [
+        return response($exporter->render($mealPlan, $withRecipes), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$exporter->filename($mealPlan).'"',
+            'Content-Disposition' => 'inline; filename="'.$exporter->filename($mealPlan, $withRecipes).'"',
             'Cache-Control' => 'no-store, private',
         ]);
     }

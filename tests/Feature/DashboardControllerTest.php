@@ -75,6 +75,7 @@ it('exposes the newest done plan by start date, ignoring other statuses and othe
                 ->where('latestMealPlan.end_date', '2026-06-21')
                 ->where('latestMealPlan.status', 'done')
                 ->where('latestMealPlan.links.pdf', route('meal-plans.pdf', $newer->id))
+                ->where('latestMealPlan.links.pdf_with_recipes', route('meal-plans.pdf', [$newer->id, 'recipes' => 1]))
         );
 });
 

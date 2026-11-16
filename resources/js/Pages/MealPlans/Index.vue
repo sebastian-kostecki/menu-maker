@@ -61,6 +61,7 @@ interface MealPlanListItem {
   links: {
     self: string
     pdf: string | null
+    pdf_with_recipes: string | null
   }
 }
 

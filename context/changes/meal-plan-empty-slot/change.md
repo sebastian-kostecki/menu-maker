@@ -1,7 +1,7 @@
 ---
 change_id: meal-plan-empty-slot
 title: Empty meals in the meal plan draft and no 7-recipes-per-category requirement (S-18)
-status: planned
+status: implementing
 created: 2026-11-16
 updated: 2026-11-16
 ---

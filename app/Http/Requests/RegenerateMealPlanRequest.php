@@ -56,11 +56,8 @@ class RegenerateMealPlanRequest extends FormRequest
                 return;
             }
 
-            $generator = app(MealPlanGenerator::class);
-            $missing = $generator->missingRecipesPerCategory($this->user()->id);
-
-            foreach ($generator->shortfallMessages($missing) as $message) {
-                $validator->errors()->add('recipes', $message);
+            if (! app(MealPlanGenerator::class)->hasAnyRecipe($this->user()->id)) {
+                $validator->errors()->add('recipes', MealPlanGenerator::NO_RECIPES_MESSAGE);
             }
         });
     }

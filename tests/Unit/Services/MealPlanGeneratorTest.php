@@ -94,28 +94,39 @@ it('replaces existing meals on regeneration', function (): void {
         ->and(Meal::query()->whereIn('id', $oldIds)->count())->toBe(0);
 });
 
-it('reports the shortfall per category with Polish messages', function (): void {
+it('a category with 5 recipes fills 5 distinct days and leaves 2 empty', function (): void {
     $user = User::factory()->create();
+    Recipe::factory()->count(7)->breakfast()->for($user)->create();
     Recipe::factory()->count(7)->supper()->for($user)->create();
-    Recipe::factory()->count(4)->dinner()->for($user)->create();
-    $generator = app(MealPlanGenerator::class);
+    Recipe::factory()->count(5)->dinner()->for($user)->create();
+    $mealPlan = planFor($user);
 
-    $missing = $generator->missingRecipesPerCategory($user->id);
-    $messages = $generator->shortfallMessages($missing);
+    app(MealPlanGenerator::class)->generate($mealPlan);
 
-    expect($missing)->toBe(['breakfast' => 7, 'dinner' => 3])
-        ->and($messages)->toHaveCount(2)
-        ->and($messages[1])->toBe('Za mało przepisów w kategorii Kolacja: masz 4, potrzeba 7. Dodaj jeszcze 3.');
+    $dinners = $mealPlan->meals()->where('meal_category', 'dinner')->get();
+    $expectedDates = collect(range(0, 6))->map(fn (int $day) => $mealPlan->start_date->copy()->addDays($day)->toDateString())->all();
+
+    expect($mealPlan->meals()->count())->toBe(21)
+        ->and($dinners)->toHaveCount(7)
+        ->and($dinners->whereNotNull('recipe_id')->pluck('recipe_id')->unique())->toHaveCount(5)
+        ->and($dinners->whereNull('recipe_id'))->toHaveCount(2)
+        ->and($dinners->map(fn (Meal $meal) => $meal->meal_date->toDateString())->sort()->values()->all())->toBe($expectedDates);
 });
 
-it('returns an empty shortfall when the user has enough recipes', function (): void {
+it('a category without recipes gets 7 empty meals', function (): void {
     $user = User::factory()->create();
-    seedFullWeekOfRecipes($user);
+    Recipe::factory()->count(7)->breakfast()->for($user)->create();
+    $mealPlan = planFor($user);
 
-    expect(app(MealPlanGenerator::class)->missingRecipesPerCategory($user->id))->toBe([]);
+    app(MealPlanGenerator::class)->generate($mealPlan);
+
+    expect($mealPlan->meals()->count())->toBe(21)
+        ->and($mealPlan->meals()->where('meal_category', 'breakfast')->whereNotNull('recipe_id')->count())->toBe(7)
+        ->and($mealPlan->meals()->where('meal_category', 'supper')->whereNull('recipe_id')->count())->toBe(7)
+        ->and($mealPlan->meals()->where('meal_category', 'dinner')->whereNull('recipe_id')->count())->toBe(7);
 });
 
-it('throws on shortfall and leaves existing meals untouched', function (): void {
+it('generate refuses a user without recipes and keeps the old meals', function (): void {
     $user = User::factory()->create();
     seedFullWeekOfRecipes($user);
     $mealPlan = planFor($user);
@@ -123,36 +134,51 @@ it('throws on shortfall and leaves existing meals untouched', function (): void 
     $generator->generate($mealPlan);
     $before = $mealPlan->meals()->pluck('id')->sort()->values()->all();
 
-    Recipe::forUser($user->id)->byCategory('dinner')->first()->delete();
-
-    try {
-        $generator->generate($mealPlan);
-        $this->fail('Expected InsufficientRecipesException');
-    } catch (InsufficientRecipesException $e) {
-        expect($e->missing)->toBe(['dinner' => 1])
-            ->and($e->getMessage())->toContain('Kolacja');
-    }
-
-    expect($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($before);
-});
-
-it('rolls back and throws when a recipe is deleted between the check and the draw', function (): void {
-    $user = User::factory()->create();
-    seedFullWeekOfRecipes($user);
-    $mealPlan = planFor($user);
-    $generator = app(MealPlanGenerator::class);
-    $generator->generate($mealPlan);
-    $before = $mealPlan->meals()->pluck('id')->sort()->values()->all();
-
-    $deleted = false;
-    Event::listen(TransactionBeginning::class, function () use ($user, &$deleted): void {
-        if (! $deleted) {
-            $deleted = true;
-            Recipe::forUser($user->id)->byCategory('supper')->first()->delete();
-        }
-    });
+    Recipe::forUser($user->id)->get()->each->delete();
 
     expect(fn () => $generator->generate($mealPlan))
-        ->toThrow(InsufficientRecipesException::class, 'Obiad')
+        ->toThrow(InsufficientRecipesException::class, MealPlanGenerator::NO_RECIPES_MESSAGE)
+        ->and($generator->hasAnyRecipe($user->id))->toBeFalse()
         ->and($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($before);
+});
+
+it('recipes deleted after the check leave gaps, all deleted rolls back', function (): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    $mealPlan = planFor($user);
+    $generator = app(MealPlanGenerator::class);
+    $generator->generate($mealPlan);
+
+    $deleteOnce = function (callable $delete): void {
+        $done = false;
+        Event::listen(TransactionBeginning::class, function () use ($delete, &$done): void {
+            if (! $done) {
+                $done = true;
+                $delete();
+            }
+        });
+    };
+
+    $deleteOnce(fn () => Recipe::forUser($user->id)->byCategory('supper')->first()->delete());
+    $generator->generate($mealPlan);
+
+    expect($mealPlan->meals()->count())->toBe(21)
+        ->and($mealPlan->meals()->where('meal_category', 'supper')->whereNull('recipe_id')->count())->toBe(1);
+
+    $afterGap = $mealPlan->meals()->pluck('id')->sort()->values()->all();
+
+    $deleteOnce(fn () => Recipe::forUser($user->id)->get()->each->delete());
+
+    expect(fn () => $generator->generate($mealPlan))->toThrow(InsufficientRecipesException::class)
+        ->and($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($afterGap);
+});
+
+it('recipe counts per category include every category', function (): void {
+    $user = User::factory()->create();
+    Recipe::factory()->count(3)->supper()->for($user)->create();
+    Recipe::factory()->count(2)->supper()->for($user)->create()->each->delete();
+    Recipe::factory()->count(4)->breakfast()->for(User::factory()->create())->create();
+
+    expect(app(MealPlanGenerator::class)->recipeCountsPerCategory($user->id))
+        ->toBe(['breakfast' => 0, 'supper' => 3, 'dinner' => 0]);
 });

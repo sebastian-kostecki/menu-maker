@@ -75,7 +75,8 @@ An empty meal is a NULL `recipe_id` on a regular row. The draw always writes 21 
 
 ## Open Risks & Assumptions
 
-- The E2E totals assume the seeder's identical pinned ingredients, so one empty meal gives 40 szt. / 4 kg / 2 l. Confirm the whole-number formatting in Phase 3.
+- The E2E totals assume the seeder's identical pinned ingredients, so one empty meal gives 40 szt. / 4 kg / 2 l (`QuantityFormatter` prints whole numbers without a fraction).
+- The reka-ui Combobox cannot keep one item visible during a search, so the swap dialog filters its recipes itself, with `ignore-filter`.
 - A migration rollback deletes empty meals. This is acceptable because the grid and the PDF tolerate missing rows.
 - After Phase 1 the UI still renders an empty cell as "—" without "Wybierz", until Phase 2. Merge only after Phase 3.
 

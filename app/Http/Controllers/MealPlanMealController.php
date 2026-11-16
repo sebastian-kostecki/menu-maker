@@ -20,7 +20,7 @@ class MealPlanMealController extends Controller
     }
 
     /**
-     * Swap the recipe of one meal of a draft.
+     * Swap the recipe of one meal of a draft, or empty it with a null recipe_id.
      */
     public function update(UpdateMealRequest $request, MealPlan $mealPlan, Meal $meal): JsonResponse|RedirectResponse
     {
@@ -30,7 +30,7 @@ class MealPlanMealController extends Controller
             ->whereKey($meal->getKey())
             ->whereHas('mealPlan', fn ($query) => $query->where('status', 'draft'))
             ->update([
-                'recipe_id' => $request->integer('recipe_id'),
+                'recipe_id' => $request->validated('recipe_id'),
                 'updated_at' => now(),
             ]);
 

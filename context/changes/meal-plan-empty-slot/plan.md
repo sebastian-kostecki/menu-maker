@@ -66,9 +66,10 @@ Constraints found:
   - `ScalingNotices` and `recipes_without_ingredients` key on recipes, so empty meals never appear there.
 - `MealPlanResource` already leaves out `recipe` for a null recipe (`MealPlanResource.php:55`). The meal JSON needs no new field: "empty" means `recipe` is absent.
 - `recipeOptions` already returns every category key, even when its list is empty (`MealPlanController.php:126-148`). The swap dialog for a category with zero recipes therefore lists only "Nie robimy", plus "Brak przepisów".
+- **The reka-ui 2.11 Combobox filters all items or none.** An item cannot opt out of the search filter (`node_modules/reka-ui/dist/Combobox/ComboboxItem.js:42-46`). With `ignore-filter`, `ComboboxEmpty` renders only when there are no items at all (`ComboboxEmpty.js:21`), so it would never show next to an always-present "Nie robimy". `handleSelect` also returns early on a falsy value (`RecipeSwapDialog.vue:102`). The dialog therefore filters its recipe list itself (Phase 2 §2).
 - The kitchen-sink grid fixture already drops one slot (meal id 8, `DesignSystem.vue:203-248`) to demo the `—` state. It becomes a meal without a recipe.
 - `tests/Unit/Services/MealPlanPdfExporterTest.php:108-123` pins today's filtering of null recipes and must be rewritten, not deleted.
-- The E2E seeder pins identical ingredients (100 g Mąka, 50 ml Mleko, 1 Jajka) and a ×2 scale on every recipe (`E2eMealPlanSeeder.php:325-386`). One empty meal therefore changes the totals from 42 szt. / 4,2 kg / 2,1 l to 40 szt. / 4 kg / 2 l. Check the exact rendering of whole numbers (for example "4 kg") in `ShoppingListBuilder`/`QuantityFormatter`.
+- The E2E seeder pins identical ingredients (100 g Mąka, 50 ml Mleko, 1 Jajka) and a ×2 scale on every recipe (`E2eMealPlanSeeder.php:325-386`). One empty meal therefore changes the totals from 42 szt. / 4,2 kg / 2,1 l to 40 szt. / 4 kg / 2 l. `QuantityFormatter` uses `MIN_FRACTION_DIGITS` 0 (`app/Services/ShoppingList/QuantityFormatter.php:18`), so whole numbers render without a fraction: "40 szt.", "4 kg", "2 l".
 
 ## What We're NOT Doing
 
@@ -166,7 +167,7 @@ Make `recipe_id` nullable, draw with random-day gaps, replace the per-category s
 
 #### 5. Approve needs a filled meal
 
-**File**: `app/Http/Requests/ApproveMealPlanRequest.php`
+**Files**: `app/Http/Requests/ApproveMealPlanRequest.php`, `app/Http/Controllers/MealPlanController.php` (`approve`)
 
 **Intent**: Do not spend an approval or an AI call on a draft where every meal is empty.
 
@@ -174,6 +175,7 @@ Make `recipe_id` nullable, draw with random-day gaps, replace the per-category s
 - The `meals` check becomes "no meal with a non-null `recipe_id`". This also covers no rows at all.
 - `EMPTY_DRAFT_MESSAGE = 'Szkic nie ma żadnego posiłku z przepisem. Wybierz przepis albo wylosuj ponownie.'`.
 - The rate-limit hit still happens first (S-17 F2).
+- **The claim re-checks it.** `MealPlanController::approve`'s conditional update (`:241-248`) also gets `->whereHas('meals', fn ($query) => $query->whereNotNull('recipe_id'))`, so emptying the last meal from another tab between the validation and the claim cannot approve an all-empty draft. When the claim updates nothing, answer `meals` → `EMPTY_DRAFT_MESSAGE` if the plan is still a `draft`, otherwise `status` → `NOT_DRAFT_MESSAGE` as today.
 
 #### 6. Empty or fill a meal
 
@@ -312,8 +314,12 @@ Empty cells read "Bez posiłku" and can be filled in the draft. The swap dialog 
 **Intent**: The same dialog empties a meal or fills it.
 
 **Contract**:
-- A first list item "Nie robimy (pusty posiłek)" is always shown above the recipes and is not filtered by the search. It carries "obecny" when the meal has no recipe.
-- Selecting it sends `{ recipe_id: null }` through the existing `router.patch`. Selecting a recipe works as today.
+- **Filter in the component** (see Key Discoveries, reka-ui):
+  - set `ignore-filter` and `v-model:search-term` on the `Combobox`;
+  - filter `items` in a computed property by recipe name, case-insensitive with `toLocaleLowerCase('pl')`;
+  - replace `ComboboxEmpty` with a plain `<p v-if="!filteredItems.length">Brak przepisów</p>` (same classes), shown under the "Nie robimy" item.
+- A first `ComboboxItem` "Nie robimy (pusty posiłek)" is always rendered above the filtered recipes, so the search never hides it. It carries "obecny" when the meal has no recipe.
+- Its `value` is a non-null marker object (for example `const EMPTY_OPTION = { empty: true }`), because `handleSelect` returns early on a falsy value. `handleSelect` maps the marker to `{ recipe_id: null }` and a recipe to `{ recipe_id: picked.id }`, both through the existing `router.patch`.
 - For an empty meal, the dialog title reads "Wybierz przepis" instead of the swap title.
 - The `demo` mode still only closes the dialog.
 
@@ -408,7 +414,7 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 **Contract**:
 1. **Empty a meal.** After the existing swap step, open "Zmień" on the first "Śniadanie" cell and pick "Nie robimy (pusty posiłek)". Expect "Bez posiłku", a "Wybierz" button and 20 `tbody td a`.
 2. **Reload.** Expect the empty meal to persist.
-3. **Approve.** Expect done with the shopping list for 20 meals: Jajka 40 szt., Mąka 4 kg, Mleko 2 l (confirm the whole-number rendering). Expect "Bez posiłku" still in the grid. The PDF checks stay, with the recipe-page expectation adjusted if it counts pages.
+3. **Approve.** Expect done with the shopping list for 20 meals: exactly "40 szt.", "4 kg" and "2 l" for Jajka, Mąka and Mleko (see Key Discoveries, `QuantityFormatter`). Expect "Bez posiłku" still in the grid. The PDF checks stay, with the recipe-page expectation adjusted if it counts pages.
 4. **Back to draft.** Expect the empty meal kept. Then "Wybierz" on it, pick a recipe, and expect 21 `tbody td a`.
 5. **Approve again.** Expect done with today's totals: 42 szt. / 4,2 kg / 2,1 l.
 
@@ -526,10 +532,10 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [ ] 1.1 Migration applies and rolls back cleanly
-- [ ] 1.2 Pest suite passes
-- [ ] 1.3 Larastan passes with no new baseline entries
-- [ ] 1.4 Pint passes
+- [x] 1.1 Migration applies and rolls back cleanly
+- [x] 1.2 Pest suite passes
+- [x] 1.3 Larastan passes with no new baseline entries
+- [x] 1.4 Pint passes
 
 #### Manual
 

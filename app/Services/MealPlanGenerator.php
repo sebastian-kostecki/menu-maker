@@ -12,95 +12,80 @@ use Illuminate\Support\Facades\DB;
 
 class MealPlanGenerator
 {
+    /**
+     * Meal slots per category in a 7-day plan.
+     */
     public const MEALS_PER_CATEGORY = 7;
 
+    public const NO_RECIPES_MESSAGE = 'Nie masz jeszcze żadnego przepisu. Dodaj przepis, żeby wygenerować jadłospis.';
+
     /**
-     * Count of recipes the user lacks, only for categories that are short.
-     *
-     * @return array<string, int>
+     * Whether the user has at least one non-deleted recipe.
      */
-    public function missingRecipesPerCategory(int $userId): array
+    public function hasAnyRecipe(int $userId): bool
     {
-        $missing = [];
-
-        foreach (MealCategory::values() as $category) {
-            $have = Recipe::forUser($userId)->byCategory($category)->count();
-
-            if ($have < self::MEALS_PER_CATEGORY) {
-                $missing[$category] = self::MEALS_PER_CATEGORY - $have;
-            }
-        }
-
-        return $missing;
+        return Recipe::forUser($userId)->exists();
     }
 
     /**
-     * One Polish message per short category.
+     * Non-deleted recipes per category, every category key present.
      *
-     * @param  array<string, int>  $missing
-     * @return list<string>
+     * @return array<string, int>
      */
-    public function shortfallMessages(array $missing): array
+    public function recipeCountsPerCategory(int $userId): array
     {
-        $messages = [];
+        $counts = [];
 
-        foreach ($missing as $category => $lacking) {
-            $messages[] = sprintf(
-                'Za mało przepisów w kategorii %s: masz %d, potrzeba %d. Dodaj jeszcze %d.',
-                MealCategory::tryFrom($category)?->label() ?? $category,
-                self::MEALS_PER_CATEGORY - $lacking,
-                self::MEALS_PER_CATEGORY,
-                $lacking,
-            );
+        foreach (MealCategory::values() as $category) {
+            $counts[$category] = Recipe::forUser($userId)->byCategory($category)->count();
         }
 
-        return $messages;
+        return $counts;
     }
 
     /**
      * Replace the plan's meals with a random draw of distinct recipes per category.
+     * Each category fills up to 7 random days; the remaining days get a meal without a recipe.
      *
      * @throws InsufficientRecipesException
      */
     public function generate(MealPlan $mealPlan): void
     {
-        $missing = $this->missingRecipesPerCategory($mealPlan->user_id);
-
-        if ($missing !== []) {
-            throw new InsufficientRecipesException(
-                $missing,
-                implode(' ', $this->shortfallMessages($missing)),
-            );
+        if (! $this->hasAnyRecipe($mealPlan->user_id)) {
+            throw new InsufficientRecipesException(self::NO_RECIPES_MESSAGE);
         }
 
         DB::transaction(function () use ($mealPlan): void {
             $mealPlan->meals()->delete();
+
+            $drawn = 0;
 
             foreach (MealCategory::values() as $category) {
                 $recipes = Recipe::forUser($mealPlan->user_id)
                     ->byCategory($category)
                     ->inRandomOrder()
                     ->limit(self::MEALS_PER_CATEGORY)
-                    ->get();
+                    ->get()
+                    ->values();
 
-                // Recipes deleted after the check above: roll back instead of saving a week with gaps.
-                if ($recipes->count() < self::MEALS_PER_CATEGORY) {
-                    $missing = [$category => self::MEALS_PER_CATEGORY - $recipes->count()];
+                $drawn += $recipes->count();
 
-                    throw new InsufficientRecipesException(
-                        $missing,
-                        implode(' ', $this->shortfallMessages($missing)),
-                    );
-                }
+                $offsets = range(0, self::MEALS_PER_CATEGORY - 1);
+                shuffle($offsets);
 
-                foreach ($recipes->values() as $offset => $recipe) {
+                foreach ($offsets as $index => $offset) {
                     Meal::create([
                         'meal_plan_id' => $mealPlan->id,
-                        'recipe_id' => $recipe->id,
+                        'recipe_id' => $recipes->get($index)?->id,
                         'meal_date' => $mealPlan->start_date->copy()->addDays($offset),
                         'meal_category' => $category,
                     ]);
                 }
+            }
+
+            // Recipes deleted after the check above: roll back and keep the old meals.
+            if ($drawn === 0) {
+                throw new InsufficientRecipesException(self::NO_RECIPES_MESSAGE);
             }
         });
     }

@@ -14,6 +14,7 @@ use App\Http\Resources\MealPlanCollection;
 use App\Http\Resources\MealPlanResource;
 use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
+use App\Models\Meal;
 use App\Models\MealIngredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
@@ -46,7 +47,7 @@ class MealPlanController extends Controller
     public function index(Request $request): InertiaResponse|JsonResponse
     {
         $query = MealPlan::ownedBy(Auth::user())
-            ->withCount(['meals', 'logs']);
+            ->withCount(['meals' => fn ($query) => $query->whereNotNull('recipe_id'), 'logs']);
 
         // Apply status filter
         if ($request->filled('filter.status')) {
@@ -88,7 +89,7 @@ class MealPlanController extends Controller
     /**
      * Display the specified meal plan.
      */
-    public function show(MealPlan $mealPlan, ShoppingListBuilder $shoppingListBuilder): InertiaResponse|JsonResponse
+    public function show(MealPlan $mealPlan, ShoppingListBuilder $shoppingListBuilder, MealPlanGenerator $generator): InertiaResponse|JsonResponse
     {
         if (request()->expectsJson()) {
             $mealPlan->load([
@@ -115,7 +116,39 @@ class MealPlanController extends Controller
             'recipeOptions' => fn (): ?array => $mealPlan->status === 'draft'
                 ? $this->recipeOptions($mealPlan)
                 : null,
+            'shortCategories' => fn (): ?array => $mealPlan->status === 'draft'
+                ? $this->shortCategories($mealPlan, $generator)
+                : null,
         ]);
+    }
+
+    /**
+     * Categories of a draft with an empty meal where the owner has fewer recipes than slots.
+     *
+     * @return list<array{category: string, label: string, recipes: int}>
+     */
+    private function shortCategories(MealPlan $mealPlan, MealPlanGenerator $generator): array
+    {
+        $counts = $generator->recipeCountsPerCategory($mealPlan->user_id);
+        $short = [];
+
+        foreach (MealCategory::cases() as $category) {
+            $recipes = $counts[$category->value] ?? 0;
+
+            if ($recipes >= MealPlanGenerator::MEALS_PER_CATEGORY) {
+                continue;
+            }
+
+            $hasEmptyMeal = $mealPlan->meals->contains(
+                fn (Meal $meal): bool => $meal->meal_category === $category->value && $meal->recipe_id === null
+            );
+
+            if ($hasEmptyMeal) {
+                $short[] = ['category' => $category->value, 'label' => $category->label(), 'recipes' => $recipes];
+            }
+        }
+
+        return $short;
     }
 
     /**
@@ -241,6 +274,7 @@ class MealPlanController extends Controller
         $claimed = MealPlan::query()
             ->whereKey($mealPlan->getKey())
             ->where('status', 'draft')
+            ->whereHas('meals', fn ($query) => $query->whereNotNull('recipe_id'))
             ->update([
                 'status' => 'pending',
                 'generation_meta' => null,
@@ -248,9 +282,12 @@ class MealPlanController extends Controller
             ]);
 
         if ($claimed === 0) {
-            throw ValidationException::withMessages([
-                'status' => ApproveMealPlanRequest::NOT_DRAFT_MESSAGE,
-            ]);
+            // The last filled meal may have been emptied after the validation; tell that apart from a lost race.
+            $stillDraft = MealPlan::query()->whereKey($mealPlan->getKey())->where('status', 'draft')->exists();
+
+            throw ValidationException::withMessages($stillDraft
+                ? ['meals' => ApproveMealPlanRequest::EMPTY_DRAFT_MESSAGE]
+                : ['status' => ApproveMealPlanRequest::NOT_DRAFT_MESSAGE]);
         }
 
         $mealPlan->refresh();

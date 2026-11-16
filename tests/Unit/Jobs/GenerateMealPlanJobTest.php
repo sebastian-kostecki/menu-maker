@@ -238,3 +238,22 @@ it('drops the job silently when the meal plan was deleted before processing', fu
 
     Exceptions::assertNothingReported();
 });
+
+it('a plan with an empty meal writes ingredients only for filled meals and ends done', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $mealPlan = mealPlanWithRecipes($user, 'pending', $recipe);
+    $emptyMeal = Meal::query()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => null,
+        'meal_date' => $mealPlan->start_date->copy()->addDays(2),
+        'meal_category' => 'supper',
+    ]);
+
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
+
+    expect($mealPlan->fresh()->status)->toBe('done')
+        ->and(MealIngredient::query()->where('meal_id', $emptyMeal->id)->count())->toBe(0)
+        ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(1);
+});

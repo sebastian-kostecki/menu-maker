@@ -51,7 +51,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ID   | Change ID                  | Outcome (user can …)                                                                       | Prerequisites | PRD refs     | Status   |
 | ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
-| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | planning |
+| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | in-progress |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | proposed |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
@@ -113,7 +113,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: wymóg 7 przepisów na kategorię znika; braki zostają pustymi komórkami w szkicu (rozwiązuje też otwarty punkt `recipe-markdown-import`: 6 kolacji).
   - Rozstrzygnięte 2026-11-16: generowanie odmawia (komunikat z linkiem „Dodaj przepis”) tylko wtedy, gdy użytkownik nie ma żadnego przepisu; kategoria bez przepisów daje puste komórki w szkicu z informacją nad siatką.
 - **Risk:** Wymaga posiłku bez przepisu, czyli zmiany założenia, na którym stoją siatka, skalowanie, lista zakupów i PDF; po S-17, żeby ta zmiana weszła w już działający szkic.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-19: Ten sam obiad dwa dni z rzędu
 

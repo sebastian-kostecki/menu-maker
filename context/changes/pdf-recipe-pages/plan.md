@@ -419,11 +419,11 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 3.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
-- [x] 3.3 E2E meal-plan spec passes against Sail after re-seeding `E2eMealPlanSeeder`
-- [x] 3.4 Visual gate passes with only the expected baselines changed: `npm run test:visual`
-- [x] 3.5 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 4f20c2f
+- [x] 3.2 Token lint passes: `vendor/bin/sail npm run lint:tokens` — 4f20c2f
+- [x] 3.3 E2E meal-plan spec passes against Sail after re-seeding `E2eMealPlanSeeder` — 4f20c2f
+- [x] 3.4 Visual gate passes with only the expected baselines changed: `npm run test:visual` — 4f20c2f
+- [x] 3.5 Full Pest suite passes: `vendor/bin/sail composer test` — 4f20c2f
 
 #### Manual
 

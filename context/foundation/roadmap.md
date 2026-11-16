@@ -54,7 +54,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | proposed |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-17          | MS-04        | proposed |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
-| S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | ready    |
+| S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
 ## Streams
 
@@ -156,7 +156,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 - **Unknowns:**
   - Które ilości ma pokazywać strona przepisu przy przepisie użytym kilka razy: przeskalowane z planu (zsumowane czy osobno na dzień) czy oryginalne z przepisu? — Owner: user. Block: no (domyślnie przeskalowane, osobno na każde użycie).
 - **Risk:** Niezależny od szkicu, więc może iść od razu; zmienia układ PDF i jego testy, dlatego po S-18–S-20 ich wycinki muszą tylko dopisać swój stan komórki do tego samego szablonu.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -194,6 +194,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 
 ## Done
 
+- **S-21: Użytkownik może przy „Pobierz PDF” wybrać, czy dołączyć przepisy; tabela jadłospisu nie ma już długiego tekstu przygotowania, a dołączone przepisy (składniki z ilościami i sposób wykonania) są na osobnych stronach, każdy raz, nawet gdy występuje w tygodniu kilka razy.** — Archived 2026-11-16 → `context/archive/2026-11-16-pdf-recipe-pages/`. Lesson: —.
 - **S-17: Użytkownik może po kliknięciu „Generuj” zobaczyć wylosowany tydzień jako szkic (bez ilości i listy zakupów), podmienić przepis w dowolnej komórce na inny ze swojej listy i zatwierdzić szkic, po czym rusza skalowanie AI i plan przechodzi do dzisiejszego widoku z ilościami i listą zakupów.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-draft-with-swap/`. Lesson: —.
 - **S-15: Użytkownik może wejść na `/` i trafić do logowania lub do aplikacji zamiast domyślnej strony Laravela, a w aplikacji nie zostaje żaden komponent Breeze; `lint:tokens` obejmuje całe `resources/js` poza `Components/ui/` i blokuje CI przy nowym literale.** — Archived 2026-11-15 → `context/archive/2026-11-15-legacy-ui-cleanup/`. Lesson: —.
 - **S-16: Użytkownik może po zalogowaniu zobaczyć na pulpicie prawdziwą liczbę swoich przepisów i jadłospisów oraz ostatni gotowy jadłospis z dostępem do PDF, a z tego samego miejsca dodać przepis albo wygenerować jadłospis; nowy użytkownik bez przepisów widzi stan pusty z pierwszym krokiem zamiast zer.** — Archived 2026-11-15 → `context/archive/2026-11-15-dashboard-ui/`. Lesson: —.

@@ -28,7 +28,9 @@ export default defineConfig({
       testMatch: /visual\/.*\.spec\.ts$/,
       snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
       updateSnapshots: process.env.CI ? 'none' : 'missing',
-      expect: { toHaveScreenshot: { threshold: 0, maxDiffPixels: 0 } },
+      // threshold 0.005 absorbs ±1 RGB anti-aliasing noise between CPUs (same pinned image, different runners);
+      // any visible change still fails, since no pixel may exceed it (maxDiffPixels: 0).
+      expect: { toHaveScreenshot: { threshold: 0.005, maxDiffPixels: 0 } },
       use: { ...devices['Desktop Chrome'], timezoneId: 'UTC' }
     }
   ],

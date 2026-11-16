@@ -56,6 +56,7 @@ test('meal plan show mobile', async ({ page }) => {
 });
 
 // The pinned draft starts on 2026-06-29 and uses every recipe of the visual user, so the swap dialog marks each non-current one "jest już".
+// Monday's Obiad feeds Tuesday's: the link turns Tuesday's "Kotlety mielone z ziemniakami" into Monday's "Rosół z makaronem", so Kotlety is no longer "jest już" in the Obiad dialog.
 async function openSeededDraft(page: Page) {
   await page.goto('/meal-plans');
   const pageJson = await page.locator('script[data-page="app"]').textContent();
@@ -70,6 +71,8 @@ async function openSeededDraft(page: Page) {
   // One pinned empty meal (Wednesday breakfast): 20 recipe links.
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(20);
   await expect(page.getByText('Bez posiłku').first()).toBeVisible();
+  await expect(page.getByText('Z wczoraj', { exact: true })).toBeVisible();
+  await expect(page.getByText('Na 2 dni', { exact: true })).toBeVisible();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
   await expectFigtreeLoaded(page);
 }
@@ -97,10 +100,11 @@ test('meal plan draft swap dialog', async ({ page }) => {
   await logIn(page);
   await openSeededDraft(page);
 
-  await page.getByRole('button', { name: /^Zmień przepis: .* – Obiad$/ }).first().click();
+  await page.getByRole('button', { name: /^Zmień przepis: .* – Obiad$/ }).nth(1).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('Zmień przepis', { exact: true })).toBeVisible();
   await expect(dialog.getByText('Nie robimy (pusty posiłek)')).toBeVisible();
+  await expect(dialog.getByText('Jak wczoraj')).toBeVisible();
   await expect(dialog.getByText('obecny')).toBeVisible();
   await expect(dialog.getByText(/jest już/).first()).toBeVisible();
 

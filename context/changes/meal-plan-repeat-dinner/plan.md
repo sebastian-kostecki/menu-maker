@@ -544,10 +544,10 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build
-- [ ] 2.2 Token lint passes
-- [ ] 2.3 Pest suite passes
-- [ ] 2.4 Larastan passes with no new baseline entries
+- [x] 2.1 Client and SSR bundles build — 6b5d45a
+- [x] 2.2 Token lint passes — 6b5d45a
+- [x] 2.3 Pest suite passes — 6b5d45a
+- [x] 2.4 Larastan passes with no new baseline entries — 6b5d45a
 
 #### Manual
 

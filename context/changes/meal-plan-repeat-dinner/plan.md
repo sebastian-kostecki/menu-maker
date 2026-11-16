@@ -67,7 +67,7 @@ Constraints found:
   - Picking the recipe a meal already has changes nothing and keeps the link.
   - "Losuj ponownie" drops all links, and its confirm says so. "Wróć do szkicu" keeps them.
 - **After approval.**
-  - The cooked meal's ingredients are scaled to `(single-meal factor, or 1 when it is unscaled or there is no family) × 2`, with `source = computed` (or refined).
+  - The cooked meal's ingredients are scaled to `(single-meal factor, or 1 when it is unscaled or there is no family) × 2`. With a single-meal factor they are `source = computed` (or refined). Without one (no family, or an unscaled recipe) they stay `source = as_written`, doubled, and never reach the AI refiner.
   - The carried-over meal has no `meal_ingredients` rows and is not listed in "przepisy bez składników".
   - The shopping list therefore holds the dish once, in double quantity.
   - The PDF table prints "Na 2 dni" on the cooked row and "Z wczoraj" on the carried-over row (with an empty ingredients cell). The recipe page lists the pair as one use, labelled "(na 2 dni)".
@@ -126,7 +126,10 @@ The single conditional update of today is not enough, because two rows change to
 
 **Re-check the pair inside the lock.** `from_meal_id` is validated in the Form Request, but another tab can empty day D or link day D+2 in between. Re-run `MealLinkRules::canFeed()` on the locked, refreshed rows, and answer `from_meal_id` → `LINK_NOT_ALLOWED_MESSAGE` when it fails.
 
-**Double after the cap, also for as-written amounts.** The cooked meal's factor is `(calculator->factor(...) ?? '1') × 2`. It is always a computed factor, so its rows get `source = computed` and produce `RefinementItem`s. A recipe that is unscaled for a family (null factor) is still added to `unscaledRecipes`.
+**Double after the cap, also for as-written amounts, but keep the multiplier apart from the factor.** The cooked meal's quantity is `recipe quantity × (calculator->factor(...) ?? 1) × servingsFor(meal)`. `source`, `RefinementItem`s and `unscaledRecipes` keep keying on the single-meal factor being non-null, exactly as today:
+- With a factor, the rows are `source = computed` and produce `RefinementItem`s with the doubled quantity.
+- Without one (no family, or a recipe unscaled for a family), the rows are `source = as_written` with the doubled quantity and produce no `RefinementItem`. A family-less plan therefore still has no items, never calls the refiner, and keeps `STATUS_AS_WRITTEN`, so `ScalingNotices` still shows "Dodaj członków rodziny…" (`MealIngredientScaler.php:109-134`, `ScalingNotices.php:32-34`). An unscaled recipe is still added to `unscaledRecipes`.
+- `as_written` rows of a cooked meal hold `quantity = recipe_quantity × 2`, so `as_written` means "not scaled to the family", not "equal to the recipe".
 
 ## Phase 1: Linked Meals in Data, Edits and Scaling (Backend)
 
@@ -168,7 +171,7 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 - `canFeed(Meal $from, Meal $to): bool` is true only when all of these hold:
   - both meals belong to the same plan;
   - the categories and the day distance match a pair;
-  - `$from` has a recipe;
+  - `$from` has a recipe (a soft-deleted one is allowed: it is the same pot, and `Meal::recipe()` is `withTrashed()`, `Meal.php:36-39`; the `whereNull('deleted_at')` rule stays on the `recipe_id` path only);
   - `$from` is not fed by another meal;
   - `$to` does not feed another meal;
   - `$from` feeds nothing, or already feeds `$to`.
@@ -182,9 +185,13 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 **Intent**: The S-17 endpoint also links a meal to the previous day's meal, and every recipe change keeps the link consistent.
 
 **Contract**:
-- **Request body.** Exactly one of two keys: `recipe_id` (int|null, today's rules) or `from_meal_id` (int). Both or neither is refused with 422. The existing rule chain stays on `recipe_id` and applies only when `from_meal_id` is absent.
+- **Request body.** Exactly one of two keys: `recipe_id` (int|null, today's rules) or `from_meal_id` (int). Both or neither is refused with 422. The existing rule chain stays on `recipe_id` and applies only when `from_meal_id` is absent:
+  - `recipe_id`: `Rule::when(! $this->has('from_meal_id'), ['present'])` (refuses neither), then `nullable`, `integer` and today's scoped `exists`;
+  - `from_meal_id`: `missing_with:recipe_id` (refuses both, by key presence), `integer`, and `Rule::exists('meals', 'id')->where('meal_plan_id', $meal->meal_plan_id)`;
+  - a null `recipe_id` sent together with `from_meal_id` is still "both" and is refused. Do not rely on `prohibits` here: it does not fire for an empty (null) field.
 - **`from_meal_id`.** It must be an existing meal of the same plan. In `after()` it must pass `MealLinkRules::canFeed($from, $meal)`, else `from_meal_id` → `LINK_NOT_ALLOWED_MESSAGE = 'Tego obiadu nie można połączyć z poprzednim dniem.'`. The draft check in `after()` is unchanged.
 - **Controller.** One `DB::transaction` with the plan row locked, as described in Critical Implementation Details.
+  - **Read everything fresh inside the lock.** The status comes from `MealPlan::query()->whereKey(...)->lockForUpdate()->first()`, and the meal, the source meal and their links come from fresh queries after the lock. Never use the route-bound `$mealPlan`, `$meal->mealPlan` or relations cached by the Form Request: they were loaded as `draft` before the approval-race test (`MealPlanMealControllerTest.php:165-178`) flips the status through `afterResolving`.
   - **Linking.** Set the meal's `recipe_id` to the cooked meal's recipe and the cooked meal's `feeds_meal_id` to this meal. If they are already linked, change nothing.
 - **Responses.** Unchanged: `back()` for Inertia, and the JSON `MealPlanResource` (now with the link fields).
 
@@ -206,8 +213,8 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 
 **Contract**:
 - Skip meals in `MealLinkRules::fedMealIds()` together with null recipes.
-- For a meal with `servingsFor() = 2`, the factor is `(calculator->factor(...) ?? '1') × 2`, always treated as computed (see Critical Implementation Details).
-- The `unscaledRecipes` logic keeps reading the single-meal factor.
+- For a meal with `servingsFor() = 2`, the quantity is `recipe quantity × (calculator->factor(...) ?? 1) × 2` (see Critical Implementation Details).
+- `source`, the `RefinementItem`s and the `unscaledRecipes` logic keep reading the single-meal factor, so a family-less plan never calls the refiner and keeps `STATUS_AS_WRITTEN`.
 - `ScalingCalculator` is unchanged.
 
 #### 7. Shopping list
@@ -237,6 +244,7 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 - `supper on day D can feed supper on day D+1`.
 - `canFeed refuses another category, a non-consecutive day, an empty source, another plan`.
 - `canFeed refuses chains in both directions`.
+- `canFeed allows a source whose recipe is soft-deleted`.
 
 *Endpoint:*
 - `owner links Tuesday's Obiad to Monday's`: same `recipe_id`; Monday's `feeds_meal_id` is Tuesday's id; the JSON has `feeds_meal_id` / `from_meal_id`.
@@ -250,7 +258,7 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 - `linking is refused when the plan is not a draft`.
 - The existing approval-race test keeps passing.
 
-*Request:* `a body with both recipe_id and from_meal_id, or neither, is refused`.
+*Request:* `a body with both recipe_id and from_meal_id (also a null recipe_id), or neither, is refused`.
 
 *Controller:*
 - `back to draft keeps the link`.
@@ -260,8 +268,8 @@ Add the link column and the pair rules. Link and unlink through the swap endpoin
 
 *Scaler:*
 - `a cooked meal gets twice the single-meal amounts and the carried-over meal gets no rows` (two-adult family: Mąka 100 g → 400 g).
-- `without a family a cooked meal gets twice the written amounts as computed`.
-- `an unscaled recipe cooked for two days is doubled as written and still reported as unscaled`.
+- `without a family a cooked meal gets twice the written amounts as written, the refiner is not called and the status stays as_written`.
+- `an unscaled recipe cooked for two days is doubled as written, gets no refinement item and is still reported as unscaled`.
 - `refinement items carry the doubled quantity`.
 
 *Shopping list:* `a linked pair adds the dish once in double quantity and lists no recipe without ingredients`.
@@ -405,13 +413,13 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 **Intent**: Prove linking, persistence, ×2 scaling with unchanged totals, and unlinking in a real browser against the queue worker.
 
 **Contract**: After the last `totalsFull` check:
-1. **Back to draft and link.** Return to the draft. Open "Zmień" on Tuesday's Obiad (`tbody tr` nth(1), `td` nth(1)) and pick "Jak wczoraj". Expect Tuesday to show Monday's dish name with "Z wczoraj", Monday to show "Na 2 dni", and `tbody td a` to stay at 21.
+1. **Back to draft and link.** Return to the draft. Open "Zmień" on Tuesday's Obiad (`tbody tr` nth(1), `td` nth(1)) and pick "Jak wczoraj". Expect Tuesday to show Monday's dish name with "Z wczoraj", Monday to show "Na 2 dni", and `tbody td a` to stay at 21. The badges are the proof of the link: `swappedName` may already have been Tuesday's recipe, so the name alone proves nothing.
 2. **Reload.** Expect the link to persist.
 3. **Approve.**
    - Expect done with `totalsFull` unchanged (see Key Discoveries).
    - Monday's Obiad "Składniki" contain "Mąka — 400 g".
    - Tuesday's Obiad has no "Składniki" button.
-4. **Back to draft and unlink.** Swap Monday's Obiad to another recipe. Expect Tuesday's Obiad to read "Bez posiłku" with "Wybierz", and `tbody td a` to be 20.
+4. **Back to draft and unlink.** Swap Monday's Obiad to another recipe, picked with `filter({ hasText: 'jest już', hasNotText: 'obecny' })`. The current recipe is also "jest już: wt." now, and picking it is the no-op that keeps the link. Expect Tuesday's Obiad to read "Bez posiłku" with "Wybierz", both badges to be gone, and `tbody td a` to be 20.
 
 #### 2. Seeder: one pinned link in the visual draft
 
@@ -433,6 +441,7 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 
 **Contract**:
 - `openSeededDraft` keeps 20 `tbody td a` and also waits for "Z wczoraj" and "Na 2 dni".
+- The comment above `openSeededDraft` (`:58`, "uses every recipe … each non-current one is 'jest już'") is updated: the link turns Tuesday's "Kotlety mielone z ziemniakami" into Monday's "Rosół z makaronem", so Kotlety is no longer "jest już" in the Obiad dialog.
 - The swap-dialog shot opens Tuesday's Obiad (`Zmień przepis: .* – Obiad`, second match) and expects "Nie robimy (pusty posiłek)", "Jak wczoraj", "obecny" and "jest już".
 
 #### 4. Baseline updates
@@ -442,8 +451,8 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 **Contract**:
 - Run `npm run test:visual -- --update-snapshots`, then review each PNG in the diff.
 - Expected to change:
-  - `meal-plan-draft-desktop` and `meal-plan-draft-mobile`: the two badges (mobile only where they are in frame);
-  - `meal-plan-draft-swap-dialog`: Tuesday's dialog with "Jak wczoraj";
+  - `meal-plan-draft-desktop` and `meal-plan-draft-mobile`: the two badges, and Tuesday's Obiad reading "Rosół z makaronem" instead of "Kotlety mielone z ziemniakami" (mobile only where they are in frame);
+  - `meal-plan-draft-swap-dialog`: Tuesday's dialog with "Jak wczoraj", and "Kotlety mielone z ziemniakami" without "jest już";
   - `section-jadlospis`: the linked pair in both kitchen-sink grids.
 - Every other baseline must stay unchanged, including `meal-plans-index-*` (the draft still counts 20 meals) and `meal-plan-show-*`. Record any other difference in the review instead of accepting it silently.
 
@@ -470,7 +479,7 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 ### Unit Tests:
 
 - **Pair rules:** the allowed pair, wrong category, wrong distance, empty source, another plan, chains both ways.
-- **Scaler:** ×2 with a family, ×2 as written without one, ×2 for an unscaled recipe (still reported), no rows for the carried-over meal, doubled refinement items.
+- **Scaler:** ×2 with a family, ×2 as written without one (no refiner call, status `as_written`), ×2 as written for an unscaled recipe (still reported, no refinement item), no rows for the carried-over meal, doubled refinement items.
 - **Shopping list:** the pair counted once in double quantity; no "without ingredients" entry.
 - **Swap request:** exactly one of `recipe_id` / `from_meal_id`.
 - **PDF exporter:** both markers, an empty ingredients cell on the carried-over row, one recipe-page use labelled "(na 2 dni)".

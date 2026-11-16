@@ -562,11 +562,11 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Seeder runs and its test passes
-- [ ] 3.3 E2E passes
-- [ ] 3.4 Visual gate passes after the deliberate update
-- [ ] 3.5 Full Pest suite passes
+- [x] 3.1 Build passes — 94732cc
+- [x] 3.2 Seeder runs and its test passes — 94732cc
+- [x] 3.3 E2E passes — 94732cc
+- [x] 3.4 Visual gate passes after the deliberate update — 94732cc
+- [x] 3.5 Full Pest suite passes — 94732cc
 
 #### Manual
 

@@ -177,7 +177,8 @@ class E2eMealPlanSeeder extends Seeder
             if ($fixture['start'] === self::VISUAL_PLAN_START) {
                 $this->buildVisualPlan($user, $mealPlan);
             } elseif ($fixture['status'] === 'draft') {
-                $this->attachPinnedMeals($user, $mealPlan);
+                // Wednesday's breakfast stays empty, so the visual draft shows the "Bez posiłku" cell.
+                $this->attachPinnedMeals($user, $mealPlan, [[MealCategory::Breakfast->value, 2]]);
             } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
             }
@@ -186,8 +187,10 @@ class E2eMealPlanSeeder extends Seeder
 
     /**
      * Give the plan one pinned meal per category and day: the user's recipes in the visualRecipes() order, no scaling.
+     *
+     * @param  list<array{0: string, 1: int}>  $emptySlots  `[category, day offset]` pairs that get a meal without a recipe
      */
-    private function attachPinnedMeals(User $user, MealPlan $plan): void
+    private function attachPinnedMeals(User $user, MealPlan $plan, array $emptySlots = []): void
     {
         foreach (MealCategory::values() as $category) {
             $recipes = Recipe::where('user_id', $user->id)
@@ -199,7 +202,7 @@ class E2eMealPlanSeeder extends Seeder
             foreach ($recipes as $offset => $recipe) {
                 Meal::create([
                     'meal_plan_id' => $plan->id,
-                    'recipe_id' => $recipe->id,
+                    'recipe_id' => in_array([$category, $offset], $emptySlots, true) ? null : $recipe->id,
                     'meal_date' => $plan->start_date->copy()->addDays($offset),
                     'meal_category' => $category,
                 ]);

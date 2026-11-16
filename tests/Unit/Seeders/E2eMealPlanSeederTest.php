@@ -54,7 +54,7 @@ it('gives the visual user the five list fixtures, with one deterministic done pl
         ->and($user->recipes()->count())->toBe(21);
 });
 
-it('gives the visual user a pinned draft with 21 meals and no ingredients', function (): void {
+it('gives the visual user a pinned draft with 21 meals, one empty, and no ingredients', function (): void {
     $user = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail();
     $draft = $user->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
 
@@ -62,8 +62,18 @@ it('gives the visual user a pinned draft with 21 meals and no ingredients', func
         ->and($draft->created_at->toDateTimeString())->toBe('2026-06-12 09:31:00')
         ->and($draft->updated_at->toDateTimeString())->toBe('2026-06-12 09:31:00')
         ->and($draft->meals()->count())->toBe(21)
-        ->and($draft->meals()->with('recipe')->get()->pluck('recipe.name')->unique()->count())->toBe(21)
+        ->and($draft->meals()->whereNotNull('recipe_id')->count())->toBe(20)
+        ->and($draft->meals()->with('recipe')->get()->pluck('recipe.name')->filter()->unique()->count())->toBe(20)
         ->and(DB::table('meal_ingredients')->whereIn('meal_id', $draft->meals()->pluck('id'))->count())->toBe(0);
+});
+
+it('leaves Wednesday breakfast of the visual draft without a recipe', function (): void {
+    $draft = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
+    $empty = $draft->meals()->whereNull('recipe_id')->get();
+
+    expect($empty)->toHaveCount(1)
+        ->and($empty->first()->meal_category)->toBe('breakfast')
+        ->and($empty->first()->meal_date->toDateString())->toBe($draft->start_date->copy()->addDays(2)->toDateString());
 });
 
 it('puts the recipes of each category on consecutive days from the plan start', function (): void {

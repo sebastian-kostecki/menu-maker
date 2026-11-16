@@ -545,10 +545,10 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build
-- [x] 2.2 Token lint passes
-- [x] 2.3 Pest suite passes
-- [x] 2.4 Larastan passes with no new baseline entries
+- [x] 2.1 Client and SSR bundles build — 65d6d18
+- [x] 2.2 Token lint passes — 65d6d18
+- [x] 2.3 Pest suite passes — 65d6d18
+- [x] 2.4 Larastan passes with no new baseline entries — 65d6d18
 
 #### Manual
 
@@ -563,11 +563,11 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Seeder runs and its test passes
-- [ ] 3.3 E2E passes
-- [ ] 3.4 Visual gate passes after the deliberate update
-- [ ] 3.5 Full Pest suite passes
+- [x] 3.1 Build passes
+- [x] 3.2 Seeder runs and its test passes
+- [x] 3.3 E2E passes
+- [x] 3.4 Visual gate passes after the deliberate update
+- [x] 3.5 Full Pest suite passes
 
 #### Manual
 

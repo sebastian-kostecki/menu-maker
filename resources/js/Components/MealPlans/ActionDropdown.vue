@@ -28,13 +28,13 @@
 
       <DropdownMenuSeparator />
 
-      <!-- Regenerate -->
+      <!-- Back to draft -->
       <DropdownMenuItem
-        :disabled="!canRegenerate"
-        @click="handleRegenerateClick"
+        :disabled="!canReturnToDraft"
+        @click="handleReturnToDraftClick"
       >
-        <RefreshCw />
-        Regeneruj
+        <Undo2 />
+        Wróć do szkicu
       </DropdownMenuItem>
 
       <!-- Delete -->
@@ -51,12 +51,12 @@
 
   <!-- Confirm Dialogs -->
   <ConfirmDialog
-    v-model:open="showRegenerateDialog"
-    title="Regeneruj jadłospis"
-    description="Obecne posiłki zostaną zastąpione nowym losowaniem przepisów. Czy chcesz kontynuować?"
-    confirm-label="Regeneruj"
-    :processing="regenerating"
-    @confirm="handleRegenerateConfirm"
+    v-model:open="showReturnToDraftDialog"
+    title="Wrócić do szkicu?"
+    description="Przepisy zostaną, a ilości i listę zakupów policzymy ponownie po zatwierdzeniu."
+    confirm-label="Wróć do szkicu"
+    :processing="returningToDraft"
+    @confirm="handleReturnToDraftConfirm"
   />
 
   <ConfirmDialog
@@ -77,7 +77,7 @@ import {
   MoreHorizontal,
   Eye,
   Download,
-  RefreshCw,
+  Undo2,
   Trash2
 } from 'lucide-vue-next'
 import {
@@ -115,14 +115,14 @@ const props = defineProps<Props>()
 // toast is imported directly from vue-sonner
 
 // Dialog state
-const showRegenerateDialog = ref(false)
+const showReturnToDraftDialog = ref(false)
 const showDeleteDialog = ref(false)
-const regenerating = ref(false)
+const returningToDraft = ref(false)
 const deleting = ref(false)
 
 // Action availability based on status
 const canDownloadPdf = computed(() => !!props.item.links.pdf)
-const canRegenerate = computed(() =>
+const canReturnToDraft = computed(() =>
   props.item.status === 'done' || props.item.status === 'error'
 )
 const canDelete = computed(() => props.item.status !== 'processing')
@@ -139,41 +139,33 @@ const handleDownloadPdf = () => {
   window.open(props.item.links.pdf as string, '_blank', 'noopener')
 }
 
-// Handle regenerate confirmation dialog
-const handleRegenerateClick = () => {
-  if (!canRegenerate.value) return
-  showRegenerateDialog.value = true
+// Handle back-to-draft confirmation dialog
+const handleReturnToDraftClick = () => {
+  if (!canReturnToDraft.value) return
+  showReturnToDraftDialog.value = true
 }
 
-// Handle regenerate confirm
-const handleRegenerateConfirm = async () => {
-  regenerating.value = true
+// Handle back-to-draft confirm
+const handleReturnToDraftConfirm = () => {
+  returningToDraft.value = true
 
-  try {
-    await router.put(
-      route('meal-plans.update', { meal_plan: props.item.id }),
-      { regenerate: true },
-      {
-        preserveScroll: true,
-        onSuccess: () => {
-          toast.success('Regeneracja jadłospisu rozpoczęta.')
-        },
-        onError: (errors) => {
-          const message = errors.status ?? errors.recipes ?? errors.regenerate ?? errors.message
-          toast.error(message || 'Nie udało się zregenerować jadłospisu. Spróbuj ponownie.')
-        },
-        onFinish: () => {
-          regenerating.value = false
-          showRegenerateDialog.value = false
-        }
-      }
-    )
-  } catch (error) {
-    console.error('Regeneration error:', error)
-    toast.error('Wystąpił nieoczekiwany błąd. Spróbuj ponownie.')
-    regenerating.value = false
-    showRegenerateDialog.value = false
-  }
+  router.post(
+    route('meal-plans.draft', { meal_plan: props.item.id }),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('Jadłospis wrócił do szkicu.')
+      },
+      onError: (errors) => {
+        toast.error(errors.status ?? 'Nie udało się wrócić do szkicu. Spróbuj ponownie.')
+      },
+      onFinish: () => {
+        returningToDraft.value = false
+        showReturnToDraftDialog.value = false
+      },
+    }
+  )
 }
 
 // Handle delete confirmation dialog

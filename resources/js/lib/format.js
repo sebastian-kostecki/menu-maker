@@ -104,3 +104,16 @@ export const pluralize = (count, { one, few, many }) => {
 
   return many
 }
+
+/**
+ * Skrót dnia tygodnia po polsku (np. pon., wt.) dla daty Y-m-d.
+ */
+export const formatWeekdayShort = (ymd) => {
+  const date = parseYmd(ymd)
+
+  if (!isValidDate(date)) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat(LOCALE, { weekday: 'short' }).format(date)
+}

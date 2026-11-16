@@ -24,6 +24,7 @@ import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
+import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -188,7 +189,7 @@ const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
 const shellExpandedCollapsed = ref(false)
 const shellCollapsedCollapsed = ref(true)
 const appCategories = ['breakfast', 'supper', 'dinner']
-const appStatuses = ['pending', 'processing', 'done', 'error']
+const appStatuses = ['draft', 'pending', 'processing', 'done', 'error']
 const appSort = ref({ column: 'name', direction: 'asc' })
 const appPaginationMeta = ref({
   current_page: 2,
@@ -236,6 +237,14 @@ const planShoppingList = {
   recipes_without_ingredients: ['Sałatka grecka'],
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
+const swapOpen = ref(false)
+const swapMeal = planMeals[0]
+const swapOptions = [
+  { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
+  { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
+  { id: 13, name: 'Płatki z mlekiem', calories: '980' },
+  { id: 16, name: 'Tosty z awokado', calories: null },
+]
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
@@ -859,6 +868,21 @@ const showToast = () => {
         <div class="flex flex-col gap-2">
           <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden slot pusty, jeden usunięty przepis, jedna lista składników)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="swapOpen = true" />
+          <div>
+            <Button variant="outline" @click="swapOpen = true">Otwórz okno wyboru przepisu</Button>
+          </div>
+          <RecipeSwapDialog
+            v-model:open="swapOpen"
+            :meal-plan-id="1"
+            :meal="swapMeal"
+            :options="swapOptions"
+            :week-meals="planMeals"
+          />
         </div>
 
         <div class="flex flex-col gap-2">

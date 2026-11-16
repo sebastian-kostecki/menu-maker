@@ -688,18 +688,18 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Automated
 
-- [x] 2.1 Pest suite passes
-- [x] 2.2 Larastan passes with no new baseline entries
-- [x] 2.3 Pint passes
-- [x] 2.4 Route registers
+- [x] 2.1 Pest suite passes — c5c2b41
+- [x] 2.2 Larastan passes with no new baseline entries — c5c2b41
+- [x] 2.3 Pint passes — c5c2b41
+- [x] 2.4 Route registers — c5c2b41
 
 ### Phase 3: Draft UI
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build
-- [ ] 3.2 Token lint passes
-- [ ] 3.3 Pest suite still passes
+- [x] 3.1 Client and SSR bundles build
+- [x] 3.2 Token lint passes
+- [x] 3.3 Pest suite still passes
 
 #### Manual
 

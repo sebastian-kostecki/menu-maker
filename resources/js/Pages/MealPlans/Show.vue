@@ -12,9 +12,18 @@
               Pobierz PDF
             </a>
           </Button>
-          <Button v-if="canRegenerate" variant="outline" @click="showRegenerateDialog = true">
-            <RefreshCw class="size-4" aria-hidden="true" />
-            Regeneruj
+          <Button v-if="isDraftWithMeals" :disabled="approving" @click="handleApprove">
+            <Loader2 v-if="approving" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            <Check v-else class="size-4" aria-hidden="true" />
+            Zatwierdź
+          </Button>
+          <Button v-if="isDraftWithMeals" variant="outline" @click="showRedrawDialog = true">
+            <Shuffle class="size-4" aria-hidden="true" />
+            Losuj ponownie
+          </Button>
+          <Button v-if="canReturnToDraft" variant="outline" @click="showReturnToDraftDialog = true">
+            <Undo2 class="size-4" aria-hidden="true" />
+            Wróć do szkicu
           </Button>
           <ActionDropdown :item="mealPlan" />
         </template>
@@ -39,23 +48,33 @@
         <AlertTitle>Generowanie nie powiodło się</AlertTitle>
         <AlertDescription>{{ errorMessage }}</AlertDescription>
         <div class="col-start-2 mt-3">
-          <Button @click="showRegenerateDialog = true">
-            <RefreshCw class="size-4" aria-hidden="true" />
-            Regeneruj
+          <Button @click="showReturnToDraftDialog = true">
+            <Undo2 class="size-4" aria-hidden="true" />
+            Wróć do szkicu
           </Button>
         </div>
       </Alert>
 
       <div v-else-if="!mealPlan.meals || mealPlan.meals.length === 0" class="rounded-lg border bg-card p-8">
         <EmptyState :icon="CalendarDays" title="Brak posiłków" description="Ten jadłospis nie ma jeszcze posiłków.">
-          <Button @click="showRegenerateDialog = true">
-            <RefreshCw class="size-4" aria-hidden="true" />
-            Regeneruj
+          <Button v-if="mealPlan.status === 'draft'" @click="showRedrawDialog = true">
+            <Shuffle class="size-4" aria-hidden="true" />
+            Losuj ponownie
+          </Button>
+          <Button v-else-if="mealPlan.status === 'done'" @click="showReturnToDraftDialog = true">
+            <Undo2 class="size-4" aria-hidden="true" />
+            Wróć do szkicu
           </Button>
         </EmptyState>
       </div>
 
       <template v-else>
+        <Alert v-if="mealPlan.status === 'draft'" variant="info" role="status">
+          <Info aria-hidden="true" />
+          <AlertDescription>
+            To szkic jadłospisu. Możesz podmienić przepisy; ilości i listę zakupów policzymy po zatwierdzeniu.
+          </AlertDescription>
+        </Alert>
         <Alert v-if="mealPlan.scaling?.notices.length" variant="warning" role="status" data-testid="scaling-notice">
           <TriangleAlert aria-hidden="true" />
           <AlertDescription>
@@ -73,7 +92,12 @@
         </Alert>
         <div class="flex flex-col gap-6 xl:flex-row xl:items-start">
           <div class="min-w-0 xl:flex-1">
-            <MealPlanGrid :start-date="mealPlan.start_date" :meals="mealPlan.meals" />
+            <MealPlanGrid
+              :start-date="mealPlan.start_date"
+              :meals="mealPlan.meals"
+              :editable="mealPlan.status === 'draft'"
+              @swap="openSwap"
+            />
           </div>
           <div v-if="shoppingList" class="xl:w-72 xl:shrink-0">
             <ShoppingList :list="shoppingList" />
@@ -92,12 +116,30 @@
     </div>
 
     <ConfirmDialog
-      v-model:open="showRegenerateDialog"
-      title="Regeneruj jadłospis"
-      description="Obecne posiłki zostaną zastąpione nowym losowaniem przepisów. Czy chcesz kontynuować?"
-      confirm-label="Regeneruj"
-      :processing="regenerating"
-      @confirm="handleRegenerate"
+      v-model:open="showRedrawDialog"
+      title="Losuj ponownie"
+      description="Wylosować tydzień od nowa? Twoje zmiany przepisów przepadną."
+      confirm-label="Losuj ponownie"
+      :processing="redrawing"
+      @confirm="handleRedraw"
+    />
+
+    <ConfirmDialog
+      v-model:open="showReturnToDraftDialog"
+      title="Wróć do szkicu"
+      description="Wrócić do szkicu? Przepisy zostaną, a ilości i listę zakupów policzymy ponownie po zatwierdzeniu."
+      confirm-label="Wróć do szkicu"
+      :processing="returningToDraft"
+      @confirm="handleReturnToDraft"
+    />
+
+    <RecipeSwapDialog
+      v-if="recipeOptions"
+      v-model:open="showSwapDialog"
+      :meal-plan-id="mealPlan.id"
+      :meal="swapMeal"
+      :options="swapOptions"
+      :week-meals="mealPlan.meals ?? []"
     />
   </AuthenticatedLayout>
 </template>
@@ -105,7 +147,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { Head, Link, router, usePoll } from '@inertiajs/vue3'
-import { AlertCircle, ArrowLeft, CalendarDays, FileDown, Loader2, RefreshCw, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, ArrowLeft, CalendarDays, Check, FileDown, Info, Loader2, Shuffle, TriangleAlert, Undo2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
@@ -116,6 +158,8 @@ import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
+import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
+import type { RecipeOption, RecipeOptions } from '@/types/meal-plan'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 
 interface Recipe {
@@ -161,6 +205,7 @@ interface MealPlan {
 interface Props {
   mealPlan: MealPlan
   shoppingList: ShoppingListPayload | null
+  recipeOptions?: RecipeOptions | null
 }
 
 const props = defineProps<Props>()
@@ -168,12 +213,24 @@ const props = defineProps<Props>()
 // Above the job's own budget (up to ~61 s of AI attempts, killed at 80 s), so a healthy but slow run never looks like a dead worker.
 const SLOW_AFTER_MS = 75_000
 
-const showRegenerateDialog = ref(false)
-const regenerating = ref(false)
+const showRedrawDialog = ref(false)
+const showReturnToDraftDialog = ref(false)
+const showSwapDialog = ref(false)
+const swapMeal = ref<Meal | null>(null)
+const redrawing = ref(false)
+const returningToDraft = ref(false)
+const approving = ref(false)
 const isSlow = ref(false)
 
 const isGenerating = computed(() => ['pending', 'processing'].includes(props.mealPlan.status))
-const canRegenerate = computed(() => props.mealPlan.status === 'done' && (props.mealPlan.meals?.length ?? 0) > 0)
+const hasMeals = computed(() => (props.mealPlan.meals?.length ?? 0) > 0)
+const isDraftWithMeals = computed(() => props.mealPlan.status === 'draft' && hasMeals.value)
+const canReturnToDraft = computed(() => props.mealPlan.status === 'done' && hasMeals.value)
+const swapOptions = computed<RecipeOption[]>(() => {
+  const category = swapMeal.value?.meal_category as keyof RecipeOptions | undefined
+
+  return (category && props.recipeOptions?.[category]) || []
+})
 const errorMessage = computed(
   () => props.mealPlan.generation_meta?.error_message ?? 'Generowanie jadłospisu nie powiodło się.'
 )
@@ -221,8 +278,31 @@ onBeforeUnmount(() => {
   clearSlowTimer()
 })
 
-const handleRegenerate = () => {
-  regenerating.value = true
+const openSwap = (meal: Meal) => {
+  swapMeal.value = meal
+  showSwapDialog.value = true
+}
+
+const handleApprove = () => {
+  approving.value = true
+
+  router.post(
+    route('meal-plans.approve', { meal_plan: props.mealPlan.id }),
+    {},
+    {
+      preserveScroll: true,
+      onError: (errors) => {
+        toast.error(errors.rate_limit ?? errors.status ?? errors.meals ?? 'Nie udało się zatwierdzić jadłospisu.')
+      },
+      onFinish: () => {
+        approving.value = false
+      },
+    }
+  )
+}
+
+const handleRedraw = () => {
+  redrawing.value = true
 
   router.put(
     route('meal-plans.update', { meal_plan: props.mealPlan.id }),
@@ -230,11 +310,30 @@ const handleRegenerate = () => {
     {
       preserveScroll: true,
       onError: (errors) => {
-        toast.error(errors.status ?? errors.recipes ?? errors.regenerate ?? 'Nie udało się zregenerować jadłospisu.')
+        toast.error(errors.status ?? errors.recipes ?? errors.regenerate ?? 'Nie udało się wylosować jadłospisu od nowa.')
       },
       onFinish: () => {
-        regenerating.value = false
-        showRegenerateDialog.value = false
+        redrawing.value = false
+        showRedrawDialog.value = false
+      },
+    }
+  )
+}
+
+const handleReturnToDraft = () => {
+  returningToDraft.value = true
+
+  router.post(
+    route('meal-plans.draft', { meal_plan: props.mealPlan.id }),
+    {},
+    {
+      preserveScroll: true,
+      onError: (errors) => {
+        toast.error(errors.status ?? 'Nie udało się wrócić do szkicu.')
+      },
+      onFinish: () => {
+        returningToDraft.value = false
+        showReturnToDraftDialog.value = false
       },
     }
   )

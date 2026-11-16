@@ -42,6 +42,17 @@
                 <div class="text-xs text-muted-foreground">
                   <span class="tabular-nums">{{ formatCalories(day.meals[category].recipe.calories) }}</span> kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
                 </div>
+                <Button
+                  v-if="editable"
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  class="mt-2"
+                  :aria-label="`Zmień przepis: ${day.weekday} – ${mealCategoryLabel(category)}`"
+                  @click="emit('swap', day.meals[category])"
+                >
+                  Zmień
+                </Button>
                 <Collapsible v-if="day.meals[category].ingredients?.length" class="mt-2 text-xs">
                   <CollapsibleTrigger
                     class="group inline-flex items-center gap-1 rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -74,6 +85,7 @@
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { ChevronDown } from 'lucide-vue-next'
+import { Button } from '@/Components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
 import { Skeleton } from '@/Components/ui/skeleton'
 import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
@@ -104,12 +116,16 @@ interface Props {
   startDate: string
   meals?: GridMeal[]
   skeleton?: boolean
+  editable?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   meals: () => [],
   skeleton: false,
+  editable: false,
 })
+
+const emit = defineEmits<{ (e: 'swap', meal: GridMeal): void }>()
 
 const CATEGORY_BAR_CLASSES: Record<string, string> = {
   breakfast: 'border-meal-breakfast-foreground',

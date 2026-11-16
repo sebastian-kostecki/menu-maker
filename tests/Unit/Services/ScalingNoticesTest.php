@@ -13,7 +13,7 @@ function planWithMeta(array $meta, string $status = 'done'): MealPlan
     return (new MealPlan)->forceFill(['status' => $status, 'generation_meta' => $meta]);
 }
 
-const OLD_PLAN_NOTICE = 'Ten jadłospis powstał przed przeliczaniem składników — zregeneruj go, aby dopasować ilości do rodziny.';
+const OLD_PLAN_NOTICE = 'Ten jadłospis powstał przed przeliczaniem składników — wróć do szkicu i zatwierdź go ponownie, aby dopasować ilości do rodziny.';
 
 it('shows no notices for a refined plan without caveats', function (): void {
     $plan = planWithMeta(['version' => 'scaled-v1', 'scaling' => ['status' => 'refined', 'unscaled_recipes' => [], 'members_without_body' => []]]);
@@ -50,7 +50,7 @@ it('names unscaled recipes and members without body data', function (): void {
     ]);
 });
 
-it('suggests regenerating a plan from before scaling', function (?string $version): void {
+it('suggests going back to draft for a plan from before scaling', function (?string $version): void {
     $meta = $version === null ? [] : ['version' => $version];
 
     expect(ScalingNotices::for(planWithMeta($meta)))->toBe(['status' => null, 'notices' => [OLD_PLAN_NOTICE]]);
@@ -73,4 +73,4 @@ it('orders the notices as specified', function (): void {
 
 it('returns no notices for a plan that is not done', function (string $status): void {
     expect(ScalingNotices::for(planWithMeta([], $status)))->toBe(['status' => null, 'notices' => []]);
-})->with(['pending', 'processing', 'error']);
+})->with(['draft', 'pending', 'processing', 'error']);

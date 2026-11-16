@@ -23,9 +23,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('recipes', RecipeController::class);
 
     Route::resource('meal-plans', MealPlanController::class)
-        ->only(['index', 'show', 'store', 'update', 'destroy']);
+        ->only(['index', 'show', 'store', 'update', 'destroy'])
+        ->middlewareFor(['store', 'update'], 'throttle:30,1,meal-plan-draw');
 
     // Additional meal plan routes
+    Route::post('/meal-plans/{meal_plan}/approve', [MealPlanController::class, 'approve'])
+        ->name('meal-plans.approve');
+    Route::post('/meal-plans/{meal_plan}/draft', [MealPlanController::class, 'backToDraft'])
+        ->name('meal-plans.draft');
     Route::get('/meal-plans/{meal_plan}/pdf', [MealPlanController::class, 'downloadPdf'])
         ->name('meal-plans.pdf');
 });

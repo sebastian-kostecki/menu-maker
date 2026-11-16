@@ -65,6 +65,7 @@ Constraints found:
   - `ShoppingListBuilder` does too (`:80-82`), so an empty meal yields no `meal_ingredients` rows.
   - `ScalingNotices` and `recipes_without_ingredients` key on recipes, so empty meals never appear there.
 - `MealPlanResource` already leaves out `recipe` for a null recipe (`MealPlanResource.php:55`). The meal JSON needs no new field: "empty" means `recipe` is absent.
+  - **Addendum (impl review):** it did not. `$this->when(...)` still emitted an empty array, which is truthy in JS, so the resource now spreads the `recipe` key only for a non-null recipe (`MealPlanResource.php`). Pinned by `assertJsonMissingPath('data.meals.0.recipe')`.
 - `recipeOptions` already returns every category key, even when its list is empty (`MealPlanController.php:126-148`). The swap dialog for a category with zero recipes therefore lists only "Nie robimy", plus "Brak przepisów".
 - **The reka-ui 2.11 Combobox filters all items or none.** An item cannot opt out of the search filter (`node_modules/reka-ui/dist/Combobox/ComboboxItem.js:42-46`). With `ignore-filter`, `ComboboxEmpty` renders only when there are no items at all (`ComboboxEmpty.js:21`), so it would never show next to an always-present "Nie robimy". `handleSelect` also returns early on a falsy value (`RecipeSwapDialog.vue:102`). The dialog therefore filters its recipe list itself (Phase 2 §2).
 - The kitchen-sink grid fixture already drops one slot (meal id 8, `DesignSystem.vue:203-248`) to demo the `—` state. It becomes a meal without a recipe.
@@ -318,7 +319,7 @@ Empty cells read "Bez posiłku" and can be filled in the draft. The swap dialog 
   - set `ignore-filter` and `v-model:search-term` on the `Combobox`;
   - filter `items` in a computed property by recipe name, case-insensitive with `toLocaleLowerCase('pl')`;
   - replace `ComboboxEmpty` with a plain `<p v-if="!filteredItems.length">Brak przepisów</p>` (same classes), shown under the "Nie robimy" item.
-- A first `ComboboxItem` "Nie robimy (pusty posiłek)" is always rendered above the filtered recipes, so the search never hides it. It carries "obecny" when the meal has no recipe.
+- A first `ComboboxItem` "Nie robimy (pusty posiłek)" is rendered above the filtered recipes while the search box is empty, and hidden while the user types (impl review F1: reka-ui highlights the first item on every keystroke, so Enter after typing would otherwise empty the meal). It carries "obecny" when the meal has no recipe.
 - Its `value` is a non-null marker object (for example `const EMPTY_OPTION = { empty: true }`), because `handleSelect` returns early on a falsy value. `handleSelect` maps the marker to `{ recipe_id: null }` and a recipe to `{ recipe_id: picked.id }`, both through the existing `router.patch`.
 - For an empty meal, the dialog title reads "Wybierz przepis" instead of the swap title.
 - The `demo` mode still only closes the dialog.
@@ -450,6 +451,7 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
   - `meal-plan-draft-desktop`, `meal-plan-draft-mobile`: the empty Wednesday breakfast;
   - `meal-plan-draft-swap-dialog`: the "Nie robimy" item;
   - `meal-plans-index-desktop`: the draft row count 21 → 20 (the count column is hidden on mobile);
+  - `meal-plans-index-generate-dialog`: a full-page shot over the same list, so the draft row count changes behind the dialog (added by impl review);
   - `section-jadlospis`: "Bez posiłku", "Wybierz" and the dialog item;
   - `dashboard-empty-desktop`: the first-run copy.
 - Every other baseline must stay unchanged. Record any other difference in the review instead of accepting it silently.

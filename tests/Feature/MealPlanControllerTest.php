@@ -420,6 +420,22 @@ it('approve that lost the race is refused', function (): void {
     Queue::assertNothingPushed();
 });
 
+it('approve whose last filled meal was emptied after validation is refused as an empty draft', function (): void {
+    Queue::fake();
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $mealPlan = mealPlanWithRecipes($this->user, 'draft', $recipe);
+
+    $this->app->afterResolving(ApproveMealPlanRequest::class, function () use ($mealPlan): void {
+        $mealPlan->meals()->update(['recipe_id' => null]);
+    });
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.approve', $mealPlan))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['meals' => ApproveMealPlanRequest::EMPTY_DRAFT_MESSAGE]);
+    expect($mealPlan->fresh()->status)->toBe('draft');
+    Queue::assertNothingPushed();
+});
+
 it('non-owner cannot approve', function (): void {
     Queue::fake();
     $recipe = Recipe::factory()->for($this->otherUser)->create();

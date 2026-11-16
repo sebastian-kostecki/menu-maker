@@ -109,8 +109,31 @@ it('a category with 5 recipes fills 5 distinct days and leaves 2 empty', functio
     expect($mealPlan->meals()->count())->toBe(21)
         ->and($dinners)->toHaveCount(7)
         ->and($dinners->whereNotNull('recipe_id')->pluck('recipe_id')->unique())->toHaveCount(5)
-        ->and($dinners->whereNull('recipe_id'))->toHaveCount(2)
-        ->and($dinners->map(fn (Meal $meal) => $meal->meal_date->toDateString())->sort()->values()->all())->toBe($expectedDates);
+        ->and($dinners->whereNull('recipe_id'))->toHaveCount(2);
+
+    foreach (['breakfast', 'dinner', 'supper'] as $category) {
+        $dates = $mealPlan->meals()->where('meal_category', $category)->get()
+            ->map(fn (Meal $meal) => $meal->meal_date->toDateString())->sort()->values()->all();
+
+        expect($dates)->toBe($expectedDates);
+    }
+});
+
+it('the days left empty are shuffled, not always the last ones', function (): void {
+    $user = User::factory()->create();
+    Recipe::factory()->count(7)->breakfast()->for($user)->create();
+    Recipe::factory()->count(7)->supper()->for($user)->create();
+    Recipe::factory()->count(5)->dinner()->for($user)->create();
+    $mealPlan = planFor($user);
+
+    $emptyDayOffsets = collect(range(1, 12))->flatMap(function () use ($mealPlan): array {
+        app(MealPlanGenerator::class)->generate($mealPlan);
+
+        return $mealPlan->meals()->where('meal_category', 'dinner')->whereNull('recipe_id')->get()
+            ->map(fn (Meal $meal): int => (int) $mealPlan->start_date->diffInDays($meal->meal_date))->all();
+    })->unique();
+
+    expect($emptyDayOffsets->count())->toBeGreaterThan(2);
 });
 
 it('a category without recipes gets 7 empty meals', function (): void {

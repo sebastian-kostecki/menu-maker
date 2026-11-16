@@ -6,13 +6,19 @@
         <DialogDescription>{{ description }}</DialogDescription>
       </DialogHeader>
 
-      <Combobox v-model:search-term="searchTerm" :open="true" :model-value="undefined" ignore-filter @update:model-value="handleSelect">
+      <Combobox :open="true" :model-value="undefined" ignore-filter @update:model-value="handleSelect">
         <ComboboxAnchor class="w-full">
-          <ComboboxInput aria-label="Szukaj przepisu" placeholder="Szukaj przepisu" />
+          <ComboboxInput v-model="searchTerm" aria-label="Szukaj przepisu" placeholder="Szukaj przepisu" />
         </ComboboxAnchor>
         <ComboboxContent position="inline" class="mt-2 max-h-72 overflow-y-auto rounded-md border bg-popover text-popover-foreground">
           <ComboboxViewport class="p-1">
-            <ComboboxItem :value="EMPTY_OPTION" text-value="Nie robimy (pusty posiłek)" :disabled="saving" class="flex-col items-start gap-0.5">
+            <ComboboxItem
+              v-if="!isSearching"
+              :value="EMPTY_OPTION"
+              text-value="Nie robimy (pusty posiłek)"
+              :disabled="saving"
+              class="flex-col items-start gap-0.5"
+            >
               <span class="flex w-full items-center justify-between gap-2">
                 <span class="font-medium">Nie robimy (pusty posiłek)</span>
                 <span v-if="meal && !meal.recipe" class="text-xs text-muted-foreground">obecny</span>
@@ -113,6 +119,10 @@ const items = computed(() =>
   })
 )
 
+// reka-ui highlights the first item on every keystroke, so while the user searches the "Nie robimy" row stays hidden:
+// otherwise Enter after typing a name would empty the meal instead of picking the top match.
+const isSearching = computed(() => searchTerm.value.trim() !== '')
+
 const filteredItems = computed(() => {
   const term = searchTerm.value.trim().toLocaleLowerCase('pl')
 
@@ -139,7 +149,7 @@ const handleSelect = (option: unknown) => {
     { recipe_id: 'empty' in picked ? null : picked.id },
     {
       preserveScroll: true,
-      only: ['mealPlan'],
+      only: ['mealPlan', 'shortCategories'],
       onSuccess: () => {
         emit('update:open', false)
       },

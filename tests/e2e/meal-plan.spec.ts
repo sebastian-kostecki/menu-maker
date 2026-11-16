@@ -48,8 +48,18 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(recipeCells).toHaveCount(21);
   await expect(dinnerCell.locator('a')).toHaveText(swappedName);
 
-  // Empty the first Śniadanie: "Nie robimy" turns it into a meal without a recipe.
+  // Typing a recipe name and pressing Enter picks a recipe: the "Nie robimy" row is hidden while searching.
   const breakfastCell = grid.locator('tbody tr').first().locator('td').nth(0);
+  await grid.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).first().click();
+  const searchName = (await swapDialog.getByRole('option').filter({ hasNotText: 'Nie robimy' }).first().locator('span.font-medium').textContent())!.trim();
+  await swapDialog.getByRole('combobox', { name: 'Szukaj przepisu' }).fill(searchName);
+  await expect(swapDialog.getByRole('option', { name: /Nie robimy/ })).toHaveCount(0);
+  await page.keyboard.press('Enter');
+  await expect(swapDialog).toBeHidden();
+  await expect(breakfastCell.getByText('Bez posiłku')).toBeHidden();
+  await expect(recipeCells).toHaveCount(21);
+
+  // Empty the first Śniadanie: "Nie robimy" turns it into a meal without a recipe.
   await grid.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).first().click();
   await page.getByRole('dialog').getByRole('option', { name: /Nie robimy \(pusty posiłek\)/ }).click();
   await expect(page.getByRole('dialog')).toBeHidden();

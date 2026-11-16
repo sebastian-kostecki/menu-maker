@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\MealCategory;
 use App\Http\Requests\ApproveMealPlanRequest;
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
@@ -14,6 +15,7 @@ use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
 use App\Models\MealIngredient;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Services\InsufficientRecipesException;
 use App\Services\MealPlanGenerator;
 use App\Services\MealPlanPdf\MealPlanPdfExporter;
@@ -109,7 +111,39 @@ class MealPlanController extends Controller
             'shoppingList' => fn (): ?array => $mealPlan->status === 'done'
                 ? (new ShoppingListResource($shoppingListBuilder->forMealPlan($mealPlan)))->resolve()
                 : null,
+            'recipeOptions' => fn (): ?array => $mealPlan->status === 'draft'
+                ? $this->recipeOptions($mealPlan)
+                : null,
         ]);
+    }
+
+    /**
+     * The owner's non-deleted recipes per meal category, for the swap dialog.
+     *
+     * @return array<string, list<array{id: int, name: string, calories: string|null}>>
+     */
+    private function recipeOptions(MealPlan $mealPlan): array
+    {
+        $options = [];
+
+        foreach (MealCategory::cases() as $category) {
+            $options[$category->value] = [];
+        }
+
+        Recipe::query()
+            ->forUser($mealPlan->user_id)
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get(['id', 'name', 'category', 'calories'])
+            ->each(function (Recipe $recipe) use (&$options): void {
+                $options[$recipe->category][] = [
+                    'id' => $recipe->id,
+                    'name' => $recipe->name,
+                    'calories' => (string) $recipe->calories,
+                ];
+            });
+
+        return $options;
     }
 
     /**

@@ -745,3 +745,35 @@ it('exposes the PDF link on the list only for done plans', function (): void {
         }
     );
 });
+
+it('a draft passes recipe options per category without deleted recipes', function (): void {
+    $plan = MealPlan::factory()->draft()->for($this->user)->create();
+    Recipe::factory()->breakfast()->for($this->user)->create(['name' => 'Zupa', 'calories' => 300]);
+    Recipe::factory()->breakfast()->for($this->user)->create(['name' => 'Awokado', 'calories' => 250]);
+    Recipe::factory()->dinner()->for($this->user)->create(['name' => 'Kolacja X', 'calories' => 410]);
+    Recipe::factory()->breakfast()->for($this->user)->create(['name' => 'Usunięty'])->delete();
+    Recipe::factory()->breakfast()->for($this->otherUser)->create(['name' => 'Cudzy']);
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->has('recipeOptions.breakfast', 2)
+                ->where('recipeOptions.breakfast.0.name', 'Awokado')
+                ->where('recipeOptions.breakfast.0.calories', '250.00')
+                ->where('recipeOptions.breakfast.1.name', 'Zupa')
+                ->has('recipeOptions.supper', 0)
+                ->has('recipeOptions.dinner', 1)
+                ->where('recipeOptions.dinner.0.calories', '410.00')
+        );
+});
+
+it('a done plan passes no recipe options', function (): void {
+    $plan = MealPlan::factory()->done()->for($this->user)->create();
+    Recipe::factory()->breakfast()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->where('recipeOptions', null)
+        );
+});

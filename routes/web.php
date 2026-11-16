@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientErrorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FamilyMemberController;
 use App\Http\Controllers\MealPlanController;
+use App\Http\Controllers\MealPlanMealController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('meal-plans', MealPlanController::class)
         ->only(['index', 'show', 'store', 'update', 'destroy'])
         ->middlewareFor(['store', 'update'], 'throttle:30,1,meal-plan-draw');
+
+    Route::resource('meal-plans.meals', MealPlanMealController::class)
+        ->only(['update'])
+        ->scoped();
 
     // Additional meal plan routes
     Route::post('/meal-plans/{meal_plan}/approve', [MealPlanController::class, 'approve'])

@@ -674,11 +674,11 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Automated
 
-- [ ] 1.1 Migration applies and rolls back cleanly
-- [ ] 1.2 Pest suite passes
-- [ ] 1.3 Larastan passes with no new baseline entries
-- [ ] 1.4 Pint passes
-- [ ] 1.5 Routes register
+- [x] 1.1 Migration applies and rolls back cleanly — f26e152
+- [x] 1.2 Pest suite passes — f26e152
+- [x] 1.3 Larastan passes with no new baseline entries — f26e152
+- [x] 1.4 Pint passes — f26e152
+- [x] 1.5 Routes register — f26e152
 
 #### Manual
 
@@ -688,10 +688,10 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Automated
 
-- [ ] 2.1 Pest suite passes
-- [ ] 2.2 Larastan passes with no new baseline entries
-- [ ] 2.3 Pint passes
-- [ ] 2.4 Route registers
+- [x] 2.1 Pest suite passes
+- [x] 2.2 Larastan passes with no new baseline entries
+- [x] 2.3 Pint passes
+- [x] 2.4 Route registers
 
 ### Phase 3: Draft UI
 

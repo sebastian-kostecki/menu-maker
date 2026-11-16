@@ -563,11 +563,11 @@ The browser test drives empty and refill. The visual gate covers the empty cell 
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Seeder runs and its test passes
-- [x] 3.3 E2E passes
-- [x] 3.4 Visual gate passes after the deliberate update
-- [x] 3.5 Full Pest suite passes
+- [x] 3.1 Build passes — 9fc8dfd
+- [x] 3.2 Seeder runs and its test passes — 9fc8dfd
+- [x] 3.3 E2E passes — 9fc8dfd
+- [x] 3.4 Visual gate passes after the deliberate update — 9fc8dfd
+- [x] 3.5 Full Pest suite passes — 9fc8dfd
 
 #### Manual
 

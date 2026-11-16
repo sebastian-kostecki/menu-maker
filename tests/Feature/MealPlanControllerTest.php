@@ -716,6 +716,63 @@ it('passes each meal its amounts scaled to the family', function (): void {
         );
 });
 
+/**
+ * A plan in the given status with three Obiady (Monday to Wednesday), Monday's feeding Tuesday's.
+ *
+ * @return array{0: MealPlan, 1: Meal, 2: Meal}
+ */
+function planWithLinkedObiady(User $user, string $status): array
+{
+    $recipes = Recipe::factory()->count(3)->supper()->for($user)->create();
+    $plan = mealPlanWithRecipes($user, $status, ...$recipes);
+    [$monday, $tuesday] = $plan->meals()->orderBy('meal_date')->get()->all();
+    $tuesday->update(['recipe_id' => $monday->recipe_id]);
+    $monday->update(['feeds_meal_id' => $tuesday->id]);
+
+    return [$plan, $monday->fresh(), $tuesday->fresh()];
+}
+
+it('back to draft keeps the link', function (): void {
+    [$plan, $monday, $tuesday] = planWithLinkedObiady($this->user, 'done');
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.draft', $plan))->assertOk();
+
+    expect($monday->fresh()->feeds_meal_id)->toBe($tuesday->id)
+        ->and($tuesday->fresh()->recipe_id)->toBe($monday->recipe_id);
+});
+
+it('redraw drops every link', function (): void {
+    seedFullWeekOfRecipes($this->user, 12);
+    [$plan] = planWithLinkedObiady($this->user, 'draft');
+
+    $this->actingAs($this->user)->putJson(route('meal-plans.update', $plan), ['regenerate' => true])->assertOk();
+
+    expect($plan->meals()->count())->toBe(21)
+        ->and($plan->meals()->whereNotNull('feeds_meal_id')->count())->toBe(0);
+});
+
+it('meals_count counts the carried-over meal', function (): void {
+    planWithLinkedObiady($this->user, 'draft');
+
+    $this->actingAs($this->user)->getJson(route('meal-plans.index'))
+        ->assertOk()
+        ->assertJsonPath('data.0.meals_count', 3);
+});
+
+it('show exposes feeds_meal_id and from_meal_id', function (): void {
+    [$plan, $monday, $tuesday] = planWithLinkedObiady($this->user, 'draft');
+
+    $this->actingAs($this->user)->get(route('meal-plans.show', $plan))
+        ->assertInertia(
+            fn ($page) => $page->component('MealPlans/Show', false)
+                ->where('mealPlan.meals.0.feeds_meal_id', $tuesday->id)
+                ->where('mealPlan.meals.0.from_meal_id', null)
+                ->where('mealPlan.meals.1.feeds_meal_id', null)
+                ->where('mealPlan.meals.1.from_meal_id', $monday->id)
+                ->where('mealPlan.meals.2.from_meal_id', null)
+        );
+});
+
 it('passes the scaling notices of a done plan', function (): void {
     $recipe = Recipe::factory()->for($this->user)->create();
     $plan = mealPlanWithRecipes($this->user, 'done', $recipe);

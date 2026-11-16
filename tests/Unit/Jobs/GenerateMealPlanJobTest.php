@@ -82,6 +82,25 @@ it('writes scaled and refined meal ingredients for a family', function (): void 
         ->and($rows->pluck('source')->unique()->all())->toBe([MealIngredient::SOURCE_AI]);
 });
 
+it('a plan with a linked pair ends done with rows only on the cooked meal', function (): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    seedTwoAdultFamily($user);
+    Recipe::query()->where('user_id', $user->id)->each(fn (Recipe $recipe) => attachIngredient($recipe, 'Mąka', '100', 'g'));
+    $mealPlan = approvedPlanWithDrawnMeals($user);
+    $monday = $mealPlan->meals()->where('meal_category', 'supper')->orderBy('meal_date')->firstOrFail();
+    $tuesday = $mealPlan->meals()->where('meal_category', 'supper')->orderBy('meal_date')->skip(1)->firstOrFail();
+    $tuesday->update(['recipe_id' => $monday->recipe_id]);
+    $monday->update(['feeds_meal_id' => $tuesday->id]);
+
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
+
+    expect($mealPlan->fresh()->status)->toBe('done')
+        ->and(MealIngredient::query()->where('meal_id', $monday->id)->count())->toBe(1)
+        ->and(MealIngredient::query()->where('meal_id', $tuesday->id)->count())->toBe(0)
+        ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(20);
+});
+
 it('leaves a plan that is no longer pending untouched, e.g. a retried job after going back to draft', function (string $status): void {
     $user = User::factory()->create();
     seedFullWeekOfRecipes($user);

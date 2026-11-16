@@ -89,6 +89,36 @@ class MealRequestValidationTest extends TestCase
         $this->assertArrayHasKey('recipe_id', $this->validatorFor(['recipe_id' => 'abc'])->errors()->toArray());
     }
 
+    public function test_refuses_both_recipe_id_and_from_meal_id_or_neither(): void
+    {
+        $other = Meal::query()->create([
+            'meal_plan_id' => $this->meal->meal_plan_id,
+            'recipe_id' => $this->meal->recipe_id,
+            'meal_date' => $this->meal->meal_date->copy()->addDay(),
+            'meal_category' => 'breakfast',
+        ]);
+
+        $this->assertArrayHasKey('from_meal_id', $this->validatorFor(['recipe_id' => $this->meal->recipe_id, 'from_meal_id' => $other->id])->errors()->toArray());
+        $this->assertArrayHasKey('from_meal_id', $this->validatorFor(['recipe_id' => null, 'from_meal_id' => $other->id])->errors()->toArray());
+        $this->assertArrayHasKey('recipe_id', $this->validatorFor([])->errors()->toArray());
+        $this->assertArrayNotHasKey('recipe_id', $this->validatorFor(['from_meal_id' => $other->id])->errors()->toArray());
+        $this->assertArrayNotHasKey('from_meal_id', $this->validatorFor(['recipe_id' => null])->errors()->toArray());
+    }
+
+    public function test_requires_an_existing_meal_of_the_same_plan_for_from_meal_id(): void
+    {
+        $foreignPlan = MealPlan::factory()->draft()->for($this->user)->create();
+        $foreign = Meal::query()->create([
+            'meal_plan_id' => $foreignPlan->id,
+            'recipe_id' => $this->meal->recipe_id,
+            'meal_date' => $foreignPlan->start_date,
+            'meal_category' => 'breakfast',
+        ]);
+
+        $this->assertArrayHasKey('from_meal_id', $this->validatorFor(['from_meal_id' => $foreign->id])->errors()->toArray());
+        $this->assertArrayHasKey('from_meal_id', $this->validatorFor(['from_meal_id' => 'abc'])->errors()->toArray());
+    }
+
     public function test_rejects_other_category_deleted_and_foreign_recipes(): void
     {
         $dinner = Recipe::factory()->dinner()->for($this->user)->create();

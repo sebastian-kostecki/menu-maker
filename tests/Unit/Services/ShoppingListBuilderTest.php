@@ -112,6 +112,22 @@ it('sums ingredients across the plan meals', function (): void {
         ->and($list->recipesWithoutIngredients)->toBe([]);
 });
 
+it('a linked pair adds the dish once in double quantity and lists no recipe without ingredients', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->supper()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '300', 'g');
+    $plan = mealPlanWithRecipes($user, 'done', $recipe, $recipe);
+    [$cooked, $carriedOver] = $plan->meals()->orderBy('meal_date')->get()->all();
+    $cooked->update(['feeds_meal_id' => $carriedOver->id]);
+    snapshotMealIngredients($plan);
+
+    $list = (new ShoppingListBuilder)->forMealPlan($plan->fresh());
+
+    expect($list->items)->toHaveCount(1)
+        ->and($list->items[0]->display)->toBe('600 g')
+        ->and($list->recipesWithoutIngredients)->toBe([]);
+});
+
 it('counts the ingredients of a soft-deleted recipe', function (): void {
     $user = User::factory()->create();
     $recipe = Recipe::factory()->for($user)->create();

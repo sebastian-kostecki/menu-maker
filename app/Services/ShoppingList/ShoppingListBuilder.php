@@ -6,6 +6,7 @@ namespace App\Services\ShoppingList;
 
 use App\Models\MealPlan;
 use App\Models\Unit;
+use App\Services\MealLinks\MealLinkRules;
 use Collator;
 
 class ShoppingListBuilder
@@ -73,11 +74,12 @@ class ShoppingListBuilder
 
         $lines = [];
         $withoutIngredients = [];
+        $carriedOver = (new MealLinkRules)->fedMealIds($mealPlan->meals);
 
         foreach ($mealPlan->meals as $meal) {
             $recipe = $meal->recipe;
 
-            if ($recipe === null) {
+            if ($recipe === null || isset($carriedOver[$meal->id])) {
                 continue;
             }
 

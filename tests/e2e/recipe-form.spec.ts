@@ -15,6 +15,8 @@ test('user creates a recipe with a new ingredient', async ({ page }, testInfo) =
   await page.getByLabel('Nazwa przepisu').fill('Kasza z E2E');
   await page.getByLabel('Kategoria').click();
   await page.getByRole('option', { name: 'Obiad' }).click();
+  // The closing Select returns focus to its trigger; typing before it finishes loses the text (Firefox under load).
+  await expect(page.getByRole('listbox')).toBeHidden();
   await page.getByLabel('Sposób przygotowania').fill('Ugotuj kaszę i podaj.');
   await page.getByLabel('Kaloryczność całkowita (kcal)').fill('350');
   await page.getByLabel('Liczba porcji').fill('2');

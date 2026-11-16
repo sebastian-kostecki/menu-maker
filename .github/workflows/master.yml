@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=dev
 
+      - name: Design tokens lint (self-test)
+        run: bash scripts/lint-tokens.test.sh
+
+      - name: Design tokens lint
+        run: npm run lint:tokens
+
       - name: Build for production
         run: NODE_ENV=production npm run build
 
@@ -220,7 +226,31 @@ jobs:
         env:
           MAILPIT_URL: http://127.0.0.1:8025
 
+      - name: Start app server
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/serve.log 2>&1 &
+          for _ in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://127.0.0.1:8000/dev/design-system; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "App server did not become ready within 30 s" >&2
+          exit 1
 
+      - name: Run visual gate
+        run: npm run test:visual
+        env:
+          VISUAL_DOCKER_NETWORK: host
+          VISUAL_BASE_URL: http://127.0.0.1:8000
+
+      - name: Upload visual diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: test-results/
+          if-no-files-found: ignore
 
       - name: Upload Laravel and queue logs
         if: failure()

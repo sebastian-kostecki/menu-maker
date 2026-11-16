@@ -2,29 +2,33 @@
   <form @submit.prevent="$emit('submit')" class="space-y-6">
     <!-- Recipe Name -->
     <div class="space-y-2">
-      <label for="name" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <Label for="name">
         Nazwa przepisu *
-      </label>
+      </Label>
       <Input
         id="name"
         v-model="form.name"
         type="text"
         placeholder="Wpisz nazwę przepisu"
-        :class="{ 'border-red-500': form.errors.name }"
+        :class="{ 'border-destructive': form.errors.name }"
+        :aria-invalid="!!form.errors.name"
+        :aria-describedby="form.errors.name ? 'name-error' : undefined"
         required
       />
-      <div v-if="form.errors.name" class="text-sm text-red-600">
+      <p v-if="form.errors.name" id="name-error" class="text-sm text-destructive">
         {{ form.errors.name }}
-      </div>
+      </p>
     </div>
 
     <!-- Category -->
     <div class="space-y-2">
-      <label for="category" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <Label for="category">
         Kategoria *
-      </label>
+      </Label>
       <Select v-model="form.category" :disabled="form.processing">
-        <SelectTrigger id="category" :class="{ 'border-red-500': form.errors.category }">
+        <SelectTrigger id="category" :class="{ 'border-destructive': form.errors.category }"
+          :aria-invalid="!!form.errors.category"
+          :aria-describedby="form.errors.category ? 'category-error' : undefined">
           <SelectValue placeholder="Wybierz kategorię" />
         </SelectTrigger>
         <SelectContent>
@@ -37,74 +41,80 @@
           </SelectItem>
         </SelectContent>
       </Select>
-      <div v-if="form.errors.category" class="text-sm text-red-600">
+      <p v-if="form.errors.category" id="category-error" class="text-sm text-destructive">
         {{ form.errors.category }}
-      </div>
+      </p>
     </div>
 
     <!-- Instructions -->
     <div class="space-y-2">
-      <label for="instructions" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <Label for="instructions">
         Sposób przygotowania *
-      </label>
+      </Label>
       <Textarea
         id="instructions"
         v-model="form.instructions"
         rows="5"
         placeholder="Opisz sposób przygotowania"
-        :class="{ 'border-red-500': form.errors.instructions }"
+        :class="{ 'border-destructive': form.errors.instructions }"
+        :aria-invalid="!!form.errors.instructions"
+        :aria-describedby="form.errors.instructions ? 'instructions-error' : undefined"
         required
       />
-      <div v-if="form.errors.instructions" class="text-sm text-red-600">
+      <p v-if="form.errors.instructions" id="instructions-error" class="text-sm text-destructive">
         {{ form.errors.instructions }}
-      </div>
+      </p>
     </div>
 
     <!-- Calories and Servings Row -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Calories -->
       <div class="space-y-2">
-        <label for="calories" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <Label for="calories">
           Kaloryczność całkowita (kcal) *
-        </label>
+        </Label>
         <Input
           id="calories"
           v-model="form.calories"
           type="number"
           min="50"
           placeholder="np. 350"
-          :class="{ 'border-red-500': form.errors.calories }"
+          :class="{ 'border-destructive': form.errors.calories }"
+        :aria-invalid="!!form.errors.calories"
+        :aria-describedby="form.errors.calories ? 'calories-error' : undefined"
           required
         />
-        <div v-if="form.errors.calories" class="text-sm text-red-600">
-          {{ form.errors.calories }}
-        </div>
+        <p v-if="form.errors.calories" id="calories-error" class="text-sm text-destructive">
+        {{ form.errors.calories }}
+      </p>
       </div>
 
       <!-- Servings -->
       <div class="space-y-2">
-        <label for="servings" class="block text-sm font-medium leading-6 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <Label for="servings">
           Liczba porcji *
-        </label>
+        </Label>
         <Input
           id="servings"
           v-model="form.servings"
           type="number"
           min="1"
           placeholder="np. 4"
-          :class="{ 'border-red-500': form.errors.servings }"
+          :class="{ 'border-destructive': form.errors.servings }"
+        :aria-invalid="!!form.errors.servings"
+        :aria-describedby="form.errors.servings ? 'servings-error' : undefined"
           required
         />
-        <div v-if="form.errors.servings" class="text-sm text-red-600">
-          {{ form.errors.servings }}
-        </div>
+        <p v-if="form.errors.servings" id="servings-error" class="text-sm text-destructive">
+        {{ form.errors.servings }}
+      </p>
       </div>
     </div>
 
     <!-- Ingredients -->
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium">Składniki</h3>
+        <h2 class="text-lg font-semibold">Składniki</h2>
       </div>
 
       <IngredientManager
@@ -122,12 +132,13 @@
         :disabled="form.processing || !isFormValid"
         class="flex-1 md:flex-none"
       >
-        <span v-if="form.processing">
-          Zapisywanie...
-        </span>
-        <span v-else>
+        <template v-if="form.processing">
+          <Loader2 class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          Zapisywanie…
+        </template>
+        <template v-else>
           {{ isEditing ? 'Zapisz zmiany' : 'Zapisz przepis' }}
-        </span>
+        </template>
       </Button>
 
       <Button
@@ -148,6 +159,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { Loader2 } from 'lucide-vue-next'
+import { Label } from '@/Components/ui/label'
 import { Input } from '@/Components/ui/input'
 import { Button } from '@/Components/ui/button'
 import { Textarea } from '@/Components/ui/textarea'

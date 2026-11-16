@@ -1,32 +1,38 @@
 <template>
-  <div class="min-h-screen bg-gray-100 py-6">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-white overflow-hidden shadow-xs sm:rounded-lg">
-        <div class="p-6 bg-white border-b border-gray-200">
-          <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-semibold text-gray-900">
-              {{ recipe?.data ? 'Edytuj przepis' : 'Nowy przepis' }}
-            </h1>
-          </div>
+  <Head :title="pageTitle" />
 
-          <RecipeForm
-            :form="form"
-            :categories="categories"
-            :ingredients="ingredients"
-            :units="units"
-            :is-editing="!!recipe?.data"
-            @submit="handleSubmit"
-            @cancel="handleCancel"
-          />
-        </div>
+  <AuthenticatedLayout>
+    <div class="mx-auto flex max-w-2xl flex-col gap-6">
+      <PageHeader :title="pageTitle">
+        <template #breadcrumbs>
+          <div class="flex items-center gap-2">
+            <Link :href="route('recipes.index')" class="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Przepisy</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" class="text-foreground">{{ pageTitle }}</span>
+          </div>
+        </template>
+      </PageHeader>
+
+      <div class="rounded-lg border bg-card p-6">
+        <RecipeForm
+          :form="form"
+          :categories="categories"
+          :ingredients="ingredients"
+          :units="units"
+          :is-editing="!!recipe?.data"
+          @submit="handleSubmit"
+          @cancel="handleCancel"
+        />
       </div>
     </div>
-  </div>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3'
-import { router } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import PageHeader from '@/Components/Common/PageHeader.vue'
 import RecipeForm from '@/Components/recipes/RecipeForm.vue'
 
 // Define props interface
@@ -49,6 +55,8 @@ const props = defineProps({
   }
 })
 
+const pageTitle = computed(() => (props.recipe?.data ? 'Edytuj przepis' : 'Nowy przepis'))
+
 // Initialize form with useForm hook
 const form = useForm({
   name: props.recipe?.data?.name ?? '',
@@ -67,14 +75,14 @@ const form = useForm({
 const handleSubmit = () => {
   if (props.recipe) {
     // Update existing recipe
-    form.put(`/recipes/${props.recipe.data.id}`, {
+    form.put(route('recipes.update', props.recipe.data.id), {
       onSuccess: () => {
         // Success handled by redirect from controller
       }
     })
   } else {
     // Create new recipe
-    form.post('/recipes', {
+    form.post(route('recipes.store'), {
       onSuccess: () => {
         // Success handled by redirect from controller
       }
@@ -84,6 +92,6 @@ const handleSubmit = () => {
 
 // Handle cancel action - navigate to recipes list
 const handleCancel = () => {
-  router.visit('/recipes')
+  router.visit(route('recipes.index'))
 }
 </script>

@@ -79,6 +79,7 @@ class MealPlanPdfExporter
     private function pdfMeal(Meal $meal): PdfMeal
     {
         $recipe = $meal->recipe;
+        $category = MealCategory::from($meal->meal_category);
         $ingredients = [];
 
         foreach ($meal->ingredients as $mealIngredient) {
@@ -93,7 +94,8 @@ class MealPlanPdfExporter
         }
 
         return new PdfMeal(
-            MealCategory::from($meal->meal_category)->label(),
+            $category->label(),
+            $category->value,
             $recipe->name,
             $recipe->trashed(),
             $ingredients,

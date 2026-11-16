@@ -25,7 +25,9 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
 
   const expectScaledGrid = async () => {
     await expect(page.getByTestId('scaling-notice')).toBeHidden();
-    await grid.locator('details').first().locator('summary').click();
+    const ingredientsToggle = grid.getByRole('button', { name: /^Składniki/ }).first();
+    await ingredientsToggle.click();
+    await expect(ingredientsToggle).toHaveAttribute('aria-expanded', 'true');
     await expect(grid.getByTestId('meal-ingredients').first()).toContainText('Mąka — 200 g');
   };
 
@@ -60,7 +62,7 @@ test('user generates and regenerates a weekly meal plan', async ({ page }, testI
   await expectPdfDownload();
 
   await page.getByRole('button', { name: 'Regeneruj' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Regeneruj', exact: true }).click();
 
   // The old grid also has 21 cells: wait for the pending state first, so the regeneration is proven.
   await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();

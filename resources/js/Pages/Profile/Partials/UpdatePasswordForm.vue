@@ -1,19 +1,25 @@
 <script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import FormField from '@/Components/Common/FormField.vue'
+import { Button } from '@/Components/ui/button'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card'
+import { Input } from '@/Components/ui/input'
+import { useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
-const passwordInput = ref(null);
-const currentPasswordInput = ref(null);
+const passwordInput = ref(null)
+const currentPasswordInput = ref(null)
 
 const form = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
-});
+})
 
 const updatePassword = () => {
     form.put(route('password.update'), {
@@ -21,101 +27,102 @@ const updatePassword = () => {
         onSuccess: () => form.reset(),
         onError: () => {
             if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value.focus();
+                form.reset('password', 'password_confirmation')
+                passwordInput.value.$el.focus()
             }
             if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value.focus();
+                form.reset('current_password')
+                currentPasswordInput.value.$el.focus()
             }
         },
-    });
-};
+    })
+}
 </script>
 
 <template>
-    <section>
-        <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Zmiana hasła
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+    <Card role="region" aria-labelledby="update-password-title">
+        <CardHeader>
+            <CardTitle id="update-password-title" as="h2">Zmiana hasła</CardTitle>
+            <CardDescription>
                 Używaj długiego, losowego hasła, aby zabezpieczyć swoje konto.
-            </p>
-        </header>
+            </CardDescription>
+        </CardHeader>
 
-        <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
-            <div>
-                <InputLabel for="current_password" value="Obecne hasło" />
-
-                <TextInput
+        <CardContent>
+            <form class="grid gap-4" @submit.prevent="updatePassword">
+                <FormField
                     id="current_password"
-                    ref="currentPasswordInput"
-                    v-model="form.current_password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="current-password"
-                />
-
-                <InputError
-                    :message="form.errors.current_password"
-                    class="mt-2"
-                />
-            </div>
-
-            <div>
-                <InputLabel for="password" value="Nowe hasło" />
-
-                <TextInput
-                    id="password"
-                    ref="passwordInput"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                />
-
-                <InputError :message="form.errors.password" class="mt-2" />
-            </div>
-
-            <div>
-                <InputLabel
-                    for="password_confirmation"
-                    value="Potwierdź hasło"
-                />
-
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                />
-
-                <InputError
-                    :message="form.errors.password_confirmation"
-                    class="mt-2"
-                />
-            </div>
-
-            <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Zapisz</PrimaryButton>
-
-                <Transition
-                    enter-active-class="transition ease-in-out"
-                    enter-from-class="opacity-0"
-                    leave-active-class="transition ease-in-out"
-                    leave-to-class="opacity-0"
+                    label="Obecne hasło"
+                    :error="form.errors.current_password"
                 >
-                    <p
-                        v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600 dark:text-gray-400"
+                    <template #default="{ id, invalid, describedBy }">
+                        <Input
+                            :id="id"
+                            ref="currentPasswordInput"
+                            type="password"
+                            v-model="form.current_password"
+                            autocomplete="current-password"
+                            :aria-invalid="invalid || undefined"
+                            :aria-describedby="describedBy"
+                        />
+                    </template>
+                </FormField>
+
+                <FormField
+                    id="password"
+                    label="Nowe hasło"
+                    :error="form.errors.password"
+                >
+                    <template #default="{ id, invalid, describedBy }">
+                        <Input
+                            :id="id"
+                            ref="passwordInput"
+                            type="password"
+                            v-model="form.password"
+                            autocomplete="new-password"
+                            :aria-invalid="invalid || undefined"
+                            :aria-describedby="describedBy"
+                        />
+                    </template>
+                </FormField>
+
+                <FormField
+                    id="password_confirmation"
+                    label="Potwierdź hasło"
+                    :error="form.errors.password_confirmation"
+                >
+                    <template #default="{ id, invalid, describedBy }">
+                        <Input
+                            :id="id"
+                            type="password"
+                            v-model="form.password_confirmation"
+                            autocomplete="new-password"
+                            :aria-invalid="invalid || undefined"
+                            :aria-describedby="describedBy"
+                        />
+                    </template>
+                </FormField>
+
+                <div class="flex items-center gap-4">
+                    <Button type="submit" :disabled="form.processing">
+                        Zapisz
+                    </Button>
+
+                    <Transition
+                        enter-active-class="transition ease-in-out"
+                        enter-from-class="opacity-0"
+                        leave-active-class="transition ease-in-out"
+                        leave-to-class="opacity-0"
                     >
-                        Zapisano.
-                    </p>
-                </Transition>
-            </div>
-        </form>
-    </section>
+                        <p
+                            v-if="form.recentlySuccessful"
+                            class="text-sm text-muted-foreground"
+                        >
+                            Zapisano.
+                        </p>
+                    </Transition>
+                </div>
+            </form>
+        </CardContent>
+    </Card>
 </template>

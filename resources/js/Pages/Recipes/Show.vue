@@ -1,94 +1,67 @@
 <template>
-  <Head :title="`Recipe: ${recipe.name}`" />
+  <Head :title="recipe.name" />
 
   <AuthenticatedLayout>
-    <template #header>
-      <!-- Breadcrumbs -->
-      <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-        <Link href="/recipes" class="hover:text-gray-900">Recipes</Link>
-        <span>/</span>
-        <span class="text-gray-900">{{ recipe.name }}</span>
-      </nav>
+    <div class="mx-auto flex max-w-6xl flex-col gap-6">
+      <PageHeader :title="recipe.name || ''">
+        <template #breadcrumbs>
+          <div class="flex items-center gap-2">
+            <Link :href="route('recipes.index')" class="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Przepisy</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" class="text-foreground">{{ recipe.name }}</span>
+          </div>
+        </template>
 
-      <div class="flex items-center justify-between">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-          Recipe Details
-        </h2>
+        <template v-if="recipe.category" #description>
+          <CategoryBadge :category="recipe.category" />
+        </template>
 
-        <!-- Action Bar -->
-        <div class="flex items-center space-x-3">
-          <!-- Back to List Button -->
-          <Link
-            href="/recipes"
-            class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Back to Recipes
-          </Link>
-
+        <template #actions>
           <ActionBar
             :can-edit="canEdit"
-            @edit="handleEdit"
+            :edit-href="route('recipes.edit', recipe.id)"
             @delete-request="handleDeleteRequest"
           />
-        </div>
-      </div>
-    </template>
+        </template>
+      </PageHeader>
 
-    <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xs sm:rounded-lg">
-          <div class="p-6 text-gray-900 space-y-8">
+      <RecipeMetaBadges
+        :calories="recipe.calories || 0"
+        :servings="recipe.servings || 1"
+      />
 
-            <!-- Recipe Header -->
-            <RecipeHeader
-              :name="recipe.name || ''"
-              :category="recipe.category || 'breakfast'"
-            />
+      <section class="flex flex-col gap-4">
+        <h2 class="text-lg font-semibold">Składniki</h2>
+        <IngredientCardGrid :ingredients="recipe.ingredients || []" />
+      </section>
 
-            <!-- Recipe Meta Badges -->
-            <RecipeMetaBadges
-              :calories="recipe.calories || 0"
-              :servings="recipe.servings || 1"
-            />
-
-            <!-- Ingredients Grid -->
-            <div class="space-y-4">
-              <h2 class="text-2xl font-semibold text-gray-900">Ingredients</h2>
-              <IngredientCardGrid :ingredients="recipe.ingredients || []" />
-            </div>
-
-            <!-- Instructions Section -->
-            <InstructionsSection :instructions="recipe.instructions || ''" />
-
-          </div>
-        </div>
-      </div>
+      <InstructionsSection :instructions="recipe.instructions || ''" />
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <DeleteConfirmationDialog
-      :open="showDeleteDialog"
-      :recipe-name="recipe.name || ''"
-      :is-loading="deleteLoading"
+    <ConfirmDialog
+      v-model:open="showDeleteDialog"
+      title="Usuń przepis"
+      :description="`Czy na pewno chcesz usunąć przepis „${recipe.name || ''}”? Tej operacji nie można cofnąć.`"
+      confirm-label="Usuń"
+      variant="destructive"
+      :processing="deleteLoading"
       @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
     />
   </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ActionBar from '@/Components/recipes/ActionBar.vue';
-import RecipeHeader from '@/Components/recipes/RecipeHeader.vue';
+import CategoryBadge from '@/Components/recipes/CategoryBadge.vue';
 import RecipeMetaBadges from '@/Components/recipes/RecipeMetaBadges.vue';
 import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue';
 import InstructionsSection from '@/Components/recipes/InstructionsSection.vue';
-import DeleteConfirmationDialog from '@/Components/recipes/DeleteConfirmationDialog.vue';
+import PageHeader from '@/Components/Common/PageHeader.vue';
+import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue';
 import { useDeleteRecipe } from '@/hooks/useDeleteRecipe';
 
 // Props from Inertia
@@ -108,26 +81,18 @@ const showDeleteDialog = ref(false);
 const { deleteRecipe, isLoading: deleteLoading } = useDeleteRecipe();
 
 // Event handlers
-function handleEdit() {
-  router.visit(`/recipes/${props.recipe.id}/edit`);
-}
-
 function handleDeleteRequest() {
   showDeleteDialog.value = true;
-}
-
-function handleDeleteCancel() {
-  showDeleteDialog.value = false;
 }
 
 async function handleDeleteConfirm() {
   try {
     await deleteRecipe(props.recipe.id);
+    // Redirect is handled by the server response
+  } catch {
+    // toast already shown by the hook
+  } finally {
     showDeleteDialog.value = false;
-    // Redirect is handled by the hook
-  } catch (error) {
-    // Error handling is done in the hook
-    console.error('Failed to delete recipe:', error);
   }
 }
 </script>

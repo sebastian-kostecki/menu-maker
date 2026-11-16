@@ -1,56 +1,43 @@
 <template>
-  <TableRow class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+  <TableRow class="transition-colors hover:bg-muted/50">
     <TableCell class="font-medium">
-      <button
-        type="button"
-        class="text-left hover:text-blue-600 hover:underline transition-colors"
-        @click="handleShowRecipe"
-      >
-        {{ recipe.name }}
-      </button>
+      <Link
+        :href="route('recipes.show', recipe.id)"
+        class="rounded-sm hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >{{ recipe.name }}</Link>
     </TableCell>
     <TableCell>
-      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" :class="categoryClasses">
-        {{ mealCategoryLabel(recipe.category) }}
-      </span>
+      <CategoryBadge :category="recipe.category" />
     </TableCell>
-    <TableCell class="text-gray-600 dark:text-gray-300">
-      {{ formatCalories(recipe.calories) }}
+    <TableCell class="text-right tabular-nums text-muted-foreground">
+      {{ formatNumber(recipe.calories) }} kcal
     </TableCell>
-    <TableCell class="text-gray-600 dark:text-gray-300">
+    <TableCell class="text-right tabular-nums text-muted-foreground">
       {{ recipe.servings }}
     </TableCell>
-    <TableCell class="text-gray-600 dark:text-gray-300">
+    <TableCell class="text-muted-foreground">
       {{ formatDate(recipe.created_at) }}
     </TableCell>
     <TableCell class="text-right">
-      <div class="flex items-center justify-end gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          @click="handleShowRecipe"
-          class="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
-          :aria-label="`View ${recipe.name}`"
-        >
-          <Eye class="h-4 w-4" />
+      <div class="flex items-center justify-end gap-1">
+        <Button variant="ghost" size="icon" as-child>
+          <Link :href="route('recipes.show', recipe.id)" :aria-label="`Pokaż ${recipe.name}`">
+            <Eye class="size-4" aria-hidden="true" />
+          </Link>
+        </Button>
+        <Button variant="ghost" size="icon" as-child>
+          <Link :href="route('recipes.edit', recipe.id)" :aria-label="`Edytuj ${recipe.name}`">
+            <Pencil class="size-4" aria-hidden="true" />
+          </Link>
         </Button>
         <Button
           variant="ghost"
-          size="sm"
-          @click="handleEditRecipe"
-          class="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
-          :aria-label="`Edit ${recipe.name}`"
-        >
-          <Edit class="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
+          size="icon"
+          class="hover:bg-destructive/10 hover:text-destructive"
+          :aria-label="`Usuń ${recipe.name}`"
           @click="handleDeleteRecipe"
-          class="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-          :aria-label="`Delete ${recipe.name}`"
         >
-          <Trash2 class="h-4 w-4" />
+          <Trash2 class="size-4" aria-hidden="true" />
         </Button>
       </div>
     </TableCell>
@@ -58,15 +45,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { Eye, Edit, Trash2 } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import { Eye, Pencil, Trash2 } from 'lucide-vue-next';
 import { TableCell, TableRow } from '@/Components/ui/table';
 import { Button } from '@/Components/ui/button';
-import { mealCategoryLabel } from '@/lib/mealCategories';
+import CategoryBadge from '@/Components/recipes/CategoryBadge.vue';
+import { formatDate, formatNumber } from '@/lib/format.js';
 
 // Props
-const props = defineProps({
+defineProps({
   recipe: {
     type: Object,
     required: true,
@@ -85,42 +72,7 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['delete-requested']);
 
-// Computed
-const categoryClasses = computed(() => {
-  switch (props.recipe.category) {
-    case 'breakfast':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
-    case 'dinner':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
-    case 'supper':
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300';
-  }
-});
-
-// Methods
-const formatCalories = (calories) => {
-  return parseFloat(calories).toFixed(0) + ' kcal';
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
-
 // Event handlers
-const handleShowRecipe = () => {
-  router.visit(route('recipes.show', props.recipe.id));
-};
-
-const handleEditRecipe = () => {
-  router.visit(route('recipes.edit', props.recipe.id));
-};
-
 const handleDeleteRecipe = () => {
   emit('delete-requested');
 };

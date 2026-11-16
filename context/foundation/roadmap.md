@@ -52,7 +52,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
-| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | proposed |
+| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | planning |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
@@ -128,7 +128,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: jeden mechanizm „gotowane raz, jedzone dwa razy” (posiłek wskazuje kolejny posiłek, który z niego korzysta), wspólny z S-20.
   - Rozstrzygnięte 2026-11-16: gdy użytkownik podmieni przepis albo opróżni pierwszy posiłek, powiązanie znika, a drugi posiłek staje się pusty (stąd S-18 jako warunek wstępny).
 - **Risk:** Po S-18, bo rozpięcie powiązania zostawia pusty posiłek; zmienia zasadę „jeden posiłek = jedno skalowanie” i sumowanie listy zakupów; wprowadza mechanizm powiązania, który S-20 rozszerza na inną kategorię, więc idzie przed nim.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-20: Kolacja na śniadanie następnego dnia
 
@@ -163,7 +163,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 | ---------- | ----------------------------- | ------------------------------------------------------------- | --------------------- | ----- |
 | S-17       | meal-plan-draft-with-swap     | Szkic jadłospisu z podmianą przepisu i zatwierdzeniem         | yes                   | North star. Run `/10x-plan meal-plan-draft-with-swap` |
 | S-18       | meal-plan-empty-slot          | Pusty posiłek w jadłospisie                                   | yes                   | Run `/10x-plan meal-plan-empty-slot`; zalecany jako następny |
-| S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | no                    | Czeka na S-18 (rozpięcie powiązania zostawia pusty posiłek) |
+| S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | yes                   | Run `/10x-plan meal-plan-repeat-dinner`; S-18 done (2026-11-16) |
 | S-20       | dinner-to-breakfast-carryover | Kolacja na śniadanie następnego dnia                          | no                    | Czeka na S-19 |
 | S-21       | pdf-recipe-pages              | PDF z przepisami na osobnych stronach i przełącznikiem        | yes                   | Run `/10x-plan pdf-recipe-pages`; równolegle do S-17 |
 

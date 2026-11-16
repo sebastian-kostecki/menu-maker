@@ -10,6 +10,7 @@ use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\MealPlanPdf\MealPlanPdfExporter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Smalot\PdfParser\Parser;
 
 uses(RefreshDatabase::class);
 
@@ -170,7 +171,8 @@ it('renders a PDF with the plan before the shopping list and Polish glyphs', fun
     $text = pdfText($bytes);
 
     expect($bytes)->toStartWith('%PDF-')
-        ->and($text)->toContain('Poniedziałek 16.11', 'Śniadanie', 'Kolacja', 'Łosoś pieczony', 'Żurek', 'Mąka — 600 g', 'Piec w piekarniku', 'Bez składników')
+        ->and($text)->toContain('Poniedziałek 16.11', 'Śniadanie', 'Kolacja', 'Łosoś pieczony', 'Żurek', 'Mąka — 600 g', 'Bez składników')
+        ->not->toContain('Piec w piekarniku', 'Przygotowanie')
         ->and(strpos($text, 'Łosoś pieczony'))->toBeLessThan(strpos($text, 'Lista zakupów'))
         ->and(strpos($text, 'Lista zakupów'))->toBeLessThan(strpos($text, '1,2 kg'));
 });
@@ -223,4 +225,122 @@ it('builds the filename from the plan dates', function (): void {
     $plan = fixedPlan(User::factory()->create());
 
     expect(app(MealPlanPdfExporter::class)->filename($plan))->toBe('jadlospis-2026-11-16-2026-11-22.pdf');
+});
+
+it('has no recipe pages unless asked for', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    addMeal($plan, Recipe::factory()->breakfast()->for($user)->create(), '2026-11-16');
+
+    expect(app(MealPlanPdfExporter::class)->document($plan)->recipes)->toBe([]);
+});
+
+it('orders recipe pages by first use in the week, not by insertion', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $tuesday = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Wtorkowe']);
+    $mondayDinner = Recipe::factory()->dinner()->for($user)->create(['name' => 'Poniedzialkowa kolacja']);
+    $mondayBreakfast = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Poniedzialkowe']);
+
+    addMeal($plan, $tuesday, '2026-11-17');
+    addMeal($plan, $mondayDinner, '2026-11-16');
+    addMeal($plan, $mondayBreakfast, '2026-11-16');
+
+    $recipes = app(MealPlanPdfExporter::class)->document($plan, true)->recipes;
+
+    expect(array_map(fn ($recipe) => $recipe->name, $recipes))->toBe(['Poniedzialkowe', 'Poniedzialkowa kolacja', 'Wtorkowe']);
+});
+
+it('groups the uses of a recipe by their printed amounts', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    foreach (['2026-11-16', '2026-11-18', '2026-11-20'] as $date) {
+        addMeal($plan, $recipe, $date);
+    }
+    snapshotMealIngredients($plan);
+    $plan->load('meals.ingredients');
+    $friday = $plan->meals->first(fn (Meal $meal) => $meal->meal_date->format('Y-m-d') === '2026-11-20');
+    $friday->ingredients->first()->update(['quantity' => '250']);
+
+    $recipes = app(MealPlanPdfExporter::class)->document($plan->fresh(), true)->recipes;
+
+    expect($recipes)->toHaveCount(1)
+        ->and($recipes[0]->ingredientGroups)->toHaveCount(2)
+        ->and($recipes[0]->ingredientGroups[0]->dayLabels)->toBe(['Poniedziałek 16.11', 'Środa 18.11'])
+        ->and($recipes[0]->ingredientGroups[0]->lines)->toBe(['Mąka — 100 g'])
+        ->and($recipes[0]->ingredientGroups[1]->dayLabels)->toBe(['Piątek 20.11'])
+        ->and($recipes[0]->ingredientGroups[1]->lines)->toBe(['Mąka — 250 g']);
+});
+
+it('gives a use without printable lines its own group', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    addMeal($plan, $recipe, '2026-11-17');
+    snapshotMealIngredients($plan);
+    $plan->load('meals.ingredients');
+    $tuesday = $plan->meals->first(fn (Meal $meal) => $meal->meal_date->format('Y-m-d') === '2026-11-17');
+    $tuesday->ingredients->each(fn ($ingredient) => $ingredient->update(['quantity' => '0']));
+
+    $groups = app(MealPlanPdfExporter::class)->document($plan->fresh(), true)->recipes[0]->ingredientGroups;
+
+    expect($groups)->toHaveCount(2)
+        ->and($groups[0]->lines)->toBe(['Mąka — 100 g'])
+        ->and($groups[1]->dayLabels)->toBe(['Wtorek 17.11'])
+        ->and($groups[1]->lines)->toBe([]);
+});
+
+it('takes the recipe page fields from the recipe', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->supper()->for($user)->create(['name' => 'Rosół', 'instructions' => "Krok 1\nKrok 2"]);
+    addMeal($plan, $recipe, '2026-11-16');
+    $recipe->delete();
+
+    $page = app(MealPlanPdfExporter::class)->document($plan, true)->recipes[0];
+
+    expect($page->name)->toBe('Rosół')
+        ->and($page->category)->toBe('Obiad')
+        ->and($page->categoryValue)->toBe('supper')
+        ->and($page->deleted)->toBeTrue()
+        ->and($page->instructions)->toBe("Krok 1\nKrok 2");
+});
+
+it('appends one page per recipe after the shopping list', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $first = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Jajecznica', 'instructions' => 'Smażyć na patelni.']);
+    $second = Recipe::factory()->supper()->for($user)->create(['name' => 'Rosół', 'instructions' => 'Gotować długo.']);
+    attachIngredient($first, 'Jajka', '4', 'szt');
+    addMeal($plan, $first, '2026-11-16');
+    addMeal($plan, $first, '2026-11-17');
+    addMeal($plan, $second, '2026-11-16');
+    snapshotMealIngredients($plan);
+    $exporter = app(MealPlanPdfExporter::class);
+
+    $without = (new Parser)->parseContent($exporter->render($plan));
+    $withBytes = $exporter->render($plan, true);
+    $with = (new Parser)->parseContent($withBytes);
+    $text = pdfText($withBytes);
+
+    expect(count($with->getPages()))->toBe(count($without->getPages()) + 2)
+        ->and($text)->toContain('Smażyć na patelni.', 'Gotować długo.', 'Przygotowanie', 'Poniedziałek 16.11 · Wtorek 17.11')
+        ->and(strpos($text, 'Smażyć na patelni.'))->toBeGreaterThan(strpos($text, 'Lista zakupów'));
+});
+
+it('marks deleted recipes and recipes without ingredients on their page', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Stara zupa']);
+    addMeal($plan, $recipe, '2026-11-16');
+    $recipe->delete();
+
+    $text = pdfText(app(MealPlanPdfExporter::class)->render($plan, true));
+
+    expect(substr_count($text, '(usunięty)'))->toBe(2)
+        ->and($text)->toContain('Bez składników');
 });

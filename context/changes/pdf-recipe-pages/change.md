@@ -1,7 +1,7 @@
 ---
 change_id: pdf-recipe-pages
 title: PDF with optional recipe pages, chosen at download
-status: planned
+status: implementing
 created: 2026-11-16
 updated: 2026-11-16
 archived_at: null

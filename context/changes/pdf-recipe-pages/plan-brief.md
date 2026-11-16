@@ -49,9 +49,9 @@ The PDF is rendered on demand by dompdf (`MealPlanPdfExporter` + `resources/view
 
 | Phase | What it delivers | Key risk |
 | --- | --- | --- |
-| 1. PDF document and template | Recipe pages behind a `withRecipes` flag; table without the method | dompdf page breaks on very long methods; the palette guard on new selectors |
+| 1. PDF document and template | Recipe pages behind a `withRecipes` flag; table without the method | dompdf page breaks on very long methods; the palette guard (category label reuses `td.meal-*`, no new selectors) |
 | 2. Download endpoint and links | `?recipes=1`, filename suffix, `links.pdf_with_recipes` | Moving authorization into the Form Request must keep 403-before-404 |
-| 3. Download menu UI | Shared two-option menu in 3 places, kitchen-sink demo, E2E and visual updates | Mobile header width; baseline churn beyond the 6 expected PNGs |
+| 3. Download menu UI | Shared two-option menu in 3 places (the plan page's ⋯ menu also gets both items), kitchen-sink demo, E2E and visual updates | Mobile header width; baseline churn beyond the 7 expected PNGs |
 
 **Prerequisites:** Sail up; `AI_SCALING_DRIVER=fake`; `E2eMealPlanSeeder` for E2E and visuals. No dependency on S-17…S-20.
 **Estimated effort:** ~2 sessions across 3 phases.

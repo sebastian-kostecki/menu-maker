@@ -12,7 +12,7 @@ Roadmap S-21 (MS-06). The meal-plan PDF gets an opt-in "with recipes" variant, c
 - **Palette guard.** `tests/Unit/Services/MealPlanPdfPaletteTest.php` allows only the 12 mirrored token hexes in the template and fails on an unused mirror entry (design-system §6).
 - **Amounts across repeated uses.** The scale factor depends on the meal category and the recipe's kcal (`MealIngredientScaler.php:70`). Repeated uses of a recipe in the same category therefore usually have identical amounts, but the AI refiner can adjust each meal independently. Today a week cannot repeat a recipe: `MealPlanGenerator` draws 7 distinct recipes per category, and a recipe has a single category. Repeats arrive with S-17 (swap) and S-19/S-20 (cook once, eat twice). In S-19/S-20 the first use is scaled for both meals and the second use has no ingredients of its own.
 - **Links.** `links.pdf` is set only for `done` plans in `MealPlanResource.php:109` and `MealPlanCollection.php:103`. The dashboard serializes `latestMealPlan` through `MealPlanResource` (`DashboardController.php:42`).
-- **UI entry points.** There is a "Pobierz PDF" outline button in the plan page header (`resources/js/Pages/MealPlans/Show.vue:9`), another in the dashboard card (`resources/js/Pages/Dashboard.vue:74`), and a menu item in the list's ⋯ menu (`resources/js/Components/MealPlans/ActionDropdown.vue:21`, `window.open` in a new tab). The link type `links: { self, pdf }` is declared locally in `types/meal-plan.ts:18`, `Show.vue:157`, `Index.vue:63`, `MealPlanTable.vue:95`, `MealPlanRow.vue:60` and `ActionDropdown.vue:105`.
+- **UI entry points.** There is a "Pobierz PDF" outline button in the plan page header (`resources/js/Pages/MealPlans/Show.vue:9`), another in the dashboard card (`resources/js/Pages/Dashboard.vue:74`), and a menu item in the ⋯ menu (`resources/js/Components/MealPlans/ActionDropdown.vue:21`, `window.open` in a new tab). The ⋯ menu is rendered both on the plans list (`MealPlanRow.vue:35`) and in the plan page header (`Show.vue:19`), so the plan page already offers the PDF twice. The link type `links: { self, pdf }` is declared locally in `types/meal-plan.ts:18`, `Show.vue:157`, `Index.vue:63`, `MealPlanTable.vue:95`, `MealPlanRow.vue:60` and `ActionDropdown.vue:105`.
 - **Tests.** There are 12 unit tests in `tests/Unit/Services/MealPlanPdfExporterTest.php` and 6 PDF feature tests in `tests/Feature/MealPlanControllerTest.php:537-620`. PDF text is extracted with `pdfText()` (`tests/Pest.php:88`, smalot/pdfparser). The E2E spec `tests/e2e/meal-plan.spec.ts:50` finds `getByRole('link', { name: 'Pobierz PDF' })`. Visual baselines for the plan page and the dashboard show the button.
 
 ## Desired End State
@@ -37,7 +37,7 @@ Verify with `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.ph
 - `recipes.instructions` is required on create and update (`StoreRecipeRequest.php:34`), so every recipe page has a method.
 - Form Requests in this codebase authorize through `Gate::allows(...)` on the route model (`RegenerateMealPlanRequest.php:29`). `authorize()` runs before `rules()`, so a non-owner still gets a 403 before any 404 or validation error.
 - `DropdownMenuItem as-child` wrapping a link is an existing pattern (`resources/js/Components/Common/UserMenu.vue:54`).
-- design-system §5 fixes the PDF icon as `FileDown` and the recipe icon as `ChefHat`.
+- design-system §4.7 fixes the PDF icon as `FileDown` and the recipe icon as `ChefHat`. The ⋯ menu's PDF item uses `Download` today (`ActionDropdown.vue:79`), which this change corrects.
 
 ## What We're NOT Doing
 
@@ -117,10 +117,10 @@ With `$withRecipes = false`, `recipes` is `[]`. With `true`:
 
 **Contract**:
 - **Table.** 4 columns, roughly `Dzień 12% / Posiłek 10% / Nazwa 30% / Składniki 48%`.
-- **Category colours.** Widen the `meal-*` colour selectors from `td.meal-*` to `.meal-*`, so the recipe page's category label can reuse the colour pairs. No new hexes: the palette guard must pass unchanged.
+- **Category colours.** Leave the CSS unchanged. The recipe page's category label is a one-cell table, `<table><tr><td class="category meal-{{ $recipe->categoryValue }}">…</td></tr></table>`, which reuses the existing `td.meal-*` colour pairs and the 8pt bold `td.category` role. Add no new selectors and no hexes: the palette guard requires a literal `td.meal-<value>` rule per category (`MealPlanPdfPaletteTest.php:141-145`) and must pass unchanged.
 - **Recipe section.** Each recipe is a `<section>` with `page-break-before: always` containing:
   - `h2` with the name and a `.meta` "(usunięty)" when deleted
-  - the category label in its `meal-*` pair
+  - the category label as the one-cell `td.category.meal-*` table above
   - a 9pt-bold "Składniki" label; for each group, its day labels joined with ` · ` in `.meta`, then the lines separated by `<br>` (`—` when the group is empty), or "Bez składników" when the recipe has no printable lines in any use
   - a 9pt-bold "Przygotowanie" label and `nl2br(e(...))` of the method
 - Recipe content is block elements, not a table row (see Key Discoveries).
@@ -177,7 +177,7 @@ Accept the choice over HTTP, name the file after it, and publish a second link f
 **Contract**:
 - `authorize()` returns `Gate::allows('downloadPdf', $this->route('meal_plan'))`.
 - `rules()` returns `['recipes' => ['sometimes', 'boolean']]`.
-- An invalid value (`?recipes=abc`) is a validation error: a redirect with errors for a browser request, 422 for JSON.
+- An invalid value (`?recipes=abc`, and also `?recipes=true`, since Laravel's `boolean` rule accepts only `true, false, 0, 1, '0', '1'`) is a validation error: a redirect with errors for a browser request, 422 for JSON. Links therefore always use `recipes=1`.
 
 #### 2. Controller
 
@@ -261,7 +261,10 @@ Replace the single "Pobierz PDF" action in all three places with the two-option 
 
 **Intent**: Show and Dashboard render `PdfDownloadMenu` where the button was, under the same `v-if` on the PDF link. The ⋯ menu replaces its single item with "PDF z przepisami" and "PDF bez przepisów": each is disabled when its link is null, and each opens its link in a new tab as today.
 
-**Contract**: No new props on the pages. `ActionDropdown`'s `item.links` gains `pdf_with_recipes`.
+**Contract**:
+- No new props on the pages. `ActionDropdown`'s `item.links` gains `pdf_with_recipes`.
+- The two ⋯ items use `ChefHat` ("PDF z przepisami") and `FileDown` ("PDF bez przepisów") per design-system §4.7, replacing today's `Download`.
+- On the plan page, the ⋯ menu in the header (`Show.vue:19`) also shows the two items next to `PdfDownloadMenu`. This duplication is accepted (the page offers the PDF twice today), and the header width is covered by manual check 3.7 and the Show mobile visual shot.
 
 #### 3. Types
 
@@ -303,7 +306,7 @@ Replace the single "Pobierz PDF" action in all three places with the two-option 
 
 **Contract**: Expected changes:
 - `meal-plan-show-desktop.png`, `meal-plan-show-mobile.png`
-- `dashboard-desktop.png`, `dashboard-mobile.png`
+- `dashboard-desktop.png`, `dashboard-mobile.png`, `dashboard-mobile-drawer.png` (a full-page shot; the dashboard card with the button stays under the open drawer)
 - `section-jadlospis.png`
 - new `overlay-pdf-download-menu.png`
 
@@ -321,7 +324,7 @@ Any other changed PNG is a regression to fix, not to accept.
 
 #### Manual Verification:
 
-- On the plan page, the dashboard and the plans list ⋯ menu, both options open the right PDF in a new tab, and the menu is keyboard-operable (Enter/Arrow/Escape) with a visible focus
+- On the plan page (the header menu and its ⋯ menu), the dashboard and the plans list ⋯ menu, both options open the right PDF in a new tab, and the menu is keyboard-operable (Enter/Arrow/Escape) with a visible focus
 - On a 390px-wide screen the plan page header still fits without horizontal scroll
 - Each changed baseline PNG was reviewed in the diff and matches the intended change
 
@@ -343,7 +346,7 @@ In `tests/Unit/Services/MealPlanPdfExporterTest.php`:
 
 The palette test (`MealPlanPdfPaletteTest`) runs unchanged and must stay green.
 
-In `tests/Unit/MealPlanRequestValidationTest.php`, `DownloadMealPlanPdfRequest` accepts an absent `recipes` and `1`, `0`, `true`, `false`, and rejects `abc`.
+In `tests/Unit/MealPlanRequestValidationTest.php`, `DownloadMealPlanPdfRequest` accepts an absent `recipes`, the strings `'1'` and `'0'` (what a query string carries) and PHP `true`/`false`, and rejects `'abc'` and `'true'`.
 
 ### Integration Tests:
 
@@ -360,7 +363,7 @@ E2E (`tests/e2e/meal-plan.spec.ts`) checks that both menu items serve a PDF befo
 
 1. Seed with `E2eMealPlanSeeder` and open the plan starting 2026-06-15 as the visual user. Choose "Pobierz PDF" → "Z przepisami". Check the 4-column table, the shopping list on page 2, then one recipe per page in table order.
 2. Choose "Bez przepisów" and check that the PDF ends after the shopping list.
-3. Use the ⋯ menu on `/meal-plans` and the dashboard card, and check that both options open the right variant.
+3. Use the ⋯ menu on `/meal-plans` and on the plan page, and the dashboard card, and check that both options open the right variant.
 4. Print preview the variant with recipes in grayscale, and check that the category labels and day labels stay readable.
 
 ## Performance Considerations
@@ -389,10 +392,10 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Automated
 
-- [ ] 1.1 Exporter and palette tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php tests/Unit/Services/MealPlanPdfPaletteTest.php`
-- [ ] 1.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [ ] 1.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
-- [ ] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Exporter and palette tests pass: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfExporterTest.php tests/Unit/Services/MealPlanPdfPaletteTest.php`
+- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test`
+- [x] 1.3 Larastan passes without baseline additions: `vendor/bin/sail composer phpstan`
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
 
 #### Manual
 
@@ -424,6 +427,6 @@ None: no schema or stored-file change, and existing plans get both variants imme
 
 #### Manual
 
-- [ ] 3.6 On the plan page, the dashboard and the plans list ⋯ menu, both options open the right PDF in a new tab, and the menu is keyboard-operable with a visible focus
+- [ ] 3.6 On the plan page (the header menu and its ⋯ menu), the dashboard and the plans list ⋯ menu, both options open the right PDF in a new tab, and the menu is keyboard-operable with a visible focus
 - [ ] 3.7 On a 390px-wide screen the plan page header still fits without horizontal scroll
 - [ ] 3.8 Each changed baseline PNG was reviewed in the diff and matches the intended change

@@ -223,9 +223,14 @@ const planMeals = planRecipeNames
       return { ...base, ingredients: [] }
     }
 
+    // Thursday's Obiad (id 11) is cooked for two days and feeds Friday's Obiad (id 14), which shows the same dish.
+    const link = index + 1 === 11 ? { feeds_meal_id: 14 } : index + 1 === 14 ? { from_meal_id: 11 } : {}
+    const dish = index + 1 === 14 ? 10 : index
+
     return {
       ...base,
-      recipe: { id: index + 1, name, calories: 1200 + index * 40, servings: 4, deleted: index === 4 },
+      ...link,
+      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4 },
       ingredients: index === 0
         ? [
             { ingredient_id: 1, name: 'Płatki owsiane', display: '200 g' },
@@ -245,7 +250,11 @@ const planShoppingList = {
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
 const swapOpen = ref(false)
-const swapMeal = planMeals[0]
+const swapMeal = ref(planMeals[0])
+const openSwap = (meal) => {
+  swapMeal.value = meal
+  swapOpen.value = true
+}
 const swapOptions = [
   { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
   { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
@@ -878,10 +887,10 @@ const showToast = () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej)</p>
-          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="swapOpen = true" />
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" />
           <div>
-            <Button variant="outline" @click="swapOpen = true">Otwórz okno wyboru przepisu</Button>
+            <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>
           </div>
           <RecipeSwapDialog
             v-model:open="swapOpen"

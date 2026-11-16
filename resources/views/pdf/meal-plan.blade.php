@@ -77,7 +77,7 @@
                             <td><span class="meta">{{ $meal->recipeName }}</span></td>
                             <td></td>
                         @else
-                            <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif</td>
+                            <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif @if ($meal->marker) <span class="meta">{{ $meal->marker }}</span>@endif</td>
                             <td>
                                 @forelse ($meal->ingredients as $line)
                                     {{ $line }}<br>

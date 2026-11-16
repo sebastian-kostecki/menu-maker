@@ -535,10 +535,10 @@ The browser test drives link, approve and unlink. The visual gate covers both ba
 
 #### Automated
 
-- [ ] 1.1 Migration applies and rolls back cleanly
-- [ ] 1.2 Pest suite passes
-- [ ] 1.3 Larastan passes with no new baseline entries
-- [ ] 1.4 Pint passes
+- [x] 1.1 Migration applies and rolls back cleanly — 014a935
+- [x] 1.2 Pest suite passes — 014a935
+- [x] 1.3 Larastan passes with no new baseline entries — 014a935
+- [x] 1.4 Pint passes — 014a935
 
 ### Phase 2: Linked Meals in the UI and PDF
 

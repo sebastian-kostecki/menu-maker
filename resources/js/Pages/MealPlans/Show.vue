@@ -132,7 +132,7 @@
     <ConfirmDialog
       v-model:open="showRedrawDialog"
       title="Losuj ponownie"
-      description="Wylosować tydzień od nowa? Twoje zmiany przepisów przepadną."
+      description="Wylosować tydzień od nowa? Twoje zmiany przepisów i powtórki obiadów przepadną."
       confirm-label="Losuj ponownie"
       :processing="redrawing"
       @confirm="handleRedraw"
@@ -197,6 +197,8 @@ interface Meal {
   meal_category: string
   recipe?: Recipe
   ingredients?: MealIngredient[]
+  feeds_meal_id?: number | null
+  from_meal_id?: number | null
 }
 
 interface MealPlan {

@@ -51,7 +51,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ID   | Change ID                  | Outcome (user can …)                                                                       | Prerequisites | PRD refs     | Status   |
 | ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
-| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | in-progress |
+| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | proposed |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
@@ -113,7 +113,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: wymóg 7 przepisów na kategorię znika; braki zostają pustymi komórkami w szkicu (rozwiązuje też otwarty punkt `recipe-markdown-import`: 6 kolacji).
   - Rozstrzygnięte 2026-11-16: generowanie odmawia (komunikat z linkiem „Dodaj przepis”) tylko wtedy, gdy użytkownik nie ma żadnego przepisu; kategoria bez przepisów daje puste komórki w szkicu z informacją nad siatką.
 - **Risk:** Wymaga posiłku bez przepisu, czyli zmiany założenia, na którym stoją siatka, skalowanie, lista zakupów i PDF; po S-17, żeby ta zmiana weszła w już działający szkic.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-19: Ten sam obiad dwa dni z rzędu
 
@@ -193,6 +193,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 
 ## Done
 
+- **S-18: Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-empty-slot/`. Lesson: —.
 - **S-21: Użytkownik może przy „Pobierz PDF” wybrać, czy dołączyć przepisy; tabela jadłospisu nie ma już długiego tekstu przygotowania, a dołączone przepisy (składniki z ilościami i sposób wykonania) są na osobnych stronach, każdy raz, nawet gdy występuje w tygodniu kilka razy.** — Archived 2026-11-16 → `context/archive/2026-11-16-pdf-recipe-pages/`. Lesson: —.
 - **S-17: Użytkownik może po kliknięciu „Generuj” zobaczyć wylosowany tydzień jako szkic (bez ilości i listy zakupów), podmienić przepis w dowolnej komórce na inny ze swojej listy i zatwierdzić szkic, po czym rusza skalowanie AI i plan przechodzi do dzisiejszego widoku z ilościami i listą zakupów.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-draft-with-swap/`. Lesson: —.
 - **S-15: Użytkownik może wejść na `/` i trafić do logowania lub do aplikacji zamiast domyślnej strony Laravela, a w aplikacji nie zostaje żaden komponent Breeze; `lint:tokens` obejmuje całe `resources/js` poza `Components/ui/` i blokuje CI przy nowym literale.** — Archived 2026-11-15 → `context/archive/2026-11-15-legacy-ui-cleanup/`. Lesson: —.

@@ -299,7 +299,12 @@ it('takes the recipe page fields from the recipe', function (): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);
     $recipe = Recipe::factory()->supper()->for($user)->create(['name' => 'Rosół', 'instructions' => "Krok 1\nKrok 2"]);
-    addMeal($plan, $recipe, '2026-11-16');
+    Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => '2026-11-16',
+        'meal_category' => 'breakfast',
+    ]);
     $recipe->delete();
 
     $page = app(MealPlanPdfExporter::class)->document($plan, true)->recipes[0];
@@ -343,5 +348,5 @@ it('marks deleted recipes and recipes without ingredients on their page', functi
     $text = pdfText(app(MealPlanPdfExporter::class)->render($plan, true));
 
     expect(substr_count($text, '(usunięty)'))->toBe(2)
-        ->and($text)->toContain('Bez składników');
+        ->and(substr_count($text, 'Bez składników'))->toBe(2);
 });

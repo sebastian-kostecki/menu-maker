@@ -592,6 +592,7 @@ it("user cannot download another user's PDF whatever its status", function (stri
 })->with(['done', 'pending'])->with([
     'without recipes' => [[]],
     'with recipes' => [['recipes' => 1]],
+    'invalid flag' => [['recipes' => 'abc']],
 ]);
 
 it('PDF is not available until the plan is done', function (string $status, array $query): void {

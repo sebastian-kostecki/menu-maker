@@ -35,7 +35,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
   - Tradeoff: "Nie robimy" is no longer the first row, which departs from the plan's wording ("first item"); update the plan.
   - Confidence: MED — highlight behaviour read from reka-ui source, not exercised in a browser.
   - Blind spot: Whether `highlightFirstItem` runs before or after the filtered list re-renders in the real DOM.
-- **Decision**: PENDING
+- **Decision**: FIXED via Fix (hide "Nie robimy" while searching, instead of moving it). Also found while verifying: the dialog search never worked, because `v-model:search-term` was dropped by the `ui/Combobox` wrapper; the input is now bound with `v-model` on `ComboboxInput`. E2E step added (type a name + Enter picks a recipe).
 
 ### F2 — Short-category notice goes stale after a swap
 
@@ -45,7 +45,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: resources/js/Components/MealPlans/RecipeSwapDialog.vue:142
 - **Detail**: `shortCategories` is a separate Inertia prop (`MealPlanController.php:119`). The swap `router.patch` uses `only: ['mealPlan']`, so the prop is not refreshed: filling the last gap of a short category leaves "Za mało przepisów…" on screen, and emptying a slot in a short category does not show it, until a full reload. Plan manual check 2.6 ("disappears once the gap is filled") would fail by hand. E2E does not cover it.
 - **Fix**: Use `only: ['mealPlan', 'shortCategories']` in the swap `router.patch`.
-- **Decision**: PENDING
+- **Decision**: FIXED (`only: ['mealPlan', 'shortCategories']`)
 
 ### F3 — Approve claim fallback has no test
 
@@ -55,7 +55,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: app/Http/Controllers/MealPlanController.php:274-290
 - **Detail**: Plan Phase 1 §5 says the claim re-checks for a filled meal and answers `meals` vs `status`. The code does so correctly, but the "approve is refused when every meal is empty" tests only hit the Form Request path; the `whereHas` in the claim and the `$stillDraft` branch are unexercised.
 - **Fix**: Add a feature test that empties the last meal between validation and claim (e.g. by hitting the controller with a stubbed/empty plan, or testing the `meals` error via a request that bypasses the Form Request check).
-- **Decision**: PENDING
+- **Decision**: FIXED (test `approve whose last filled meal was emptied after validation is refused as an empty draft`)
 
 ### F4 — Plan inaccurate on `MealPlanResource` and one baseline
 
@@ -65,7 +65,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: app/Http/Resources/MealPlanResource.php:51-64; tests/e2e/__screenshots__/visual/meal-plans-index.spec.ts/meal-plans-index-generate-dialog.png
 - **Detail**: (a) The plan's Key Discovery said `MealPlanResource` already omits `recipe` for a null recipe and needs no change. The implementation had to rewrite it (spread instead of `$this->when`) so an empty meal does not serialize as an empty array, which is truthy in JS. The change is justified, pinned by `assertJsonMissingPath('data.meals.0.recipe')`, and behaviour-equivalent for filled meals. (b) Phase 3 §4 listed the baselines expected to change but omitted `meal-plans-index-generate-dialog.png`, which is a full-page shot over the list and so shows the draft count 21 → 20 (9fc8dfd documents this).
 - **Fix**: Add a short addendum to plan.md (Key Discoveries and §4 list) so the plan matches what shipped.
-- **Decision**: PENDING
+- **Decision**: FIXED (addendum in plan.md: Key Discoveries, Phase 3 §4 list; Phase 2 §2 wording for F1)
 
 ### F5 — Migration `down()` deletes empty meals, untested
 
@@ -75,7 +75,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: database/migrations/2026_11_16_122505_make_meals_recipe_id_nullable.php:35
 - **Detail**: Rollback deletes all meals with NULL `recipe_id` (cascading to `meal_ingredients`), turning 21-meal plans into plans with gaps. This is documented in the plan's Migration Notes and the docblock. In this review the rollback removed the one seeded empty meal from the worktree's dev DB (re-run `E2eMealPlanSeeder` before any E2E). No test covers `down()`.
 - **Fix**: Accept; optionally add a migration test. No code change needed.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (documented rollback behaviour; no code change)
 
 ### F6 — Duplicate recipe count queries on draft Show
 
@@ -85,7 +85,7 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: app/Http/Controllers/MealPlanController.php:130-150
 - **Detail**: `recipeCountsPerCategory` runs 3 count queries and `recipeOptions` queries the same recipes again, only on draft show visits. The plan accepted the extra queries (Performance Considerations).
 - **Fix**: Optional: one `groupBy('category')` query or derive counts from `recipeOptions`. No action required.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED (no action required; plan accepted the extra queries)
 
 ### F7 — Weak generator test for the 5-recipe case
 
@@ -95,4 +95,4 @@ Success Criteria: every Automated item passes (re-run in this review: Pest 494 p
 - **Location**: tests/Unit/Services/MealPlanGeneratorTest.php (5-recipe case)
 - **Detail**: The "each date once per category" invariant is asserted for one category only, and nothing checks that gap days are actually shuffled (plan Critical Implementation Details: gaps must not always be the last days). Not a named plan requirement.
 - **Fix**: Assert the date invariant for all categories and, over several draws, that the gap day varies.
-- **Decision**: PENDING
+- **Decision**: FIXED (date invariant asserted for all categories; new test that gap days are shuffled)

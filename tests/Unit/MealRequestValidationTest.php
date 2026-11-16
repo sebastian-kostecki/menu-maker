@@ -53,7 +53,21 @@ class MealRequestValidationTest extends TestCase
             }
         });
 
-        return Validator::make($input, $request->rules(), $request->messages());
+        return Validator::make($input, $request->rules(), $request->messages())->after($request->after());
+    }
+
+    public function test_refuses_a_swap_outside_a_draft(): void
+    {
+        $recipe = Recipe::factory()->breakfast()->for($this->user)->create();
+
+        foreach (['pending', 'processing', 'done', 'error'] as $status) {
+            $this->meal->mealPlan->update(['status' => $status]);
+
+            $validator = $this->validatorFor(['recipe_id' => $recipe->id]);
+
+            $this->assertTrue($validator->fails(), $status);
+            $this->assertSame(UpdateMealRequest::NOT_DRAFT_MESSAGE, $validator->errors()->first('status'), $status);
+        }
     }
 
     public function test_accepts_an_own_recipe_of_the_meal_category(): void

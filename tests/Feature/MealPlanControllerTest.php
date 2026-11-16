@@ -174,6 +174,23 @@ it('store is not limited to 5 per hour and leaves the approval limiter untouched
         ->and(RateLimiter::attempts('generate-meal-plan:'.$this->user->id))->toBe(0);
 });
 
+it('store and redraw share a 30 per minute throttle that leaves client error reports alone', function (): void {
+    for ($i = 0; $i < 30; $i++) {
+        $this->actingAs($this->user)->postJson(route('meal-plans.store'), [])->assertStatus(422);
+    }
+
+    $draft = MealPlan::factory()->draft()->for($this->user)->create();
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.store'), [])->assertStatus(429);
+    $this->actingAs($this->user)->putJson(route('meal-plans.update', $draft), ['regenerate' => true])->assertStatus(429);
+    $this->actingAs($this->user)->postJson(route('client-errors.store'), [
+        'message' => 'Cannot read properties of undefined',
+        'stack' => 'TypeError: at Foo.vue:10',
+        'url' => '/meal-plans',
+        'source' => 'vue',
+    ])->assertNoContent();
+});
+
 it('store turns a run-time shortfall into a recipes error and creates no plan', function (): void {
     seedFullWeekOfRecipes($this->user);
 
@@ -316,6 +333,19 @@ it('approve is limited to 5 per hour', function (): void {
         ->assertStatus(422)
         ->assertJsonValidationErrors(['rate_limit']);
     Queue::assertPushed(GenerateMealPlanJob::class, 5);
+});
+
+it('a refused approval still counts towards the hourly limit', function (): void {
+    Queue::fake();
+    RateLimiter::clear('generate-meal-plan:'.$this->user->id);
+    $emptyDraft = MealPlan::factory()->draft()->for($this->user)->create();
+
+    $this->actingAs($this->user)->postJson(route('meal-plans.approve', $emptyDraft))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['meals']);
+
+    expect(RateLimiter::attempts('generate-meal-plan:'.$this->user->id))->toBe(1);
+    Queue::assertNothingPushed();
 });
 
 it('approve that lost the race is refused', function (): void {

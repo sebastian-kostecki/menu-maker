@@ -40,6 +40,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
+// ui/combobox's ComboboxList always portals out and is sized as a popper; inside a Dialog the list must stay
+// inline (position="inline") within the dialog's focus trap, so the reka-ui parts are used directly here.
 import { ComboboxContent, ComboboxViewport } from 'reka-ui'
 import { toast } from 'vue-sonner'
 import {
@@ -50,7 +52,7 @@ import {
   ComboboxItem,
 } from '@/Components/ui/combobox'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog'
-import { formatNumber, formatWeekdayShort } from '@/lib/format'
+import { formatDayMonth, formatNumber, formatWeekdayShort } from '@/lib/format'
 import { mealCategoryLabel } from '@/lib/mealCategories'
 import type { RecipeOption } from '@/types/meal-plan'
 
@@ -67,6 +69,8 @@ interface Props {
   meal: SwapMeal | null
   options: RecipeOption[]
   weekMeals: SwapMeal[]
+  /** Kitchen-sink mode: picking a recipe only closes the dialog and sends no request. */
+  demo?: boolean
 }
 
 const props = defineProps<Props>()
@@ -81,9 +85,7 @@ const description = computed(() => {
     return ''
   }
 
-  const [, month, day] = props.meal.meal_date.split('-')
-
-  return `${formatWeekdayShort(props.meal.meal_date)} ${day}.${month} – ${mealCategoryLabel(props.meal.meal_category)}`
+  return `${formatWeekdayShort(props.meal.meal_date)} ${formatDayMonth(props.meal.meal_date)} – ${mealCategoryLabel(props.meal.meal_category)}`
 })
 
 const items = computed(() =>
@@ -103,6 +105,12 @@ const handleSelect = (option: unknown) => {
     return
   }
 
+  if (props.demo) {
+    emit('update:open', false)
+
+    return
+  }
+
   saving.value = true
 
   router.patch(
@@ -116,6 +124,11 @@ const handleSelect = (option: unknown) => {
       },
       onError: (errors) => {
         toast.error(errors.recipe_id ?? errors.status ?? 'Nie udało się zmienić przepisu.')
+
+        // The plan is no longer a draft (e.g. approved in another tab): nothing left to pick here.
+        if (errors.status) {
+          emit('update:open', false)
+        }
       },
       onFinish: () => {
         saving.value = false

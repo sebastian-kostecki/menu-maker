@@ -71,12 +71,28 @@ class GenerateMealPlanJob implements ShouldQueue
     {
         Context::add('meal_plan_id', $this->mealPlan->id);
 
+        // Claim the approved plan. A re-run (queue:retry, retries) for a plan that has since gone back to draft
+        // or finished must not scale it: that would skip approval and the hourly limit. Nothing but this job
+        // moves a plan out of `processing`, so the later writes need no guard of their own.
+        $claimed = MealPlan::query()
+            ->whereKey($this->mealPlan->id)
+            ->where('status', 'pending')
+            ->update(['status' => 'processing']);
+
+        if ($claimed === 0) {
+            Log::warning('Meal plan scaling skipped: the plan is no longer pending', [
+                'meal_plan_id' => $this->mealPlan->id,
+                'status' => $this->mealPlan->fresh()?->status,
+            ]);
+
+            return;
+        }
+
+        $this->mealPlan->refresh();
+
         $log = $this->createLog();
 
         try {
-            // Update status to processing
-            $this->mealPlan->update(['status' => 'processing']);
-
             Log::info('Meal plan generation started', [
                 'meal_plan_id' => $this->mealPlan->id,
             ]);

@@ -657,6 +657,14 @@ The steps replace the "Regeneruj" part (`:62` onward).
 - **Deploy with an empty queue.** Let pending generations finish, or stop the worker and wait. The new job no longer draws, so a job queued by the old code for a plan without meals would mark the plan `done` with an empty week.
 - Rollback: `migrate:rollback` turns drafts into `error` before restoring the four-value constraint. A `done`/`error` plan can then be regenerated with the old code.
 
+## Review Addendum (2026-11-16)
+
+Accepted deviations from the implementation review (`reviews/impl-review.md`):
+
+- **F3, baselines.** On mobile, "Wróć do szkicu" is wider than "Regeneruj", so the done plan's header actions wrap to a second row and `meal-plan-show-mobile.png` shifts by 4 px below the header. This contradicts Phase 4 §4 ("nothing else may change"); it is accepted as a layout consequence of the label. `overlay-user-menu.png` changed in 24 corner pixels, where the kitchen-sink StatusTag row (now with "Szkic") shows through; the menu itself is identical.
+- **F8, swap guard.** The swap's `WHERE EXISTS (… status = 'draft')` does not lock `meal_plans` under READ COMMITTED, so a swap issued a moment before an approval commits can still land. The job reads meals afterwards, so harm is negligible; no plan-row lock is added. A swap racing a redraw returns the generic "tylko w szkicu" error.
+- **Review fixes.** The job claims `pending → processing` and skips a plan that is no longer pending (F1). The approve limiter hits before it compares, so refused approvals count too (F2).
+
 ## References
 
 - Roadmap item: `context/foundation/roadmap.md` (S-17, MS-01, MS-02; Unknowns settled 2026-11-16)
@@ -682,7 +690,7 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Manual
 
-- [ ] 1.6 Generating a plan creates a draft with 21 meals and leaves the queue worker idle until approval
+- [x] 1.6 Generating a plan creates a draft with 21 meals and leaves the queue worker idle until approval — manual, accepted by the user 2026-11-16
 
 ### Phase 2: Recipe Swap Endpoint
 
@@ -703,12 +711,12 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Manual
 
-- [ ] 3.4 Wygeneruj lands on a draft with the Szkic tag, 21 cells with Zmień, no ingredients and no shopping list
-- [ ] 3.5 Zmień lists same-category recipes with labels, search works, and the swap persists after reload
-- [ ] 3.6 Losuj ponownie asks for confirmation and replaces the week
-- [ ] 3.7 Zatwierdź generates the done plan with quantities, shopping list and PDF
-- [ ] 3.8 Wróć do szkicu keeps the swapped recipe and re-approval restores quantities
-- [ ] 3.9 The swap dialog works at phone width and is keyboard-operable
+- [x] 3.4 Wygeneruj lands on a draft with the Szkic tag, 21 cells with Zmień, no ingredients and no shopping list — manual, accepted by the user 2026-11-16
+- [x] 3.5 Zmień lists same-category recipes with labels, search works, and the swap persists after reload — manual, accepted by the user 2026-11-16
+- [x] 3.6 Losuj ponownie asks for confirmation and replaces the week — manual, accepted by the user 2026-11-16
+- [x] 3.7 Zatwierdź generates the done plan with quantities, shopping list and PDF — manual, accepted by the user 2026-11-16
+- [x] 3.8 Wróć do szkicu keeps the swapped recipe and re-approval restores quantities — manual, accepted by the user 2026-11-16
+- [x] 3.9 The swap dialog works at phone width and is keyboard-operable — manual, accepted by the user 2026-11-16
 
 ### Phase 4: E2E and Visual Gate
 
@@ -722,4 +730,4 @@ The steps replace the "Regeneruj" part (`:62` onward).
 
 #### Manual
 
-- [ ] 4.6 Every changed or new PNG was reviewed and only the listed baselines changed
+- [x] 4.6 Every changed or new PNG was reviewed and only the listed baselines changed — manual, accepted by the user 2026-11-16

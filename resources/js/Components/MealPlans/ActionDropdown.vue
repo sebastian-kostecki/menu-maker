@@ -52,8 +52,8 @@
   <!-- Confirm Dialogs -->
   <ConfirmDialog
     v-model:open="showReturnToDraftDialog"
-    title="Wrócić do szkicu?"
-    description="Przepisy zostaną, a ilości i listę zakupów policzymy ponownie po zatwierdzeniu."
+    title="Wróć do szkicu"
+    description="Wrócić do szkicu? Przepisy zostaną, a ilości i listę zakupów policzymy ponownie po zatwierdzeniu."
     confirm-label="Wróć do szkicu"
     :processing="returningToDraft"
     @confirm="handleReturnToDraftConfirm"

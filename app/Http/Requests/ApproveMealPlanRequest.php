@@ -38,9 +38,11 @@ class ApproveMealPlanRequest extends FormRequest
      */
     public function withValidator($validator): void
     {
-        // Eager rate-limit check: approval is the only path into the AI call.
+        // Eager rate limit: approval is the only path into the AI call. Count the attempt before comparing,
+        // because a separate check and a later hit let parallel approvals of several drafts all pass.
+        // A refused approval (wrong status, empty draft, lost race) therefore counts too.
         $key = $this->rateLimitKey();
-        if (RateLimiter::tooManyAttempts($key, 5)) {
+        if (RateLimiter::hit($key, 3600) > 5) {
             $seconds = RateLimiter::availableIn($key);
             throw ValidationException::withMessages([
                 'rate_limit' => "Zbyt wiele prób generowania. Spróbuj ponownie za {$seconds} s.",
@@ -60,14 +62,6 @@ class ApproveMealPlanRequest extends FormRequest
                 $validator->errors()->add('meals', self::EMPTY_DRAFT_MESSAGE);
             }
         });
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation(): void
-    {
-        RateLimiter::hit($this->rateLimitKey(), 3600); // 1 hour
     }
 
     private function rateLimitKey(): string

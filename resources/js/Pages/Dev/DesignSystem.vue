@@ -882,6 +882,7 @@ const showToast = () => {
             :meal="swapMeal"
             :options="swapOptions"
             :week-meals="planMeals"
+            demo
           />
         </div>
 

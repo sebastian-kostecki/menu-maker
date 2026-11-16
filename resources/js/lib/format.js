@@ -106,6 +106,19 @@ export const pluralize = (count, { one, few, many }) => {
 }
 
 /**
+ * Dzień i miesiąc po polsku (np. 29.06) dla daty Y-m-d.
+ */
+export const formatDayMonth = (ymd) => {
+  const date = parseYmd(ymd)
+
+  if (!isValidDate(date)) {
+    return ''
+  }
+
+  return new Intl.DateTimeFormat(LOCALE, { day: '2-digit', month: '2-digit' }).format(date)
+}
+
+/**
  * Skrót dnia tygodnia po polsku (np. pon., wt.) dla daty Y-m-d.
  */
 export const formatWeekdayShort = (ymd) => {

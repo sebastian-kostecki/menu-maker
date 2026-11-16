@@ -82,6 +82,22 @@ it('writes scaled and refined meal ingredients for a family', function (): void 
         ->and($rows->pluck('source')->unique()->all())->toBe([MealIngredient::SOURCE_AI]);
 });
 
+it('leaves a plan that is no longer pending untouched, e.g. a retried job after going back to draft', function (string $status): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    $mealPlan = approvedPlanWithDrawnMeals($user);
+    MealPlan::query()->whereKey($mealPlan->id)->update(['status' => $status, 'generation_meta' => null]);
+
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
+
+    $mealPlan->refresh();
+
+    expect($mealPlan->status)->toBe($status)
+        ->and($mealPlan->generation_meta)->toBeNull()
+        ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(0)
+        ->and(LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(0);
+})->with(['draft', 'done', 'error', 'processing']);
+
 it('marks a pending plan as error when the job fails before handle() runs', function (): void {
     config(['services.ingredient_refiner.driver' => 'nope']);
 

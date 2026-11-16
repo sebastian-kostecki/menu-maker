@@ -4,14 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\MealCategory;
+use App\Http\Requests\ApproveMealPlanRequest;
 use App\Http\Requests\DownloadMealPlanPdfRequest;
 use App\Http\Requests\GenerateMealPlanRequest;
 use App\Http\Requests\RegenerateMealPlanRequest;
+use App\Http\Requests\ReturnMealPlanToDraftRequest;
 use App\Http\Resources\MealPlanCollection;
 use App\Http\Resources\MealPlanResource;
 use App\Http\Resources\ShoppingListResource;
 use App\Jobs\GenerateMealPlanJob;
+use App\Models\MealIngredient;
 use App\Models\MealPlan;
+use App\Models\Recipe;
+use App\Services\InsufficientRecipesException;
+use App\Services\MealPlanGenerator;
 use App\Services\MealPlanPdf\MealPlanPdfExporter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Carbon\Carbon;
@@ -69,6 +76,7 @@ class MealPlanController extends Controller
             'mealPlans' => $data,
             'filters' => $request->only(['filter.status', 'sort', 'direction', 'perPage']),
             'statuses' => [
+                ['value' => 'draft', 'label' => 'Szkic'],
                 ['value' => 'pending', 'label' => 'Oczekuje'],
                 ['value' => 'processing', 'label' => 'Generowanie'],
                 ['value' => 'done', 'label' => 'Gotowy'],
@@ -104,13 +112,45 @@ class MealPlanController extends Controller
             'shoppingList' => fn (): ?array => $mealPlan->status === 'done'
                 ? (new ShoppingListResource($shoppingListBuilder->forMealPlan($mealPlan)))->resolve()
                 : null,
+            'recipeOptions' => fn (): ?array => $mealPlan->status === 'draft'
+                ? $this->recipeOptions($mealPlan)
+                : null,
         ]);
     }
 
     /**
-     * Generate a new meal plan.
+     * The owner's non-deleted recipes per meal category, for the swap dialog.
+     *
+     * @return array<string, list<array{id: int, name: string, calories: string|null}>>
      */
-    public function store(GenerateMealPlanRequest $request): JsonResponse|RedirectResponse
+    private function recipeOptions(MealPlan $mealPlan): array
+    {
+        $options = [];
+
+        foreach (MealCategory::cases() as $category) {
+            $options[$category->value] = [];
+        }
+
+        Recipe::query()
+            ->forUser($mealPlan->user_id)
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get(['id', 'name', 'category', 'calories'])
+            ->each(function (Recipe $recipe) use (&$options): void {
+                $options[$recipe->category][] = [
+                    'id' => $recipe->id,
+                    'name' => $recipe->name,
+                    'calories' => (string) $recipe->calories,
+                ];
+            });
+
+        return $options;
+    }
+
+    /**
+     * Create a meal plan draft: the week's recipes are drawn right away (DB only, no AI).
+     */
+    public function store(GenerateMealPlanRequest $request, MealPlanGenerator $generator): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
 
@@ -118,47 +158,89 @@ class MealPlanController extends Controller
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = $startDate->copy()->addDays(6);
 
-        // Create meal plan with pending status. The request already checks the date; a concurrent
-        // submit (second tab) can still hit the unique key, which gets the same validation error.
+        // The request already checks the date and the recipe count; a concurrent submit (second tab) can still
+        // hit the unique key, and recipes deleted in between can still cause a shortfall. Both roll the plan back.
         try {
             // Own transaction (a savepoint when nested), so a violation never poisons an outer one.
-            $mealPlan = DB::transaction(fn (): MealPlan => MealPlan::create([
-                'user_id' => $validated['user_id'],
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'status' => 'pending',
-            ]));
+            $mealPlan = DB::transaction(function () use ($validated, $startDate, $endDate, $generator): MealPlan {
+                $mealPlan = MealPlan::create([
+                    'user_id' => $validated['user_id'],
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'status' => 'draft',
+                ]);
+
+                $generator->generate($mealPlan);
+
+                return $mealPlan;
+            });
         } catch (UniqueConstraintViolationException) {
             throw ValidationException::withMessages([
                 'start_date' => GenerateMealPlanRequest::DUPLICATE_START_DATE_MESSAGE,
             ]);
+        } catch (InsufficientRecipesException $e) {
+            throw ValidationException::withMessages([
+                'recipes' => $e->getMessage(),
+            ]);
         }
-
-        // Dispatch generation job
-        GenerateMealPlanJob::dispatch($mealPlan, false); // regenerate = false
 
         if (! $request->expectsJson()) {
             return redirect()->route('meal-plans.show', $mealPlan);
         }
 
-        $data = new MealPlanResource($mealPlan);
+        $mealPlan->load('meals.recipe');
 
         return response()->json([
-            'message' => 'Meal plan generation started.',
-            'data' => $data,
+            'message' => 'Meal plan draft created.',
+            'data' => new MealPlanResource($mealPlan),
         ], 201);
     }
 
     /**
-     * Regenerate an existing meal plan.
+     * Redraw the week of a draft ("Losuj ponownie"). Only drafts can be redrawn.
      */
-    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
+    public function update(RegenerateMealPlanRequest $request, MealPlan $mealPlan, MealPlanGenerator $generator): JsonResponse|RedirectResponse
     {
-        // Reset status and clear generation metadata in one conditional update, so two concurrent
-        // requests that both passed validation cannot both queue a job.
+        try {
+            DB::transaction(function () use ($mealPlan, $generator): void {
+                // Lock the plan row, so an approval waits and then scales the new meals.
+                $locked = MealPlan::query()->whereKey($mealPlan->getKey())->lockForUpdate()->first();
+
+                if ($locked === null || ! in_array($locked->status, RegenerateMealPlanRequest::REGENERATABLE_STATUSES, true)) {
+                    throw ValidationException::withMessages([
+                        'status' => RegenerateMealPlanRequest::NOT_REGENERATABLE_MESSAGE,
+                    ]);
+                }
+
+                $generator->generate($locked);
+            });
+        } catch (InsufficientRecipesException $e) {
+            throw ValidationException::withMessages([
+                'recipes' => $e->getMessage(),
+            ]);
+        }
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
+
+        $mealPlan->refresh()->load('meals.recipe');
+
+        return response()->json([
+            'message' => 'Meal plan redrawn.',
+            'data' => new MealPlanResource($mealPlan),
+        ]);
+    }
+
+    /**
+     * Approve a draft: queue the scaling (the only path into the AI call).
+     */
+    public function approve(ApproveMealPlanRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
+    {
+        // One conditional update, so two concurrent approvals cannot both queue a job.
         $claimed = MealPlan::query()
             ->whereKey($mealPlan->getKey())
-            ->whereIn('status', RegenerateMealPlanRequest::REGENERATABLE_STATUSES)
+            ->where('status', 'draft')
             ->update([
                 'status' => 'pending',
                 'generation_meta' => null,
@@ -167,25 +249,64 @@ class MealPlanController extends Controller
 
         if ($claimed === 0) {
             throw ValidationException::withMessages([
-                'status' => RegenerateMealPlanRequest::NOT_REGENERATABLE_MESSAGE,
+                'status' => ApproveMealPlanRequest::NOT_DRAFT_MESSAGE,
             ]);
         }
 
         $mealPlan->refresh();
 
-        // Dispatch regeneration job
-        GenerateMealPlanJob::dispatch($mealPlan, true); // regenerate = true
+        GenerateMealPlanJob::dispatch($mealPlan);
 
         if (! $request->expectsJson()) {
             return redirect()->route('meal-plans.show', $mealPlan);
         }
 
-        $data = new MealPlanResource($mealPlan->fresh());
+        return response()->json([
+            'message' => 'Meal plan approved; scaling started.',
+            'data' => new MealPlanResource($mealPlan),
+        ], 202);
+    }
+
+    /**
+     * Reopen a done or failed plan as a draft with the same recipes.
+     */
+    public function backToDraft(ReturnMealPlanToDraftRequest $request, MealPlan $mealPlan): JsonResponse|RedirectResponse
+    {
+        $claimed = DB::transaction(function () use ($mealPlan): int {
+            $claimed = MealPlan::query()
+                ->whereKey($mealPlan->getKey())
+                ->whereIn('status', ReturnMealPlanToDraftRequest::RETURNABLE_STATUSES)
+                ->update([
+                    'status' => 'draft',
+                    'generation_meta' => null,
+                    'updated_at' => now(),
+                ]);
+
+            if ($claimed > 0) {
+                MealIngredient::query()
+                    ->whereIn('meal_id', $mealPlan->meals()->select('id'))
+                    ->delete();
+            }
+
+            return $claimed;
+        });
+
+        if ($claimed === 0) {
+            throw ValidationException::withMessages([
+                'status' => ReturnMealPlanToDraftRequest::NOT_RETURNABLE_MESSAGE,
+            ]);
+        }
+
+        if (! $request->expectsJson()) {
+            return redirect()->route('meal-plans.show', $mealPlan);
+        }
+
+        $mealPlan->refresh()->load('meals.recipe');
 
         return response()->json([
-            'message' => 'Meal plan regeneration started.',
-            'data' => $data,
-        ], 202);
+            'message' => 'Meal plan returned to draft.',
+            'data' => new MealPlanResource($mealPlan),
+        ]);
     }
 
     /**

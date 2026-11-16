@@ -23,7 +23,7 @@ it('counts only own non-deleted recipes and own plans of every status', function
     Recipe::factory()->create(['user_id' => $this->user->id])->delete();
     Recipe::factory()->count(4)->create(['user_id' => $this->otherUser->id]);
 
-    foreach (['pending', 'processing', 'done', 'error'] as $i => $status) {
+    foreach (['draft', 'pending', 'processing', 'done', 'error'] as $i => $status) {
         MealPlan::factory()->for($this->user)->create([
             'status' => $status,
             'start_date' => now()->addWeeks($i)->startOfDay(),
@@ -37,7 +37,7 @@ it('counts only own non-deleted recipes and own plans of every status', function
         ->assertInertia(
             fn ($page) => $page->component('Dashboard', false)
                 ->where('stats.recipes', 2)
-                ->where('stats.mealPlans', 4)
+                ->where('stats.mealPlans', 5)
         );
 });
 
@@ -61,6 +61,10 @@ it('exposes the newest done plan by start date, ignoring other statuses and othe
         'start_date' => '2026-06-29',
         'end_date' => '2026-07-05',
     ]);
+    MealPlan::factory()->for($this->user)->draft()->create([
+        'start_date' => '2026-07-13',
+        'end_date' => '2026-07-19',
+    ]);
     MealPlan::factory()->for($this->otherUser)->done()->create([
         'start_date' => '2026-07-06',
         'end_date' => '2026-07-12',
@@ -80,6 +84,7 @@ it('exposes the newest done plan by start date, ignoring other statuses and othe
 });
 
 it('has no latest plan when the user has plans but none are done', function (): void {
+    MealPlan::factory()->for($this->user)->draft()->create();
     MealPlan::factory()->for($this->user)->pending()->create();
     MealPlan::factory()->for($this->user)->error()->create();
     MealPlan::factory()->for($this->otherUser)->done()->create();

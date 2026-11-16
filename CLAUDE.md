@@ -7,7 +7,7 @@ Menu Maker plans a family's week of meals (7 days × 3 meals), scales recipe ing
 - Every query on user data is scoped to the owner (`Recipe::forUser()`, `where('user_id', ...)`), and every resource controller calls `authorizeResource()` with a policy in `app/Policies/`. A new resource needs both, plus a policy test in `tests/Unit/`.
 - Run every `php`, `composer` and `artisan` command through `vendor/bin/sail` (PHP 8.5 in Docker, `@docker/8.5/Dockerfile`). Host PHP is a different version: do not use it.
 - Do not add errors to `phpstan-baseline.neon`; fix them (Larastan level 5, `app/` only).
-- `app/Jobs/GenerateMealPlanJob.php` runs the real pipeline: `MealPlanGenerator` (recipe draw), `MealIngredientScaler` (code-computed quantities), then an `IngredientRefiner` driver (`AI_SCALING_DRIVER`: `openrouter`, `anthropic` or `fake`); the AI call never runs on a request path.
+- `app/Jobs/GenerateMealPlanJob.php` runs the real pipeline, dispatched on approval of a draft: `MealIngredientScaler` (code-computed quantities), then an `IngredientRefiner` driver (`AI_SCALING_DRIVER`: `openrouter`, `anthropic` or `fake`). `MealPlanGenerator` draws the recipes synchronously when a draft is created or redrawn (DB only). The AI call never runs on a request path.
 
 ## Commands
 

@@ -14,6 +14,7 @@
           <DialogTitle>Wygeneruj jadłospis</DialogTitle>
           <DialogDescription>
             Wybierz dzień rozpoczęcia tygodnia. Jadłospis obejmie 7 dni po 3 posiłki.
+            Wylosujemy przepisy na tydzień. Przed zatwierdzeniem możesz je podmienić.
           </DialogDescription>
         </DialogHeader>
 

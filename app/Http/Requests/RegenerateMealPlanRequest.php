@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Gate;
 class RegenerateMealPlanRequest extends FormRequest
 {
     /**
-     * Statuses a plan may be regenerated from.
+     * Statuses a plan may be redrawn from.
      *
      * @var list<string>
      */
-    public const REGENERATABLE_STATUSES = ['done', 'error'];
+    public const REGENERATABLE_STATUSES = ['draft'];
 
-    public const NOT_REGENERATABLE_MESSAGE = 'Regenerować można tylko gotowy lub nieudany jadłospis.';
+    public const NOT_REGENERATABLE_MESSAGE = 'Losować ponownie można tylko szkic jadłospisu.';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -49,12 +49,6 @@ class RegenerateMealPlanRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $mealPlan = $this->route('meal_plan');
-
-            if ($mealPlan->status === 'processing') {
-                $validator->errors()->add('status', 'Nie można regenerować jadłospisu w trakcie generowania.');
-
-                return;
-            }
 
             if (! in_array($mealPlan->status, self::REGENERATABLE_STATUSES, true)) {
                 $validator->errors()->add('status', self::NOT_REGENERATABLE_MESSAGE);

@@ -22,8 +22,8 @@ async function openMealPlans(page: Page) {
   await expectFigtreeLoaded(page);
 
   await page.goto('/meal-plans');
-  // Header row plus the four seeded plans, including the processing one with the spinner tag.
-  await expect(page.getByRole('row')).toHaveCount(5);
+  // Header row plus the five seeded plans, including the processing one with the spinner tag.
+  await expect(page.getByRole('row')).toHaveCount(6);
   await expect(page.getByRole('row').filter({ hasText: 'Generowanie' })).toBeVisible();
 }
 
@@ -58,7 +58,7 @@ test('meal plans index filtered empty', async ({ page }) => {
   await expect(page).toHaveScreenshot('meal-plans-index-filtered-empty.png', { fullPage: true });
 
   await page.getByRole('button', { name: 'Wyczyść filtry' }).click();
-  await expect(page.getByRole('row')).toHaveCount(5);
+  await expect(page.getByRole('row')).toHaveCount(6);
 });
 
 test('meal plans index generate dialog', async ({ page }) => {

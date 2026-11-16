@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property-read MealPlan $mealPlan
  * @property-read Recipe|null $recipe
  * @property-read Collection<int, MealIngredient> $ingredients
  */

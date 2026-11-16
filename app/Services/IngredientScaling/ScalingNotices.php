@@ -48,7 +48,7 @@ final class ScalingNotices
         $version = $meta['version'] ?? null;
 
         if ($version === null || $version === 'random-v1') {
-            $notices[] = 'Ten jadłospis powstał przed przeliczaniem składników — zregeneruj go, aby dopasować ilości do rodziny.';
+            $notices[] = 'Ten jadłospis powstał przed przeliczaniem składników — wróć do szkicu i zatwierdź go ponownie, aby dopasować ilości do rodziny.';
         }
 
         return ['status' => $status, 'notices' => $notices];

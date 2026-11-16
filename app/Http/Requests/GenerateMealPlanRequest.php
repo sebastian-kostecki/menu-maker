@@ -10,8 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 
 class GenerateMealPlanRequest extends FormRequest
 {
@@ -34,18 +32,7 @@ class GenerateMealPlanRequest extends FormRequest
     {
         return [
             'start_date' => ['required', 'date', 'after_or_equal:today'],
-            'regenerate' => ['boolean'],
         ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'regenerate' => $this->boolean('regenerate', false),
-        ]);
     }
 
     /**
@@ -53,15 +40,6 @@ class GenerateMealPlanRequest extends FormRequest
      */
     public function withValidator($validator): void
     {
-        // Eager rate-limit check to match test expectations
-        $key = 'generate-meal-plan:'.$this->user()->id;
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $seconds = RateLimiter::availableIn($key);
-            throw ValidationException::withMessages([
-                'rate_limit' => "Zbyt wiele prób generowania. Spróbuj ponownie za {$seconds} s.",
-            ]);
-        }
-
         $validator->after(function ($validator) {
             // Check for unique start_date constraint
             $data = method_exists($validator, 'getData') ? $validator->getData() : [];
@@ -85,16 +63,6 @@ class GenerateMealPlanRequest extends FormRequest
                 $validator->errors()->add('recipes', $message);
             }
         });
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation(): void
-    {
-        // Hit the rate limiter
-        $key = 'generate-meal-plan:'.$this->user()->id;
-        RateLimiter::hit($key, 3600); // 1 hour
     }
 
     /**

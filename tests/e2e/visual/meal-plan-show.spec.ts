@@ -54,3 +54,53 @@ test('meal plan show mobile', async ({ page }) => {
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('meal-plan-show-mobile.png', { fullPage: true });
 });
+
+// The pinned draft starts on 2026-06-29 and uses every recipe of the visual user, so the swap dialog marks each non-current one "jest już".
+async function openSeededDraft(page: Page) {
+  await page.goto('/meal-plans');
+  const pageJson = await page.locator('script[data-page="app"]').textContent();
+  expect(pageJson, 'Inertia page JSON in script[data-page="app"]').not.toBeNull();
+  const plans: { start_date: string; links: { self: string } }[] = JSON.parse(pageJson!).props.mealPlans.data;
+  const plan = plans.find((candidate) => candidate.start_date === '2026-06-29');
+  expect(plan, 'seeded draft starting 2026-06-29 in the plans list').toBeDefined();
+  await page.goto(plan!.links.self);
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
+  await expect(page.getByText('29.06.2026 – 05.07.2026')).toBeVisible();
+  await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(21);
+  await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
+  await expectFigtreeLoaded(page);
+}
+
+test('meal plan draft desktop', async ({ page }) => {
+  await page.setViewportSize(DESKTOP);
+  await logIn(page);
+  await openSeededDraft(page);
+
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('meal-plan-draft-desktop.png', { fullPage: true });
+});
+
+test('meal plan draft mobile', async ({ page }) => {
+  await page.setViewportSize(MOBILE);
+  await logIn(page);
+  await openSeededDraft(page);
+
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('meal-plan-draft-mobile.png', { fullPage: true });
+});
+
+test('meal plan draft swap dialog', async ({ page }) => {
+  await page.setViewportSize(DESKTOP);
+  await logIn(page);
+  await openSeededDraft(page);
+
+  await page.getByRole('button', { name: /^Zmień przepis: .* – Obiad$/ }).first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText('Zmień przepis', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('obecny')).toBeVisible();
+  await expect(dialog.getByText(/jest już/).first()).toBeVisible();
+
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('meal-plan-draft-swap-dialog.png');
+});

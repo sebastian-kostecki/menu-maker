@@ -34,6 +34,17 @@ class MealPlanFactory extends Factory
     }
 
     /**
+     * Create a draft meal plan (recipes drawn, not yet approved).
+     */
+    public function draft(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'draft',
+            'generation_meta' => null,
+        ]);
+    }
+
+    /**
      * Create a pending meal plan.
      */
     public function pending(): static

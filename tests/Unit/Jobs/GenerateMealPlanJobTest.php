@@ -21,27 +21,40 @@ use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
-it('processes meal plan successfully and logs progress', function (): void {
-    $user = User::factory()->create();
-    seedFullWeekOfRecipes($user);
+/**
+ * A pending plan whose 21 meals were already drawn, as after approving a draft.
+ */
+function approvedPlanWithDrawnMeals(User $user): MealPlan
+{
     $mealPlan = MealPlan::factory()->for($user)->pending()->create([
         'start_date' => now()->startOfDay(),
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
+    app(MealPlanGenerator::class)->generate($mealPlan);
+
+    return $mealPlan;
+}
+
+it('processes meal plan successfully and logs progress', function (): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    $mealPlan = approvedPlanWithDrawnMeals($user);
+    $mealIds = $mealPlan->meals()->pluck('id')->sort()->values()->all();
 
     // Run job synchronously (queue connection is sync in phpunit.xml)
-    (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
 
     $mealPlan->refresh();
 
     expect($mealPlan->status)->toBe('done')
         ->and($mealPlan->generation_meta)
         ->toBeArray()
-        ->and($mealPlan->generation_meta['regenerate'])->toBeFalse()
         ->and($mealPlan->generation_meta['version'])->toBe('scaled-v1')
         ->and($mealPlan->generation_meta['scaling'])->toHaveKeys(['status', 'unscaled_recipes', 'members_without_body'])
         ->and($mealPlan->generation_meta['scaling']['status'])->toBe('as_written')
-        ->and(Meal::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(21);
+        ->and($mealPlan->generation_meta)->not->toHaveKey('regenerate')
+        ->and(Meal::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(21)
+        ->and($mealPlan->meals()->pluck('id')->sort()->values()->all())->toBe($mealIds);
 
     $log = LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->latest('created_at')->first();
     expect($log)->not->toBeNull()
@@ -55,12 +68,9 @@ it('writes scaled and refined meal ingredients for a family', function (): void 
     seedFullWeekOfRecipes($user);
     seedTwoAdultFamily($user);
     Recipe::query()->where('user_id', $user->id)->each(fn (Recipe $recipe) => attachIngredient($recipe, 'Mąka', '100', 'g'));
-    $mealPlan = MealPlan::factory()->for($user)->pending()->create([
-        'start_date' => now()->startOfDay(),
-        'end_date' => now()->startOfDay()->copy()->addDays(6),
-    ]);
+    $mealPlan = approvedPlanWithDrawnMeals($user);
 
-    (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
 
     $mealPlan->refresh();
     $rows = MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->get();
@@ -72,6 +82,22 @@ it('writes scaled and refined meal ingredients for a family', function (): void 
         ->and($rows->pluck('source')->unique()->all())->toBe([MealIngredient::SOURCE_AI]);
 });
 
+it('leaves a plan that is no longer pending untouched, e.g. a retried job after going back to draft', function (string $status): void {
+    $user = User::factory()->create();
+    seedFullWeekOfRecipes($user);
+    $mealPlan = approvedPlanWithDrawnMeals($user);
+    MealPlan::query()->whereKey($mealPlan->id)->update(['status' => $status, 'generation_meta' => null]);
+
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
+
+    $mealPlan->refresh();
+
+    expect($mealPlan->status)->toBe($status)
+        ->and($mealPlan->generation_meta)->toBeNull()
+        ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(0)
+        ->and(LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(0);
+})->with(['draft', 'done', 'error', 'processing']);
+
 it('marks a pending plan as error when the job fails before handle() runs', function (): void {
     config(['services.ingredient_refiner.driver' => 'nope']);
 
@@ -81,7 +107,7 @@ it('marks a pending plan as error when the job fails before handle() runs', func
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    expect(fn () => GenerateMealPlanJob::dispatch($mealPlan, false))
+    expect(fn () => GenerateMealPlanJob::dispatch($mealPlan))
         ->toThrow(InvalidArgumentException::class, 'Unknown AI_SCALING_DRIVER [nope].')
         ->and($mealPlan->fresh()->status)->toBe('error')
         ->and($mealPlan->fresh()->generation_meta['error_message'])->toBe(GenerateMealPlanJob::GENERIC_ERROR_MESSAGE);
@@ -95,7 +121,7 @@ it('failed() releases the overlap lock of a killed attempt so the plan can be re
         'start_date' => now()->startOfDay(),
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
-    $job = new GenerateMealPlanJob($mealPlan, false);
+    $job = new GenerateMealPlanJob($mealPlan);
     $lockKey = $job->middleware()[0]->getLockKey($job);
     Cache::lock($lockKey, 300)->get();
 
@@ -111,7 +137,7 @@ it('failed() marks meal plan as error when still processing', function (): void 
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    $job = new GenerateMealPlanJob($mealPlan, true);
+    $job = new GenerateMealPlanJob($mealPlan);
     $job->failed(new RuntimeException('forced failure'));
 
     $mealPlan->refresh();
@@ -130,7 +156,7 @@ it('failed() adds meal_plan_id to the log context and writes no error entry itse
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    (new GenerateMealPlanJob($mealPlan, false))->failed(new RuntimeException('forced failure'));
+    (new GenerateMealPlanJob($mealPlan))->failed(new RuntimeException('forced failure'));
 
     expect(Context::get('meal_plan_id'))->toBe($mealPlan->id)
         ->and($mealPlan->fresh()->status)->toBe('error');
@@ -154,7 +180,7 @@ it('handle() adds meal_plan_id to the log context, rethrows and writes no error 
         }
     });
 
-    expect(fn () => (new GenerateMealPlanJob($mealPlan, false))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class)))
+    expect(fn () => (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class)))
         ->toThrow(RuntimeException::class, 'forced failure inside handle')
         ->and(Context::get('meal_plan_id'))->toBe($mealPlan->id)
         ->and($mealPlan->fresh()->status)->toBe('error')
@@ -172,7 +198,7 @@ it('failed() reports timeouts and exceeded attempts, which the worker does not r
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    (new GenerateMealPlanJob($mealPlan, false))->failed(new $exceptionClass('gave up'));
+    (new GenerateMealPlanJob($mealPlan))->failed(new $exceptionClass('gave up'));
 
     Exceptions::assertReported($exceptionClass);
     expect(Context::get('meal_plan_id'))->toBe($mealPlan->id);
@@ -190,32 +216,7 @@ it('failed() does not re-report an exception the worker already reported', funct
         'end_date' => now()->startOfDay()->copy()->addDays(6),
     ]);
 
-    (new GenerateMealPlanJob($mealPlan, false))->failed(new RuntimeException('thrown from handle'));
-
-    Exceptions::assertNothingReported();
-});
-
-it('turns a run-time recipe shortfall into an unreported error status', function (): void {
-    Exceptions::fake();
-
-    $user = User::factory()->create();
-    $mealPlan = MealPlan::factory()->for($user)->pending()->create([
-        'start_date' => now()->startOfDay(),
-        'end_date' => now()->startOfDay()->copy()->addDays(6),
-    ]);
-
-    (new GenerateMealPlanJob($mealPlan, true))->handle(app(MealPlanGenerator::class), app(MealIngredientScaler::class));
-
-    $mealPlan->refresh();
-    $log = LogsMealPlan::query()->where('meal_plan_id', $mealPlan->id)->latest('created_at')->first();
-
-    expect($mealPlan->status)->toBe('error')
-        ->and($mealPlan->generation_meta['error_message'])->toContain('Za mało przepisów w kategorii Śniadanie')
-        ->and($mealPlan->generation_meta['missing'])->toBe(['breakfast' => 7, 'supper' => 7, 'dinner' => 7])
-        ->and($mealPlan->generation_meta['regenerate'])->toBeTrue()
-        ->and($log->status)->toBe('error')
-        ->and($log->finished_at)->not->toBeNull()
-        ->and(Meal::query()->where('meal_plan_id', $mealPlan->id)->count())->toBe(0);
+    (new GenerateMealPlanJob($mealPlan))->failed(new RuntimeException('thrown from handle'));
 
     Exceptions::assertNothingReported();
 });
@@ -230,7 +231,7 @@ it('drops the job silently when the meal plan was deleted before processing', fu
     ]);
     $mealPlan->delete();
 
-    GenerateMealPlanJob::dispatch($mealPlan, false);
+    GenerateMealPlanJob::dispatch($mealPlan);
 
     expect(MealPlan::query()->count())->toBe(0)
         ->and(LogsMealPlan::query()->count())->toBe(0);

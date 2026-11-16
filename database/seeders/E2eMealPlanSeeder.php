@@ -65,6 +65,8 @@ class E2eMealPlanSeeder extends Seeder
 
     public const VISUAL_PLAN_START = '2026-06-15';
 
+    public const VISUAL_DRAFT_START = '2026-06-29';
+
     public const VISUAL_PLAN_END = '2026-06-21';
 
     public function run(): void
@@ -154,6 +156,7 @@ class E2eMealPlanSeeder extends Seeder
     {
         $fixtures = [
             ['status' => 'done', 'start' => self::VISUAL_PLAN_START, 'end' => self::VISUAL_PLAN_END, 'created' => '2026-06-12 09:30:00'],
+            ['status' => 'draft', 'start' => self::VISUAL_DRAFT_START, 'end' => '2026-07-05', 'created' => '2026-06-12 09:31:00'],
             ['status' => 'done', 'start' => '2026-06-08', 'end' => '2026-06-14', 'created' => '2026-06-05 18:15:00'],
             ['status' => 'processing', 'start' => '2026-06-22', 'end' => '2026-06-28', 'created' => '2026-06-02 12:00:00'],
             ['status' => 'error', 'start' => '2026-06-01', 'end' => '2026-06-07', 'created' => '2026-05-28 08:45:00'],
@@ -173,6 +176,8 @@ class E2eMealPlanSeeder extends Seeder
 
             if ($fixture['start'] === self::VISUAL_PLAN_START) {
                 $this->buildVisualPlan($user, $mealPlan);
+            } elseif ($fixture['status'] === 'draft') {
+                $this->attachPinnedMeals($user, $mealPlan);
             } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
             }
@@ -180,14 +185,9 @@ class E2eMealPlanSeeder extends Seeder
     }
 
     /**
-     * Fill the visual done plan identically on every run: the user's pinned recipes (syncVisualRecipes()), fixed
-     * week, fake-scaled ingredients.
-     *
-     * Recipes are taken per category in the pinned `created_at desc` order (the visualRecipes() order), not by id:
-     * syncVisualRecipes() may recreate rows, so ids differ between a fresh database and a re-seeded one.
-     * Mirrors what GenerateMealPlanJob stores, without the queue, the random draw or any AI call.
+     * Give the plan one pinned meal per category and day: the user's recipes in the visualRecipes() order, no scaling.
      */
-    private function buildVisualPlan(User $user, MealPlan $plan): void
+    private function attachPinnedMeals(User $user, MealPlan $plan): void
     {
         foreach (MealCategory::values() as $category) {
             $recipes = Recipe::where('user_id', $user->id)
@@ -205,6 +205,19 @@ class E2eMealPlanSeeder extends Seeder
                 ]);
             }
         }
+    }
+
+    /**
+     * Fill the visual done plan identically on every run: the user's pinned recipes (syncVisualRecipes()), fixed
+     * week, fake-scaled ingredients.
+     *
+     * Recipes are taken per category in the pinned `created_at desc` order (the visualRecipes() order), not by id:
+     * syncVisualRecipes() may recreate rows, so ids differ between a fresh database and a re-seeded one.
+     * Mirrors what GenerateMealPlanJob stores, without the queue, the random draw or any AI call.
+     */
+    private function buildVisualPlan(User $user, MealPlan $plan): void
+    {
+        $this->attachPinnedMeals($user, $plan);
 
         $outcome = app()->make(MealIngredientScaler::class, ['refiner' => new FakeIngredientRefiner])->scale($plan);
 
@@ -213,7 +226,6 @@ class E2eMealPlanSeeder extends Seeder
         $plan->forceFill([
             'generation_meta' => [
                 'generated_at' => $plan->start_date,
-                'regenerate' => false,
                 'version' => 'scaled-v1',
                 'scaling' => $outcome->toArray(),
             ],

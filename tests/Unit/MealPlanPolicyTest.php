@@ -66,6 +66,9 @@ class MealPlanPolicyTest extends TestCase
 
     public function test_update_allows_owner_when_not_processing(): void
     {
+        $this->mealPlan->update(['status' => 'draft']);
+        $this->assertTrue($this->policy->update($this->user, $this->mealPlan));
+
         $this->mealPlan->update(['status' => 'pending']);
         $this->assertTrue($this->policy->update($this->user, $this->mealPlan));
 
@@ -91,6 +94,9 @@ class MealPlanPolicyTest extends TestCase
 
     public function test_delete_allows_owner_when_not_processing(): void
     {
+        $this->mealPlan->update(['status' => 'draft']);
+        $this->assertTrue($this->policy->delete($this->user, $this->mealPlan));
+
         $this->mealPlan->update(['status' => 'pending']);
         $this->assertTrue($this->policy->delete($this->user, $this->mealPlan));
 
@@ -125,6 +131,9 @@ class MealPlanPolicyTest extends TestCase
 
     public function test_force_delete_allows_owner_when_not_processing(): void
     {
+        $this->mealPlan->update(['status' => 'draft']);
+        $this->assertTrue($this->policy->forceDelete($this->user, $this->mealPlan));
+
         $this->mealPlan->update(['status' => 'pending']);
         $this->assertTrue($this->policy->forceDelete($this->user, $this->mealPlan));
 

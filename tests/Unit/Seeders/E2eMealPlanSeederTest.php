@@ -11,6 +11,7 @@ use App\Services\IngredientScaling\ScalingOutcome;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Database\Seeders\E2eMealPlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
@@ -24,11 +25,11 @@ beforeEach(function (): void {
     $this->seed(E2eMealPlanSeeder::class);
 });
 
-it('gives the visual user the four list fixtures, with one deterministic done plan for the fixed week', function (): void {
+it('gives the visual user the five list fixtures, with one deterministic done plan for the fixed week', function (): void {
     $user = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail();
     $plan = $user->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_PLAN_START)->sole();
 
-    expect($user->mealPlans()->orderByDesc('created_at')->pluck('status')->all())->toBe(['done', 'done', 'processing', 'error'])
+    expect($user->mealPlans()->orderByDesc('created_at')->pluck('status')->all())->toBe(['draft', 'done', 'done', 'processing', 'error'])
         ->and($plan->created_at->toDateTimeString())->toBe('2026-06-12 09:30:00')
         ->and($plan->updated_at->toDateTimeString())->toBe('2026-06-12 09:30:00');
 
@@ -51,6 +52,18 @@ it('gives the visual user the four list fixtures, with one deterministic done pl
 
     expect($actual)->toEqualCanonicalizing($expected)
         ->and($user->recipes()->count())->toBe(21);
+});
+
+it('gives the visual user a pinned draft with 21 meals and no ingredients', function (): void {
+    $user = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail();
+    $draft = $user->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
+
+    expect($draft->status)->toBe('draft')
+        ->and($draft->created_at->toDateTimeString())->toBe('2026-06-12 09:31:00')
+        ->and($draft->updated_at->toDateTimeString())->toBe('2026-06-12 09:31:00')
+        ->and($draft->meals()->count())->toBe(21)
+        ->and($draft->meals()->with('recipe')->get()->pluck('recipe.name')->unique()->count())->toBe(21)
+        ->and(DB::table('meal_ingredients')->whereIn('meal_id', $draft->meals()->pluck('id'))->count())->toBe(0);
 });
 
 it('puts the recipes of each category on consecutive days from the plan start', function (): void {

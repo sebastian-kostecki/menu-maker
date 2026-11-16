@@ -22,8 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import type { MealPlanStatus } from '@/types/meal-plan'
 // Local type definitions
-type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
 
 interface StatusOption {
   value: MealPlanStatus

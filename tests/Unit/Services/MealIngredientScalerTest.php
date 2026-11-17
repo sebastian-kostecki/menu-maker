@@ -15,6 +15,7 @@ use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\IngredientScaling\RefinementConfigurationException;
 use App\Services\IngredientScaling\RefinementFailedException;
 use App\Services\IngredientScaling\RefinementItem;
+use App\Services\IngredientScaling\ScalingCalculator;
 use App\Services\IngredientScaling\ScalingOutcome;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -352,4 +353,107 @@ it('does not put family data into the refiner items', function (): void {
 
     $payload = json_encode($refiner->received[0]);
     expect($payload)->not->toContain('Anna')->and($payload)->not->toContain('Jan')->and($payload)->not->toContain('Ola');
+});
+
+/**
+ * An Obiad cooked on Monday for Tuesday too: Monday feeds Tuesday, both with the same recipe (100 g Mąka).
+ *
+ * @return array{0: MealPlan, 1: Meal, 2: Meal}
+ */
+function linkedObiadPlan(User $user, string $calories): array
+{
+    $recipe = Recipe::factory()->supper()->for($user)->create(['calories' => $calories]);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = scalerPlan($user);
+    $cooked = addMealOf($plan, $recipe);
+    $carriedOver = addMealOf($plan, $recipe, '2026-11-17');
+    $cooked->update(['feeds_meal_id' => $carriedOver->id]);
+
+    return [$plan, $cooked, $carriedOver];
+}
+
+it('a cooked meal gets twice the single-meal amounts and the carried-over meal gets no rows', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    [$plan, $cooked, $carriedOver] = linkedObiadPlan($user, '1080');
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $cooked->ingredients()->sole();
+    expect($row->recipe_quantity)->toBe('100.00')
+        ->and($row->computed_quantity)->toBe('400.00')
+        ->and($row->quantity)->toBe('400.00')
+        ->and($row->source)->toBe(MealIngredient::SOURCE_AI)
+        ->and($carriedOver->ingredients()->count())->toBe(0);
+});
+
+it('without a family a cooked meal gets twice the written amounts as written, the refiner is not called and the status stays as_written', function (): void {
+    $user = User::factory()->create();
+    [$plan, $cooked, $carriedOver] = linkedObiadPlan($user, '1080');
+    $refiner = bindRefinerSteps([]);
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $cooked->ingredients()->sole();
+    expect($refiner->calls)->toBe(0)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_AS_WRITTEN)
+        ->and($row->quantity)->toBe('200.00')
+        ->and($row->source)->toBe(MealIngredient::SOURCE_AS_WRITTEN)
+        ->and($carriedOver->ingredients()->count())->toBe(0);
+});
+
+it('an unscaled recipe cooked for two days is doubled as written, gets no refinement item and is still reported as unscaled', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    [$plan, $cooked] = linkedObiadPlan($user, '0');
+    $refiner = bindRefinerSteps([]);
+
+    $outcome = app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $cooked->ingredients()->sole();
+    expect($refiner->calls)->toBe(0)
+        ->and($outcome->status)->toBe(ScalingOutcome::STATUS_REFINED)
+        ->and($outcome->unscaledRecipes)->toHaveCount(1)
+        ->and($row->quantity)->toBe('200.00')
+        ->and($row->source)->toBe(MealIngredient::SOURCE_AS_WRITTEN);
+});
+
+it('refinement items carry the doubled quantity', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    [$plan] = linkedObiadPlan($user, '1080');
+    $refiner = bindRefinerSteps([fn (array $items): array => [$items[0]->key => '390']]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    expect($refiner->received[0])->toHaveCount(1)
+        ->and($refiner->received[0][0]->computedQuantity)->toBe('400.00');
+});
+
+it('a Kolacja feeding the next Śniadanie gets twice the single-meal amounts and the Śniadanie gets no rows', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    $recipe = Recipe::factory()->dinner()->for($user)->create(['calories' => '810']);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = scalerPlan($user);
+    $kolacja = addMealOf($plan, $recipe);
+    $sniadanie = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => '2026-11-17',
+        'meal_category' => 'breakfast',
+    ]);
+    $kolacja->update(['feeds_meal_id' => $sniadanie->id]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $kolacja->ingredients()->sole();
+    expect($row->recipe_quantity)->toBe('100.00')
+        ->and($row->computed_quantity)->toBe('400.00')
+        ->and($row->quantity)->toBe('400.00')
+        ->and($sniadanie->ingredients()->count())->toBe(0);
+});
+
+it('breakfast and dinner have the same kcal share', function (): void {
+    expect(ScalingCalculator::MEAL_SHARES['breakfast'])->toBe(ScalingCalculator::MEAL_SHARES['dinner']);
 });

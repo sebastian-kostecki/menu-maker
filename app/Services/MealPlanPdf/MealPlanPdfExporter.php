@@ -7,7 +7,9 @@ namespace App\Services\MealPlanPdf;
 use App\Enums\MealCategory;
 use App\Models\Meal;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Services\IngredientScaling\ScalingNotices;
+use App\Services\MealLinks\MealLinkRules;
 use App\Services\ShoppingList\QuantityFormatter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -18,35 +20,57 @@ class MealPlanPdfExporter
     public function __construct(
         private readonly ShoppingListBuilder $shoppingListBuilder,
         private readonly QuantityFormatter $quantityFormatter,
+        private readonly MealLinkRules $links = new MealLinkRules,
     ) {}
 
     /**
      * Build the typed document the PDF template renders.
      */
-    public function document(MealPlan $mealPlan): MealPlanDocument
+    public function document(MealPlan $mealPlan, bool $withRecipes = false): MealPlanDocument
     {
         $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
+
         $byDate = $mealPlan->meals
-            ->filter(fn (Meal $meal): bool => $meal->recipe !== null)
             ->groupBy(fn (Meal $meal): string => $meal->meal_date->format('Y-m-d'))
             ->sortKeys();
 
         $days = [];
+        /** @var array<int, array{recipe: Recipe, groups: array<string, array{days: list<string>, lines: list<string>}>}> $recipeUses */
+        $recipeUses = [];
 
-        foreach ($byDate as $date => $meals) {
+        foreach ($byDate as $meals) {
             $day = $meals->first()->meal_date->copy()->locale('pl');
+            $dayLabel = Str::ucfirst($day->isoFormat('dddd')).' '.$day->format('d.m');
+            $pdfMeals = [];
 
-            $pdfMeals = $meals
-                ->sortBy(fn (Meal $meal): int => MealCategory::displayIndex($meal->meal_category))
-                ->map(fn (Meal $meal): PdfMeal => $this->pdfMeal($meal))
-                ->values()
-                ->all();
+            $sortedMeals = $meals->sortBy(fn (Meal $meal): int => MealCategory::displayIndex($meal->meal_category));
 
-            $days[] = new PdfDay(
-                Str::ucfirst($day->isoFormat('dddd')).' '.$day->format('d.m'),
-                $pdfMeals,
-            );
+            foreach ($sortedMeals as $meal) {
+                $lines = $this->ingredientLines($meal);
+                $isCarriedOver = isset($carriedOver[$meal->id]);
+                $pdfMeals[] = $this->pdfMeal($meal, $lines, $isCarriedOver);
+
+                if (! $withRecipes || $meal->recipe === null || $isCarriedOver) {
+                    continue;
+                }
+
+                $useSuffix = $meal->feeds_meal_id !== null
+                    ? ($this->links->cookedPairFor($meal->meal_category)['use_suffix'] ?? null)
+                    : null;
+                $useLabel = $useSuffix !== null ? $dayLabel.' ('.$useSuffix.')' : $dayLabel;
+
+                $groupKey = implode("\n", $lines);
+                $recipeUses[$meal->recipe_id] ??= ['recipe' => $meal->recipe, 'groups' => []];
+                $recipeUses[$meal->recipe_id]['groups'][$groupKey] ??= ['days' => [], 'lines' => $lines];
+
+                if (! in_array($useLabel, $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'], true)) {
+                    $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'][] = $useLabel;
+                }
+            }
+
+            $days[] = new PdfDay($dayLabel, $pdfMeals);
         }
 
         return new MealPlanDocument(
@@ -54,15 +78,16 @@ class MealPlanPdfExporter
             $days,
             $this->shoppingListBuilder->forMealPlan($mealPlan),
             ScalingNotices::for($mealPlan)['notices'],
+            array_values(array_map($this->pdfRecipe(...), $recipeUses)),
         );
     }
 
     /**
-     * Render the plan and its shopping list as PDF bytes.
+     * Render the plan and its shopping list (and, on request, one page per recipe) as PDF bytes.
      */
-    public function render(MealPlan $mealPlan): string
+    public function render(MealPlan $mealPlan, bool $withRecipes = false): string
     {
-        return Pdf::loadView('pdf.meal-plan', ['document' => $this->document($mealPlan)])
+        return Pdf::loadView('pdf.meal-plan', ['document' => $this->document($mealPlan, $withRecipes)])
             ->setPaper('a4', 'landscape')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', false)
@@ -71,16 +96,18 @@ class MealPlanPdfExporter
             ->output();
     }
 
-    public function filename(MealPlan $mealPlan): string
+    public function filename(MealPlan $mealPlan, bool $withRecipes = false): string
     {
-        return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'.pdf';
+        return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d')
+            .($withRecipes ? '-z-przepisami' : '').'.pdf';
     }
 
-    private function pdfMeal(Meal $meal): PdfMeal
+    /**
+     * @return list<string>
+     */
+    private function ingredientLines(Meal $meal): array
     {
-        $recipe = $meal->recipe;
-        $category = MealCategory::from($meal->meal_category);
-        $ingredients = [];
+        $lines = [];
 
         foreach ($meal->ingredients as $mealIngredient) {
             $ingredient = $mealIngredient->ingredient;
@@ -90,15 +117,59 @@ class MealPlanPdfExporter
                 continue;
             }
 
-            $ingredients[] = $ingredient->name.' — '.$this->quantityFormatter->format((string) $mealIngredient->quantity, $unit->code);
+            $lines[] = $ingredient->name.' — '.$this->quantityFormatter->format((string) $mealIngredient->quantity, $unit->code);
         }
+
+        return $lines;
+    }
+
+    /**
+     * @param  list<string>  $ingredients
+     */
+    private function pdfMeal(Meal $meal, array $ingredients, bool $isCarriedOver): PdfMeal
+    {
+        $recipe = $meal->recipe;
+        $category = MealCategory::from($meal->meal_category);
+
+        if ($recipe === null) {
+            return new PdfMeal($category->label(), $category->value, 'Bez posiłku', false, [], true);
+        }
+
+        $marker = match (true) {
+            $isCarriedOver => $this->links->carriedPairFor($meal->meal_category)['carried_label'] ?? null,
+            $meal->feeds_meal_id !== null => $this->links->cookedPairFor($meal->meal_category)['cooked_label'] ?? null,
+            default => null,
+        };
 
         return new PdfMeal(
             $category->label(),
             $category->value,
             $recipe->name,
             $recipe->trashed(),
-            $ingredients,
+            $isCarriedOver ? [] : $ingredients,
+            false,
+            $marker,
+            $isCarriedOver,
+        );
+    }
+
+    /**
+     * @param  array{recipe: Recipe, groups: array<string, array{days: list<string>, lines: list<string>}>}  $use
+     */
+    private function pdfRecipe(array $use): PdfRecipe
+    {
+        $recipe = $use['recipe'];
+        $category = MealCategory::from($recipe->category);
+
+        return new PdfRecipe(
+            $recipe->name,
+            $category->label(),
+            $category->value,
+            $recipe->trashed(),
+            array_values(array_map(
+                fn (array $group): PdfIngredientGroup => new PdfIngredientGroup($group['days'], $group['lines']),
+                $use['groups'],
+            )),
             (string) $recipe->instructions,
         );
     }

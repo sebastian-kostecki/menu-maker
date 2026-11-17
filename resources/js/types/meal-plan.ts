@@ -1,5 +1,5 @@
 // Types for MealPlan components and API responses
-export type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
+export type MealPlanStatus = 'draft' | 'pending' | 'processing' | 'done' | 'error'
 
 export interface StatusOption {
   value: MealPlanStatus
@@ -18,6 +18,7 @@ export interface MealPlanListItem {
   links: {
     self: string
     pdf: string | null
+    pdf_with_recipes: string | null
   }
 }
 
@@ -62,3 +63,17 @@ export interface MealPlanCollectionProps {
   }
   statuses: StatusOption[]
 }
+
+export interface RecipeOption {
+  id: number
+  name: string
+  calories: string | null
+}
+
+export interface ShortCategory {
+  category: 'breakfast' | 'supper' | 'dinner'
+  label: string
+  recipes: number
+}
+
+export type RecipeOptions = Record<'breakfast' | 'supper' | 'dinner', RecipeOption[]>

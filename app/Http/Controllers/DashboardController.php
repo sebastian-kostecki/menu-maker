@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MealPlanResource;
 use App\Models\MealPlan;
 use App\Models\Recipe;
-use App\Services\MealPlanGenerator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,14 +14,13 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     /**
-     * Render the dashboard with owner-scoped counts, the newest ready plan and the recipe shortfall.
+     * Render the dashboard with owner-scoped counts, the newest ready plan.
      *
      * Props:
      * - stats: array{recipes: int, mealPlans: int}
      * - latestMealPlan: array<string, mixed>|null
-     * - recipeShortfall: list<string>
      */
-    public function __invoke(Request $request, MealPlanGenerator $generator): Response
+    public function __invoke(Request $request): Response
     {
         $user = $request->user();
 
@@ -40,9 +38,6 @@ class DashboardController extends Controller
             'latestMealPlan' => $latestMealPlan === null
                 ? null
                 : (new MealPlanResource($latestMealPlan))->resolve(),
-            'recipeShortfall' => $generator->shortfallMessages(
-                $generator->missingRecipesPerCategory($user->id)
-            ),
         ]);
     }
 }

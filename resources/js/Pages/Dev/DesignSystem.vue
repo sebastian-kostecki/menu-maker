@@ -23,7 +23,9 @@ import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
+import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
+import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -188,7 +190,7 @@ const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
 const shellExpandedCollapsed = ref(false)
 const shellCollapsedCollapsed = ref(true)
 const appCategories = ['breakfast', 'supper', 'dinner']
-const appStatuses = ['pending', 'processing', 'done', 'error']
+const appStatuses = ['draft', 'pending', 'processing', 'done', 'error']
 const appSort = ref({ column: 'name', direction: 'asc' })
 const appPaginationMeta = ref({
   current_page: 2,
@@ -211,12 +213,29 @@ const planRecipeNames = [
 const planMeals = planRecipeNames
   .map((name, index) => {
     const day = Math.floor(index / 3)
-
-    return {
+    const base = {
       id: index + 1,
       meal_date: `2026-06-${String(15 + day).padStart(2, '0')}`,
       meal_category: appCategories[index % 3],
-      recipe: { id: index + 1, name, calories: 1200 + index * 40, servings: 4, deleted: index === 4 },
+    }
+
+    if (index + 1 === 8) {
+      return { ...base, ingredients: [] }
+    }
+
+    // Thursday's Obiad (id 11) feeds Friday's Obiad (id 14), and Friday's Kolacja (id 15) feeds Saturday's Śniadanie (id 16); each carried-over meal shows the cooked dish.
+    const links = {
+      11: { feeds_meal_id: 14 },
+      14: { from_meal_id: 11, dish: 10 },
+      15: { feeds_meal_id: 16 },
+      16: { from_meal_id: 15, dish: 14 },
+    }
+    const { dish = index, ...link } = links[index + 1] ?? {}
+
+    return {
+      ...base,
+      ...link,
+      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4 },
       ingredients: index === 0
         ? [
             { ingredient_id: 1, name: 'Płatki owsiane', display: '200 g' },
@@ -226,7 +245,6 @@ const planMeals = planRecipeNames
         : [],
     }
   })
-  .filter((meal) => meal.id !== 8)
 const planShoppingList = {
   items: [
     { ingredient_id: 1, name: 'Jajka', quantity: '42', unit: 'szt.', display: '42 szt.' },
@@ -236,6 +254,18 @@ const planShoppingList = {
   recipes_without_ingredients: ['Sałatka grecka'],
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
+const swapOpen = ref(false)
+const swapMeal = ref(planMeals[0])
+const openSwap = (meal) => {
+  swapMeal.value = meal
+  swapOpen.value = true
+}
+const swapOptions = [
+  { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
+  { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
+  { id: 13, name: 'Płatki z mlekiem', calories: '980' },
+  { id: 16, name: 'Tosty z awokado', calories: null },
+]
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
@@ -857,13 +887,36 @@ const showToast = () => {
         <h2 id="ds-jadlospis" class="text-lg font-semibold">Jadłospis</h2>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden slot pusty, jeden usunięty przepis, jedna lista składników)</p>
+          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" />
+          <div>
+            <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>
+          </div>
+          <RecipeSwapDialog
+            v-model:open="swapOpen"
+            :meal-plan-id="1"
+            :meal="swapMeal"
+            :options="swapOptions"
+            :week-meals="planMeals"
+            demo
+          />
         </div>
 
         <div class="flex flex-col gap-2">
           <p class="text-xs text-muted-foreground">Siatka w trakcie generowania</p>
           <MealPlanGrid :start-date="planStartDate" skeleton />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Pobieranie PDF</p>
+          <div>
+            <PdfDownloadMenu :links="{ pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' }" />
+          </div>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">

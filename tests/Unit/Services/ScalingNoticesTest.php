@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Services\IngredientScaling\ScalingNotices;
 
@@ -13,7 +14,7 @@ function planWithMeta(array $meta, string $status = 'done'): MealPlan
     return (new MealPlan)->forceFill(['status' => $status, 'generation_meta' => $meta]);
 }
 
-const OLD_PLAN_NOTICE = 'Ten jadłospis powstał przed przeliczaniem składników — zregeneruj go, aby dopasować ilości do rodziny.';
+const OLD_PLAN_NOTICE = 'Ten jadłospis powstał przed przeliczaniem składników — wróć do szkicu i zatwierdź go ponownie, aby dopasować ilości do rodziny.';
 
 it('shows no notices for a refined plan without caveats', function (): void {
     $plan = planWithMeta(['version' => 'scaled-v1', 'scaling' => ['status' => 'refined', 'unscaled_recipes' => [], 'members_without_body' => []]]);
@@ -27,6 +28,15 @@ it('explains amounts as written when there is no family', function (): void {
     expect(ScalingNotices::for($plan))->toBe([
         'status' => 'as_written',
         'notices' => ['Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.'],
+    ]);
+});
+
+it('says the amounts of an Obiad cooked for two days are doubled when there is no family', function (): void {
+    $plan = planWithMeta(['version' => 'scaled-v1', 'scaling' => ['status' => 'as_written']]);
+    $plan->setRelation('meals', collect([new Meal(['feeds_meal_id' => 2]), new Meal]));
+
+    expect(ScalingNotices::for($plan)['notices'])->toBe([
+        'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla dań gotowanych raz na dwa posiłki — podwójnie.',
     ]);
 });
 
@@ -50,7 +60,7 @@ it('names unscaled recipes and members without body data', function (): void {
     ]);
 });
 
-it('suggests regenerating a plan from before scaling', function (?string $version): void {
+it('suggests going back to draft for a plan from before scaling', function (?string $version): void {
     $meta = $version === null ? [] : ['version' => $version];
 
     expect(ScalingNotices::for(planWithMeta($meta)))->toBe(['status' => null, 'notices' => [OLD_PLAN_NOTICE]]);
@@ -73,4 +83,4 @@ it('orders the notices as specified', function (): void {
 
 it('returns no notices for a plan that is not done', function (string $status): void {
     expect(ScalingNotices::for(planWithMeta([], $status)))->toBe(['status' => null, 'notices' => []]);
-})->with(['pending', 'processing', 'error']);
+})->with(['draft', 'pending', 'processing', 'error']);

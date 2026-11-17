@@ -41,8 +41,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import { pluralize } from '@/lib/format'
+import type { MealPlanStatus } from '@/types/meal-plan'
 // Types for MealPlan components and API responses
-type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
 
 interface StatusOption {
   value: MealPlanStatus
@@ -61,6 +61,7 @@ interface MealPlanListItem {
   links: {
     self: string
     pdf: string | null
+    pdf_with_recipes: string | null
   }
 }
 

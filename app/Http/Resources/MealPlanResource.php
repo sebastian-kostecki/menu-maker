@@ -42,26 +42,31 @@ class MealPlanResource extends JsonResource
             'meals' => $this->whenLoaded('meals', function () {
                 /** @var Collection<int, Meal> $meals */
                 $meals = $this->meals;
+                $fedFrom = $meals
+                    ->filter(fn (Meal $meal): bool => $meal->feeds_meal_id !== null)
+                    ->mapWithKeys(fn (Meal $meal): array => [$meal->feeds_meal_id => $meal->id]);
 
                 return $meals->sortBy([
                     fn (Meal $a, Meal $b): int => $a->meal_date <=> $b->meal_date,
                     fn (Meal $a, Meal $b): int => MealCategory::displayIndex($a->meal_category)
                         <=> MealCategory::displayIndex($b->meal_category),
-                ])->values()->map(function (Meal $meal) {
+                ])->values()->map(function (Meal $meal) use ($fedFrom) {
+                    $recipe = $meal->relationLoaded('recipe') ? $meal->recipe : null;
+
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
                         'meal_category' => $meal->meal_category,
-                        'recipe' => $this->when($meal->relationLoaded('recipe') && $meal->recipe !== null, function () use ($meal) {
-                            return [
-                                'deleted' => $meal->recipe->trashed(),
-                                'id' => $meal->recipe->id,
-                                'name' => $meal->recipe->name,
-                                'category' => $meal->recipe->category,
-                                'calories' => $meal->recipe->calories,
-                                'servings' => $meal->recipe->servings,
-                            ];
-                        }),
+                        'feeds_meal_id' => $meal->feeds_meal_id,
+                        'from_meal_id' => $fedFrom->get($meal->id),
+                        ...($recipe === null ? [] : ['recipe' => [
+                            'deleted' => $recipe->trashed(),
+                            'id' => $recipe->id,
+                            'name' => $recipe->name,
+                            'category' => $recipe->category,
+                            'calories' => $recipe->calories,
+                            'servings' => $recipe->servings,
+                        ]]),
                         'ingredients' => $this->when($meal->relationLoaded('ingredients'), function () use ($meal) {
                             return $meal->ingredients
                                 ->filter(fn (MealIngredient $mealIngredient): bool => bccomp((string) $mealIngredient->quantity, '0', 2) !== 0)
@@ -107,6 +112,7 @@ class MealPlanResource extends JsonResource
             'links' => [
                 'self' => route('meal-plans.show', $this->id),
                 'pdf' => $this->status === 'done' ? route('meal-plans.pdf', $this->id) : null,
+                'pdf_with_recipes' => $this->status === 'done' ? route('meal-plans.pdf', [$this->id, 'recipes' => 1]) : null,
             ],
         ];
     }

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property string $status One of draft, pending, processing, done, error (the CHECK constraint was widened by raw SQL, which Larastan cannot read from the migrations)
  * @property-read Collection<int, Meal> $meals
  * @property-read Collection<int, LogsMealPlan> $logs
  */

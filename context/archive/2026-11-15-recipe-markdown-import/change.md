@@ -1,9 +1,10 @@
 ---
 change_id: recipe-markdown-import
 title: Import recipes from Markdown files (recipes:import)
-status: in-progress
+status: archived
 created: 2026-11-15
-updated: 2026-11-15
+updated: 2026-11-16
+archived_at: 2026-11-16T10:29:39Z
 ---
 
 ## Notes

@@ -6,13 +6,17 @@ namespace App\Services\ShoppingList;
 
 use App\Models\MealPlan;
 use App\Models\Unit;
+use App\Services\MealLinks\MealLinkRules;
 use Collator;
 
 class ShoppingListBuilder
 {
     private const SCALE = 12;
 
-    public function __construct(private readonly QuantityFormatter $quantityFormatter = new QuantityFormatter) {}
+    public function __construct(
+        private readonly QuantityFormatter $quantityFormatter = new QuantityFormatter,
+        private readonly MealLinkRules $links = new MealLinkRules,
+    ) {}
 
     /**
      * Sum, convert, round and sort quantity lines into shopping list rows.
@@ -73,11 +77,12 @@ class ShoppingListBuilder
 
         $lines = [];
         $withoutIngredients = [];
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         foreach ($mealPlan->meals as $meal) {
             $recipe = $meal->recipe;
 
-            if ($recipe === null) {
+            if ($recipe === null || isset($carriedOver[$meal->id])) {
                 continue;
             }
 

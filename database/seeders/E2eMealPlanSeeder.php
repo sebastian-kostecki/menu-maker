@@ -65,6 +65,8 @@ class E2eMealPlanSeeder extends Seeder
 
     public const VISUAL_PLAN_START = '2026-06-15';
 
+    public const VISUAL_DRAFT_START = '2026-06-29';
+
     public const VISUAL_PLAN_END = '2026-06-21';
 
     public function run(): void
@@ -154,6 +156,7 @@ class E2eMealPlanSeeder extends Seeder
     {
         $fixtures = [
             ['status' => 'done', 'start' => self::VISUAL_PLAN_START, 'end' => self::VISUAL_PLAN_END, 'created' => '2026-06-12 09:30:00'],
+            ['status' => 'draft', 'start' => self::VISUAL_DRAFT_START, 'end' => '2026-07-05', 'created' => '2026-06-12 09:31:00'],
             ['status' => 'done', 'start' => '2026-06-08', 'end' => '2026-06-14', 'created' => '2026-06-05 18:15:00'],
             ['status' => 'processing', 'start' => '2026-06-22', 'end' => '2026-06-28', 'created' => '2026-06-02 12:00:00'],
             ['status' => 'error', 'start' => '2026-06-01', 'end' => '2026-06-07', 'created' => '2026-05-28 08:45:00'],
@@ -173,9 +176,54 @@ class E2eMealPlanSeeder extends Seeder
 
             if ($fixture['start'] === self::VISUAL_PLAN_START) {
                 $this->buildVisualPlan($user, $mealPlan);
+            } elseif ($fixture['status'] === 'draft') {
+                // Wednesday's breakfast stays empty, so the visual draft shows the "Bez posiłku" cell.
+                // Monday's Obiad (supper) is cooked once for Tuesday's, so the draft shows "Na 2 dni" and "Z wczoraj".
+                // Monday's Kolacja (dinner) also feeds Tuesday's Śniadanie, so it shows "Też na śniadanie" and "Z kolacji".
+                $this->attachPinnedMeals($user, $mealPlan, [[MealCategory::Breakfast->value, 2]], [
+                    [MealCategory::Supper->value, 0, MealCategory::Supper->value],
+                    [MealCategory::Dinner->value, 0, MealCategory::Breakfast->value],
+                ]);
             } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
             }
+        }
+    }
+
+    /**
+     * Give the plan one pinned meal per category and day: the user's recipes in the visualRecipes() order, no scaling.
+     *
+     * @param  list<array{0: string, 1: int}>  $emptySlots  `[category, day offset]` pairs that get a meal without a recipe
+     * @param  list<array{0: string, 1: int, 2: string}>  $links  `[from category, from offset, to category]` triples: the `to category` meal on the next day gets the source's recipe and the source feeds it
+     */
+    private function attachPinnedMeals(User $user, MealPlan $plan, array $emptySlots = [], array $links = []): void
+    {
+        /** @var array<string, Meal> $created */
+        $created = [];
+
+        foreach (MealCategory::values() as $category) {
+            $recipes = Recipe::where('user_id', $user->id)
+                ->where('category', $category)
+                ->orderByDesc('created_at')
+                ->limit(MealPlanGenerator::MEALS_PER_CATEGORY)
+                ->get();
+
+            foreach ($recipes as $offset => $recipe) {
+                $created[$category.':'.$offset] = Meal::create([
+                    'meal_plan_id' => $plan->id,
+                    'recipe_id' => in_array([$category, $offset], $emptySlots, true) ? null : $recipe->id,
+                    'meal_date' => $plan->start_date->copy()->addDays($offset),
+                    'meal_category' => $category,
+                ]);
+            }
+        }
+
+        foreach ($links as [$category, $fromOffset, $toCategory]) {
+            $source = $created[$category.':'.$fromOffset];
+            $target = $created[$toCategory.':'.($fromOffset + 1)];
+
+            $target->update(['recipe_id' => $source->recipe_id]);
+            $source->update(['feeds_meal_id' => $target->id]);
         }
     }
 
@@ -189,22 +237,7 @@ class E2eMealPlanSeeder extends Seeder
      */
     private function buildVisualPlan(User $user, MealPlan $plan): void
     {
-        foreach (MealCategory::values() as $category) {
-            $recipes = Recipe::where('user_id', $user->id)
-                ->where('category', $category)
-                ->orderByDesc('created_at')
-                ->limit(MealPlanGenerator::MEALS_PER_CATEGORY)
-                ->get();
-
-            foreach ($recipes as $offset => $recipe) {
-                Meal::create([
-                    'meal_plan_id' => $plan->id,
-                    'recipe_id' => $recipe->id,
-                    'meal_date' => $plan->start_date->copy()->addDays($offset),
-                    'meal_category' => $category,
-                ]);
-            }
-        }
+        $this->attachPinnedMeals($user, $plan);
 
         $outcome = app()->make(MealIngredientScaler::class, ['refiner' => new FakeIngredientRefiner])->scale($plan);
 
@@ -213,7 +246,6 @@ class E2eMealPlanSeeder extends Seeder
         $plan->forceFill([
             'generation_meta' => [
                 'generated_at' => $plan->start_date,
-                'regenerate' => false,
                 'version' => 'scaled-v1',
                 'scaling' => $outcome->toArray(),
             ],

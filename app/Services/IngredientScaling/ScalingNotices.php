@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\IngredientScaling;
 
+use App\Models\Meal;
 use App\Models\MealPlan;
 
 /**
@@ -30,7 +31,9 @@ final class ScalingNotices
         $notices = [];
 
         if ($status === ScalingOutcome::STATUS_AS_WRITTEN) {
-            $notices[] = 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.';
+            $notices[] = self::hasLinkedMeals($mealPlan)
+                ? 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla dań gotowanych raz na dwa posiłki — podwójnie.'
+                : 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.';
         }
 
         if ($status === ScalingOutcome::STATUS_COMPUTED) {
@@ -48,10 +51,20 @@ final class ScalingNotices
         $version = $meta['version'] ?? null;
 
         if ($version === null || $version === 'random-v1') {
-            $notices[] = 'Ten jadłospis powstał przed przeliczaniem składników — zregeneruj go, aby dopasować ilości do rodziny.';
+            $notices[] = 'Ten jadłospis powstał przed przeliczaniem składników — wróć do szkicu i zatwierdź go ponownie, aby dopasować ilości do rodziny.';
         }
 
         return ['status' => $status, 'notices' => $notices];
+    }
+
+    /**
+     * Whether a meal of the plan is cooked for two days (its amounts are doubled even when written as in the recipe).
+     * Reads only already-loaded meals (the week view and the PDF load them), so lists never query per plan.
+     */
+    private static function hasLinkedMeals(MealPlan $mealPlan): bool
+    {
+        return $mealPlan->relationLoaded('meals')
+            && $mealPlan->meals->contains(fn (Meal $meal): bool => $meal->feeds_meal_id !== null);
     }
 
     /**

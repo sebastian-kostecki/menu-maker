@@ -8,6 +8,7 @@ use App\Models\FamilyMember;
 use App\Models\Meal;
 use App\Models\MealIngredient;
 use App\Models\MealPlan;
+use App\Services\MealLinks\MealLinkRules;
 use Collator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Sleep;
@@ -26,6 +27,7 @@ class MealIngredientScaler
         private readonly ScalingCalculator $calculator,
         private readonly IngredientRefiner $refiner,
         private readonly RefinementGuard $guard,
+        private readonly MealLinkRules $links = new MealLinkRules,
     ) {}
 
     public function scale(MealPlan $mealPlan): ScalingOutcome
@@ -58,14 +60,17 @@ class MealIngredientScaler
         $items = [];
         $rowsByKey = [];
         $now = now();
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         /** @var Meal $meal */
         foreach ($mealPlan->meals as $meal) {
             $recipe = $meal->recipe;
 
-            if ($recipe === null) {
+            if ($recipe === null || isset($carriedOver[$meal->id])) {
                 continue;
             }
+
+            $servings = (string) $this->links->servingsFor($meal);
 
             $factor = $hasFamily
                 ? $this->calculator->factor($familyDailyKcal, $meal->meal_category, (string) $recipe->calories)
@@ -78,7 +83,10 @@ class MealIngredientScaler
 
             foreach ($recipe->recipeIngredients->sortBy('id') as $recipeIngredient) {
                 $recipeQuantity = (string) $recipeIngredient->quantity;
-                $computed = $factor === null ? $recipeQuantity : $this->calculator->scale($recipeQuantity, $factor);
+                // The cooked-for-two multiplier stays apart from the single-meal factor, which alone decides source and refinement.
+                $computed = $factor === null && $servings === '1'
+                    ? $recipeQuantity
+                    : $this->calculator->scale($recipeQuantity, bcmul($factor ?? '1', $servings, 12));
 
                 $index = count($rows);
                 $rows[] = [

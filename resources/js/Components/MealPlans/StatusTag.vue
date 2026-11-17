@@ -9,8 +9,7 @@
 import { computed } from 'vue'
 import { Loader2 } from 'lucide-vue-next'
 import { Badge } from '@/Components/ui/badge'
-// Local type definition
-type MealPlanStatus = 'pending' | 'processing' | 'done' | 'error'
+import type { MealPlanStatus } from '@/types/meal-plan'
 
 interface Props {
   value: MealPlanStatus
@@ -19,6 +18,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const statusLabels: Record<MealPlanStatus, string> = {
+  draft: 'Szkic',
   pending: 'Oczekuje',
   processing: 'Generowanie',
   done: 'Gotowy',
@@ -26,6 +26,7 @@ const statusLabels: Record<MealPlanStatus, string> = {
 }
 
 const statusVariants: Record<MealPlanStatus, string> = {
+  draft: 'outline',
   pending: 'muted',
   processing: 'info',
   done: 'success',

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { expectAppFontLoaded } from './support/fonts';
 
 test.skip(
@@ -33,6 +33,24 @@ function section(page: Page, name: string) {
   return page.getByRole('region', { name, exact: true });
 }
 
+/**
+ * Viewport clip around a focused control, padded so the 2px outline at a 2px offset is in the shot
+ * (an element screenshot stops at the border box and would cut the focus ring off).
+ */
+async function focusRingClip(control: Locator, margin = 8) {
+  await control.scrollIntoViewIfNeeded();
+  const box = await control.boundingBox();
+  if (!box) {
+    throw new Error('focusRingClip: control is not visible');
+  }
+  return {
+    x: box.x - margin,
+    y: box.y - margin,
+    width: box.width + margin * 2,
+    height: box.height + margin * 2
+  };
+}
+
 test.describe('sections', () => {
   for (const { name, slug } of sections) {
     test(`section ${name}`, async ({ page }) => {
@@ -52,6 +70,49 @@ test('focus-visible on the outline button', async ({ page }) => {
   // The outline button shows the ring against the page background.
   await expect(outline).toBeFocused();
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
+});
+
+test('button hover on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await expect(outline.locator('..')).toHaveScreenshot('button-hover.png');
+});
+
+test('button pressed on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await page.mouse.down();
+  try {
+    await expect(outline.locator('..')).toHaveScreenshot('button-pressed.png');
+  } finally {
+    await page.mouse.up();
+  }
+});
+
+test('input focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const input = page.locator('#ds-input-default');
+  // Start the Tab sequence from the section heading, the input is the first control after it.
+  await page.locator('#ds-formularze').evaluate((heading) => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  });
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+  await expect(page).toHaveScreenshot('input-focus-visible.png', { clip: await focusRingClip(input) });
+});
+
+test('chip focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const przyciski = section(page, 'Przyciski');
+  // The last enabled button before the chips; Tab skips the disabled ones.
+  await przyciski.getByRole('button', { name: 'Dodaj przepis' }).focus();
+  await page.keyboard.press('Tab');
+  const chip = przyciski.getByRole('button', { name: /^Wszystkie/ }).first();
+  await expect(chip).toBeFocused();
+  await expect(page).toHaveScreenshot('chip-focus-visible.png', { clip: await focusRingClip(chip) });
 });
 
 test('shell nav hover', async ({ page }) => {

@@ -2,7 +2,7 @@
   <Card>
     <CardHeader>
       <!-- h2: the list sits directly under the page's h1. -->
-      <CardTitle as="h2" class="flex items-center gap-2 text-lg">
+      <CardTitle as="h2" class="flex items-center gap-2">
         <ShoppingBasket class="size-4" aria-hidden="true" />
         Lista zakupów
       </CardTitle>

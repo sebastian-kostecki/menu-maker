@@ -12,7 +12,7 @@ defineProps({
 })
 
 const linkClass = (enabled) =>
-  cn(buttonVariants({ variant: 'outline', size: 'sm' }), !enabled && 'pointer-events-none opacity-50')
+  cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'shadow-none active:translate-y-0', !enabled && 'pointer-events-none opacity-50')
 </script>
 
 <template>

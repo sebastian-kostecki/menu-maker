@@ -234,7 +234,7 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(linkedSniadanieOption).toContainText('Gotujemy raz, zostaje na śniadanie');
   await expect(linkedSniadanieOption).toContainText('obecny');
   // The always-open recipe list hides the rest of the dialog from the accessibility tree and keeps Escape to itself.
-  await sniadanieLinkDialog.getByRole('button', { name: 'Close', includeHidden: true }).click();
+  await sniadanieLinkDialog.getByRole('button', { name: 'Zamknij', includeHidden: true }).click();
   await expect(sniadanieLinkDialog).toBeHidden();
 
   // Approve: Monday's Kolacja holds the amounts for both meals, Tuesday's Śniadanie has none, the totals stay the same.

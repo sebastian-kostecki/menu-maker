@@ -42,6 +42,10 @@
   --text-section-title: 1.25rem;
   --text-section-title--line-height: 1.5rem;
   --text-section-title--font-weight: 700;
+  --text-dialog-title: 1.5rem;
+  --text-dialog-title--line-height: 1.75rem;
+  --text-dialog-title--letter-spacing: -0.02em;
+  --text-dialog-title--font-weight: 800;
   --text-body: 0.9375rem;
   --text-body--line-height: 1.375rem;
   --text-body--font-weight: 400;

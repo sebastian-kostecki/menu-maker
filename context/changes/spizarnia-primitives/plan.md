@@ -566,11 +566,11 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [x] 4.1 Visual gate passes on the regenerated baselines: `npm run test:visual`
-- [x] 4.2 Full E2E suite passes: `npm run test:e2e`
-- [x] 4.3 Pest suite passes: `vendor/bin/sail composer test`
-- [x] 4.4 Build and token scan pass: `vendor/bin/sail npm run build` and `vendor/bin/sail npm run lint:tokens`
-- [x] 4.5 Kitchen-sink spec has 33 baselines
+- [x] 4.1 Visual gate passes on the regenerated baselines: `npm run test:visual` — a1f6fea
+- [x] 4.2 Full E2E suite passes: `npm run test:e2e` — a1f6fea
+- [x] 4.3 Pest suite passes: `vendor/bin/sail composer test` — a1f6fea
+- [x] 4.4 Build and token scan pass: `vendor/bin/sail npm run build` and `vendor/bin/sail npm run lint:tokens` — a1f6fea
+- [x] 4.5 Kitchen-sink spec has 33 baselines — a1f6fea
 
 #### Manual
 

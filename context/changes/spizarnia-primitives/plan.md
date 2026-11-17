@@ -523,10 +523,10 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [ ] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 1.2 Token scan and its self-test pass: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
-- [ ] 1.3 Kitchen sink page test passes: `vendor/bin/sail pest --filter=DesignSystemPageTest`
-- [ ] 1.4 No new dependency: `git diff --stat develop -- package.json package-lock.json` shows no added packages
+- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 1.2 Token scan and its self-test pass: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
+- [x] 1.3 Kitchen sink page test passes: `vendor/bin/sail pest --filter=DesignSystemPageTest`
+- [x] 1.4 No new dependency: `git diff --stat develop -- package.json package-lock.json` shows no added packages
 
 #### Manual
 

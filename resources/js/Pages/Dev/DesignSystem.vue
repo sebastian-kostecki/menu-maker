@@ -34,6 +34,7 @@ import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import { Badge } from '@/Components/ui/badge'
 import { Button } from '@/Components/ui/button'
+import { Toggle } from '@/Components/ui/toggle'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Checkbox } from '@/Components/ui/checkbox'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
@@ -151,7 +152,13 @@ const shapes = [
   { label: 'rounded-full', classes: 'rounded-full' },
 ]
 
-const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']
+const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link', 'dashed']
+const chipTones = [
+  { variant: 'default', label: 'Wszystkie', count: 24 },
+  { variant: 'breakfast', label: 'Śniadanie', count: 8 },
+  { variant: 'supper', label: 'Kolacja', count: 6 },
+  { variant: 'dinner', label: 'Obiad', count: 10 },
+]
 const buttonSizes = [
   { size: 'xs', label: 'Mały xs' },
   { size: 'sm', label: 'Mały' },
@@ -393,6 +400,27 @@ const showToast = () => {
             <Loader2 class="animate-spin" />
             Zapisywanie…
           </Button>
+        </div>
+        <h3 class="text-base font-semibold">Pigułki filtra</h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <Toggle v-for="chip in chipTones" :key="chip.variant" :variant="chip.variant">
+            {{ chip.label }}
+            <span>{{ chip.count }}</span>
+          </Toggle>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <Toggle :model-value="true">
+            Wszystkie
+            <span>24</span>
+          </Toggle>
+          <Toggle disabled>
+            Niedostępne
+            <span>0</span>
+          </Toggle>
+          <Toggle size="sm">
+            Mała pigułka
+            <span>3</span>
+          </Toggle>
         </div>
       </section>
 

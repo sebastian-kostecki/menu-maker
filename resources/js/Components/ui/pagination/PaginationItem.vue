@@ -26,7 +26,8 @@ const delegatedProps = reactiveOmit(props, "class", "size", "isActive");
     v-bind="delegatedProps"
     :class="
       cn(
-        buttonVariants({ variant: isActive ? 'outline' : 'ghost', size }),
+        buttonVariants({ variant: isActive ? 'default' : 'outline', size }),
+        'h-11 min-w-11 px-3 shadow-none active:translate-y-0',
         props.class,
       )
     "

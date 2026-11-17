@@ -43,7 +43,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | ID   | Change ID                   | Outcome (user can …)                                                                                       | Prerequisites | PRD refs                          | Status   |
 | ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
 | F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
-| F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | planning |
+| F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | in-progress |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | proposed |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | proposed |
 | S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | proposed |
@@ -104,7 +104,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Jak wyglądają hover, focus, disabled i ładowanie przycisku-naklejki i kafla? Makiety ich nie pokazują (§10.1). — Owner: user. Block: no (projektuje zmiana według §5.4).
 - **Risk:** Zakres ograniczony do wariantów, których używają ekrany 02–15; układy ekranów (kafle przepisów, siatka, karty osób) zostają w wycinkach widoków, żeby fundament nie stał się restyle'em całego UI.
 - **Carry-over z F-05 (impl-review):** `rounded-xl` (24 px) jest teraz większy niż domyślny `rounded-2xl` (16 px); jeśli prymityw potrzebuje większego promienia, zdefiniować `--radius-2xl` zamiast sięgać po domyślny.
-- **Status:** planning
+- **Status:** in-progress
 
 ## Slices
 

@@ -42,7 +42,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 
 | ID   | Change ID                   | Outcome (user can …)                                                                                       | Prerequisites | PRD refs                          | Status   |
 | ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | ready    |
+| F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | in-progress |
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | proposed |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | proposed |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | proposed |
@@ -89,7 +89,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - D-14: czy blok `.dark` dostaje wartości Spiżarni, czy zostaje usunięty do osobnej zmiany dark mode? — Owner: user. Block: no (domyślnie D-1: MVP tylko jasny; rozstrzygnąć w `/10x-plan`).
 - **Risk:** Pierwszy, bo sama zmiana tokenów przemaluje całą aplikację i unieważni wszystkie zrzuty naraz; zmiana kroju zmienia metryki tekstu, więc każdy baseline trzeba przejrzeć, a spec sprawdzający załadowanie Figtree — przestawić.
-- **Status:** ready
+- **Status:** in-progress
 
 ### F-06: Prymitywy Spiżarni
 
@@ -103,6 +103,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Jak wyglądają hover, focus, disabled i ładowanie przycisku-naklejki i kafla? Makiety ich nie pokazują (§10.1). — Owner: user. Block: no (projektuje zmiana według §5.4).
 - **Risk:** Zakres ograniczony do wariantów, których używają ekrany 02–15; układy ekranów (kafle przepisów, siatka, karty osób) zostają w wycinkach widoków, żeby fundament nie stał się restyle'em całego UI.
+- **Carry-over z F-05 (impl-review):** `rounded-xl` (24 px) jest teraz większy niż domyślny `rounded-2xl` (16 px); jeśli prymityw potrzebuje większego promienia, zdefiniować `--radius-2xl` zamiast sięgać po domyślny.
 - **Status:** proposed
 
 ## Slices
@@ -118,6 +119,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Jak wygląda pasek górny i ekran dzielony na mobile (makiety tylko desktop 1280 px)? — Owner: user. Block: no.
 - **Risk:** Zastępuje panel boczny, więc dotyka każdej strony i zrzutów powłoki i konta; idzie przed widokami, żeby SP-04…SP-07 odświeżały zrzuty tylko raz, już w nowej powłoce.
+- **Carry-over z F-05 (impl-review):** `--primary` = `--foreground`, więc `hover:text-primary` nic nie robi — logo w `GuestLayout.vue:16` potrzebuje niekolorowej wskazówki hover; aktywna pozycja nawigacji (`AppSidebar.vue:58`) jest na `bg-accent` (żółty = `--warning`), a pozycje mają 12 px zamiast 8 px.
 - **Status:** proposed
 
 ### S-23: Pulpit Spiżarni
@@ -131,6 +133,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Jak „Ten tydzień” pokazuje pusty posiłek, powtórzony obiad i kolację na śniadanie (M-3)? — Owner: user. Block: no (domyślnie tak jak siatka jadłospisu).
 - **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
+- **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
 - **Status:** proposed
 
 ### S-24: Przepisy w Spiżarni
@@ -145,6 +148,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Czy liczby przy pigułkach kategorii uwzględniają bieżące wyszukiwanie, czy liczą wszystkie przepisy użytkownika? — Owner: user. Block: no.
   - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no.
 - **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
+- **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
 - **Status:** proposed
 
 ### S-25: Jadłospisy w Spiżarni
@@ -158,6 +162,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Jak siatka dni × posiłki układa się na mobile i jak wyglądają w niej oznaczenia powtórki i „z kolacji”, których makiety mogą nie pokazywać? — Owner: user. Block: no.
 - **Risk:** Rdzeń produktu z największą liczbą stanów (szkic, w trakcie, gotowy, błąd, pusty posiłek, powiązania) i najwięcej zrzutów do odświeżenia; zachowanie i testy E2E bez zmian.
+- **Carry-over z F-05 (impl-review):** przełącznik „Składniki” (`MealPlanGrid.vue:60`, `text-primary`) nie odróżnia się już od tekstu; `MealPlans/Index.vue:18` i `MealPlans/Show.vue:56` mają `rounded-lg` = 20 px; paski kategorii w siatce są już na `border-meal-*` (poprawione w F-05).
 - **Status:** proposed
 
 ### S-26: Rodzina i profil w Spiżarni
@@ -170,6 +175,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Członkowie rodziny nie mają dziś speca wizualnego, więc wycinek dokłada go, żeby restyle był pilnowany jak pozostałe widoki.
+- **Carry-over z F-05 (impl-review):** `FamilyMembers/Index.vue:61` ma `rounded-lg overflow-hidden` = 20 px.
 - **Status:** proposed
 
 ## Backlog Handoff

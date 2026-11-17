@@ -123,7 +123,7 @@ const colorSwatches = [
   { token: 'sidebar', classes: 'bg-sidebar text-sidebar-foreground' },
   { token: 'sidebar-active', classes: 'bg-sidebar-active text-sidebar-active-foreground' },
   { token: 'highlight', classes: 'bg-highlight text-highlight-foreground' },
-  { token: 'overlay', classes: 'bg-overlay text-card' },
+  { token: 'overlay', classes: 'bg-overlay text-foreground' },
   { token: 'sidebar-foreground', classes: 'bg-sidebar-foreground text-background' },
 ]
 

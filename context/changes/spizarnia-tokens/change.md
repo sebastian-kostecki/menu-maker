@@ -1,7 +1,7 @@
 ---
 change_id: spizarnia-tokens
 title: Spizarnia tokens
-status: implementing
+status: impl_reviewed
 created: 2026-11-17
 updated: 2026-11-17
 archived_at: null

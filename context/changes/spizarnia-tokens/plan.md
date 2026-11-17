@@ -103,6 +103,15 @@ This change only touches tokens. Primitives (`ui/` variants: pill buttons, 2px o
   - Focus rings on inline links go to 8–12 px (`MealPlanGrid.vue:37,60`, `MealPlanRow.vue:7`, `RecipeRow.vue:6`, `Recipes/Show.vue:9`, `Recipes/Form.vue:9`, `Login.vue:80`, `Register.vue:91`, `GuestLayout.vue:16`).
   - The week-grid wrapper (`MealPlanGrid.vue:2`) goes to 20 px.
   - Checkbox (`rounded-[4px]`) and badges (`rounded-full`) do not change.
+- **Addendum (impl-review 2026-11-17).** Side-effects found after implementation and accepted until S-22…S-26 (recorded in their roadmap briefs):
+  - `--primary` equals `--foreground`, so `hover:text-primary` has no effect. `GuestLayout.vue:16` (logo link) loses its only hover cue. `RecipeRow.vue:6`, `MealPlanRow.vue:7` and `MealPlanGrid.vue:37` keep their underline. The "Składniki" toggle (`MealPlanGrid.vue:60`, `text-primary`) no longer stands out from body text.
+  - `bg-accent` (yellow, the same value as `--warning`) now marks the active sidebar item (`AppSidebar.vue:58`), the `StatCard.vue:15` icon disc and ghost/outline button hover.
+  - More radius changes:
+    - `rounded-lg overflow-hidden` data containers go to 20 px: `RecipesTable.vue:2`, `MealPlans/Index.vue:18`, `FamilyMembers/Index.vue:61`, `IngredientCard`, `IngredientRow`, `InstructionsSection`, `Recipes/Form.vue:16` and `MealPlans/Show.vue:56`.
+    - Sidebar items go from 8 px to 12 px (`AppSidebar.vue:55`).
+    - Focus rings go to 8 px in `SortableHeader.vue:5` and `MealPlans/Show.vue:86,101`.
+  - `rounded-xl` (24 px) is now larger than Tailwind's default `rounded-2xl` (16 px). Nothing uses `2xl`/`3xl` today.
+  - **Fixed in this change (deliberate exception to "No view migration"):** the week-grid category bars (`MealPlanGrid.vue` `CATEGORY_BAR_CLASSES`) used `border-meal-*-foreground`. Those are near-black in Spiżarnia, so all three categories became one ink line. They now use the saturated `border-meal-*` fills.
 
 ## What We're NOT Doing
 

@@ -49,7 +49,7 @@ test('focus-visible on the outline button', async ({ page }) => {
   await buttons.getByText('destructive', { exact: true }).first().focus();
   // Keyboard navigation (not .focus()) is what triggers :focus-visible.
   await page.keyboard.press('Tab');
-  // The default button's ring is the same green as its fill, so the outline button shows the ring.
+  // The outline button shows the ring against the page background.
   await expect(outline).toBeFocused();
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
 });

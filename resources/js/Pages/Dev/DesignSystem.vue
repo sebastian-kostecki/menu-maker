@@ -667,6 +667,10 @@ const showToast = () => {
             <AvatarFallback>JK</AvatarFallback>
           </Avatar>
           <span class="text-sm">Jan Kowalski</span>
+          <Avatar variant="sticker">
+            <AvatarFallback>JK</AvatarFallback>
+          </Avatar>
+          <span class="text-sm">Naklejka (pasek górny)</span>
         </div>
       </section>
 

@@ -525,6 +525,25 @@ The localStorage key `menu-maker:app-shell` is no longer read or written. Existi
 - Previous change: `context/archive/2026-11-17-spizarnia-primitives/plan.md` (control-state contract, kitchen-sink and baseline workflow)
 - Current shell: `resources/js/Layouts/AuthenticatedLayout.vue:13-91`, `resources/js/Components/Common/AppSidebar.vue:16-69`, `resources/js/Layouts/GuestLayout.vue:9-40`
 
+## Addendum (impl-review, 2026-11-17)
+
+Recorded by `/10x-impl-review` (`reviews/impl-review.md`). Phase scope and Progress titles are unchanged.
+
+- **Baselines beyond the change 10 / change 7 lists (F1).** Both phases changed kitchen-sink shots that the plan said must stay byte-identical:
+  - Phase 1 refreshed 28 shots, against the 24–25 allowed. The extras are `overlay-dialog`, `section-jadlospis` and `section-komponenty-aplikacji`.
+  - Phase 2 refreshed 10 shots, against the 6 allowed. The extras are `focus-visible`, `section-jadlospis`, `section-komponenty-aplikacji`, `section-komunikaty`, `section-paginacja` and `section-przyciski`.
+
+  A pixel diff against the parent commits shows the extras are not regressions:
+  - every image keeps its size;
+  - only 59–526 pixels changed per image, all on anti-aliased curve edges;
+  - nothing moved and no content changed.
+
+  The cause is the intended height changes in "Powłoka" (−132px in phase 1, +104px in phase 2) and "Typografia" (+84px in phase 2). They shift the sections below, and those sections re-rasterise at new positions. The plan's "byte-identical" prediction missed this layout shift. `design-system.md` §7 now notes it.
+- **Guest panel element (F2).** Change 3 specified an `<aside>` for the panel. It is a `<div>` instead, so screen readers don't announce a decorative "complementary" region before the form. The category-blocks row is also `aria-hidden="true"`, following the same reasoning that made the slogan a `<p>`.
+- **Guest header spacing (F5).** The h1 and description wrapper uses `gap-2` (8px), the spacing the plan intended with `-mt-3`.
+- **Sticker avatar demo (F3).** `Avatar variant="sticker"` is shown next to the default avatar in "Ładowanie i rozwijanie", so `section-ladowanie-i-rozwijanie.png` was refreshed deliberately.
+- **Register password grid (F8).** At `sm` and up, the two password fields are about 222px wide each. During manual step 2.10, also submit Register with errors on both password fields, and keep the two-column grid only if the messages read well.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

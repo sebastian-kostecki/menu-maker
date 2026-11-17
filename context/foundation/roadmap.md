@@ -44,7 +44,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
 | F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | done        |
-| S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | proposed |
+| S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | in-progress |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | proposed |
 | S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | proposed |
 | S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | proposed |
@@ -121,7 +121,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Zastępuje panel boczny, więc dotyka każdej strony i zrzutów powłoki i konta; idzie przed widokami, żeby SP-04…SP-07 odświeżały zrzuty tylko raz, już w nowej powłoce.
 - **Carry-over z F-05 (impl-review):** `--primary` = `--foreground`, więc `hover:text-primary` nic nie robi — logo w `GuestLayout.vue:16` potrzebuje niekolorowej wskazówki hover; aktywna pozycja nawigacji (`AppSidebar.vue:58`) jest na `bg-accent` (żółty = `--warning`), a pozycje mają 12 px zamiast 8 px.
 - **Carry-over z F-06:** zdjąć `shadow-none` z `Card` w `GuestLayout.vue:28` (kafel ma już cień naklejki); przycisk zamknięcia `Sheet` (okrągły `secondary` w rogu) ułożyć nad nowym nagłówkiem szuflady; `SheetHeader` wyrównać do `DialogHeader` (`pr-12 text-left`), żeby tytuł nie wchodził pod okrągły przycisk.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-23: Pulpit Spiżarni
 

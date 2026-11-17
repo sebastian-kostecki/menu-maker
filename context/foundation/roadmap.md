@@ -42,7 +42,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 
 | ID   | Change ID                   | Outcome (user can …)                                                                                       | Prerequisites | PRD refs                          | Status   |
 | ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | in-progress |
+| F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | proposed |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | proposed |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | proposed |
@@ -89,7 +89,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - D-14: czy blok `.dark` dostaje wartości Spiżarni, czy zostaje usunięty do osobnej zmiany dark mode? — Owner: user. Block: no (domyślnie D-1: MVP tylko jasny; rozstrzygnąć w `/10x-plan`).
 - **Risk:** Pierwszy, bo sama zmiana tokenów przemaluje całą aplikację i unieważni wszystkie zrzuty naraz; zmiana kroju zmienia metryki tekstu, więc każdy baseline trzeba przejrzeć, a spec sprawdzający załadowanie Figtree — przestawić.
-- **Status:** in-progress
+- **Status:** done
 
 ### F-06: Prymitywy Spiżarni
 
@@ -217,6 +217,7 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 
 ## Done
 
+- **F-05: (foundation) `app.css` ma wartości Spiżarni z §10.2 w OKLCH (w tym nowe `sidebar*`, `highlight`, `overlay`), jawnie rozpisane promienie 12/20/24 px i pełne, dwa cienie „naklejki” i krój Bricolage Grotesque zamiast Figtree; PDF ma nowe kolory kategorii jako pełne bloki, a test palety pilnuje nowych hexów (D-12); kitchen sink pokazuje nowe kolory i typografię, a baseline'y są świadomie odświeżone.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-tokens/`. Lesson: —.
 - **S-20: Użytkownik może w szkicu połączyć kolację z danego dnia ze śniadaniem następnego dnia; śniadanie pokazuje danie z kolacji z oznaczeniem, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-17-dinner-to-breakfast-carryover/`. Lesson: —.
 - **S-19: Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-16-meal-plan-repeat-dinner/`. Lesson: —.
 - **S-18: Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-empty-slot/`. Lesson: —.

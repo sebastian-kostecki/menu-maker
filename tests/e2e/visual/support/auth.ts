@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './fonts';
+import { expectAppFontLoaded } from './fonts';
 
 export async function logIn(page: Page, email = 'e2e-planner-visual@example.com') {
   await page.goto('/login');
@@ -7,5 +7,5 @@ export async function logIn(page: Page, email = 'e2e-planner-visual@example.com'
   await page.getByLabel('Hasło').fill('Password123!');
   await page.getByRole('button', { name: 'Zaloguj się' }).click();
   await page.waitForURL('**/dashboard');
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }

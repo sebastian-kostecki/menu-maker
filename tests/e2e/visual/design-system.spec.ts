@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { expectAppFontLoaded } from './support/fonts';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -26,7 +26,7 @@ const sections = [
 async function openKitchenSink(page: Page) {
   await page.goto('/dev/design-system');
   await expect(page.getByRole('heading', { level: 1, name: 'Design system' })).toBeVisible();
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 function section(page: Page, name: string) {

@@ -1,0 +1,29 @@
+version: 2
+# Every entry targets develop: updates go through develop -> main like other work
+# (Dependabot reads this file from main, so it takes effect after a release).
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "composer"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5

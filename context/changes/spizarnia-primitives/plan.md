@@ -537,10 +537,10 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token scan passes: `vendor/bin/sail npm run lint:tokens`
-- [x] 2.3 Kitchen sink page test passes: `vendor/bin/sail pest --filter=DesignSystemPageTest`
-- [x] 2.4 Field-heavy E2E specs pass: `recipe-form.spec.ts` and `profile.spec.ts`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — ffb653a
+- [x] 2.2 Token scan passes: `vendor/bin/sail npm run lint:tokens` — ffb653a
+- [x] 2.3 Kitchen sink page test passes: `vendor/bin/sail pest --filter=DesignSystemPageTest` — ffb653a
+- [x] 2.4 Field-heavy E2E specs pass: `recipe-form.spec.ts` and `profile.spec.ts` — ffb653a
 
 #### Manual
 
@@ -551,10 +551,10 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [ ] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 3.2 Token scan passes: `vendor/bin/sail npm run lint:tokens`
-- [ ] 3.3 No E2E locator uses the old close label: `grep -rn "'Close'" tests/e2e` returns nothing
-- [ ] 3.4 Dialog-related E2E specs pass: `meal-plan.spec.ts`, `confirm-dialog.spec.ts` and `app-shell.spec.ts`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 3.2 Token scan passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 3.3 No E2E locator uses the old close label: `grep -rn "'Close'" tests/e2e` returns nothing
+- [x] 3.4 Dialog-related E2E specs pass: `meal-plan.spec.ts`, `confirm-dialog.spec.ts` and `app-shell.spec.ts`
 
 #### Manual
 

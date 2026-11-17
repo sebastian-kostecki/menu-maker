@@ -133,6 +133,7 @@ const typographyRoles = [
   { role: 'Tytuł strony', classes: 'text-page-title', sample: 'Pulpit' },
   { role: 'Liczba w kafelku', classes: 'text-stat tabular-nums', sample: '21' },
   { role: 'Tytuł sekcji', classes: 'text-section-title', sample: 'Ten tydzień' },
+  { role: 'Tytuł dialogu', classes: 'text-dialog-title', sample: 'Usuń przepis' },
   { role: 'Tekst', classes: 'text-body', sample: 'Dodaj przepisy, a Menu Maker ułoży tydzień.' },
   { role: 'Etykieta', classes: 'text-label', sample: 'Dodaj przepis' },
   { role: 'Metadane', classes: 'text-meta text-muted-foreground', sample: '3 porcje · 12 lis 2026' },

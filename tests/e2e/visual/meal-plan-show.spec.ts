@@ -27,8 +27,7 @@ async function openSeededPlan(page: Page) {
   const url = plan!.links.self;
   await page.goto(url);
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
-  await expect(page.getByText('15.06.2026 – 21.06.2026')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: '15–21 czerwca 2026' })).toBeVisible();
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(21);
   await expectAppFontLoaded(page);
 }
@@ -67,8 +66,7 @@ async function openSeededDraft(page: Page) {
   expect(plan, 'seeded draft starting 2026-06-29 in the plans list').toBeDefined();
   await page.goto(plan!.links.self);
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
-  await expect(page.getByText('29.06.2026 – 05.07.2026')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: '29 czerwca – 5 lipca 2026' })).toBeVisible();
   // One pinned empty meal (Wednesday breakfast): 20 recipe links.
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(20);
   await expect(page.getByText('Bez posiłku').first()).toBeVisible();

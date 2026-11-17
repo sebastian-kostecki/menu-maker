@@ -185,6 +185,7 @@ const badgeVariants = [
   { variant: 'warning', label: 'Ostrzeżenie' },
   { variant: 'info', label: 'W toku' },
   { variant: 'muted', label: 'Wyciszona' },
+  { variant: 'tag', label: 'Znacznik' },
 ]
 
 const selectOptions = [
@@ -465,6 +466,15 @@ const showToast = () => {
           <Badge v-for="item in badgeVariants" :key="item.variant" :variant="item.variant">
             {{ item.label }}
           </Badge>
+        </div>
+        <div class="flex flex-wrap items-center gap-2" aria-label="Znacznik powiązanego posiłku (wariant tag na wypełnieniu posiłku)">
+          <span
+            v-for="swatch in colorSwatches.filter((item) => item.token.startsWith('meal-'))"
+            :key="swatch.token"
+            :class="['inline-flex items-center rounded-md p-2.5', swatch.classes]"
+          >
+            <Badge variant="tag">Na 2 dni</Badge>
+          </span>
         </div>
         <div class="flex flex-wrap items-center gap-2" aria-label="Status">
           <Badge variant="draft" size="status">Szkic</Badge>
@@ -1020,7 +1030,7 @@ const showToast = () => {
           </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-3">
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów</p>
             <ShoppingList :list="planShoppingList" />
@@ -1028,6 +1038,10 @@ const showToast = () => {
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów bez pozycji</p>
             <ShoppingList :list="emptyShoppingList" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="text-xs text-muted-foreground">Lista zakupów w szkicu (miejsce na listę)</p>
+            <ShoppingList pending />
           </div>
         </div>
       </section>

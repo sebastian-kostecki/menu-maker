@@ -506,12 +506,12 @@ None. There are no data or route changes. Bookmarked URLs with `perPage`, `sort=
 
 #### Automated
 
-- [x] 1.1 Client and SSR bundles build
-- [x] 1.2 Token lint passes and its self-test passes
-- [x] 1.3 Removed list components are gone
-- [x] 1.4 Pest suite passes unchanged
-- [x] 1.5 Full E2E suite passes after re-seeding
-- [x] 1.6 Visual gate is green after a deliberate refresh, with only the listed PNGs changed
+- [x] 1.1 Client and SSR bundles build — e31400d
+- [x] 1.2 Token lint passes and its self-test passes — e31400d
+- [x] 1.3 Removed list components are gone — e31400d
+- [x] 1.4 Pest suite passes unchanged — e31400d
+- [x] 1.5 Full E2E suite passes after re-seeding — e31400d
+- [x] 1.6 Visual gate is green after a deliberate refresh, with only the listed PNGs changed — e31400d
 
 #### Manual
 
@@ -525,13 +525,13 @@ None. There are no data or route changes. Bookmarked URLs with `perPage`, `sort=
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build
-- [ ] 2.2 Token lint passes and its self-test passes
-- [ ] 2.3 Stripe, primary-hover and bottom back button are gone
-- [ ] 2.4 Functional E2E spec untouched
-- [ ] 2.5 Pest suite passes unchanged
-- [ ] 2.6 Full E2E suite passes after re-seeding
-- [ ] 2.7 Visual gate is green after a deliberate refresh, with only the listed PNGs changed
+- [x] 2.1 Client and SSR bundles build
+- [x] 2.2 Token lint passes and its self-test passes
+- [x] 2.3 Stripe, primary-hover and bottom back button are gone
+- [x] 2.4 Functional E2E spec untouched
+- [x] 2.5 Pest suite passes unchanged
+- [x] 2.6 Full E2E suite passes after re-seeding
+- [x] 2.7 Visual gate is green after a deliberate refresh, with only the listed PNGs changed
 
 #### Manual
 

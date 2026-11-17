@@ -1,8 +1,19 @@
 <template>
-  <Card>
+  <!-- Draft placeholder: deliberately carries no data-testid="shopping-list" (the spec asserts it is hidden on a draft). -->
+  <div v-if="!list && pending" class="rounded-lg border-2 border-dashed border-muted-foreground p-5">
+    <h2 class="flex items-center gap-2 text-section-title">
+      <ShoppingBasket class="size-4" aria-hidden="true" />
+      Lista zakupów
+    </h2>
+    <p class="mt-2 text-sm text-muted-foreground">
+      Pojawi się po zatwierdzeniu — wtedy przeliczymy ilości na Twoją rodzinę.
+    </p>
+  </div>
+
+  <Card v-else-if="list">
     <CardHeader>
       <!-- h2: the list sits directly under the page's h1. -->
-      <CardTitle as="h2" class="flex items-center gap-2">
+      <CardTitle as="h2" class="flex items-center gap-2 text-section-title">
         <ShoppingBasket class="size-4" aria-hidden="true" />
         Lista zakupów
       </CardTitle>
@@ -13,14 +24,14 @@
         Przepisy w tym jadłospisie nie mają składników.
       </p>
 
-      <ul v-else class="divide-y divide-border" data-testid="shopping-list">
+      <ul v-else data-testid="shopping-list">
         <li
           v-for="item in list.items"
           :key="`${item.ingredient_id}-${item.unit}`"
-          class="flex items-baseline justify-between gap-4 py-2"
+          class="flex items-baseline justify-between gap-4 border-b-2 border-dotted border-border py-2 last:border-b-0"
         >
           <span class="font-medium text-foreground">{{ item.name }}</span>
-          <span class="whitespace-nowrap text-right tabular-nums text-foreground">{{ item.display }}</span>
+          <span class="whitespace-nowrap text-right font-bold tabular-nums text-foreground">{{ item.display }}</span>
         </li>
       </ul>
 
@@ -48,7 +59,15 @@ export interface ShoppingListPayload {
   recipes_without_ingredients: string[]
 }
 
-defineProps<{
-  list: ShoppingListPayload
-}>()
+withDefaults(
+  defineProps<{
+    list?: ShoppingListPayload | null
+    /** Draft: no list yet, show the dashed placeholder instead. */
+    pending?: boolean
+  }>(),
+  {
+    list: null,
+    pending: false,
+  }
+)
 </script>

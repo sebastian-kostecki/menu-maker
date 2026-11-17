@@ -3,26 +3,35 @@
 
   <AuthenticatedLayout>
     <div class="flex flex-col gap-6">
-      <PageHeader title="Jadłospis" :description="dateRange">
+      <PageHeader :title="formatDateRange(mealPlan.start_date, mealPlan.end_date)">
+        <template #breadcrumbs>
+          <Link
+            :href="route('meal-plans.index')"
+            class="inline-flex items-center gap-1.5 rounded-sm text-label text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <ArrowLeft class="size-4" aria-hidden="true" />
+            Jadłospisy
+          </Link>
+        </template>
         <template #actions>
           <StatusTag :value="mealPlan.status as any" />
-          <PdfDownloadMenu
-            v-if="mealPlan.links.pdf && mealPlan.links.pdf_with_recipes"
-            :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes }"
-          />
+          <Button v-if="isDraftWithMeals" variant="outline" @click="showRedrawDialog = true">
+            <Shuffle class="size-4" aria-hidden="true" />
+            Losuj ponownie
+          </Button>
           <Button v-if="isDraftWithMeals" :disabled="approving" @click="handleApprove">
             <Loader2 v-if="approving" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
             <Check v-else class="size-4" aria-hidden="true" />
             Zatwierdź
           </Button>
-          <Button v-if="isDraftWithMeals" variant="outline" @click="showRedrawDialog = true">
-            <Shuffle class="size-4" aria-hidden="true" />
-            Losuj ponownie
-          </Button>
-          <Button v-if="canReturnToDraft" variant="outline" @click="showReturnToDraftDialog = true">
+          <Button v-if="canReturnToDraft" variant="ghost" @click="showReturnToDraftDialog = true">
             <Undo2 class="size-4" aria-hidden="true" />
             Wróć do szkicu
           </Button>
+          <PdfDownloadMenu
+            v-if="mealPlan.links.pdf && mealPlan.links.pdf_with_recipes"
+            :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes }"
+          />
           <ActionDropdown :item="mealPlan" />
         </template>
       </PageHeader>
@@ -53,8 +62,8 @@
         </div>
       </Alert>
 
-      <div v-else-if="!mealPlan.meals || mealPlan.meals.length === 0" class="rounded-lg border bg-card p-8">
-        <EmptyState :icon="CalendarDays" title="Brak posiłków" description="Ten jadłospis nie ma jeszcze posiłków.">
+      <Card v-else-if="!mealPlan.meals || mealPlan.meals.length === 0">
+        <EmptyState class="py-12" :icon="CalendarDays" title="Brak posiłków" description="Ten jadłospis nie ma jeszcze posiłków.">
           <Button v-if="mealPlan.status === 'draft'" @click="showRedrawDialog = true">
             <Shuffle class="size-4" aria-hidden="true" />
             Losuj ponownie
@@ -64,7 +73,7 @@
             Wróć do szkicu
           </Button>
         </EmptyState>
-      </div>
+      </Card>
 
       <template v-else>
         <Alert v-if="mealPlan.status === 'draft'" variant="info" role="status">
@@ -113,20 +122,13 @@
               @swap="openSwap"
             />
           </div>
-          <div v-if="shoppingList" class="xl:w-72 xl:shrink-0">
-            <ShoppingList :list="shoppingList" />
+          <div v-if="shoppingList || mealPlan.status === 'draft'" class="xl:w-75 xl:shrink-0">
+            <ShoppingList v-if="shoppingList" :list="shoppingList" />
+            <ShoppingList v-else pending />
           </div>
         </div>
       </template>
 
-      <div class="flex justify-start">
-        <Button variant="outline" as-child>
-          <Link :href="route('meal-plans.index')">
-            <ArrowLeft class="size-4" aria-hidden="true" />
-            Wróć do jadłospisów
-          </Link>
-        </Button>
-      </div>
     </div>
 
     <ConfirmDialog
@@ -166,6 +168,7 @@ import { toast } from 'vue-sonner'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import { Button } from '@/Components/ui/button'
+import { Card } from '@/Components/ui/card'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
@@ -174,6 +177,7 @@ import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
+import { formatDateRange } from '@/lib/format'
 import type { RecipeOption, RecipeOptions, ShortCategory } from '@/types/meal-plan'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 

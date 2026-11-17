@@ -18,11 +18,11 @@
               :value="EMPTY_OPTION"
               text-value="Nie robimy (pusty posiłek)"
               :disabled="saving"
-              class="flex-col items-start gap-0.5"
+              :class="[ITEM_CLASS, isEmptyCurrent ? currentClass : '']"
             >
               <span class="flex w-full items-center justify-between gap-2">
-                <span class="font-medium">Nie robimy (pusty posiłek)</span>
-                <span v-if="meal && !meal.recipe" class="text-xs text-muted-foreground">obecny</span>
+                <span :class="['font-medium', isEmptyCurrent ? '' : 'italic text-muted-foreground']">Nie robimy (pusty posiłek)</span>
+                <span v-if="isEmptyCurrent" class="text-xs opacity-85">obecny</span>
               </span>
             </ComboboxItem>
             <ComboboxItem
@@ -30,13 +30,13 @@
               :value="{ linkFrom: linkSource }"
               :text-value="`${linkPair.offerLabel}: ${linkSource.recipe?.name}`"
               :disabled="saving"
-              class="flex-col items-start gap-0.5"
+              :class="[ITEM_CLASS, isLinkCurrent ? currentClass : '']"
             >
               <span class="flex w-full items-center justify-between gap-2">
                 <span class="font-medium">{{ linkPair.offerLabel }}: {{ linkSource.recipe?.name }}</span>
-                <span v-if="meal?.from_meal_id === linkSource.id" class="text-xs text-muted-foreground">obecny</span>
+                <span v-if="isLinkCurrent" class="text-xs opacity-85">obecny</span>
               </span>
-              <span class="text-xs text-muted-foreground">{{ linkPair.offerHint }}</span>
+              <span :class="['text-xs', isLinkCurrent ? 'opacity-85' : 'text-muted-foreground']">{{ linkPair.offerHint }}</span>
             </ComboboxItem>
             <p v-if="!filteredItems.length" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
             <ComboboxItem
@@ -45,13 +45,13 @@
               :value="option"
               :text-value="option.name"
               :disabled="saving"
-              class="flex-col items-start gap-0.5"
+              :class="[ITEM_CLASS, isCurrentRecipe(option.id) ? currentClass : '']"
             >
               <span class="flex w-full items-center justify-between gap-2">
                 <span class="font-medium">{{ option.name }}</span>
-                <span v-if="option.id === currentRecipeId && !meal?.from_meal_id" class="text-xs text-muted-foreground">obecny</span>
+                <span v-if="isCurrentRecipe(option.id)" class="text-xs opacity-85">obecny</span>
               </span>
-              <span class="text-xs text-muted-foreground">
+              <span :class="['text-xs', isCurrentRecipe(option.id) ? 'opacity-85' : 'text-muted-foreground']">
                 <span v-if="option.calories !== null" class="tabular-nums">{{ formatNumber(option.calories, { maximumFractionDigits: 0 }) }} kcal</span>
                 <span v-if="option.usedOn"> · jest już: {{ option.usedOn }}</span>
               </span>
@@ -117,6 +117,23 @@ watch(
 )
 
 const currentRecipeId = computed(() => props.meal?.recipe?.id ?? null)
+
+const ITEM_CLASS = 'flex-col items-start gap-0.5 rounded-md px-3.5 py-2.5'
+
+// Full class names (no interpolation) so Tailwind sees them; the data-highlighted pair keeps the meal fill over the item's accent highlight.
+const CURRENT_CLASSES: Record<string, string> = {
+  breakfast:
+    'bg-meal-breakfast text-meal-breakfast-foreground data-highlighted:bg-meal-breakfast data-highlighted:text-meal-breakfast-foreground data-highlighted:brightness-95',
+  supper:
+    'bg-meal-supper text-meal-supper-foreground data-highlighted:bg-meal-supper data-highlighted:text-meal-supper-foreground data-highlighted:brightness-95',
+  dinner:
+    'bg-meal-dinner text-meal-dinner-foreground data-highlighted:bg-meal-dinner data-highlighted:text-meal-dinner-foreground data-highlighted:brightness-95',
+}
+
+const currentClass = computed(() => CURRENT_CLASSES[props.meal?.meal_category ?? ''] ?? '')
+const isEmptyCurrent = computed(() => Boolean(props.meal && !props.meal.recipe))
+const isLinkCurrent = computed(() => Boolean(linkSource.value && props.meal?.from_meal_id === linkSource.value.id))
+const isCurrentRecipe = (recipeId: number): boolean => recipeId === currentRecipeId.value && !props.meal?.from_meal_id
 
 const description = computed(() => {
   if (!props.meal) {

@@ -45,10 +45,10 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | done        |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | done |
-| S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | proposed |
-| S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | proposed |
-| S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | proposed |
-| S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | proposed |
+| S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | ready    |
+| S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | ready    |
+| S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | ready    |
+| S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | ready    |
 
 ## Streams
 
@@ -136,7 +136,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
 - **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
 - **Carry-over z F-06:** `CardContent` ma `p-6 pt-0` (bez nagłówka karty), więc zawartość `StatCard` nie ma górnego odstępu — dać jej własny padding.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-24: Przepisy w Spiżarni
 
@@ -152,7 +152,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
 - **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
 - **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
-- **Status:** proposed
+- **Status:** ready
 
 ### S-25: Jadłospisy w Spiżarni
 
@@ -167,7 +167,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Rdzeń produktu z największą liczbą stanów (szkic, w trakcie, gotowy, błąd, pusty posiłek, powiązania) i najwięcej zrzutów do odświeżenia; zachowanie i testy E2E bez zmian.
 - **Carry-over z F-05 (impl-review):** przełącznik „Składniki” (`MealPlanGrid.vue:60`, `text-primary`) nie odróżnia się już od tekstu; `MealPlans/Index.vue:18` i `MealPlans/Show.vue:56` mają `rounded-lg` = 20 px; paski kategorii w siatce są już na `border-meal-*` (poprawione w F-05).
 - **Carry-over z F-06:** filtr statusu jadłospisów z `Select` na `Toggle`; pusty posiłek i „Wybierz” na wariant `dashed` przycisku.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-26: Rodzina i profil w Spiżarni
 
@@ -181,7 +181,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Członkowie rodziny nie mają dziś speca wizualnego, więc wycinek dokłada go, żeby restyle był pilnowany jak pozostałe widoki.
 - **Carry-over z F-05 (impl-review):** `FamilyMembers/Index.vue:61` ma `rounded-lg overflow-hidden` = 20 px.
 - **Carry-over z F-06:** przerywany kafel „Dodaj członka rodziny” zbudować na wariancie `dashed` przycisku.
-- **Status:** proposed
+- **Status:** ready
 
 ## Backlog Handoff
 
@@ -190,10 +190,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-05       | spizarnia-tokens            | Tokeny, krój i kolory PDF kierunku Spiżarnia                 | yes                   | Run `/10x-plan spizarnia-tokens`; rozstrzyga D-14 |
 | F-06       | spizarnia-primitives        | Warianty prymitywów `ui/` w stylu Spiżarni                   | no                    | Po F-05 |
 | S-22       | spizarnia-app-shell         | Powłoka aplikacji: pasek górny i ekran dzielony gościa       | no                    | North star; po F-06 |
-| S-23       | spizarnia-dashboard-ui      | Pulpit w stylu Spiżarni                                      | no                    | Po S-22; równolegle z S-24…S-26 |
-| S-24       | spizarnia-recipes-ui        | Przepisy w stylu Spiżarni (z licznościami kategorii)         | no                    | Po S-22; równolegle z S-23, S-25, S-26 |
-| S-25       | spizarnia-meal-plans-ui     | Jadłospisy i dialogi w stylu Spiżarni                        | no                    | Po S-22; równolegle z S-23, S-24, S-26 |
-| S-26       | spizarnia-family-profile-ui | Rodzina i profil w stylu Spiżarni                            | no                    | Po S-22; równolegle z S-23…S-25 |
+| S-23       | spizarnia-dashboard-ui      | Pulpit w stylu Spiżarni                                      | yes                   | Run `/10x-plan spizarnia-dashboard-ui`; równolegle z S-24…S-26 |
+| S-24       | spizarnia-recipes-ui        | Przepisy w stylu Spiżarni (z licznościami kategorii)         | yes                   | Run `/10x-plan spizarnia-recipes-ui`; równolegle z S-23, S-25, S-26 |
+| S-25       | spizarnia-meal-plans-ui     | Jadłospisy i dialogi w stylu Spiżarni                        | yes                   | Run `/10x-plan spizarnia-meal-plans-ui`; równolegle z S-23, S-24, S-26 |
+| S-26       | spizarnia-family-profile-ui | Rodzina i profil w stylu Spiżarni                            | yes                   | Run `/10x-plan spizarnia-family-profile-ui`; równolegle z S-23…S-25 |
 
 ## Open Roadmap Questions
 

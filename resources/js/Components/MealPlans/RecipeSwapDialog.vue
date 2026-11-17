@@ -26,17 +26,17 @@
               </span>
             </ComboboxItem>
             <ComboboxItem
-              v-if="!isSearching && linkSource"
+              v-if="!isSearching && linkSource && linkPair"
               :value="{ linkFrom: linkSource }"
-              :text-value="`Jak wczoraj: ${linkSource.recipe?.name}`"
+              :text-value="`${linkPair.offerLabel}: ${linkSource.recipe?.name}`"
               :disabled="saving"
               class="flex-col items-start gap-0.5"
             >
               <span class="flex w-full items-center justify-between gap-2">
-                <span class="font-medium">Jak wczoraj: {{ linkSource.recipe?.name }}</span>
+                <span class="font-medium">{{ linkPair.offerLabel }}: {{ linkSource.recipe?.name }}</span>
                 <span v-if="meal?.from_meal_id === linkSource.id" class="text-xs text-muted-foreground">obecny</span>
               </span>
-              <span class="text-xs text-muted-foreground">Gotujemy raz na 2 dni</span>
+              <span class="text-xs text-muted-foreground">{{ linkPair.offerHint }}</span>
             </ComboboxItem>
             <p v-if="!filteredItems.length" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
             <ComboboxItem
@@ -79,7 +79,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog'
 import { formatDayMonth, formatNumber, formatWeekdayShort } from '@/lib/format'
 import { mealCategoryLabel } from '@/lib/mealCategories'
-import { linkSourceFor } from '@/lib/mealLinks'
+import { carriedPairFor, cookedPairFor, linkSourceFor } from '@/lib/mealLinks'
 import type { RecipeOption } from '@/types/meal-plan'
 
 interface SwapMeal {
@@ -128,10 +128,14 @@ const description = computed(() => {
 
 const linkSource = computed(() => linkSourceFor(props.meal, props.weekMeals) as SwapMeal | null)
 
+const linkPair = computed(() => (props.meal ? carriedPairFor(props.meal.meal_category) : null))
+
 const feedsWarning = computed(() => {
   const fed = props.meal?.feeds_meal_id ? props.weekMeals.find((other) => other.id === props.meal?.feeds_meal_id) : null
 
-  return fed ? `Zmiana opróżni obiad z ${formatWeekdayShort(fed.meal_date)} ${formatDayMonth(fed.meal_date)}, który jest „z wczoraj”.` : ''
+  const pair = props.meal ? cookedPairFor(props.meal.meal_category) : null
+
+  return fed && pair ? pair.feedsWarning(`${formatWeekdayShort(fed.meal_date)} ${formatDayMonth(fed.meal_date)}`) : ''
 })
 
 const items = computed(() =>

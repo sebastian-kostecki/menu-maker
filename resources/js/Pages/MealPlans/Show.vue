@@ -132,7 +132,7 @@
     <ConfirmDialog
       v-model:open="showRedrawDialog"
       title="Losuj ponownie"
-      description="Wylosować tydzień od nowa? Twoje zmiany przepisów i powtórki obiadów przepadną."
+      description="Wylosować tydzień od nowa? Twoje zmiany przepisów, powtórki obiadów i kolacje na śniadanie przepadną."
       confirm-label="Losuj ponownie"
       :processing="redrawing"
       @confirm="handleRedraw"

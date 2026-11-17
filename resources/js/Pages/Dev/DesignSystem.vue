@@ -223,9 +223,14 @@ const planMeals = planRecipeNames
       return { ...base, ingredients: [] }
     }
 
-    // Thursday's Obiad (id 11) is cooked for two days and feeds Friday's Obiad (id 14), which shows the same dish.
-    const link = index + 1 === 11 ? { feeds_meal_id: 14 } : index + 1 === 14 ? { from_meal_id: 11 } : {}
-    const dish = index + 1 === 14 ? 10 : index
+    // Thursday's Obiad (id 11) feeds Friday's Obiad (id 14), and Friday's Kolacja (id 15) feeds Saturday's Śniadanie (id 16); each carried-over meal shows the cooked dish.
+    const links = {
+      11: { feeds_meal_id: 14 },
+      14: { from_meal_id: 11, dish: 10 },
+      15: { feeds_meal_id: 16 },
+      16: { from_meal_id: 15, dish: 14 },
+    }
+    const { dish = index, ...link } = links[index + 1] ?? {}
 
     return {
       ...base,
@@ -887,7 +892,7 @@ const showToast = () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie)</p>
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" />
           <div>
             <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>

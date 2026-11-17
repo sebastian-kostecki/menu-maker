@@ -38,8 +38,8 @@
                   >
                     {{ day.meals[category].recipe.name }}
                   </Link>
-                  <Badge v-if="day.meals[category].feeds_meal_id" variant="muted" class="ml-2 align-middle">Na 2 dni</Badge>
-                  <Badge v-else-if="day.meals[category].from_meal_id" variant="muted" class="ml-2 align-middle">Z wczoraj</Badge>
+                  <Badge v-if="day.meals[category].feeds_meal_id && cookedPairFor(category)" variant="muted" class="ml-2 align-middle">{{ cookedPairFor(category)?.cookedLabel }}</Badge>
+                  <Badge v-else-if="day.meals[category].from_meal_id && carriedPairFor(category)" variant="muted" class="ml-2 align-middle">{{ carriedPairFor(category)?.carriedLabel }}</Badge>
                 </div>
                 <div v-if="!day.meals[category].from_meal_id" class="text-xs text-muted-foreground">
                   <span class="tabular-nums">{{ formatCalories(day.meals[category].recipe.calories) }}</span> kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
@@ -105,6 +105,7 @@ import { Button } from '@/Components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
 import { Skeleton } from '@/Components/ui/skeleton'
 import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
+import { cookedPairFor, carriedPairFor } from '@/lib/mealLinks'
 
 interface GridRecipe {
   id: number

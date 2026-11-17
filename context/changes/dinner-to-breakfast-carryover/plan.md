@@ -442,17 +442,17 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 
 #### Automated
 
-- [x] 1.1 Pest suite passes
-- [x] 1.2 Larastan passes with no new baseline entries
-- [x] 1.3 Pint passes
+- [x] 1.1 Pest suite passes — de75699
+- [x] 1.2 Larastan passes with no new baseline entries — de75699
+- [x] 1.3 Pint passes — de75699
 
 ### Phase 2: Badges, Dialog Item and Kitchen Sink (UI)
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build
-- [ ] 2.2 Token lint passes
-- [ ] 2.3 Pest suite passes
+- [x] 2.1 Client and SSR bundles build
+- [x] 2.2 Token lint passes
+- [x] 2.3 Pest suite passes
 
 #### Manual
 

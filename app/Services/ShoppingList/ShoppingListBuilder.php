@@ -13,7 +13,10 @@ class ShoppingListBuilder
 {
     private const SCALE = 12;
 
-    public function __construct(private readonly QuantityFormatter $quantityFormatter = new QuantityFormatter) {}
+    public function __construct(
+        private readonly QuantityFormatter $quantityFormatter = new QuantityFormatter,
+        private readonly MealLinkRules $links = new MealLinkRules,
+    ) {}
 
     /**
      * Sum, convert, round and sort quantity lines into shopping list rows.
@@ -74,7 +77,7 @@ class ShoppingListBuilder
 
         $lines = [];
         $withoutIngredients = [];
-        $carriedOver = (new MealLinkRules)->fedMealIds($mealPlan->meals);
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         foreach ($mealPlan->meals as $meal) {
             $recipe = $meal->recipe;

@@ -76,6 +76,9 @@
                         @if ($meal->empty)
                             <td><span class="meta">{{ $meal->recipeName }}</span></td>
                             <td></td>
+                        @elseif ($meal->carriedOver)
+                            <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif <span class="meta">{{ $meal->marker }}</span></td>
+                            <td></td>
                         @else
                             <td>{{ $meal->recipeName }}@if ($meal->recipeDeleted) <span class="meta">(usunięty)</span>@endif @if ($meal->marker) <span class="meta">{{ $meal->marker }}</span>@endif</td>
                             <td>

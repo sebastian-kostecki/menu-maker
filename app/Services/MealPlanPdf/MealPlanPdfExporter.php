@@ -20,6 +20,7 @@ class MealPlanPdfExporter
     public function __construct(
         private readonly ShoppingListBuilder $shoppingListBuilder,
         private readonly QuantityFormatter $quantityFormatter,
+        private readonly MealLinkRules $links = new MealLinkRules,
     ) {}
 
     /**
@@ -29,7 +30,7 @@ class MealPlanPdfExporter
     {
         $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
 
-        $carriedOver = (new MealLinkRules)->fedMealIds($mealPlan->meals);
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         $byDate = $mealPlan->meals
             ->groupBy(fn (Meal $meal): string => $meal->meal_date->format('Y-m-d'))
@@ -139,6 +140,7 @@ class MealPlanPdfExporter
             $isCarriedOver ? [] : $ingredients,
             false,
             $isCarriedOver ? 'Z wczoraj' : ($meal->feeds_meal_id !== null ? 'Na 2 dni' : null),
+            $isCarriedOver,
         );
     }
 

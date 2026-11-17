@@ -335,6 +335,21 @@ it("swapping or emptying the carried-over meal drops the link and keeps the cook
         ->and($tuesday->fresh()->recipe_id)->toBe($empty ? null : $spare->id);
 })->with([true, false]);
 
+it("picking the carried-over meal's own recipe from the list drops the link and keeps the dish", function (): void {
+    [$plan, $monday, $tuesday] = planWithThreeObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $tuesday]),
+        ['recipe_id' => $monday->recipe_id],
+    )->assertOk()
+        ->assertJsonPath('data.meals.1.from_meal_id', null);
+
+    expect($monday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($monday->fresh()->recipe_id)->toBe($monday->recipe_id)
+        ->and($tuesday->fresh()->recipe_id)->toBe($monday->recipe_id);
+});
+
 it('linking is refused for a breakfast, a non-consecutive day, an empty previous day, and a chain', function (): void {
     [$plan, $monday, $tuesday, $wednesday] = planWithThreeObiady($this->user);
     $breakfast = Meal::query()->create([

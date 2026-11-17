@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Services\IngredientScaling\ScalingNotices;
 
@@ -27,6 +28,15 @@ it('explains amounts as written when there is no family', function (): void {
     expect(ScalingNotices::for($plan))->toBe([
         'status' => 'as_written',
         'notices' => ['Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.'],
+    ]);
+});
+
+it('says the amounts of an Obiad cooked for two days are doubled when there is no family', function (): void {
+    $plan = planWithMeta(['version' => 'scaled-v1', 'scaling' => ['status' => 'as_written']]);
+    $plan->setRelation('meals', collect([new Meal(['feeds_meal_id' => 2]), new Meal]));
+
+    expect(ScalingNotices::for($plan)['notices'])->toBe([
+        'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla obiadów na 2 dni — podwójnie.',
     ]);
 });
 

@@ -118,6 +118,7 @@ Run the visual gate with `VISUAL_DOCKER_NETWORK=<worktree-dir>_sail VISUAL_BASE_
 
 **Every recipe write goes through one transaction that maintains the link.** Lock the plan row (`lockForUpdate`, as redraw does at `MealPlanController.php:240`) and refuse with `status` → `NOT_DRAFT_MESSAGE` unless it is a draft. Then apply the cases in this order:
 1. **Same recipe.** If the new `recipe_id` equals the current one, change nothing (S-17 no-op; keeps the link).
+   - *Addendum (impl review F1, 2026-11-17):* except on a carried-over meal. There, picking its own recipe from the list means "cook it fresh that day": the link is dropped and the recipe kept.
 2. **Cooked meal.** If the meal feeds another, set that meal's `recipe_id` to NULL and clear `feeds_meal_id`.
 3. **Carried-over meal.** If another meal feeds this one, clear that meal's `feeds_meal_id`.
 4. Write the new `recipe_id`.

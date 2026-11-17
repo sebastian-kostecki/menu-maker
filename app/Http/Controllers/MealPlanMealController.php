@@ -83,13 +83,15 @@ class MealPlanMealController extends Controller
 
     /**
      * Write the new recipe and keep the link consistent: changing a cooked meal empties its carried-over meal,
-     * changing a carried-over meal only drops the link.
+     * changing a carried-over meal only drops the link. Picking a carried-over meal's own recipe from the list
+     * means "cook it fresh that day", so it drops the link too; elsewhere the current recipe is a no-op.
      */
     private function changeRecipe(Meal $meal, int|string|null $recipeId): void
     {
         $recipeId = $recipeId === null ? null : (int) $recipeId;
+        $isCarriedOver = Meal::query()->where('feeds_meal_id', $meal->id)->exists();
 
-        if ($meal->recipe_id === $recipeId) {
+        if ($meal->recipe_id === $recipeId && ! $isCarriedOver) {
             return;
         }
 

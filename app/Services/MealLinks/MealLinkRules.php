@@ -45,18 +45,27 @@ class MealLinkRules
     }
 
     /**
-     * Ids of the carried-over meals (the ones another meal feeds) among already-loaded meals.
+     * Ids of the carried-over meals (the ones another meal feeds) among already-loaded meals. A meal counts only
+     * while it shares the cooked meal's recipe, so a broken link never hides a meal's own ingredients.
      *
      * @param  iterable<Meal>  $meals
      * @return array<int, true>
      */
     public function fedMealIds(iterable $meals): array
     {
+        $recipeIds = [];
+
+        foreach ($meals as $meal) {
+            $recipeIds[$meal->id] = $meal->recipe_id;
+        }
+
         $ids = [];
 
         foreach ($meals as $meal) {
-            if ($meal->feeds_meal_id !== null) {
-                $ids[$meal->feeds_meal_id] = true;
+            $fedId = $meal->feeds_meal_id;
+
+            if ($fedId !== null && $meal->recipe_id !== null && ($recipeIds[$fedId] ?? null) === $meal->recipe_id) {
+                $ids[$fedId] = true;
             }
         }
 

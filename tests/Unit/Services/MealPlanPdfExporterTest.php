@@ -403,7 +403,16 @@ it('a carried-over meal prints Z wczoraj with no ingredients', function (): void
     expect($meal->recipeName)->toBe('Gulasz')
         ->and($meal->marker)->toBe('Z wczoraj')
         ->and($meal->ingredients)->toBe([])
+        ->and($meal->carriedOver)->toBeTrue()
         ->and($meal->empty)->toBeFalse();
+});
+
+it("leaves a carried-over meal's ingredients cell empty", function (): void {
+    $plan = linkedSupperPlan(User::factory()->create());
+
+    $html = view('pdf.meal-plan', ['document' => app(MealPlanPdfExporter::class)->document($plan->fresh())])->render();
+
+    expect($html)->toMatch('#<span class="meta">Z wczoraj</span></td>\s*<td></td>#');
 });
 
 it('a cooked meal prints Na 2 dni with its doubled lines', function (): void {

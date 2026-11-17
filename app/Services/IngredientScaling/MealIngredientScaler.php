@@ -27,6 +27,7 @@ class MealIngredientScaler
         private readonly ScalingCalculator $calculator,
         private readonly IngredientRefiner $refiner,
         private readonly RefinementGuard $guard,
+        private readonly MealLinkRules $links = new MealLinkRules,
     ) {}
 
     public function scale(MealPlan $mealPlan): ScalingOutcome
@@ -59,8 +60,7 @@ class MealIngredientScaler
         $items = [];
         $rowsByKey = [];
         $now = now();
-        $links = new MealLinkRules;
-        $carriedOver = $links->fedMealIds($mealPlan->meals);
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         /** @var Meal $meal */
         foreach ($mealPlan->meals as $meal) {
@@ -70,7 +70,7 @@ class MealIngredientScaler
                 continue;
             }
 
-            $servings = (string) $links->servingsFor($meal);
+            $servings = (string) $this->links->servingsFor($meal);
 
             $factor = $hasFamily
                 ? $this->calculator->factor($familyDailyKcal, $meal->meal_category, (string) $recipe->calories)

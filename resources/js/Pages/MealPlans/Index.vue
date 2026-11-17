@@ -9,22 +9,45 @@
         </template>
       </PageHeader>
 
-      <FiltersBar
-        :value="currentFilters"
-        :statuses="statuses"
-        @update:value="handleFiltersChange"
-      />
-
-      <div class="overflow-hidden rounded-lg border bg-card">
-        <MealPlanTable
-          :items="mealPlans.data"
-          :sort="currentFilters.sort"
-          :direction="currentFilters.direction"
-          :filtered="isFiltered"
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <StatusFilterPills
+          :model-value="currentFilters.status || ''"
+          :statuses="statuses"
+          @update:model-value="handleStatusChange"
+        />
+        <SortMenu
+          :sort="currentFilters.sort ?? 'created_at'"
+          :direction="currentFilters.direction ?? 'desc'"
           @sort-change="handleSortChange"
-          @clear-filters="handleClearFilters"
         />
       </div>
+
+      <ul v-if="mealPlans.data.length > 0" aria-label="Jadłospisy" class="flex flex-col gap-3.5">
+        <li v-for="item in mealPlans.data" :key="item.id">
+          <MealPlanTile :item="item" />
+        </li>
+      </ul>
+      <Card v-else>
+        <EmptyState
+          v-if="isFiltered"
+          class="py-12"
+          :icon="CalendarDays"
+          title="Brak jadłospisów o wybranym statusie"
+        >
+          <Button variant="outline" @click="handleClearFilters">
+            Wyczyść filtry
+          </Button>
+        </EmptyState>
+        <EmptyState
+          v-else
+          class="py-12"
+          :icon="CalendarDays"
+          title="Nie masz jeszcze jadłospisów"
+          description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+        >
+          <GenerateMealPlanDialog label="Wygeneruj pierwszy jadłospis" />
+        </EmptyState>
+      </Card>
 
       <ServerPagination
         :meta="mealPlans.meta"
@@ -37,6 +60,10 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import { CalendarDays } from 'lucide-vue-next'
+import { Button } from '@/Components/ui/button'
+import { Card } from '@/Components/ui/card'
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
@@ -106,8 +133,9 @@ interface MealPlanCollectionProps {
   }
   statuses: StatusOption[]
 }
-import FiltersBar from '@/Components/MealPlans/FiltersBar.vue'
-import MealPlanTable from '@/Components/MealPlans/MealPlanTable.vue'
+import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import SortMenu from '@/Components/MealPlans/SortMenu.vue'
+import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
 
 // Props from Inertia
@@ -164,6 +192,11 @@ const handleFiltersChange = (newFilters: FiltersState) => {
     preserveScroll: true,
     replace: true
   })
+}
+
+// Handle a status pill ('' = all)
+const handleStatusChange = (status: string) => {
+  handleFiltersChange({ status: status as FiltersState['status'] })
 }
 
 // Handle page change: current query plus the page

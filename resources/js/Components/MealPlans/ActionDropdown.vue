@@ -2,12 +2,11 @@
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button
-        variant="ghost"
+        variant="secondary"
         size="icon"
-        class="size-8"
         :aria-label="`Akcje: ${formatDateRange(item.start_date, item.end_date)}`"
       >
-        <MoreHorizontal aria-hidden="true" />
+        <Ellipsis aria-hidden="true" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-56">
@@ -81,7 +80,7 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import {
-  MoreHorizontal,
+  Ellipsis,
   Eye,
   ChefHat,
   FileDown,

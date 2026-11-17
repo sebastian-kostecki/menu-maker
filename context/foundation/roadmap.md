@@ -33,7 +33,7 @@ milestone_status: open           # open | done
   - MS-04: Użytkownik może zaplanować dwa takie same obiady dzień po dniu, żeby gotować raz na dwa dni.
   - MS-05: Użytkownik może połączyć kolację ze śniadaniem następnego dnia.
   - MS-06: PDF jadłospisu może zawierać sposób wykonania — sam przepis: pełne przepisy na osobnych stronach, dołączane przełącznikiem przy pobieraniu.
-- **Zmiany względem PRD:** MS-04 i MS-05 zastępują „Losowy dobór przepisów bez powtórzeń w obrębie tygodnia” (PRD §3 pkt 4) — powtórka jest świadomym wyborem użytkownika, losowanie nadal jej nie tworzy. MS-02 i MS-03 zastępują „Brak edycji wygenerowanego jadłospisu” (PRD §4) w zakresie szkicu przed wygenerowaniem. MS-06 zmienia układ PDF z PRD §3 pkt 7 (przepisy poza tabelą).
+- **Zmiany względem PRD:** MS-04 i MS-05 zastępują „Losowy dobór przepisów bez powtórzeń w obrębie tygodnia” (PRD §3 pkt 4) — powtórka jest świadomym wyborem użytkownika, losowanie nadal jej nie tworzy. MS-02 i MS-03 zastępują „Brak edycji wygenerowanego jadłospisu” (PRD §4) w zakresie szkicu przed wygenerowaniem. MS-06 zmienia układ PDF z PRD §3 pkt 7 (przepisy poza tabelą). Numery punktów odnoszą się do PRD sprzed 2026-11-17; tego dnia zmiany M-3 (w tym MS-05) wpisano do `.ai/core/prd.md` (§1, §3 pkt 4–8, §4, US-008…US-010, nowe US-013…US-017).
 - **Numbering:** identyfikatory kontynuują numerację M-1 i M-2 (S-17…), żeby nie zderzyć się z wpisami w `## Done`.
 
 ## Vision recap
@@ -53,7 +53,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | done |
-| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
+| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | ready |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
 ## Streams
@@ -134,7 +134,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 
 - **Outcome:** Użytkownik może w szkicu połączyć kolację z danego dnia ze śniadaniem następnego dnia; śniadanie pokazuje danie z kolacji z oznaczeniem, a ilości i lista zakupów odpowiadają gotowaniu raz.
 - **Change ID:** dinner-to-breakfast-carryover
-- **PRD refs:** MS-05
+- **PRD refs:** MS-05, US-017
 - **Prerequisites:** S-19
 - **Parallel with:** S-21
 - **Blockers:** —
@@ -142,7 +142,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: ten sam mechanizm co S-19, ilości liczone tak samo (kolacja przeskalowana na oba posiłki, śniadanie bez własnych składników).
   - Rozstrzygnięte 2026-11-16: śniadanie z przepisem kategorii „kolacja” ma na ekranie i w PDF kolor pory dnia komórki (śniadanie) z dopiskiem „z kolacji”.
 - **Risk:** Po S-19, bo rozszerza jego mechanizm powiązania o parę posiłków z różnych kategorii i dni; ryzykiem jest tylko prezentacja kategorii, nie ilości.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-21: PDF z przepisami na osobnych stronach
 
@@ -164,14 +164,16 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 | S-17       | meal-plan-draft-with-swap     | Szkic jadłospisu z podmianą przepisu i zatwierdzeniem         | yes                   | North star. Run `/10x-plan meal-plan-draft-with-swap` |
 | S-18       | meal-plan-empty-slot          | Pusty posiłek w jadłospisie                                   | yes                   | Run `/10x-plan meal-plan-empty-slot`; zalecany jako następny |
 | S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | yes                   | Run `/10x-plan meal-plan-repeat-dinner`; S-18 done (2026-11-16) |
-| S-20       | dinner-to-breakfast-carryover | Kolacja na śniadanie następnego dnia                          | no                    | Czeka na S-19 |
+| S-20       | dinner-to-breakfast-carryover | Kolacja na śniadanie następnego dnia                          | yes                   | Run `/10x-plan dinner-to-breakfast-carryover`; S-19 done (2026-11-17) |
 | S-21       | pdf-recipe-pages              | PDF z przepisami na osobnych stronach i przełącznikiem        | yes                   | Run `/10x-plan pdf-recipe-pages`; równolegle do S-17 |
 
 ## Open Roadmap Questions
 
-1. **Jak mierzyć metryki sukcesu z PRD §6** (90% z profilem rodziny w 7 dni, 75% generuje co tydzień)? Przeniesione z M-2: nic w aplikacji ich dziś nie zbiera i żadne wymaganie funkcjonalne tego nie przewiduje. — Owner: user. Block: roadmap-wide (poza zakresem M-3).
-2. **Brak US-007 w PRD** — usunięta historyjka czy luka? Przeniesione z M-1. — Owner: user. Block: none.
-3. **Czy `.ai/core/prd.md` zaktualizować o zmiany z karty M-3** (powtórki, edycja szkicu, przepisy w PDF)? Nowe w M-3. — Owner: user. Block: none.
+Brak otwartych pytań. Rozstrzygnięte 2026-11-17:
+
+- ~~Jak mierzyć metryki sukcesu z PRD §6 (90% z profilem rodziny w 7 dni, 75% generuje co tydzień)?~~ — Nie mierzymy: obie metryki usunięte z PRD, wpis w Parked.
+- ~~Brak US-007 w PRD — usunięta historyjka czy luka?~~ — Usunięta: usuwanie przepisu jest kryterium 3 US-006; numeracja zostaje bez zmian.
+- ~~Czy `.ai/core/prd.md` zaktualizować o zmiany z karty M-3?~~ — Tak, zaktualizowany (zob. „Zmiany względem PRD” w karcie M-3).
 
 ## Parked
 
@@ -185,6 +187,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 - **Udostępnianie przepisów, funkcje społecznościowe, kopie zapasowe** — Why parked: PRD §4.
 - **Historia poprzednich wersji jadłospisu** — Why parked: US-009 kryterium 3 („Poprzednie wersje nie są zapisywane”).
 - **Limit generacji PDF i czyszczenie starych plików PDF** — Why parked: `.ai/core/api-plan.md` §3, poza wymaganiami PRD.
+- **Pomiar aktywności użytkowników (dawne metryki PRD §6: 90% z profilem rodziny w 7 dni, 75% generuje co tydzień)** — Why parked: narzędzie domowe dla jednej rodziny, odsetki użytkowników nie mają sensu; metryki usunięte z PRD 2026-11-17. Wraca, jeśli aplikacja zostanie udostępniona innym rodzinom.
 
 ## Milestone History
 

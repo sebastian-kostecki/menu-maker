@@ -1,5 +1,5 @@
 <template>
-  <Card class="overflow-x-auto p-4">
+  <Card class="scroll-pl-32 overflow-x-auto p-4">
     <table
       class="w-full min-w-160 border-separate border-spacing-x-0 border-spacing-y-2 text-sm"
       data-testid="meal-plan-grid"
@@ -7,7 +7,7 @@
     >
       <thead>
         <tr class="text-left">
-          <th scope="col" class="sticky left-0 z-10 bg-card pr-2"><span class="sr-only">Dzień</span></th>
+          <th scope="col" class="sticky left-0 z-10 w-28 bg-card pr-2"><span class="sr-only">Dzień</span></th>
           <th v-for="category in MEAL_CATEGORIES" :key="category" scope="col" class="pl-2 text-meta font-bold text-foreground">
             <span class="inline-flex items-center gap-1.5">
               <component :is="CATEGORY_ICONS[category]" class="size-4" aria-hidden="true" />
@@ -19,7 +19,7 @@
       <tbody>
         <template v-if="skeleton">
           <tr v-for="index in 7" :key="index">
-            <td class="sticky left-0 z-10 bg-card pr-2"><Skeleton class="h-4 w-20 motion-reduce:animate-none" /></td>
+            <td class="sticky left-0 z-10 w-28 bg-card pr-2"><Skeleton class="h-4 w-20 motion-reduce:animate-none" /></td>
             <td v-for="category in MEAL_CATEGORIES" :key="category" class="pl-2">
               <Skeleton class="h-18 rounded-md motion-reduce:animate-none" />
             </td>
@@ -27,7 +27,7 @@
         </template>
         <template v-else>
           <tr v-for="day in days" :key="day.date" class="align-top">
-            <th scope="row" class="sticky left-0 z-10 whitespace-nowrap bg-card pr-2 text-left align-top">
+            <th scope="row" class="sticky left-0 z-10 w-28 whitespace-nowrap bg-card pr-2 text-left align-top">
               <span class="block font-extrabold capitalize text-foreground">{{ day.weekday }}</span>
               <span class="block text-meta font-normal text-muted-foreground">{{ day.short }}</span>
             </th>

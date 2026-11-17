@@ -498,6 +498,25 @@ None. There are no data or route changes. Bookmarked URLs with `perPage`, `sort=
 - Prior plans: `context/archive/2026-11-17-spizarnia-app-shell/plan.md` (baseline-per-phase pattern, AA-noise addendum), `context/archive/2026-11-17-spizarnia-primitives/reviews/impl-review.md` (tailwind-merge roles, focus-ring clip), `context/archive/2026-11-16-meal-plan-empty-slot/plan.md`, `context/archive/2026-11-16-meal-plan-repeat-dinner/plan.md`, `context/archive/2026-11-17-dinner-to-breakfast-carryover/plan.md` (link labels and cell rules)
 - Code: `resources/js/Pages/MealPlans/{Index,Show}.vue`, `resources/js/Components/MealPlans/*`, `resources/js/Pages/Dev/DesignSystem.vue`, `tests/e2e/meal-plan.spec.ts`, `tests/e2e/visual/{meal-plans-index,meal-plan-show,design-system}.spec.ts`
 
+## Addendum (impl-review, 2026-11-17)
+
+Recorded by `/10x-impl-review` (`reviews/impl-review.md`). Phase scope and Progress titles are unchanged.
+
+- **Show-page baselines in phase 1 (F3).** Change 8 did not list them, but phase 1 also refreshed all 5 `meal-plan-*` PNGs. The round „…” `ActionDropdown` trigger is shared with `Show.vue`, so the show page changed as well. Phase 2 refreshed the same shots again, so „each spec's baselines refreshed exactly once” held only for the index spec. Image sizes did not change. The phase 1 versions are superseded, so review only the final shots.
+- **Kitchen-sink extras (F7).** Change 6 did not ask for these:
+  - a `tag` entry in the generic `badgeVariants` row (`DesignSystem.vue:188`);
+  - the shopping-list demo grid going from `md:grid-cols-2` to `md:grid-cols-3`, to fit the `pending` placeholder.
+
+  Both are harmless and covered by the refreshed `section-odznaki` / `section-jadlospis` shots.
+- **Review fixes:**
+  - **F1:** `MealPlanTile` and `ActionDropdown` gained a `demo` prop. In the kitchen sink, the „…” confirms close without sending a request.
+  - **F2:** the sticky day column has a fixed `w-28`, and the grid's scroll container has `scroll-pl-32`, so focus scrolling at 390 px no longer leaves the focused cell under the sticky column.
+  - **F5:** an unknown `filter[status]` presses „Wszystkie”, and clicking it clears the value.
+  - **F6:** the tile's date link sits in an `<h2>`.
+
+  Only F2 changed pixels, by widening the day column. Its refresh touched the 5 `meal-plan-*` PNGs and `section-jadlospis.png`, and the cells only shift. The `<h2>` wrap (F6) and the `demo` prop (F1) are pixel-identical: the index and `section-komponenty-aplikacji` shots did not change.
+  - A browser check at 390 px measured where the focus ring lands after tabbing into the next row's Śniadanie cell. Before F2 it sat up to 14 px under the sticky column; after F2 it has 14 px clearance, in both Chromium and Firefox.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

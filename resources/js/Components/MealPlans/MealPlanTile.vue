@@ -1,12 +1,14 @@
 <template>
   <Card class="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:gap-6">
     <div class="flex min-w-0 flex-1 flex-col gap-1">
-      <Link
-        :href="item.links.self"
-        class="rounded-sm text-section-title text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-      >
-        {{ range }}
-      </Link>
+      <h2 class="text-section-title">
+        <Link
+          :href="item.links.self"
+          class="rounded-sm text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          {{ range }}
+        </Link>
+      </h2>
       <p class="text-meta text-muted-foreground">
         Utworzono {{ formatDateTime(item.created_at) }}
       </p>
@@ -43,7 +45,7 @@
       <Button size="sm" as-child>
         <Link :href="item.links.self" :aria-label="`Otwórz jadłospis: ${range}`">Otwórz</Link>
       </Button>
-      <ActionDropdown :item="item" />
+      <ActionDropdown :item="item" :demo="demo" />
     </div>
   </Card>
 </template>
@@ -62,6 +64,8 @@ import type { MealPlanListItem } from '@/types/meal-plan'
 
 interface Props {
   item: MealPlanListItem
+  /** Kitchen-sink mode: the „…” menu's confirms send no request. */
+  demo?: boolean
 }
 
 const props = defineProps<Props>()

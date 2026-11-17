@@ -912,7 +912,7 @@ const showToast = () => {
 
         <ul class="flex flex-col gap-3.5">
           <li v-for="plan in demoPlanTiles" :key="plan.id">
-            <MealPlanTile :item="plan" />
+            <MealPlanTile :item="plan" demo />
           </li>
         </ul>
 

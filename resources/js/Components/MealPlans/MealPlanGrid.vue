@@ -147,9 +147,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{ (e: 'swap', meal: GridMeal): void }>()
 
 const CATEGORY_BAR_CLASSES: Record<string, string> = {
-  breakfast: 'border-meal-breakfast-foreground',
-  supper: 'border-meal-supper-foreground',
-  dinner: 'border-meal-dinner-foreground',
+  breakfast: 'border-meal-breakfast',
+  supper: 'border-meal-supper',
+  dinner: 'border-meal-dinner',
 }
 
 const categoryBarClass = (category: string): string => CATEGORY_BAR_CLASSES[category] ?? 'border-border'

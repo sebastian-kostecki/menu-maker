@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { expectAppFontLoaded } from './support/fonts';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -19,7 +19,7 @@ async function openMealPlans(page: Page) {
   await page.getByLabel('Hasło').fill('Password123!');
   await page.getByRole('button', { name: 'Zaloguj się' }).click();
   await page.waitForURL('**/dashboard');
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 
   await page.goto('/meal-plans');
   // Header row plus the five seeded plans, including the processing one with the spinner tag.
@@ -51,7 +51,7 @@ test('meal plans index filtered empty', async ({ page }) => {
   // Reload so the shot renders from a hard load (client-side navigation jitters the rounded
   // corners by a few pixels) and so the URL, not stored state, is proven to drive the Select.
   await page.reload();
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
   await expect(page.getByRole('combobox', { name: 'Status' })).toHaveText('Oczekuje');
   await expect(page.getByText('Brak jadłospisów o wybranym statusie')).toBeVisible();
   await page.mouse.move(0, 0);

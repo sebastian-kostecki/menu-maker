@@ -120,14 +120,21 @@ const colorSwatches = [
   { token: 'meal-breakfast', classes: 'bg-meal-breakfast text-meal-breakfast-foreground' },
   { token: 'meal-supper', classes: 'bg-meal-supper text-meal-supper-foreground' },
   { token: 'meal-dinner', classes: 'bg-meal-dinner text-meal-dinner-foreground' },
+  { token: 'sidebar', classes: 'bg-sidebar text-sidebar-foreground' },
+  { token: 'sidebar-active', classes: 'bg-sidebar-active text-sidebar-active-foreground' },
+  { token: 'highlight', classes: 'bg-highlight text-highlight-foreground' },
+  { token: 'overlay', classes: 'bg-overlay text-foreground' },
+  { token: 'sidebar-foreground', classes: 'bg-sidebar-foreground text-background' },
 ]
 
 const typographyRoles = [
-  { role: 'Tytuł strony', classes: 'text-2xl font-semibold tracking-tight', sample: 'Jadłospis na tydzień' },
-  { role: 'Tytuł sekcji / karty', classes: 'text-lg font-semibold', sample: 'Lista zakupów' },
-  { role: 'Tekst', classes: 'text-sm', sample: 'Zupa pomidorowa z makaronem i świeżą bazylią.' },
-  { role: 'Etykieta', classes: 'text-sm font-medium', sample: 'Nazwa przepisu' },
-  { role: 'Metadane', classes: 'text-xs text-muted-foreground', sample: '420 kcal · 4 porcje · 12 listopada' },
+  { role: 'Display', classes: 'text-display', sample: 'Cały tydzień na jednej kartce' },
+  { role: 'Tytuł strony', classes: 'text-page-title', sample: 'Pulpit' },
+  { role: 'Liczba w kafelku', classes: 'text-stat tabular-nums', sample: '21' },
+  { role: 'Tytuł sekcji', classes: 'text-section-title', sample: 'Ten tydzień' },
+  { role: 'Tekst', classes: 'text-body', sample: 'Dodaj przepisy, a Menu Maker ułoży tydzień.' },
+  { role: 'Etykieta', classes: 'text-label', sample: 'Dodaj przepis' },
+  { role: 'Metadane', classes: 'text-meta text-muted-foreground', sample: '3 porcje · 12 lis 2026' },
 ]
 
 const amounts = [
@@ -137,9 +144,10 @@ const amounts = [
 ]
 
 const shapes = [
-  { label: 'rounded-sm', classes: 'rounded-sm' },
-  { label: 'rounded-md', classes: 'rounded-md' },
-  { label: 'rounded-lg', classes: 'rounded-lg' },
+  { label: 'rounded-sm (8 px)', classes: 'rounded-sm' },
+  { label: 'rounded-md (12 px)', classes: 'rounded-md' },
+  { label: 'rounded-lg (20 px)', classes: 'rounded-lg' },
+  { label: 'rounded-xl (24 px)', classes: 'rounded-xl' },
   { label: 'rounded-full', classes: 'rounded-full' },
 ]
 
@@ -352,9 +360,13 @@ const showToast = () => {
           </div>
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div class="rounded-lg border bg-card p-4 text-sm">Karta: ramka, bez cienia</div>
+          <div class="rounded-lg border-2 border-foreground bg-card p-4 text-sm shadow-sticker">
+            Kafel: kontur 2px, shadow-sticker
+          </div>
+          <div class="rounded-xl border-2 border-foreground bg-card p-4 text-sm shadow-dialog">
+            Dialog: shadow-dialog
+          </div>
           <div class="rounded-lg bg-card p-4 text-sm shadow-sm">shadow-sm</div>
-          <div class="rounded-lg bg-card p-4 text-sm shadow-lg">shadow-lg</div>
         </div>
       </section>
 

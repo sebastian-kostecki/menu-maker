@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { expectAppFontLoaded } from './support/fonts';
 import { logIn } from './support/auth';
 
 test.skip(
@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 
 test('guest login', async ({ page }) => {
   await page.goto('/login');
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
   await expect(page.getByText('© 2026')).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('guest-login.png', { fullPage: true });

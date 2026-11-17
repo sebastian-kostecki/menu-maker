@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { expectAppFontLoaded } from './support/fonts';
 import { logIn } from './support/auth';
 
 test.skip(
@@ -30,7 +30,7 @@ async function openSeededPlan(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
   await expect(page.getByText('15.06.2026 – 21.06.2026')).toBeVisible();
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(21);
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 test('meal plan show desktop', async ({ page }) => {
@@ -77,7 +77,7 @@ async function openSeededDraft(page: Page) {
   await expect(page.getByText('Z kolacji', { exact: true })).toBeVisible();
   await expect(page.getByText('Też na śniadanie', { exact: true })).toBeVisible();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 test('meal plan draft desktop', async ({ page }) => {

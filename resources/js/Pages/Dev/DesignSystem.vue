@@ -28,6 +28,9 @@ import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
+import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import SortMenu from '@/Components/MealPlans/SortMenu.vue'
+import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -160,8 +163,8 @@ const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost
 const chipTones = [
   { variant: 'default', label: 'Wszystkie', count: 24 },
   { variant: 'breakfast', label: 'Śniadanie', count: 8 },
-  { variant: 'supper', label: 'Kolacja', count: 6 },
-  { variant: 'dinner', label: 'Obiad', count: 10 },
+  { variant: 'supper', label: 'Obiad', count: 6 },
+  { variant: 'dinner', label: 'Kolacja', count: 10 },
 ]
 const buttonSizes = [
   { size: 'xs', label: 'Mały xs' },
@@ -182,6 +185,7 @@ const badgeVariants = [
   { variant: 'warning', label: 'Ostrzeżenie' },
   { variant: 'info', label: 'W toku' },
   { variant: 'muted', label: 'Wyciszona' },
+  { variant: 'tag', label: 'Znacznik' },
 ]
 
 const selectOptions = [
@@ -283,6 +287,32 @@ const swapOptions = [
   { id: 13, name: 'Płatki z mlekiem', calories: '980' },
   { id: 16, name: 'Tosty z awokado', calories: null },
 ]
+const demoPlanLinks = (id, withPdf) => ({
+  self: `#ds-plan-${id}`,
+  pdf: withPdf ? `#ds-plan-${id}-pdf` : null,
+  pdf_with_recipes: withPdf ? `#ds-plan-${id}-pdf-recipes` : null,
+})
+const demoPlanTiles = [
+  { id: 1, status: 'draft', start_date: '2026-06-29', end_date: '2026-07-05', created_at: '2026-06-22T09:30:00', meals_count: 20, withPdf: false },
+  { id: 2, status: 'processing', start_date: '2026-06-22', end_date: '2026-06-28', created_at: '2026-06-15T08:15:00', meals_count: 21, withPdf: false },
+  { id: 3, status: 'done', start_date: '2026-06-15', end_date: '2026-06-21', created_at: '2026-06-08T18:00:00', meals_count: 21, withPdf: true },
+  { id: 4, status: 'error', start_date: '2026-06-08', end_date: '2026-06-14', created_at: '2026-06-01T12:45:00', meals_count: 0, withPdf: false },
+  { id: 5, status: 'pending', start_date: '2026-06-01', end_date: '2026-06-07', created_at: '2026-05-25T07:20:00', meals_count: 9, withPdf: false },
+].map(({ withPdf, ...plan }) => ({
+  ...plan,
+  updated_at: plan.created_at,
+  logs_count: 0,
+  links: demoPlanLinks(plan.id, withPdf),
+}))
+const demoPlanStatuses = [
+  { value: 'draft', label: 'Szkic' },
+  { value: 'pending', label: 'Oczekuje' },
+  { value: 'processing', label: 'Generowanie' },
+  { value: 'done', label: 'Gotowy' },
+  { value: 'error', label: 'Błąd' },
+]
+const demoPlanStatus = ref('pending')
+const demoPlanSort = ref({ column: 'created_at', direction: 'desc' })
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
@@ -436,6 +466,15 @@ const showToast = () => {
           <Badge v-for="item in badgeVariants" :key="item.variant" :variant="item.variant">
             {{ item.label }}
           </Badge>
+        </div>
+        <div class="flex flex-wrap items-center gap-2" aria-label="Znacznik powiązanego posiłku (wariant tag na wypełnieniu posiłku)">
+          <span
+            v-for="swatch in colorSwatches.filter((item) => item.token.startsWith('meal-'))"
+            :key="swatch.token"
+            :class="['inline-flex items-center rounded-md p-2.5', swatch.classes]"
+          >
+            <Badge variant="tag">Na 2 dni</Badge>
+          </span>
         </div>
         <div class="flex flex-wrap items-center gap-2" aria-label="Status">
           <Badge variant="draft" size="status">Szkic</Badge>
@@ -862,21 +901,37 @@ const showToast = () => {
           </PageHeader>
         </div>
 
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <StatusFilterPills v-model="demoPlanStatus" :statuses="demoPlanStatuses" />
+          <SortMenu
+            :sort="demoPlanSort.column"
+            :direction="demoPlanSort.direction"
+            @sort-change="demoPlanSort = $event"
+          />
+        </div>
+
+        <ul class="flex flex-col gap-3.5">
+          <li v-for="plan in demoPlanTiles" :key="plan.id">
+            <MealPlanTile :item="plan" demo />
+          </li>
+        </ul>
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div class="rounded-lg border bg-card p-6">
+          <Card>
             <EmptyState
+              class="py-12"
               :icon="CalendarDays"
               title="Nie masz jeszcze jadłospisów"
               description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
             >
               <Button>Wygeneruj pierwszy jadłospis</Button>
             </EmptyState>
-          </div>
-          <div class="rounded-lg border bg-card p-6">
-            <EmptyState :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
+          </Card>
+          <Card>
+            <EmptyState class="py-12" :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
               <Button variant="outline">Wyczyść filtry</Button>
             </EmptyState>
-          </div>
+          </Card>
         </div>
 
         <ConfirmDialog
@@ -975,7 +1030,7 @@ const showToast = () => {
           </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-3">
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów</p>
             <ShoppingList :list="planShoppingList" />
@@ -983,6 +1038,10 @@ const showToast = () => {
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów bez pozycji</p>
             <ShoppingList :list="emptyShoppingList" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="text-xs text-muted-foreground">Lista zakupów w szkicu (miejsce na listę)</p>
+            <ShoppingList pending />
           </div>
         </div>
       </section>

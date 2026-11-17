@@ -47,7 +47,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | done |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | ready    |
 | S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | ready    |
-| S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | ready    |
+| S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | done        |
 | S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | ready    |
 
 ## Streams
@@ -167,7 +167,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Rdzeń produktu z największą liczbą stanów (szkic, w trakcie, gotowy, błąd, pusty posiłek, powiązania) i najwięcej zrzutów do odświeżenia; zachowanie i testy E2E bez zmian.
 - **Carry-over z F-05 (impl-review):** przełącznik „Składniki” (`MealPlanGrid.vue:60`, `text-primary`) nie odróżnia się już od tekstu; `MealPlans/Index.vue:18` i `MealPlans/Show.vue:56` mają `rounded-lg` = 20 px; paski kategorii w siatce są już na `border-meal-*` (poprawione w F-05).
 - **Carry-over z F-06:** filtr statusu jadłospisów z `Select` na `Toggle`; pusty posiłek i „Wybierz” na wariant `dashed` przycisku.
-- **Status:** ready
+- **Status:** done
 
 ### S-26: Rodzina i profil w Spiżarni
 
@@ -250,3 +250,4 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 - **S-06: Użytkownik może pobrać jeden PDF, który najpierw zawiera tabelę jadłospisu (dzień, kategoria, nazwa, składniki, przygotowanie), a potem listę zakupów, zgodny z ostatnią wygenerowaną wersją i otwierający się w przeglądarce.** — Archived 2026-11-14 → `context/archive/2026-11-14-meal-plan-pdf-export/`. Lesson: —.
 - **S-01: Użytkownik może zarejestrować się, zalogować i zresetować hasło na polskich ekranach; sesja wygasa po 24 h braku aktywności, a link resetu (ważny 1 h) faktycznie dociera e-mailem.** — Archived 2026-11-14 → `context/archive/2026-11-14-polish-auth-with-24h-session/`. Lesson: —.
 - **F-02: (foundation) aplikacja działa pod publicznym adresem na serwerze Mikrus z działającym workerem kolejki; konfigurację serwera i wdrożenia trzyma osobne repo `kostecki-infra`, a to repo dostarcza artefakt, którego ono oczekuje.** — Archived 2026-11-14 → `context/archive/2026-11-14-public-deploy-with-queue-worker/`. Lesson: —.
+- **S-25: Użytkownik może przeglądać jadłospisy jako kafle tygodni z paskiem wypełnienia, statusem (pigułka z konturem, szkic przerywany) i filtrem statusu jako pigułki, a w jadłospisie widzi siatkę dni × posiłki z kolorowymi komórkami, w szkicu pigułkę „Zmień” i pusty posiłek jako przerywaną ramkę z „Wybierz”, listę zakupów jako kafel obok oraz dialogi generowania, podmiany i potwierdzenia w stylu Spiżarni.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-meal-plans-ui/`. Lesson: —.

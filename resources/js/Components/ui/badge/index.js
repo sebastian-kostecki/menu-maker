@@ -23,6 +23,7 @@ export const badgeVariants = cva(
         warning: "border-transparent bg-warning text-warning-foreground",
         info: "border-transparent bg-info text-info-foreground",
         muted: "border-transparent bg-muted text-muted-foreground",
+        tag: "border-transparent bg-card text-foreground",
       },
       size: {
         default: "px-2.5 py-0.5 text-xs font-semibold",

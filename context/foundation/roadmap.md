@@ -9,7 +9,7 @@ main_goal: quality
 top_blocker: decisions
 milestone_id: editable-meal-plan-draft
 milestone_seq: 3
-milestone_status: open           # open | done
+milestone_status: done           # open | done
 ---
 
 # Roadmap: Menu Maker
@@ -20,7 +20,7 @@ milestone_status: open           # open | done
 
 ## Milestone
 
-**M-3: Jadłospis układany przed wygenerowaniem** — Status: open
+**M-3: Jadłospis układany przed wygenerowaniem** — Status: done
 
 - **Intent:** Użytkownik zanim uruchomi skalowanie AI, widzi wylosowany tydzień jako szkic i układa go po swojemu — podmienia przepisy, zostawia posiłki puste, planuje gotowanie raz na dwa dni — a PDF może zawierać pełne przepisy do gotowania.
 - **Source materials:** opis użytkownika z 2026-11-16 (dosłownie poniżej), doprecyzowany w rozmowie tego samego dnia (MS-06: przepisy na osobnych stronach, dołączane przełącznikiem). `.ai/core/prd.md` służy tylko jako kontekst.
@@ -193,6 +193,7 @@ Brak otwartych pytań. Rozstrzygnięte 2026-11-17:
 
 - **M-1: Od przepisów do PDF z listą zakupów** (`mvp-meal-plan-to-pdf`) — closed 2026-11-15. Zalogowana rodzina generuje tydzień 7×3 z własnych przepisów, ze składnikami skalowanymi przez AI, zsumowaną listą zakupów i jednym PDF-em; aplikacja z workerem kolejki działa publicznie, a błędy trafiają do śledzenia błędów.
 - **M-2: Spójny wygląd aplikacji i PDF-u** (`consistent-design-system`) — closed 2026-11-16. Każdy widok aplikacji (powłoka, pulpit, jadłospisy, przepisy, rodzina, konto) i PDF korzysta z tokenów marki, kolorów pory dnia i wspólnych komponentów; kitchen sink, zrzuty Playwright i `lint:tokens` na całym `resources/js` pilnują tego w CI, a komponenty Breeze są usunięte.
+- **M-3: Jadłospis układany przed wygenerowaniem** (`editable-meal-plan-draft`) — closed 2026-11-17. Wylosowany tydzień jest najpierw szkicem: użytkownik podmienia przepisy, zostawia posiłki puste, planuje ten sam obiad dwa dni z rzędu i kolację na śniadanie następnego dnia, a skalowanie AI rusza dopiero po zatwierdzeniu; PDF może dołączać pełne przepisy na osobnych stronach.
 
 ## Done
 

@@ -15,7 +15,7 @@ All automated rows were re-run on the worktree build (served on `:5174`):
 - visual gate: 56/56 passed;
 - the kitchen-sink folder has 33 baselines.
 
-All 13 Manual rows (1.5–1.6, 2.5–2.6, 3.5–3.7, 4.6–4.8) are still pending. They are unticked, not falsely ticked.
+All 10 Manual rows (1.5–1.6, 2.5–2.6, 3.5–3.7, 4.6–4.8) are still pending. They are unticked, not falsely ticked.
 
 ## Verdicts
 

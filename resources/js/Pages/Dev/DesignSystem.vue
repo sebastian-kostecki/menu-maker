@@ -431,6 +431,16 @@ const showToast = () => {
             {{ item.label }}
           </Badge>
         </div>
+        <div class="flex flex-wrap items-center gap-2" aria-label="Status">
+          <Badge variant="draft" size="status">Szkic</Badge>
+          <Badge variant="muted" size="status">Oczekuje</Badge>
+          <Badge variant="info" size="status">
+            <Loader2 class="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            Generowanie
+          </Badge>
+          <Badge variant="success" size="status">Gotowy</Badge>
+          <Badge variant="destructive" size="status">Błąd</Badge>
+        </div>
       </section>
 
       <section aria-labelledby="ds-komunikaty" class="flex flex-col gap-4">

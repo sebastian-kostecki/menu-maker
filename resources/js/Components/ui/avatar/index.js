@@ -5,9 +5,14 @@ export { default as AvatarFallback } from "./AvatarFallback.vue";
 export { default as AvatarImage } from "./AvatarImage.vue";
 
 export const avatarVariant = cva(
-  "inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 bg-secondary overflow-hidden",
+  "inline-flex items-center justify-center text-foreground select-none shrink-0 overflow-hidden",
   {
     variants: {
+      variant: {
+        default: "bg-secondary font-normal",
+        sticker:
+          "bg-meal-breakfast text-meal-breakfast-foreground border-2 border-foreground font-bold",
+      },
       size: {
         sm: "h-10 w-10 text-xs",
         base: "h-16 w-16 text-2xl",

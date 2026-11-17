@@ -117,19 +117,15 @@ test('chip focus-visible', async ({ page }) => {
 
 test('shell nav hover', async ({ page }) => {
   await openKitchenSink(page);
-  const box = page.getByTestId('shell-sidebar-expanded');
-  await section(page, 'Powłoka')
-    .getByRole('navigation')
-    .first()
-    .getByRole('link', { name: 'Jadłospisy', exact: true })
-    .hover();
+  const box = page.getByTestId('shell-top-bar');
+  await box.getByRole('link', { name: 'Jadłospisy', exact: true }).hover();
   await expect(box).toHaveScreenshot('shell-nav-hover.png');
 });
 
 test('shell nav focus-visible', async ({ page }) => {
   await openKitchenSink(page);
-  const box = page.getByTestId('shell-sidebar-expanded');
-  await box.getByRole('button', { name: 'Zwiń panel boczny' }).focus();
+  const box = page.getByTestId('shell-top-bar');
+  await box.getByRole('link', { name: 'Menu Maker' }).focus();
   // Keyboard navigation (not .focus()) is what triggers :focus-visible.
   await page.keyboard.press('Tab');
   await expect(box.getByRole('link', { name: 'Pulpit', exact: true })).toBeFocused();

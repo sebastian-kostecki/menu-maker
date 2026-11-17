@@ -16,9 +16,11 @@ import {
   AlertDialogTrigger,
 } from '@/Components/ui/alert-dialog'
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
-import AppSidebar from '@/Components/Common/AppSidebar.vue'
+import AppBrand from '@/Components/Common/AppBrand.vue'
+import MainNav from '@/Components/Common/MainNav.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
+import TextLink from '@/Components/Common/TextLink.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
@@ -130,6 +132,7 @@ const colorSwatches = [
 
 const typographyRoles = [
   { role: 'Display', classes: 'text-display', sample: 'Cały tydzień na jednej kartce' },
+  { role: 'Hasło gościa', classes: 'text-hero', sample: 'Cały tydzień jedzenia na jednej kartce.' },
   { role: 'Tytuł strony', classes: 'text-page-title', sample: 'Pulpit' },
   { role: 'Liczba w kafelku', classes: 'text-stat tabular-nums', sample: '21' },
   { role: 'Tytuł sekcji', classes: 'text-section-title', sample: 'Ten tydzień' },
@@ -203,8 +206,6 @@ const shellItems = mainNavigation.map((item) => ({
   current: item.routeName === 'recipes.index',
 }))
 const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
-const shellExpandedCollapsed = ref(false)
-const shellCollapsedCollapsed = ref(true)
 const appCategories = ['breakfast', 'supper', 'dinner']
 const appStatuses = ['draft', 'pending', 'processing', 'done', 'error']
 const appSort = ref({ column: 'name', direction: 'asc' })
@@ -666,6 +667,10 @@ const showToast = () => {
             <AvatarFallback>JK</AvatarFallback>
           </Avatar>
           <span class="text-sm">Jan Kowalski</span>
+          <Avatar variant="sticker">
+            <AvatarFallback>JK</AvatarFallback>
+          </Avatar>
+          <span class="text-sm">Naklejka (pasek górny)</span>
         </div>
       </section>
 
@@ -770,26 +775,22 @@ const showToast = () => {
 
       <section aria-labelledby="ds-powloka" class="flex flex-col gap-4">
         <h2 id="ds-powloka" class="text-lg font-semibold">Powłoka</h2>
-        <div class="flex flex-wrap items-start gap-6">
-          <div data-testid="shell-sidebar-expanded" class="h-96 w-64 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellExpandedCollapsed"
-              collapsible
-              @toggle-collapse="shellExpandedCollapsed = !shellExpandedCollapsed"
-            />
-          </div>
-          <div data-testid="shell-sidebar-collapsed" class="h-96 w-16 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellCollapsedCollapsed"
-              collapsible
-              @toggle-collapse="shellCollapsedCollapsed = !shellCollapsedCollapsed"
-            />
-          </div>
-        </div>
-        <div class="flex items-center">
+        <div data-testid="shell-top-bar" class="flex items-center gap-6 bg-sidebar px-8 py-4">
+          <AppBrand href="#" />
+          <MainNav :items="shellItems" orientation="horizontal" class="mx-auto" />
           <UserMenu :user="shellUser" />
+        </div>
+        <div data-testid="shell-drawer-nav" class="w-72 rounded-lg border-2 border-foreground bg-background p-5">
+          <MainNav :items="shellItems" orientation="vertical" />
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <div data-testid="shell-brand-inverse" class="rounded-lg bg-highlight p-6 text-highlight-foreground">
+            <AppBrand href="#" tone="inverse" />
+          </div>
+          <p class="text-sm">
+            <span class="text-muted-foreground">Masz już konto?</span>
+            <TextLink href="#">Zaloguj się</TextLink>
+          </p>
         </div>
       </section>
 

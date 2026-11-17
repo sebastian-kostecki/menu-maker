@@ -55,7 +55,8 @@ test('meal plan show mobile', async ({ page }) => {
   await expect(page).toHaveScreenshot('meal-plan-show-mobile.png', { fullPage: true });
 });
 
-// The pinned draft starts on 2026-06-29 and uses every recipe of the visual user, so the swap dialog marks each non-current one "jest już".
+// The pinned draft starts on 2026-06-29; apart from Tuesday's Śniadanie (see below) it uses the visual user's recipes, so the swap dialog marks each non-current one "jest już".
+// Monday's Kolacja also feeds Tuesday's Śniadanie: Tuesday's Śniadanie now holds Monday's Kolacja, "Kanapki z pastą jajeczną".
 // Monday's Obiad feeds Tuesday's: the link turns Tuesday's "Kotlety mielone z ziemniakami" into Monday's "Rosół z makaronem", so Kotlety is no longer "jest już" in the Obiad dialog.
 async function openSeededDraft(page: Page) {
   await page.goto('/meal-plans');
@@ -73,6 +74,8 @@ async function openSeededDraft(page: Page) {
   await expect(page.getByText('Bez posiłku').first()).toBeVisible();
   await expect(page.getByText('Z wczoraj', { exact: true })).toBeVisible();
   await expect(page.getByText('Na 2 dni', { exact: true })).toBeVisible();
+  await expect(page.getByText('Z kolacji', { exact: true })).toBeVisible();
+  await expect(page.getByText('Też na śniadanie', { exact: true })).toBeVisible();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
   await expectFigtreeLoaded(page);
 }

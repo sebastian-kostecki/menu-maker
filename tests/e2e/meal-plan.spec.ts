@@ -207,4 +207,50 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(page.getByText('Z wczoraj', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Na 2 dni', { exact: true })).toHaveCount(0);
   await expect(recipeCells).toHaveCount(20);
+
+  // Link Tuesday's Śniadanie to Monday's Kolacja: the cross-category pair shows its own two badges.
+  const mondaySupper = grid.locator('tbody tr').first().locator('td').nth(2);
+  const tuesdayBreakfast = grid.locator('tbody tr').nth(1).locator('td').nth(0);
+  const supperName = (await mondaySupper.locator('a').textContent())!.trim();
+  await tuesdayBreakfast.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).click();
+  const breakfastLinkDialog = page.getByRole('dialog');
+  await breakfastLinkDialog.getByRole('option', { name: /Z kolacji/ }).click();
+  await expect(breakfastLinkDialog).toBeHidden();
+  const expectSupperPair = async () => {
+    await expect(tuesdayBreakfast.locator('a')).toHaveText(supperName);
+    await expect(tuesdayBreakfast.getByText('Z kolacji', { exact: true })).toBeVisible();
+    await expect(mondaySupper.getByText('Też na śniadanie', { exact: true })).toBeVisible();
+    await expect(recipeCells).toHaveCount(20);
+  };
+  await expectSupperPair();
+
+  await page.reload();
+  await expectSupperPair();
+
+  // Approve: Monday's Kolacja holds the amounts for both meals, Tuesday's Śniadanie has none, the totals stay the same.
+  await approve();
+  await expect(recipeCells).toHaveCount(20, { timeout: 15_000 });
+  await expectSupperPair();
+  await expectShoppingList(totalsWithEmptyMeal);
+  const supperToggle = mondaySupper.getByRole('button', { name: /^Składniki/ });
+  await supperToggle.click();
+  await expect(supperToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(mondaySupper.getByTestId('meal-ingredients')).toContainText('Mąka — 400 g');
+  await expect(tuesdayBreakfast.getByRole('button', { name: /^Składniki/ })).toHaveCount(0);
+
+  // Back to a draft and swap Monday's Kolacja: Tuesday's Śniadanie is emptied and both badges go.
+  await page.getByRole('button', { name: 'Wróć do szkicu' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Wróć do szkicu', exact: true }).click();
+  await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
+  await expectSupperPair();
+  await mondaySupper.getByRole('button', { name: /^Zmień przepis: .* – Kolacja$/ }).click();
+  const supperUnlinkDialog = page.getByRole('dialog');
+  // The current recipe is also "jest już" now, and picking it would keep the link.
+  await supperUnlinkDialog.getByRole('option').filter({ hasText: 'jest już', hasNotText: 'obecny' }).first().click();
+  await expect(supperUnlinkDialog).toBeHidden();
+  await expect(tuesdayBreakfast.getByText('Bez posiłku')).toBeVisible();
+  await expect(tuesdayBreakfast.getByRole('button', { name: 'Wybierz' })).toBeVisible();
+  await expect(page.getByText('Z kolacji', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Też na śniadanie', { exact: true })).toHaveCount(0);
+  await expect(recipeCells).toHaveCount(19);
 });

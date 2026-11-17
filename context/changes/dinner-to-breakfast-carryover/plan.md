@@ -450,9 +450,9 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build
-- [x] 2.2 Token lint passes
-- [x] 2.3 Pest suite passes
+- [x] 2.1 Client and SSR bundles build — f4783d8
+- [x] 2.2 Token lint passes — f4783d8
+- [x] 2.3 Pest suite passes — f4783d8
 
 #### Manual
 
@@ -467,11 +467,11 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Seeder runs and its test passes
-- [ ] 3.3 E2E passes
-- [ ] 3.4 Visual gate passes after the deliberate update
-- [ ] 3.5 Full Pest suite passes
+- [x] 3.1 Build passes
+- [x] 3.2 Seeder runs and its test passes
+- [x] 3.3 E2E passes
+- [x] 3.4 Visual gate passes after the deliberate update
+- [x] 3.5 Full Pest suite passes
 
 #### Manual
 

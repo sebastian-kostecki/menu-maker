@@ -54,7 +54,7 @@ it('gives the visual user the five list fixtures, with one deterministic done pl
         ->and($user->recipes()->count())->toBe(21);
 });
 
-it('gives the visual user a pinned draft with 21 meals, one empty and one repeated, and no ingredients', function (): void {
+it('gives the visual user a pinned draft with 21 meals, one empty and two links (Obiad and Kolacja to Śniadanie), and no ingredients', function (): void {
     $user = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail();
     $draft = $user->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
 
@@ -63,7 +63,7 @@ it('gives the visual user a pinned draft with 21 meals, one empty and one repeat
         ->and($draft->updated_at->toDateTimeString())->toBe('2026-06-12 09:31:00')
         ->and($draft->meals()->count())->toBe(21)
         ->and($draft->meals()->whereNotNull('recipe_id')->count())->toBe(20)
-        ->and($draft->meals()->with('recipe')->get()->pluck('recipe.name')->filter()->unique()->count())->toBe(19)
+        ->and($draft->meals()->with('recipe')->get()->pluck('recipe.name')->filter()->unique()->count())->toBe(18)
         ->and(DB::table('meal_ingredients')->whereIn('meal_id', $draft->meals()->pluck('id'))->count())->toBe(0);
 });
 
@@ -75,9 +75,20 @@ it('links Monday supper of the visual draft to Tuesday supper with the same reci
     expect($monday->feeds_meal_id)->toBe($tuesday->id)
         ->and($monday->recipe_id)->not->toBeNull()
         ->and($tuesday->recipe_id)->toBe($monday->recipe_id)
-        ->and($draft->meals()->whereNotNull('feeds_meal_id')->count())->toBe(1)
+        ->and($draft->meals()->whereNotNull('feeds_meal_id')->count())->toBe(2)
         ->and($draft->meals()->count())->toBe(21)
         ->and($draft->meals()->whereNotNull('recipe_id')->count())->toBe(20);
+});
+
+it('links Monday dinner of the visual draft to Tuesday breakfast with the same recipe', function (): void {
+    $draft = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
+    $dinner = $draft->meals()->where('meal_category', 'dinner')->whereDate('meal_date', $draft->start_date->toDateString())->sole();
+    $breakfast = $draft->meals()->where('meal_category', 'breakfast')->whereDate('meal_date', $draft->start_date->copy()->addDay()->toDateString())->sole();
+
+    expect($dinner->feeds_meal_id)->toBe($breakfast->id)
+        ->and($dinner->recipe_id)->not->toBeNull()
+        ->and($breakfast->recipe_id)->toBe($dinner->recipe_id)
+        ->and($dinner->recipe->name)->toBe('Kanapki z pastą jajeczną');
 });
 
 it('leaves Wednesday breakfast of the visual draft without a recipe', function (): void {

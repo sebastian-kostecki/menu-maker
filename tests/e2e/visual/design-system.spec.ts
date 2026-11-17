@@ -54,6 +54,49 @@ test('focus-visible on the outline button', async ({ page }) => {
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
 });
 
+test('button hover on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await expect(outline.locator('..')).toHaveScreenshot('button-hover.png');
+});
+
+test('button pressed on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await page.mouse.down();
+  try {
+    await expect(outline.locator('..')).toHaveScreenshot('button-pressed.png');
+  } finally {
+    await page.mouse.up();
+  }
+});
+
+test('input focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const input = page.locator('#ds-input-default');
+  // Start the Tab sequence from the section heading, the input is the first control after it.
+  await page.locator('#ds-formularze').evaluate((heading) => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  });
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+  await expect(input).toHaveScreenshot('input-focus-visible.png');
+});
+
+test('chip focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const przyciski = section(page, 'Przyciski');
+  // The last enabled button before the chips; Tab skips the disabled ones.
+  await przyciski.getByRole('button', { name: 'Dodaj przepis' }).focus();
+  await page.keyboard.press('Tab');
+  const chip = przyciski.getByRole('button', { name: /^Wszystkie/ }).first();
+  await expect(chip).toBeFocused();
+  await expect(chip.locator('..')).toHaveScreenshot('chip-focus-visible.png');
+});
+
 test('shell nav hover', async ({ page }) => {
   await openKitchenSink(page);
   const box = page.getByTestId('shell-sidebar-expanded');

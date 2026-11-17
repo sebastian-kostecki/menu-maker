@@ -551,10 +551,10 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 3.2 Token scan passes: `vendor/bin/sail npm run lint:tokens`
-- [x] 3.3 No E2E locator uses the old close label: `grep -rn "'Close'" tests/e2e` returns nothing
-- [x] 3.4 Dialog-related E2E specs pass: `meal-plan.spec.ts`, `confirm-dialog.spec.ts` and `app-shell.spec.ts`
+- [x] 3.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 61cb918
+- [x] 3.2 Token scan passes: `vendor/bin/sail npm run lint:tokens` — 61cb918
+- [x] 3.3 No E2E locator uses the old close label: `grep -rn "'Close'" tests/e2e` returns nothing — 61cb918
+- [x] 3.4 Dialog-related E2E specs pass: `meal-plan.spec.ts`, `confirm-dialog.spec.ts` and `app-shell.spec.ts` — 61cb918
 
 #### Manual
 
@@ -566,11 +566,11 @@ None (no data). Views between F-06 and their slice show Spiżarnia primitives in
 
 #### Automated
 
-- [ ] 4.1 Visual gate passes on the regenerated baselines: `npm run test:visual`
-- [ ] 4.2 Full E2E suite passes: `npm run test:e2e`
-- [ ] 4.3 Pest suite passes: `vendor/bin/sail composer test`
-- [ ] 4.4 Build and token scan pass: `vendor/bin/sail npm run build` and `vendor/bin/sail npm run lint:tokens`
-- [ ] 4.5 Kitchen-sink spec has 33 baselines
+- [x] 4.1 Visual gate passes on the regenerated baselines: `npm run test:visual`
+- [x] 4.2 Full E2E suite passes: `npm run test:e2e`
+- [x] 4.3 Pest suite passes: `vendor/bin/sail composer test`
+- [x] 4.4 Build and token scan pass: `vendor/bin/sail npm run build` and `vendor/bin/sail npm run lint:tokens`
+- [x] 4.5 Kitchen-sink spec has 33 baselines
 
 #### Manual
 

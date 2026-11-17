@@ -120,6 +120,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Jak wygląda pasek górny i ekran dzielony na mobile (makiety tylko desktop 1280 px)? — Owner: user. Block: no.
 - **Risk:** Zastępuje panel boczny, więc dotyka każdej strony i zrzutów powłoki i konta; idzie przed widokami, żeby SP-04…SP-07 odświeżały zrzuty tylko raz, już w nowej powłoce.
 - **Carry-over z F-05 (impl-review):** `--primary` = `--foreground`, więc `hover:text-primary` nic nie robi — logo w `GuestLayout.vue:16` potrzebuje niekolorowej wskazówki hover; aktywna pozycja nawigacji (`AppSidebar.vue:58`) jest na `bg-accent` (żółty = `--warning`), a pozycje mają 12 px zamiast 8 px.
+- **Carry-over z F-06:** zdjąć `shadow-none` z `Card` w `GuestLayout.vue:28` (kafel ma już cień naklejki); przycisk zamknięcia `Sheet` (okrągły `secondary` w rogu) ułożyć nad nowym nagłówkiem szuflady.
 - **Status:** proposed
 
 ### S-23: Pulpit Spiżarni
@@ -134,6 +135,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Jak „Ten tydzień” pokazuje pusty posiłek, powtórzony obiad i kolację na śniadanie (M-3)? — Owner: user. Block: no (domyślnie tak jak siatka jadłospisu).
 - **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
 - **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
+- **Carry-over z F-06:** `CardContent` ma `p-6 pt-0` (bez nagłówka karty), więc zawartość `StatCard` nie ma górnego odstępu — dać jej własny padding.
 - **Status:** proposed
 
 ### S-24: Przepisy w Spiżarni
@@ -149,6 +151,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no.
 - **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
 - **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
+- **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
 - **Status:** proposed
 
 ### S-25: Jadłospisy w Spiżarni
@@ -163,6 +166,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Jak siatka dni × posiłki układa się na mobile i jak wyglądają w niej oznaczenia powtórki i „z kolacji”, których makiety mogą nie pokazywać? — Owner: user. Block: no.
 - **Risk:** Rdzeń produktu z największą liczbą stanów (szkic, w trakcie, gotowy, błąd, pusty posiłek, powiązania) i najwięcej zrzutów do odświeżenia; zachowanie i testy E2E bez zmian.
 - **Carry-over z F-05 (impl-review):** przełącznik „Składniki” (`MealPlanGrid.vue:60`, `text-primary`) nie odróżnia się już od tekstu; `MealPlans/Index.vue:18` i `MealPlans/Show.vue:56` mają `rounded-lg` = 20 px; paski kategorii w siatce są już na `border-meal-*` (poprawione w F-05).
+- **Carry-over z F-06:** filtr statusu jadłospisów z `Select` na `Toggle`; pusty posiłek i „Wybierz” na wariant `dashed` przycisku.
 - **Status:** proposed
 
 ### S-26: Rodzina i profil w Spiżarni
@@ -176,6 +180,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:** —
 - **Risk:** Członkowie rodziny nie mają dziś speca wizualnego, więc wycinek dokłada go, żeby restyle był pilnowany jak pozostałe widoki.
 - **Carry-over z F-05 (impl-review):** `FamilyMembers/Index.vue:61` ma `rounded-lg overflow-hidden` = 20 px.
+- **Carry-over z F-06:** przerywany kafel „Dodaj członka rodziny” zbudować na wariancie `dashed` przycisku.
 - **Status:** proposed
 
 ## Backlog Handoff

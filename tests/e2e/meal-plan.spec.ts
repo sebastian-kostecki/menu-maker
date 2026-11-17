@@ -207,4 +207,61 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(page.getByText('Z wczoraj', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Na 2 dni', { exact: true })).toHaveCount(0);
   await expect(recipeCells).toHaveCount(20);
+
+  // Link Tuesday's Śniadanie to Monday's Kolacja: the cross-category pair shows its own two badges.
+  const mondayKolacja = grid.locator('tbody tr').first().locator('td').nth(2);
+  const tuesdaySniadanie = grid.locator('tbody tr').nth(1).locator('td').nth(0);
+  const kolacjaName = (await mondayKolacja.locator('a').textContent())!.trim();
+  await tuesdaySniadanie.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).click();
+  const sniadanieLinkDialog = page.getByRole('dialog');
+  await sniadanieLinkDialog.getByRole('option', { name: /Z kolacji/ }).click();
+  await expect(sniadanieLinkDialog).toBeHidden();
+  const expectKolacjaPair = async () => {
+    await expect(tuesdaySniadanie.locator('a')).toHaveText(kolacjaName);
+    await expect(tuesdaySniadanie.getByText('Z kolacji', { exact: true })).toBeVisible();
+    await expect(mondayKolacja.getByText('Też na śniadanie', { exact: true })).toBeVisible();
+    await expect(recipeCells).toHaveCount(20);
+  };
+  await expectKolacjaPair();
+
+  await page.reload();
+  await expectKolacjaPair();
+
+  // Reopen Tuesday's Śniadanie: the "Z kolacji" item carries its hint and is marked as the current choice.
+  await tuesdaySniadanie.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).click();
+  const linkedSniadanieOption = sniadanieLinkDialog.getByRole('option', { name: /Z kolacji/ });
+  await expect(linkedSniadanieOption).toContainText(`Z kolacji: ${kolacjaName}`);
+  await expect(linkedSniadanieOption).toContainText('Gotujemy raz, zostaje na śniadanie');
+  await expect(linkedSniadanieOption).toContainText('obecny');
+  // The always-open recipe list hides the rest of the dialog from the accessibility tree and keeps Escape to itself.
+  await sniadanieLinkDialog.getByRole('button', { name: 'Close', includeHidden: true }).click();
+  await expect(sniadanieLinkDialog).toBeHidden();
+
+  // Approve: Monday's Kolacja holds the amounts for both meals, Tuesday's Śniadanie has none, the totals stay the same.
+  await approve();
+  await expect(recipeCells).toHaveCount(20, { timeout: 15_000 });
+  await expectKolacjaPair();
+  await expectShoppingList(totalsWithEmptyMeal);
+  const kolacjaToggle = mondayKolacja.getByRole('button', { name: /^Składniki/ });
+  await kolacjaToggle.click();
+  await expect(kolacjaToggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(mondayKolacja.getByTestId('meal-ingredients')).toContainText('Mąka — 400 g');
+  await expect(tuesdaySniadanie.getByRole('button', { name: /^Składniki/ })).toHaveCount(0);
+
+  // Back to a draft and swap Monday's Kolacja: it warns about Tuesday's Śniadanie, which is emptied, and both badges go.
+  await page.getByRole('button', { name: 'Wróć do szkicu' }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Wróć do szkicu', exact: true }).click();
+  await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
+  await expectKolacjaPair();
+  await mondayKolacja.getByRole('button', { name: /^Zmień przepis: .* – Kolacja$/ }).click();
+  const kolacjaUnlinkDialog = page.getByRole('dialog');
+  await expect(kolacjaUnlinkDialog.getByText(/^Zmiana opróżni śniadanie z .+, które jest „z kolacji”\.$/)).toBeVisible();
+  // The current recipe is also "jest już" now, and picking it would keep the link.
+  await kolacjaUnlinkDialog.getByRole('option').filter({ hasText: 'jest już', hasNotText: 'obecny' }).first().click();
+  await expect(kolacjaUnlinkDialog).toBeHidden();
+  await expect(tuesdaySniadanie.getByText('Bez posiłku')).toBeVisible();
+  await expect(tuesdaySniadanie.getByRole('button', { name: 'Wybierz' })).toBeVisible();
+  await expect(page.getByText('Z kolacji', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Też na śniadanie', { exact: true })).toHaveCount(0);
+  await expect(recipeCells).toHaveCount(19);
 });

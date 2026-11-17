@@ -179,7 +179,11 @@ class E2eMealPlanSeeder extends Seeder
             } elseif ($fixture['status'] === 'draft') {
                 // Wednesday's breakfast stays empty, so the visual draft shows the "Bez posiłku" cell.
                 // Monday's Obiad (supper) is cooked once for Tuesday's, so the draft shows "Na 2 dni" and "Z wczoraj".
-                $this->attachPinnedMeals($user, $mealPlan, [[MealCategory::Breakfast->value, 2]], [[MealCategory::Supper->value, 0]]);
+                // Monday's Kolacja (dinner) also feeds Tuesday's Śniadanie, so it shows "Też na śniadanie" and "Z kolacji".
+                $this->attachPinnedMeals($user, $mealPlan, [[MealCategory::Breakfast->value, 2]], [
+                    [MealCategory::Supper->value, 0, MealCategory::Supper->value],
+                    [MealCategory::Dinner->value, 0, MealCategory::Breakfast->value],
+                ]);
             } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
             }
@@ -190,7 +194,7 @@ class E2eMealPlanSeeder extends Seeder
      * Give the plan one pinned meal per category and day: the user's recipes in the visualRecipes() order, no scaling.
      *
      * @param  list<array{0: string, 1: int}>  $emptySlots  `[category, day offset]` pairs that get a meal without a recipe
-     * @param  list<array{0: string, 1: int}>  $links  `[category, from offset]` pairs: the meal on the next day gets the source's recipe and the source feeds it
+     * @param  list<array{0: string, 1: int, 2: string}>  $links  `[from category, from offset, to category]` triples: the `to category` meal on the next day gets the source's recipe and the source feeds it
      */
     private function attachPinnedMeals(User $user, MealPlan $plan, array $emptySlots = [], array $links = []): void
     {
@@ -214,9 +218,9 @@ class E2eMealPlanSeeder extends Seeder
             }
         }
 
-        foreach ($links as [$category, $fromOffset]) {
+        foreach ($links as [$category, $fromOffset, $toCategory]) {
             $source = $created[$category.':'.$fromOffset];
-            $target = $created[$category.':'.($fromOffset + 1)];
+            $target = $created[$toCategory.':'.($fromOffset + 1)];
 
             $target->update(['recipe_id' => $source->recipe_id]);
             $source->update(['feeds_meal_id' => $target->id]);

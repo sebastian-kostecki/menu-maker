@@ -434,3 +434,59 @@ it('a linked pair is one use on the recipe page labelled na 2 dni', function ():
         ->and($recipes[0]->ingredientGroups[0]->dayLabels)->toBe(['Poniedziałek 16.11 (na 2 dni)'])
         ->and($recipes[0]->ingredientGroups[0]->lines)->toBe(['Mąka — 200 g']);
 });
+
+/**
+ * Monday's Kolacja (cooked) feeds Tuesday's Śniadanie (carried over); the recipe has Mąka 100 g and the owner has no family.
+ */
+function linkedKolacjaPlan(User $user): MealPlan
+{
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->dinner()->for($user)->create(['name' => 'Leczo']);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    $cooked = Meal::query()->where('meal_plan_id', $plan->id)->where('meal_date', '2026-11-16')->firstOrFail();
+    $carriedOver = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => '2026-11-17',
+        'meal_category' => 'breakfast',
+    ]);
+    $cooked->update(['feeds_meal_id' => $carriedOver->id]);
+
+    return snapshotMealIngredients($plan);
+}
+
+it('a Śniadanie carried over from Kolacja prints Z kolacji in the breakfast category with an empty ingredients cell', function (): void {
+    $plan = linkedKolacjaPlan(User::factory()->create());
+    $document = app(MealPlanPdfExporter::class)->document($plan->fresh());
+    $meal = $document->days[1]->meals[0];
+
+    $html = view('pdf.meal-plan', ['document' => $document])->render();
+
+    expect($meal->recipeName)->toBe('Leczo')
+        ->and($meal->categoryValue)->toBe('breakfast')
+        ->and($meal->marker)->toBe('Z kolacji')
+        ->and($meal->ingredients)->toBe([])
+        ->and($meal->carriedOver)->toBeTrue()
+        ->and($html)->toMatch('#<span class="meta">Z kolacji</span></td>\s*<td></td>#');
+});
+
+it('a Kolacja feeding breakfast prints Też na śniadanie with its doubled lines', function (): void {
+    $plan = linkedKolacjaPlan(User::factory()->create());
+
+    $meal = app(MealPlanPdfExporter::class)->document($plan->fresh())->days[0]->meals[0];
+
+    expect($meal->marker)->toBe('Też na śniadanie')
+        ->and($meal->ingredients)->toBe(['Mąka — 200 g']);
+});
+
+it('a Kolacja carried to breakfast is one use on the recipe page labelled też na śniadanie', function (): void {
+    $plan = linkedKolacjaPlan(User::factory()->create());
+
+    $recipes = app(MealPlanPdfExporter::class)->document($plan->fresh(), true)->recipes;
+
+    expect($recipes)->toHaveCount(1)
+        ->and($recipes[0]->ingredientGroups)->toHaveCount(1)
+        ->and($recipes[0]->ingredientGroups[0]->dayLabels)->toBe(['Poniedziałek 16.11 (też na śniadanie)'])
+        ->and($recipes[0]->ingredientGroups[0]->lines)->toBe(['Mąka — 200 g']);
+});

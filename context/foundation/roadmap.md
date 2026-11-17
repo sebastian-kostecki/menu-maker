@@ -53,7 +53,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | done |
-| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | ready |
+| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | done |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
 ## Streams
@@ -142,7 +142,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: ten sam mechanizm co S-19, ilości liczone tak samo (kolacja przeskalowana na oba posiłki, śniadanie bez własnych składników).
   - Rozstrzygnięte 2026-11-16: śniadanie z przepisem kategorii „kolacja” ma na ekranie i w PDF kolor pory dnia komórki (śniadanie) z dopiskiem „z kolacji”.
 - **Risk:** Po S-19, bo rozszerza jego mechanizm powiązania o parę posiłków z różnych kategorii i dni; ryzykiem jest tylko prezentacja kategorii, nie ilości.
-- **Status:** ready
+- **Status:** done
 
 ### S-21: PDF z przepisami na osobnych stronach
 
@@ -196,6 +196,7 @@ Brak otwartych pytań. Rozstrzygnięte 2026-11-17:
 
 ## Done
 
+- **S-20: Użytkownik może w szkicu połączyć kolację z danego dnia ze śniadaniem następnego dnia; śniadanie pokazuje danie z kolacji z oznaczeniem, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-17-dinner-to-breakfast-carryover/`. Lesson: —.
 - **S-19: Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-16-meal-plan-repeat-dinner/`. Lesson: —.
 - **S-18: Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-empty-slot/`. Lesson: —.
 - **S-21: Użytkownik może przy „Pobierz PDF” wybrać, czy dołączyć przepisy; tabela jadłospisu nie ma już długiego tekstu przygotowania, a dołączone przepisy (składniki z ilościami i sposób wykonania) są na osobnych stronach, każdy raz, nawet gdy występuje w tygodniu kilka razy.** — Archived 2026-11-16 → `context/archive/2026-11-16-pdf-recipe-pages/`. Lesson: —.

@@ -36,7 +36,7 @@ it('says the amounts of an Obiad cooked for two days are doubled when there is n
     $plan->setRelation('meals', collect([new Meal(['feeds_meal_id' => 2]), new Meal]));
 
     expect(ScalingNotices::for($plan)['notices'])->toBe([
-        'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla obiadów na 2 dni — podwójnie.',
+        'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla dań gotowanych raz na dwa posiłki — podwójnie.',
     ]);
 });
 

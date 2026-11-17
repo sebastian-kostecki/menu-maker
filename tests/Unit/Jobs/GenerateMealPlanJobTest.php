@@ -276,3 +276,24 @@ it('a plan with an empty meal writes ingredients only for filled meals and ends 
         ->and(MealIngredient::query()->where('meal_id', $emptyMeal->id)->count())->toBe(0)
         ->and(MealIngredient::query()->whereIn('meal_id', $mealPlan->meals()->pluck('id'))->count())->toBe(1);
 });
+
+it('a plan with a Kolacja carried to breakfast ends done with rows only on the Kolacja', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->dinner()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $mealPlan = mealPlanWithRecipes($user, 'pending', $recipe);
+    $kolacja = $mealPlan->meals()->sole();
+    $sniadanie = Meal::query()->create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => $mealPlan->start_date->copy()->addDay(),
+        'meal_category' => 'breakfast',
+    ]);
+    $kolacja->update(['feeds_meal_id' => $sniadanie->id]);
+
+    (new GenerateMealPlanJob($mealPlan))->handle(app(MealIngredientScaler::class));
+
+    expect($mealPlan->fresh()->status)->toBe('done')
+        ->and(MealIngredient::query()->where('meal_id', $kolacja->id)->count())->toBe(1)
+        ->and(MealIngredient::query()->where('meal_id', $sniadanie->id)->count())->toBe(0);
+});

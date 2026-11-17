@@ -32,7 +32,7 @@ final class ScalingNotices
 
         if ($status === ScalingOutcome::STATUS_AS_WRITTEN) {
             $notices[] = self::hasLinkedMeals($mealPlan)
-                ? 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla obiadów na 2 dni — podwójnie.'
+                ? 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach, a dla dań gotowanych raz na dwa posiłki — podwójnie.'
                 : 'Dodaj członków rodziny, aby przeliczyć składniki. Ilości są podane jak w przepisach.';
         }
 

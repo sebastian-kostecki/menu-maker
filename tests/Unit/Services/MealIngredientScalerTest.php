@@ -15,6 +15,7 @@ use App\Services\IngredientScaling\MealIngredientScaler;
 use App\Services\IngredientScaling\RefinementConfigurationException;
 use App\Services\IngredientScaling\RefinementFailedException;
 use App\Services\IngredientScaling\RefinementItem;
+use App\Services\IngredientScaling\ScalingCalculator;
 use App\Services\IngredientScaling\ScalingOutcome;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -427,4 +428,32 @@ it('refinement items carry the doubled quantity', function (): void {
 
     expect($refiner->received[0])->toHaveCount(1)
         ->and($refiner->received[0][0]->computedQuantity)->toBe('400.00');
+});
+
+it('a Kolacja feeding the next Śniadanie gets twice the single-meal amounts and the Śniadanie gets no rows', function (): void {
+    $user = User::factory()->create();
+    seedTwoAdultFamily($user);
+    $recipe = Recipe::factory()->dinner()->for($user)->create(['calories' => '810']);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    $plan = scalerPlan($user);
+    $kolacja = addMealOf($plan, $recipe);
+    $sniadanie = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => '2026-11-17',
+        'meal_category' => 'breakfast',
+    ]);
+    $kolacja->update(['feeds_meal_id' => $sniadanie->id]);
+
+    app(MealIngredientScaler::class)->scale($plan);
+
+    $row = $kolacja->ingredients()->sole();
+    expect($row->recipe_quantity)->toBe('100.00')
+        ->and($row->computed_quantity)->toBe('400.00')
+        ->and($row->quantity)->toBe('400.00')
+        ->and($sniadanie->ingredients()->count())->toBe(0);
+});
+
+it('breakfast and dinner have the same kcal share', function (): void {
+    expect(ScalingCalculator::MEAL_SHARES['breakfast'])->toBe(ScalingCalculator::MEAL_SHARES['dinner']);
 });

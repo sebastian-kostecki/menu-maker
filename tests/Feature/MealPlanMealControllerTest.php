@@ -376,6 +376,111 @@ it('linking is refused for a breakfast, a non-consecutive day, an empty previous
     expect($wednesday->fresh()->recipe_id)->not->toBe($monday->recipe_id);
 });
 
+/**
+ * A plan with Monday's Kolacja and Tuesday's Śniadanie, plus a spare Kolacja and a spare Śniadanie recipe.
+ *
+ * @return array{0: MealPlan, 1: Meal, 2: Meal, 3: Recipe, 4: Recipe}
+ */
+function planWithKolacjaAndSniadanie(User $user, string $status = 'draft'): array
+{
+    $plan = mealPlanWithRecipes($user, $status, Recipe::factory()->dinner()->for($user)->create(), Recipe::factory()->breakfast()->for($user)->create());
+    [$kolacja, $sniadanie] = $plan->meals()->orderBy('meal_date')->get()->all();
+
+    return [$plan, $kolacja, $sniadanie, Recipe::factory()->dinner()->for($user)->create(), Recipe::factory()->breakfast()->for($user)->create()];
+}
+
+it("owner links Tuesday's Śniadanie to Monday's Kolacja", function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $sniadanie]),
+        ['from_meal_id' => $kolacja->id],
+    )->assertOk()
+        ->assertJsonPath('data.meals.0.feeds_meal_id', $sniadanie->id)
+        ->assertJsonPath('data.meals.0.from_meal_id', null)
+        ->assertJsonPath('data.meals.1.feeds_meal_id', null)
+        ->assertJsonPath('data.meals.1.from_meal_id', $kolacja->id);
+
+    expect($sniadanie->fresh()->recipe_id)->toBe($kolacja->recipe_id)
+        ->and($sniadanie->fresh()->meal_category)->toBe('breakfast')
+        ->and($kolacja->fresh()->feeds_meal_id)->toBe($sniadanie->id);
+});
+
+it('linking fills an empty Śniadanie', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $sniadanie->update(['recipe_id' => null]);
+
+    linkMeals($this->user, $plan, $kolacja, $sniadanie);
+
+    expect($sniadanie->fresh()->recipe_id)->toBe($kolacja->recipe_id)
+        ->and($kolacja->fresh()->feeds_meal_id)->toBe($sniadanie->id);
+});
+
+it('swapping or emptying the Kolacja empties the carried-over Śniadanie and drops the link', function (bool $empty): void {
+    [$plan, $kolacja, $sniadanie, $spareKolacja] = planWithKolacjaAndSniadanie($this->user);
+    linkMeals($this->user, $plan, $kolacja, $sniadanie);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $kolacja]),
+        ['recipe_id' => $empty ? null : $spareKolacja->id],
+    )->assertOk();
+
+    expect($kolacja->fresh()->recipe_id)->toBe($empty ? null : $spareKolacja->id)
+        ->and($kolacja->fresh()->feeds_meal_id)->toBeNull()
+        ->and($sniadanie->fresh()->recipe_id)->toBeNull();
+})->with([true, false]);
+
+it('swapping or emptying the carried-over Śniadanie drops the link and keeps the Kolacja', function (bool $empty): void {
+    [$plan, $kolacja, $sniadanie, , $spareSniadanie] = planWithKolacjaAndSniadanie($this->user);
+    linkMeals($this->user, $plan, $kolacja, $sniadanie);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $sniadanie]),
+        ['recipe_id' => $empty ? null : $spareSniadanie->id],
+    )->assertOk();
+
+    expect($kolacja->fresh()->feeds_meal_id)->toBeNull()
+        ->and($kolacja->fresh()->recipe_id)->not->toBeNull()
+        ->and($sniadanie->fresh()->recipe_id)->toBe($empty ? null : $spareSniadanie->id);
+})->with([true, false]);
+
+it('a carried-over Śniadanie cannot be given the Kolacja recipe through recipe_id', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    linkMeals($this->user, $plan, $kolacja, $sniadanie);
+
+    $this->actingAs($this->user)->patchJson(
+        route('meal-plans.meals.update', [$plan, $sniadanie]),
+        ['recipe_id' => $kolacja->recipe_id],
+    )->assertStatus(422)->assertJsonValidationErrors(['recipe_id' => UpdateMealRequest::INVALID_RECIPE_MESSAGE]);
+
+    expect($kolacja->fresh()->feeds_meal_id)->toBe($sniadanie->id)
+        ->and($sniadanie->fresh()->recipe_id)->toBe($kolacja->recipe_id);
+});
+
+it('an Obiad link and a Kolacja link coexist on the same days', function (): void {
+    [$plan, $mondayKolacja, $tuesdaySniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $mondayObiad = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => Recipe::factory()->supper()->for($this->user)->create()->id,
+        'meal_date' => $mondayKolacja->meal_date,
+        'meal_category' => 'supper',
+    ]);
+    $tuesdayObiad = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => Recipe::factory()->supper()->for($this->user)->create()->id,
+        'meal_date' => $tuesdaySniadanie->meal_date,
+        'meal_category' => 'supper',
+    ]);
+
+    linkMeals($this->user, $plan, $mondayObiad, $tuesdayObiad);
+    linkMeals($this->user, $plan, $mondayKolacja, $tuesdaySniadanie);
+
+    expect($mondayObiad->fresh()->feeds_meal_id)->toBe($tuesdayObiad->id)
+        ->and($mondayKolacja->fresh()->feeds_meal_id)->toBe($tuesdaySniadanie->id)
+        ->and($tuesdayObiad->fresh()->recipe_id)->toBe($mondayObiad->recipe_id)
+        ->and($tuesdaySniadanie->fresh()->recipe_id)->toBe($mondayKolacja->recipe_id);
+});
+
 it('linking a meal of another plan is refused', function (): void {
     [$plan, , $tuesday] = planWithThreeObiady($this->user);
     [, $otherMonday] = planWithThreeObiady($this->user);

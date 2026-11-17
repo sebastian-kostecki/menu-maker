@@ -1,7 +1,7 @@
 ---
 change_id: spizarnia-meal-plans-ui
 title: Spizarnia meal plans UI
-status: implementing
+status: implemented
 created: 2026-11-17
 updated: 2026-11-17
 ---

@@ -525,13 +525,13 @@ None. There are no data or route changes. Bookmarked URLs with `perPage`, `sort=
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build
-- [x] 2.2 Token lint passes and its self-test passes
-- [x] 2.3 Stripe, primary-hover and bottom back button are gone
-- [x] 2.4 Functional E2E spec untouched
-- [x] 2.5 Pest suite passes unchanged
-- [x] 2.6 Full E2E suite passes after re-seeding
-- [x] 2.7 Visual gate is green after a deliberate refresh, with only the listed PNGs changed
+- [x] 2.1 Client and SSR bundles build — 5117a32
+- [x] 2.2 Token lint passes and its self-test passes — 5117a32
+- [x] 2.3 Stripe, primary-hover and bottom back button are gone — 5117a32
+- [x] 2.4 Functional E2E spec untouched — 5117a32
+- [x] 2.5 Pest suite passes unchanged — 5117a32
+- [x] 2.6 Full E2E suite passes after re-seeding — 5117a32
+- [x] 2.7 Visual gate is green after a deliberate refresh, with only the listed PNGs changed — 5117a32
 
 #### Manual
 

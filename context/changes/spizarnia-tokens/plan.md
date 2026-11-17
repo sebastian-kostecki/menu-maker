@@ -473,8 +473,8 @@ No data or schema changes. Rollback means reverting the commits; the baselines r
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 3692281
+- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens` — 3692281
 
 #### Manual
 
@@ -484,10 +484,10 @@ No data or schema changes. Rollback means reverting the commits; the baselines r
 
 #### Automated
 
-- [ ] 3.1 Visual gate passes on the refreshed baselines: `npm run test:visual`
-- [ ] 3.2 E2E suite passes against Sail after re-seeding `E2eMealPlanSeeder`: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e`
-- [ ] 3.3 Full Pest suite still passes: `vendor/bin/sail composer test`
-- [ ] 3.4 Token lint passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 3.1 Visual gate passes on the refreshed baselines: `npm run test:visual`
+- [ ] 3.2 E2E suite passes against Sail after re-seeding `E2eMealPlanSeeder`: `E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:${APP_PORT} npm run test:e2e` — NOT GREEN: 35/36 pass; firefox meal-plan.spec.ts:3 fails identically on pre-change tokens (pre-existing)
+- [x] 3.3 Full Pest suite still passes: `vendor/bin/sail composer test`
+- [x] 3.4 Token lint passes: `vendor/bin/sail npm run lint:tokens`
 
 #### Manual
 

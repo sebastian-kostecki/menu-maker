@@ -16,6 +16,8 @@ kitchen_sink: resources/js/Pages/Dev/DesignSystem.vue   # potwierdzony, D-4
 > Edit-in-place: ten plik opisuje stan docelowy i kolejność dojścia do niego. Każdy krok rolloutu to osobna zmiana 10x (`/10x-new` → `/10x-research` → `/10x-plan` → `/10x-implement`), widoki przez `/10x-ui`.
 >
 > **2026-11-17: wybrany nowy kierunek wyglądu, C · Spiżarnia (D-10).** Sekcje 4–6 opisują stan wdrożony w M-2 (zieleń ziół, Figtree) i obowiązują, dopóki zmiany z §10.6 ich nie zastąpią. Cel i kolejność wdrożenia są w §10.
+>
+> **2026-11-17: SP-01 (`spizarnia-tokens`) jest zrobiony.** Tokeny w `app.css`, font i lustro PDF mają już wartości Spiżarni (§10.2–10.3), więc §4.2–4.6 opisują poprzedni stan (Zielnik). Obowiązującą mapę tokenów na klasy Tailwinda opisują §10.2 i §10.3.
 
 ## 1. Po co i dla kogo
 
@@ -158,6 +160,8 @@ Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warni
 
 ### 4.8 Dark mode
 
+> Wartości `.dark` poniżej są historyczne (Zielnik): blok `.dark` został usunięty z `app.css` w SP-01 (D-14). Ciemna Spiżarnia to osobna zmiana po M-4.
+
 Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe klasy `dark:` usuwamy przy migracji każdego widoku; blok `.dark` w `app.css` zostaje z wartościami OKLCH odpowiadającymi palecie z 4.2, żeby dark mode był później zmianą wyłącznie w tokenach i przełączniku, bez dotykania widoków.
 
 Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
@@ -224,7 +228,7 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
 
 `resources/views/pdf/meal-plan.blade.php` (dompdf) nie czyta zmiennych CSS z aplikacji. Kontrakt:
 
-- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
+- PDF używa **hexów z tabeli w §10.2** (od SP-01; wcześniej z 4.2–4.4) jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
 - Lustro obejmuje 12 tokenów: `--foreground`, `--muted`, `--muted-foreground`, `--border`, `--warning`, `--warning-foreground` oraz `--meal-breakfast`, `--meal-supper`, `--meal-dinner` wraz z ich `-foreground`. Żaden inny kolor nie jest dozwolony w szablonie, także w `style=""`.
 - Papier jest biały (`--card`), nie `--background`: ciepłe tło ekranu nie trafia do druku.
 - Kategoria w tabeli PDF: para `--meal-*` (tło i tekst) w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
@@ -251,7 +255,7 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
    - w widokach zakaz klas palety Tailwinda, hexów, wartości arbitralnych i `dark:`;
    - nowy wzorzec trafia do kitchen sink.
 2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Ma 14 sekcji (Kolory, Typografia, Kształt i cienie, Przyciski, Odznaki, Komunikaty, Formularze, Karta i tabela, Ładowanie i rozwijanie, Paginacja, Nakładki, Powłoka, Komponenty aplikacji, Jadłospis) z komponentami z 5.1 i 5.2 w stanach z 5.4. Nie ma layoutu aplikacji i nie wymaga logowania.
-3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 28 zrzutów `toHaveScreenshot`: 14 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło), hover i `focus-visible` pozycji nawigacji powłoki oraz 11 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, `ConfirmDialog` z polem, sheet, menu, menu użytkownika, select, combobox, toast). Tylko chromium, zero tolerancji na liczbę różniących się pikseli (`maxDiffPixels: 0` w projekcie `visual`) przy minimalnym progu koloru `threshold: 0.005`: przepuszcza on wyłącznie szum ±1 poziomu RGB na wygładzanych krawędziach, który ten sam obraz Dockera daje na różnych procesorach (runner GitHuba vs WSL), a różnicę od ok. 2 poziomów jasności już odrzuca, a spec sprawdza, że Figtree faktycznie się załadował. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera. Drugi spec, `tests/e2e/visual/app-shell.spec.ts`, robi 4 zrzuty prawdziwych stron (logowanie, pulpit desktop, pulpit mobile, szuflada mobile) ze stałym zegarem (`page.clock.setFixedTime`) i zalogowany jako zasiany użytkownik `e2e-planner-visual@example.com` (`E2eMealPlanSeeder`). Trzeci spec, `tests/e2e/visual/account.spec.ts`, robi 2 zrzuty ekranów konta (`guest-register`, `profile-desktop`) w tej samej konfiguracji; logowanie współdzielą oba specy przez `tests/e2e/visual/support/auth.ts`. Czwarty spec, `tests/e2e/visual/meal-plans-index.spec.ts` (S-10), robi 4 zrzuty listy jadłospisów na tych samych zasadach (desktop, mobile, pusty stan po filtrze „Oczekuje”, otwarty dialog generowania), na czterech zasianych jadłospisach tego użytkownika (2 gotowe, 1 w trakcie generowania, 1 z błędem; stałe daty i znaczniki czasu). Piąty spec, `tests/e2e/visual/recipes.spec.ts` (S-11), robi 7 zrzutów widoków przepisów (lista desktop i mobile, lista bez wyników, szczegóły desktop i mobile, formularz tworzenia desktop i mobile); `E2eMealPlanSeeder` zasiewa dla tego użytkownika stałe 21 przepisów (po 7 na kategorię, stałe nazwy, porcje i instrukcje, `created_at` i `updated_at` o 12:00 UTC w kolejnych dniach), żeby zrzuty były identyczne lokalnie i w CI. Szósty spec, `tests/e2e/visual/meal-plan-show.spec.ts` (S-09), robi 2 zrzuty prawdziwej strony jadłospisu (`meal-plan-show-desktop.png` z rozwiniętymi składnikami pierwszej komórki oraz `meal-plan-show-mobile.png`); adres planu czyta z propsów Inertia strony `/meal-plans`, wybierając gotowy jadłospis startujący 2026-06-15 (jeden z fixture'ów listy), który `E2eMealPlanSeeder` buduje deterministycznie z tych samych 21 przypiętych przepisów (po 7 na kategorię w kolejności `created_at desc`) i przelicza `FakeIngredientRefiner`-em; logowanie także przez `tests/e2e/visual/support/auth.ts`.
+3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 29 zrzutów `toHaveScreenshot`: 14 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło), hover i `focus-visible` pozycji nawigacji powłoki oraz 12 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, `ConfirmDialog` z polem, sheet, menu, menu pobierania PDF, menu użytkownika, select, combobox, toast). Tylko chromium, zero tolerancji na liczbę różniących się pikseli (`maxDiffPixels: 0` w projekcie `visual`) przy minimalnym progu koloru `threshold: 0.005`: przepuszcza on wyłącznie szum ±1 poziomu RGB na wygładzanych krawędziach, który ten sam obraz Dockera daje na różnych procesorach (runner GitHuba vs WSL), a różnicę od ok. 2 poziomów jasności już odrzuca, a spec sprawdza (`expectAppFontLoaded` w `tests/e2e/visual/support/fonts.ts`), że Bricolage Grotesque faktycznie się załadował, w wagach 400, 500, 600, 700 i 800. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera. Drugi spec, `tests/e2e/visual/app-shell.spec.ts`, robi 5 zrzutów prawdziwych stron (logowanie, pulpit desktop, pusty pulpit desktop, pulpit mobile, szuflada mobile) ze stałym zegarem (`page.clock.setFixedTime`) i zalogowany jako zasiany użytkownik `e2e-planner-visual@example.com` (`E2eMealPlanSeeder`). Trzeci spec, `tests/e2e/visual/account.spec.ts`, robi 2 zrzuty ekranów konta (`guest-register`, `profile-desktop`) w tej samej konfiguracji; pusty pulpit loguje jako `e2e-dashboard-empty-visual@example.com`, którego seeder zostawia bez przepisów, jadłospisów i członków rodziny; logowanie współdzielą specy przez `tests/e2e/visual/support/auth.ts`. Czwarty spec, `tests/e2e/visual/meal-plans-index.spec.ts` (S-10), robi 4 zrzuty listy jadłospisów na tych samych zasadach (desktop, mobile, pusty stan po filtrze „Oczekuje”, otwarty dialog generowania), na czterech zasianych jadłospisach tego użytkownika (2 gotowe, 1 w trakcie generowania, 1 z błędem; stałe daty i znaczniki czasu). Piąty spec, `tests/e2e/visual/recipes.spec.ts` (S-11), robi 7 zrzutów widoków przepisów (lista desktop i mobile, lista bez wyników, szczegóły desktop i mobile, formularz tworzenia desktop i mobile); `E2eMealPlanSeeder` zasiewa dla tego użytkownika stałe 21 przepisów (po 7 na kategorię, stałe nazwy, porcje i instrukcje, `created_at` i `updated_at` o 12:00 UTC w kolejnych dniach), żeby zrzuty były identyczne lokalnie i w CI. Szósty spec, `tests/e2e/visual/meal-plan-show.spec.ts` (S-09), robi 5 zrzutów prawdziwej strony jadłospisu (`meal-plan-show-desktop.png` z rozwiniętymi składnikami pierwszej komórki, `meal-plan-show-mobile.png` oraz szkic: `meal-plan-draft-desktop.png`, `meal-plan-draft-mobile.png` i `meal-plan-draft-swap-dialog.png` z dialogiem podmiany przepisu); adres planu czyta z propsów Inertia strony `/meal-plans`, wybierając gotowy jadłospis startujący 2026-06-15 (jeden z fixture'ów listy), który `E2eMealPlanSeeder` buduje deterministycznie z tych samych 21 przypiętych przepisów (po 7 na kategorię w kolejności `created_at desc`) i przelicza `FakeIngredientRefiner`-em; logowanie także przez `tests/e2e/visual/support/auth.ts`.
 4. **Skan literałów** — `scripts/lint-tokens.sh` (`npm run lint:tokens`, `grep -P`, bez nowych zależności) na liście z `scripts/lint-tokens.paths` (`*.vue`, `*.js`, `*.ts`; `Components/ui/` zawsze pominięte). Flaguje cztery rodzaje literałów: klasy palety Tailwinda (w tym `white`/`black`), hexy, wartości arbitralne i `dark:`. Kody wyjścia: 0 brak trafień, 1 trafienia, 2 błąd konfiguracji (brak pliku listy, pusta lista, nieistniejąca ścieżka). Skaner ma test własny, `scripts/lint-tokens.test.sh`. Oba kroki (test i skan) działają w CI w zadaniu `frontend-build` (D-6). Lista obejmuje całe `resources/js` (poza `Components/ui/`, które skaner pomija).
 
 ## 8. Rollout
@@ -294,7 +298,7 @@ Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach —
 | D-11 | Źródło prawdy dla wyglądu Spiżarni? | **Potwierdzone 2026-11-17:** artefakt Design System „Menu Maker — Spiżarnia” (§10.1) dla ekranów; ten plik (§10) dla wartości i zasad. Przy rozbieżności wygrywa ten plik. | user | — |
 | D-12 | Kolory kategorii jako pełne bloki zamiast pasteli, także w PDF? | **Potwierdzone 2026-11-17** (część D-10): tak; lustro w `meal-plan.blade.php` i `MealPlanPdfPaletteTest` dostają nowe hexy. | user | SP-01 |
 | D-13 | Strona startowa (ekran 01 artefaktu) w ramach restyle'u? | **Potwierdzone 2026-11-17:** nie; osobna zmiana po M-4, odwracająca D-7. | user | — |
-| D-14 | Dark mode dla Spiżarni? | Otwarte. D-1 nadal obowiązuje (MVP tylko jasny); SP-01 rozstrzyga, czy blok `.dark` dostaje wartości Spiżarni, czy zostaje usunięty do czasu osobnej zmiany. | user | SP-01 |
+| D-14 | Dark mode dla Spiżarni? | Potwierdzone 2026-11-17: blok `.dark` usunięty w SP-01; ciemna Spiżarnia to osobna zmiana po M-4 (D-1 obowiązuje). | user | — |
 
 ## 10. Kierunek C · Spiżarnia (cel M-4)
 
@@ -336,13 +340,20 @@ Nazwy zostają te same co w §4 (komponenty `ui/` nie wymagają zmian nazw). W `
 
 Kształt i cień:
 
-- Promienie: 12px (pola, komórki tygodnia), 20px (kafelki, karty, hero), 24px (dialogi), pełne zaokrąglenie (przyciski, zakładki, filtry, wyszukiwarka, paginacja, odznaki). Dzisiejsze `--radius-md = --radius - 2px` nie daje 12px przy 20px — SP-01 rozpisuje promienie jawnie.
+- Promienie: 12px (pola, komórki tygodnia), 20px (kafelki, karty, hero), 24px (dialogi), pełne zaokrąglenie (przyciski, zakładki, filtry, wyszukiwarka, paginacja, odznaki). SP-01 rozpisał promienie jawnie (zmienna `--radius` zniknęła, bo `--radius-md = --radius - 2px` nie dawał 12px przy 20px); 8px dla `sm` (pozycje menu) to dodatek SP-01 do artefaktu.
 - Kontur 2px `foreground` na kafelkach, przyciskach drugorzędnych, polach i dialogach.
 - Cienie: `0 3px 0 0 foreground` (naklejka: kafelki, przycisk drugorzędny), `0 6px 0 0 foreground` (dialog). Strefa usuwania konta: kontur i cień w `destructive`.
 
+W Tailwindzie (SP-01, `resources/css/app.css`):
+
+- **Kolory:** `bg-sidebar`, `text-sidebar-foreground`, `bg-sidebar-active`, `text-sidebar-active-foreground`, `bg-highlight`, `text-highlight-foreground` i `bg-overlay` (wszystkie przez `--color-*` w `@theme inline`); pozostałe tokeny mają klasy jak dotąd (`bg-meal-breakfast`, `text-meal-breakfast-foreground`…).
+- **Promienie** (jawne, bez `calc()`): `rounded-sm` = 8px, `rounded-md` = 12px, `rounded-lg` = 20px, `rounded-xl` = 24px, `rounded-full` = pełne zaokrąglenie.
+- **Cienie:** `shadow-sticker` = `0 3px 0 0 foreground`, `shadow-dialog` = `0 6px 0 0 foreground`. Nowy `--shadow-*` trzeba dopisać też do `extendTailwindMerge` w `resources/js/lib/utils.js` (klucz `shadow`), inaczej `cn()` weźmie go za kolor cienia i zgubi.
+- `ui/card` zostaje na `rounded-xl` (24px) do SP-02, które zmienia kartę w kafel 20px.
+
 ### 10.3 Typografia
 
-Jeden krój: **Bricolage Grotesque** (zmienna oś opsz, polskie znaki). Zastępuje Figtree w aplikacji; PDF zostaje na DejaVu Sans (§6).
+Jeden krój: **Bricolage Grotesque** (polskie znaki). Zastępuje Figtree w aplikacji; PDF zostaje na DejaVu Sans (§6). Ładowany z Bunny Fonts w wagach 400–800 (`resources/views/app.blade.php`): statyczne cięcia, bez osi `opsz`.
 
 | Rola | Rozmiar / interlinia | Waga | Gdzie |
 | --- | --- | --- | --- |
@@ -353,6 +364,8 @@ Jeden krój: **Bricolage Grotesque** (zmienna oś opsz, polskie znaki). Zastępu
 | Tekst | 15 / 22 px | 400 | Domyślny |
 | Etykieta | 14 / 20 px | 600 | Przyciski, zakładki, etykiety pól |
 | Metadane | 13 / 18 px | 500 | kcal, porcje, daty w `muted-foreground` |
+
+W Tailwindzie każda rola to jedna klasa, niosąca rozmiar, interlinię, odstęp liter i wagę z tabeli: `text-display`, `text-page-title`, `text-stat`, `text-section-title`, `text-body`, `text-label`, `text-meta`. `body` ma domyślnie `text-body` (15/22, 400). `text-stat` nie zawiera `tabular-nums`; dodaje je wywołujący. `text-meta` nie ustawia koloru: `text-muted-foreground` dopisuje wywołujący. Jawne `text-sm`/`text-xs` zostają 14/12 px. Nowa rola trafia do `--text-*` w `app.css` i do listy `text` w `extendTailwindMerge` w `resources/js/lib/utils.js`, inaczej `cn()` weźmie ją za kolor tekstu.
 
 ### 10.4 Zasady
 

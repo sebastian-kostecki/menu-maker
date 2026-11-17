@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,7 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLogContext::class,
         ]);
 
-        $middleware->trustProxies(at: '*');
+        // Traefik reaches the app from the Docker proxy network and passes Cloudflare's
+        // X-Forwarded-For on, so the client IP is the visitor's. Only the client IP and the
+        // scheme are trusted: X-Forwarded-Host and -Port reach the app from the visitor
+        // unchanged, and trusting them would let anyone change the host in generated links.
+        $middleware->trustProxies(
+            at: ['172.16.0.0/12'],
+            headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO,
+        );
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('backup:run --only-db')

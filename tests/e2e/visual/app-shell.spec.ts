@@ -10,16 +10,25 @@ test.skip(
 const MOBILE = { width: 390, height: 844 };
 
 test.beforeEach(async ({ page }) => {
-  // The guest footer prints the current year; pin it so the screenshots stay stable.
+  // Pin the clock so date-dependent dashboard content stays stable.
   await page.clock.setFixedTime(new Date('2026-06-15T10:00:00'));
 });
 
 test('guest login', async ({ page }) => {
   await page.goto('/login');
   await expectAppFontLoaded(page);
-  await expect(page.getByText('© 2026')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Logowanie', level: 1 })).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('guest-login.png', { fullPage: true });
+});
+
+test('guest login mobile', async ({ page }) => {
+  await page.setViewportSize(MOBILE);
+  await page.goto('/login');
+  await expectAppFontLoaded(page);
+  await expect(page.getByRole('heading', { name: 'Logowanie', level: 1 })).toBeVisible();
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('guest-login-mobile.png', { fullPage: true });
 });
 
 test('dashboard desktop', async ({ page }) => {

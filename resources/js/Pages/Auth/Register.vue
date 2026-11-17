@@ -1,9 +1,10 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
+import TextLink from '@/Components/Common/TextLink.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 
 const form = useForm({
     name: '',
@@ -20,7 +21,11 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout
+        title="Rejestracja"
+        description="Konto jest darmowe. Przepisy zostają tylko u Ciebie."
+        slogan="Trzy posiłki dziennie, zero zgadywania przy sklepie."
+    >
         <Head title="Rejestracja" />
 
         <form class="grid gap-4" @submit.prevent="submit">
@@ -53,6 +58,7 @@ const submit = () => {
                 </template>
             </FormField>
 
+            <div class="grid gap-4 sm:grid-cols-2">
             <FormField id="password" label="Hasło" :error="form.errors.password">
                 <template #default="{ id, invalid, describedBy }">
                     <Input
@@ -84,17 +90,16 @@ const submit = () => {
                     />
                 </template>
             </FormField>
-
-            <div class="flex items-center justify-end gap-4">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-muted-foreground underline transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                    Masz już konto?
-                </Link>
-
-                <Button type="submit" :disabled="form.processing">Zarejestruj się</Button>
             </div>
+
+            <Button type="submit" size="lg" class="w-full" :disabled="form.processing">
+                Zarejestruj się
+            </Button>
+
+            <p class="flex gap-1 text-sm">
+                <span class="text-muted-foreground">Masz już konto?</span>
+                <TextLink :href="route('login')">Zaloguj się</TextLink>
+            </p>
         </form>
     </GuestLayout>
 </template>

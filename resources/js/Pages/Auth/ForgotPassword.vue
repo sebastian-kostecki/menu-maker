@@ -1,9 +1,11 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
+import TextLink from '@/Components/Common/TextLink.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import { Alert, AlertDescription } from '@/Components/ui/alert'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
+import { ArrowLeft } from 'lucide-vue-next'
 import { Head, useForm } from '@inertiajs/vue3'
 
 defineProps({
@@ -22,15 +24,13 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout
+        title="Nie pamiętasz hasła?"
+        description="Podaj swój adres e-mail, a wyślemy Ci link do resetu hasła, który pozwoli ustawić nowe."
+    >
         <Head title="Nie pamiętasz hasła?" />
 
-        <p class="mb-4 text-sm text-muted-foreground">
-            Nie pamiętasz hasła? Podaj swój adres e-mail, a wyślemy Ci link do
-            resetu hasła, który pozwoli ustawić nowe.
-        </p>
-
-        <Alert v-if="status" variant="success" class="mb-4">
+        <Alert v-if="status" variant="success">
             <AlertDescription>{{ status }}</AlertDescription>
         </Alert>
 
@@ -50,11 +50,16 @@ const submit = () => {
                 </template>
             </FormField>
 
-            <div class="flex items-center justify-end gap-4">
-                <Button type="submit" :disabled="form.processing">
-                    Wyślij link do resetu hasła
-                </Button>
-            </div>
+            <Button type="submit" size="lg" class="w-full" :disabled="form.processing">
+                Wyślij link do resetu hasła
+            </Button>
+
+            <p class="text-sm">
+                <TextLink :href="route('login')" class="inline-flex items-center gap-2">
+                    <ArrowLeft class="size-4" aria-hidden="true" />
+                    Wróć do logowania
+                </TextLink>
+            </p>
         </form>
     </GuestLayout>
 </template>

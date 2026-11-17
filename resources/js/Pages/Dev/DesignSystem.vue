@@ -20,6 +20,7 @@ import AppBrand from '@/Components/Common/AppBrand.vue'
 import MainNav from '@/Components/Common/MainNav.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
+import TextLink from '@/Components/Common/TextLink.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
@@ -131,6 +132,7 @@ const colorSwatches = [
 
 const typographyRoles = [
   { role: 'Display', classes: 'text-display', sample: 'Cały tydzień na jednej kartce' },
+  { role: 'Hasło gościa', classes: 'text-hero', sample: 'Cały tydzień jedzenia na jednej kartce.' },
   { role: 'Tytuł strony', classes: 'text-page-title', sample: 'Pulpit' },
   { role: 'Liczba w kafelku', classes: 'text-stat tabular-nums', sample: '21' },
   { role: 'Tytuł sekcji', classes: 'text-section-title', sample: 'Ten tydzień' },
@@ -776,6 +778,15 @@ const showToast = () => {
         </div>
         <div data-testid="shell-drawer-nav" class="w-72 rounded-lg border-2 border-foreground bg-background p-5">
           <MainNav :items="shellItems" orientation="vertical" />
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <div data-testid="shell-brand-inverse" class="rounded-lg bg-highlight p-6 text-highlight-foreground">
+            <AppBrand href="#" tone="inverse" />
+          </div>
+          <p class="text-sm">
+            <span class="text-muted-foreground">Masz już konto?</span>
+            <TextLink href="#">Zaloguj się</TextLink>
+          </p>
         </div>
       </section>
 

@@ -533,13 +533,13 @@ The localStorage key `menu-maker:app-shell` is no longer read or written. Existi
 
 #### Automated
 
-- [x] 1.1 Build passes
-- [x] 1.2 Token scan and its self-test pass
-- [x] 1.3 No reference to the removed sidebar remains
-- [x] 1.4 Pest suite passes
-- [x] 1.5 Larastan and Pint pass
-- [x] 1.6 E2E suite passes (top-bar test, drawer, logout)
-- [x] 1.7 Visual gate passes with only the listed baselines refreshed
+- [x] 1.1 Build passes — 23c75ed
+- [x] 1.2 Token scan and its self-test pass — 23c75ed
+- [x] 1.3 No reference to the removed sidebar remains — 23c75ed
+- [x] 1.4 Pest suite passes — 23c75ed
+- [x] 1.5 Larastan and Pint pass — 23c75ed
+- [x] 1.6 E2E suite passes (top-bar test, drawer, logout) — 23c75ed
+- [x] 1.7 Visual gate passes with only the listed baselines refreshed — 23c75ed
 
 #### Manual
 
@@ -553,12 +553,12 @@ The localStorage key `menu-maker:app-shell` is no longer read or written. Existi
 
 #### Automated
 
-- [ ] 2.1 Build passes
-- [ ] 2.2 Token scan and its self-test pass
-- [ ] 2.3 No tagline or footer copy remains
-- [ ] 2.4 Pest suite passes
-- [ ] 2.5 E2E suite passes (register, login, password reset, confirm password)
-- [ ] 2.6 Visual gate passes with 58 shots and exactly the 6 listed baselines changed or added
+- [x] 2.1 Build passes
+- [x] 2.2 Token scan and its self-test pass
+- [x] 2.3 No tagline or footer copy remains
+- [x] 2.4 Pest suite passes
+- [x] 2.5 E2E suite passes (register, login, password reset, confirm password)
+- [x] 2.6 Visual gate passes with 58 shots and exactly the 6 listed baselines changed or added
 
 #### Manual
 

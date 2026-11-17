@@ -31,6 +31,10 @@
   --text-display--line-height: 4.25rem;
   --text-display--letter-spacing: -0.035em;
   --text-display--font-weight: 800;
+  --text-hero: 3rem;
+  --text-hero--line-height: 3.25rem;
+  --text-hero--letter-spacing: -0.035em;
+  --text-hero--font-weight: 800;
   --text-page-title: 2.25rem;
   --text-page-title--line-height: 2.5rem;
   --text-page-title--letter-spacing: -0.03em;

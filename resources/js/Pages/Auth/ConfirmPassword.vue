@@ -17,13 +17,11 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout
+        title="Potwierdź hasło"
+        description="To zabezpieczony obszar aplikacji. Potwierdź hasło, zanim przejdziesz dalej."
+    >
         <Head title="Potwierdź hasło" />
-
-        <p class="mb-4 text-sm text-muted-foreground">
-            To jest zabezpieczony obszar aplikacji. Potwierdź swoje hasło, zanim
-            przejdziesz dalej.
-        </p>
 
         <form class="grid gap-4" @submit.prevent="submit">
             <FormField id="password" label="Hasło" :error="form.errors.password">
@@ -41,9 +39,9 @@ const submit = () => {
                 </template>
             </FormField>
 
-            <div class="flex items-center justify-end gap-4">
-                <Button type="submit" :disabled="form.processing">Potwierdź</Button>
-            </div>
+            <Button type="submit" size="lg" class="w-full" :disabled="form.processing">
+                Potwierdź
+            </Button>
         </form>
     </GuestLayout>
 </template>

@@ -120,7 +120,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Jak wygląda pasek górny i ekran dzielony na mobile (makiety tylko desktop 1280 px)? — Owner: user. Block: no.
 - **Risk:** Zastępuje panel boczny, więc dotyka każdej strony i zrzutów powłoki i konta; idzie przed widokami, żeby SP-04…SP-07 odświeżały zrzuty tylko raz, już w nowej powłoce.
 - **Carry-over z F-05 (impl-review):** `--primary` = `--foreground`, więc `hover:text-primary` nic nie robi — logo w `GuestLayout.vue:16` potrzebuje niekolorowej wskazówki hover; aktywna pozycja nawigacji (`AppSidebar.vue:58`) jest na `bg-accent` (żółty = `--warning`), a pozycje mają 12 px zamiast 8 px.
-- **Carry-over z F-06:** zdjąć `shadow-none` z `Card` w `GuestLayout.vue:28` (kafel ma już cień naklejki); przycisk zamknięcia `Sheet` (okrągły `secondary` w rogu) ułożyć nad nowym nagłówkiem szuflady.
+- **Carry-over z F-06:** zdjąć `shadow-none` z `Card` w `GuestLayout.vue:28` (kafel ma już cień naklejki); przycisk zamknięcia `Sheet` (okrągły `secondary` w rogu) ułożyć nad nowym nagłówkiem szuflady; `SheetHeader` wyrównać do `DialogHeader` (`pr-12 text-left`), żeby tytuł nie wchodził pod okrągły przycisk.
 - **Status:** proposed
 
 ### S-23: Pulpit Spiżarni

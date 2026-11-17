@@ -414,6 +414,10 @@ const showToast = () => {
             Wszystkie
             <span>24</span>
           </Toggle>
+          <Toggle variant="breakfast" :model-value="true">
+            Śniadanie
+            <span>8</span>
+          </Toggle>
           <Toggle disabled>
             Niedostępne
             <span>0</span>

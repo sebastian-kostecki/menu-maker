@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { expectAppFontLoaded } from './support/fonts';
 
 test.skip(
@@ -31,6 +31,24 @@ async function openKitchenSink(page: Page) {
 
 function section(page: Page, name: string) {
   return page.getByRole('region', { name, exact: true });
+}
+
+/**
+ * Viewport clip around a focused control, padded so the 2px outline at a 2px offset is in the shot
+ * (an element screenshot stops at the border box and would cut the focus ring off).
+ */
+async function focusRingClip(control: Locator, margin = 8) {
+  await control.scrollIntoViewIfNeeded();
+  const box = await control.boundingBox();
+  if (!box) {
+    throw new Error('focusRingClip: control is not visible');
+  }
+  return {
+    x: box.x - margin,
+    y: box.y - margin,
+    width: box.width + margin * 2,
+    height: box.height + margin * 2
+  };
 }
 
 test.describe('sections', () => {
@@ -83,7 +101,7 @@ test('input focus-visible', async ({ page }) => {
   });
   await page.keyboard.press('Tab');
   await expect(input).toBeFocused();
-  await expect(input).toHaveScreenshot('input-focus-visible.png');
+  await expect(page).toHaveScreenshot('input-focus-visible.png', { clip: await focusRingClip(input) });
 });
 
 test('chip focus-visible', async ({ page }) => {
@@ -94,7 +112,7 @@ test('chip focus-visible', async ({ page }) => {
   await page.keyboard.press('Tab');
   const chip = przyciski.getByRole('button', { name: /^Wszystkie/ }).first();
   await expect(chip).toBeFocused();
-  await expect(chip.locator('..')).toHaveScreenshot('chip-focus-visible.png');
+  await expect(page).toHaveScreenshot('chip-focus-visible.png', { clip: await focusRingClip(chip) });
 });
 
 test('shell nav hover', async ({ page }) => {

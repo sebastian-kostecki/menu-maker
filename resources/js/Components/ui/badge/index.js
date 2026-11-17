@@ -30,7 +30,7 @@ export const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      { size: "status", class: "border-2 border-foreground" },
+      { size: "status", class: "border-2 border-foreground shadow-none" },
     ],
     defaultVariants: {
       variant: "default",

@@ -1,7 +1,7 @@
 ---
 change_id: dinner-to-breakfast-carryover
 title: Kolacja carried over to the next day's Śniadanie (S-20)
-status: implemented
+status: impl_reviewed
 created: 2026-11-17
 updated: 2026-11-17
 ---

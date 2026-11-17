@@ -9,6 +9,7 @@ use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Services\IngredientScaling\ScalingNotices;
+use App\Services\MealLinks\MealLinkRules;
 use App\Services\ShoppingList\QuantityFormatter;
 use App\Services\ShoppingList\ShoppingListBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -19,6 +20,7 @@ class MealPlanPdfExporter
     public function __construct(
         private readonly ShoppingListBuilder $shoppingListBuilder,
         private readonly QuantityFormatter $quantityFormatter,
+        private readonly MealLinkRules $links = new MealLinkRules,
     ) {}
 
     /**
@@ -27,6 +29,8 @@ class MealPlanPdfExporter
     public function document(MealPlan $mealPlan, bool $withRecipes = false): MealPlanDocument
     {
         $mealPlan->loadMissing('meals.recipe', 'meals.ingredients.ingredient', 'meals.ingredients.unit');
+
+        $carriedOver = $this->links->fedMealIds($mealPlan->meals);
 
         $byDate = $mealPlan->meals
             ->groupBy(fn (Meal $meal): string => $meal->meal_date->format('Y-m-d'))
@@ -45,18 +49,21 @@ class MealPlanPdfExporter
 
             foreach ($sortedMeals as $meal) {
                 $lines = $this->ingredientLines($meal);
-                $pdfMeals[] = $this->pdfMeal($meal, $lines);
+                $isCarriedOver = isset($carriedOver[$meal->id]);
+                $pdfMeals[] = $this->pdfMeal($meal, $lines, $isCarriedOver);
 
-                if (! $withRecipes || $meal->recipe === null) {
+                if (! $withRecipes || $meal->recipe === null || $isCarriedOver) {
                     continue;
                 }
+
+                $useLabel = $meal->feeds_meal_id !== null ? $dayLabel.' (na 2 dni)' : $dayLabel;
 
                 $groupKey = implode("\n", $lines);
                 $recipeUses[$meal->recipe_id] ??= ['recipe' => $meal->recipe, 'groups' => []];
                 $recipeUses[$meal->recipe_id]['groups'][$groupKey] ??= ['days' => [], 'lines' => $lines];
 
-                if (! in_array($dayLabel, $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'], true)) {
-                    $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'][] = $dayLabel;
+                if (! in_array($useLabel, $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'], true)) {
+                    $recipeUses[$meal->recipe_id]['groups'][$groupKey]['days'][] = $useLabel;
                 }
             }
 
@@ -116,7 +123,7 @@ class MealPlanPdfExporter
     /**
      * @param  list<string>  $ingredients
      */
-    private function pdfMeal(Meal $meal, array $ingredients): PdfMeal
+    private function pdfMeal(Meal $meal, array $ingredients, bool $isCarriedOver): PdfMeal
     {
         $recipe = $meal->recipe;
         $category = MealCategory::from($meal->meal_category);
@@ -130,7 +137,10 @@ class MealPlanPdfExporter
             $category->value,
             $recipe->name,
             $recipe->trashed(),
-            $ingredients,
+            $isCarriedOver ? [] : $ingredients,
+            false,
+            $isCarriedOver ? 'Z wczoraj' : ($meal->feeds_meal_id !== null ? 'Na 2 dni' : null),
+            $isCarriedOver,
         );
     }
 

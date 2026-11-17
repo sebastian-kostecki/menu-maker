@@ -377,3 +377,60 @@ it('marks deleted recipes and recipes without ingredients on their page', functi
     expect(substr_count($text, '(usunięty)'))->toBe(2)
         ->and(substr_count($text, 'Bez składników'))->toBe(2);
 });
+
+/**
+ * Monday's Obiad (cooked) feeds Tuesday's Obiad (carried over); the recipe has Mąka 100 g and the owner has no family.
+ */
+function linkedSupperPlan(User $user): MealPlan
+{
+    $plan = fixedPlan($user);
+    $recipe = Recipe::factory()->supper()->for($user)->create(['name' => 'Gulasz']);
+    attachIngredient($recipe, 'Mąka', '100', 'g');
+    addMeal($plan, $recipe, '2026-11-16');
+    addMeal($plan, $recipe, '2026-11-17');
+    $cooked = Meal::query()->where('meal_plan_id', $plan->id)->where('meal_date', '2026-11-16')->firstOrFail();
+    $carriedOver = Meal::query()->where('meal_plan_id', $plan->id)->where('meal_date', '2026-11-17')->firstOrFail();
+    $cooked->update(['feeds_meal_id' => $carriedOver->id]);
+
+    return snapshotMealIngredients($plan);
+}
+
+it('a carried-over meal prints Z wczoraj with no ingredients', function (): void {
+    $plan = linkedSupperPlan(User::factory()->create());
+
+    $meal = app(MealPlanPdfExporter::class)->document($plan->fresh())->days[1]->meals[0];
+
+    expect($meal->recipeName)->toBe('Gulasz')
+        ->and($meal->marker)->toBe('Z wczoraj')
+        ->and($meal->ingredients)->toBe([])
+        ->and($meal->carriedOver)->toBeTrue()
+        ->and($meal->empty)->toBeFalse();
+});
+
+it("leaves a carried-over meal's ingredients cell empty", function (): void {
+    $plan = linkedSupperPlan(User::factory()->create());
+
+    $html = view('pdf.meal-plan', ['document' => app(MealPlanPdfExporter::class)->document($plan->fresh())])->render();
+
+    expect($html)->toMatch('#<span class="meta">Z wczoraj</span></td>\s*<td></td>#');
+});
+
+it('a cooked meal prints Na 2 dni with its doubled lines', function (): void {
+    $plan = linkedSupperPlan(User::factory()->create());
+
+    $meal = app(MealPlanPdfExporter::class)->document($plan->fresh())->days[0]->meals[0];
+
+    expect($meal->marker)->toBe('Na 2 dni')
+        ->and($meal->ingredients)->toBe(['Mąka — 200 g']);
+});
+
+it('a linked pair is one use on the recipe page labelled na 2 dni', function (): void {
+    $plan = linkedSupperPlan(User::factory()->create());
+
+    $recipes = app(MealPlanPdfExporter::class)->document($plan->fresh(), true)->recipes;
+
+    expect($recipes)->toHaveCount(1)
+        ->and($recipes[0]->ingredientGroups)->toHaveCount(1)
+        ->and($recipes[0]->ingredientGroups[0]->dayLabels)->toBe(['Poniedziałek 16.11 (na 2 dni)'])
+        ->and($recipes[0]->ingredientGroups[0]->lines)->toBe(['Mąka — 200 g']);
+});

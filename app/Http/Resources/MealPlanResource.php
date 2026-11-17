@@ -42,18 +42,23 @@ class MealPlanResource extends JsonResource
             'meals' => $this->whenLoaded('meals', function () {
                 /** @var Collection<int, Meal> $meals */
                 $meals = $this->meals;
+                $fedFrom = $meals
+                    ->filter(fn (Meal $meal): bool => $meal->feeds_meal_id !== null)
+                    ->mapWithKeys(fn (Meal $meal): array => [$meal->feeds_meal_id => $meal->id]);
 
                 return $meals->sortBy([
                     fn (Meal $a, Meal $b): int => $a->meal_date <=> $b->meal_date,
                     fn (Meal $a, Meal $b): int => MealCategory::displayIndex($a->meal_category)
                         <=> MealCategory::displayIndex($b->meal_category),
-                ])->values()->map(function (Meal $meal) {
+                ])->values()->map(function (Meal $meal) use ($fedFrom) {
                     $recipe = $meal->relationLoaded('recipe') ? $meal->recipe : null;
 
                     return [
                         'id' => $meal->id,
                         'meal_date' => $meal->meal_date->format('Y-m-d'),
                         'meal_category' => $meal->meal_category,
+                        'feeds_meal_id' => $meal->feeds_meal_id,
+                        'from_meal_id' => $fedFrom->get($meal->id),
                         ...($recipe === null ? [] : ['recipe' => [
                             'deleted' => $recipe->trashed(),
                             'id' => $recipe->id,

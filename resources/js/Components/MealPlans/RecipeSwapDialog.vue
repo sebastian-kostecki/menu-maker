@@ -4,6 +4,7 @@
       <DialogHeader>
         <DialogTitle>{{ meal && !meal.recipe ? 'Wybierz przepis' : 'Zmień przepis' }}</DialogTitle>
         <DialogDescription>{{ description }}</DialogDescription>
+        <p v-if="feedsWarning" class="text-sm text-muted-foreground">{{ feedsWarning }}</p>
       </DialogHeader>
 
       <Combobox :open="true" :model-value="undefined" ignore-filter @update:model-value="handleSelect">
@@ -24,6 +25,19 @@
                 <span v-if="meal && !meal.recipe" class="text-xs text-muted-foreground">obecny</span>
               </span>
             </ComboboxItem>
+            <ComboboxItem
+              v-if="!isSearching && linkSource"
+              :value="{ linkFrom: linkSource }"
+              :text-value="`Jak wczoraj: ${linkSource.recipe?.name}`"
+              :disabled="saving"
+              class="flex-col items-start gap-0.5"
+            >
+              <span class="flex w-full items-center justify-between gap-2">
+                <span class="font-medium">Jak wczoraj: {{ linkSource.recipe?.name }}</span>
+                <span v-if="meal?.from_meal_id === linkSource.id" class="text-xs text-muted-foreground">obecny</span>
+              </span>
+              <span class="text-xs text-muted-foreground">Gotujemy raz na 2 dni</span>
+            </ComboboxItem>
             <p v-if="!filteredItems.length" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
             <ComboboxItem
               v-for="option in filteredItems"
@@ -35,7 +49,7 @@
             >
               <span class="flex w-full items-center justify-between gap-2">
                 <span class="font-medium">{{ option.name }}</span>
-                <span v-if="option.id === currentRecipeId" class="text-xs text-muted-foreground">obecny</span>
+                <span v-if="option.id === currentRecipeId && !meal?.from_meal_id" class="text-xs text-muted-foreground">obecny</span>
               </span>
               <span class="text-xs text-muted-foreground">
                 <span v-if="option.calories !== null" class="tabular-nums">{{ formatNumber(option.calories, { maximumFractionDigits: 0 }) }} kcal</span>
@@ -65,6 +79,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog'
 import { formatDayMonth, formatNumber, formatWeekdayShort } from '@/lib/format'
 import { mealCategoryLabel } from '@/lib/mealCategories'
+import { linkSourceFor } from '@/lib/mealLinks'
 import type { RecipeOption } from '@/types/meal-plan'
 
 interface SwapMeal {
@@ -72,6 +87,8 @@ interface SwapMeal {
   meal_date: string
   meal_category: string
   recipe?: { id: number; name: string }
+  feeds_meal_id?: number | null
+  from_meal_id?: number | null
 }
 
 interface Props {
@@ -109,6 +126,14 @@ const description = computed(() => {
   return `${formatWeekdayShort(props.meal.meal_date)} ${formatDayMonth(props.meal.meal_date)} – ${mealCategoryLabel(props.meal.meal_category)}`
 })
 
+const linkSource = computed(() => linkSourceFor(props.meal, props.weekMeals) as SwapMeal | null)
+
+const feedsWarning = computed(() => {
+  const fed = props.meal?.feeds_meal_id ? props.weekMeals.find((other) => other.id === props.meal?.feeds_meal_id) : null
+
+  return fed ? `Zmiana opróżni obiad z ${formatWeekdayShort(fed.meal_date)} ${formatDayMonth(fed.meal_date)}, który jest „z wczoraj”.` : ''
+})
+
 const items = computed(() =>
   props.options.map((option) => {
     const days = props.weekMeals
@@ -130,7 +155,7 @@ const filteredItems = computed(() => {
 })
 
 const handleSelect = (option: unknown) => {
-  const picked = option as RecipeOption | typeof EMPTY_OPTION | undefined
+  const picked = option as RecipeOption | typeof EMPTY_OPTION | { linkFrom: SwapMeal } | undefined
 
   if (!picked || !props.meal || saving.value) {
     return
@@ -146,7 +171,7 @@ const handleSelect = (option: unknown) => {
 
   router.patch(
     route('meal-plans.meals.update', { meal_plan: props.mealPlanId, meal: props.meal.id }),
-    { recipe_id: 'empty' in picked ? null : picked.id },
+    'linkFrom' in picked ? { from_meal_id: picked.linkFrom.id } : { recipe_id: 'empty' in picked ? null : picked.id },
     {
       preserveScroll: true,
       only: ['mealPlan', 'shortCategories'],
@@ -154,7 +179,7 @@ const handleSelect = (option: unknown) => {
         emit('update:open', false)
       },
       onError: (errors) => {
-        toast.error(errors.recipe_id ?? errors.status ?? 'Nie udało się zmienić przepisu.')
+        toast.error(errors.recipe_id ?? errors.from_meal_id ?? errors.status ?? 'Nie udało się zmienić przepisu.')
 
         // The plan is no longer a draft (e.g. approved in another tab): nothing left to pick here.
         if (errors.status) {

@@ -38,8 +38,10 @@
                   >
                     {{ day.meals[category].recipe.name }}
                   </Link>
+                  <Badge v-if="day.meals[category].feeds_meal_id" variant="muted" class="ml-2 align-middle">Na 2 dni</Badge>
+                  <Badge v-else-if="day.meals[category].from_meal_id" variant="muted" class="ml-2 align-middle">Z wczoraj</Badge>
                 </div>
-                <div class="text-xs text-muted-foreground">
+                <div v-if="!day.meals[category].from_meal_id" class="text-xs text-muted-foreground">
                   <span class="tabular-nums">{{ formatCalories(day.meals[category].recipe.calories) }}</span> kcal (cały przepis) · {{ day.meals[category].recipe.servings }} porcji
                 </div>
                 <Button
@@ -53,7 +55,7 @@
                 >
                   Zmień
                 </Button>
-                <Collapsible v-if="day.meals[category].ingredients?.length" class="mt-2 text-xs">
+                <Collapsible v-if="!day.meals[category].from_meal_id && day.meals[category].ingredients?.length" class="mt-2 text-xs">
                   <CollapsibleTrigger
                     class="group inline-flex items-center gap-1 rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
@@ -98,6 +100,7 @@
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { ChevronDown } from 'lucide-vue-next'
+import { Badge } from '@/Components/ui/badge'
 import { Button } from '@/Components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
 import { Skeleton } from '@/Components/ui/skeleton'
@@ -123,6 +126,8 @@ interface GridMeal {
   meal_category: string
   recipe?: GridRecipe
   ingredients?: GridIngredient[]
+  feeds_meal_id?: number | null
+  from_meal_id?: number | null
 }
 
 interface Props {

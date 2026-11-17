@@ -3,7 +3,7 @@ project: menu-maker
 version: 1
 status: draft                    # draft | active | locked
 created: 2026-11-14
-updated: 2026-11-15
+updated: 2026-11-17
 token_source: resources/css/app.css
 primitives_dir: resources/js/Components/ui/
 shared_dir: resources/js/Components/Common/   # potwierdzony, D-3
@@ -14,6 +14,8 @@ kitchen_sink: resources/js/Pages/Dev/DesignSystem.vue   # potwierdzony, D-4
 
 > Wspólny kontrakt wizualny dla wszystkich widoków aplikacji i PDF-u.
 > Edit-in-place: ten plik opisuje stan docelowy i kolejność dojścia do niego. Każdy krok rolloutu to osobna zmiana 10x (`/10x-new` → `/10x-research` → `/10x-plan` → `/10x-implement`), widoki przez `/10x-ui`.
+>
+> **2026-11-17: wybrany nowy kierunek wyglądu, C · Spiżarnia (D-10).** Sekcje 4–6 opisują stan wdrożony w M-2 (zieleń ziół, Figtree) i obowiązują, dopóki zmiany z §10.6 ich nie zastąpią. Cel i kolejność wdrożenia są w §10.
 
 ## 1. Po co i dla kogo
 
@@ -280,11 +282,112 @@ Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach —
 | ID | Pytanie | Rekomendacja | Owner | Blokuje |
 | --- | --- | --- | --- | --- |
 | D-1 | Dark mode w MVP? | **Potwierdzone 2026-11-14:** nie; usuwać `dark:` przy migracji, tokeny `.dark` utrzymywać | user | — |
-| D-2 | Kolor marki: zieleń ziół (`#21763c`) i ciepłe tło? | **Potwierdzone 2026-11-14:** tak — kuchnia, świeżość, nie koliduje z kolorami posiłków | user | — |
+| D-2 | Kolor marki: zieleń ziół (`#21763c`) i ciepłe tło? | **Potwierdzone 2026-11-14:** tak — kuchnia, świeżość, nie koliduje z kolorami posiłków. **Zastąpione 2026-11-17 przez D-10.** | user | — |
 | D-3 | Nowy katalog `resources/js/Components/Common/` na komponenty aplikacji? | **Potwierdzone 2026-11-14:** tak (CLAUDE.md wymaga zgody na nowe foldery) | user | — |
 | D-4 | Kitchen sink jako trasa `/dev/design-system` tylko w `local`/`testing`? | **Potwierdzone 2026-11-14:** tak — potrzebny bramce Playwright w CI | user | — |
 | D-5 | Zgoda na zależności, które przyniesie `shadcn-vue add` dla 6 prymitywów? | **Potwierdzone 2026-11-14:** tak, po przeglądzie diffu `package.json` | user | — |
 | D-6 | `lint:tokens` jako krok CI? | **Potwierdzone 2026-11-14:** tak, jako skrypt grep bez nowych zależności | user | — |
-| D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page | user | — |
-| D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia | user | — |
+| D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page. Na razie bez zmian; strona startowa Spiżarni to osobna, późniejsza zmiana (D-13). | user | — |
+| D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia. Odcienie zostają w D-10; tła stają się pełnymi kolorami (§10.2). | user | — |
 | D-9 | Nowe prymitywy w new-york-v4 z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next`; regeneracja 15 starszych komponentów i przejście na `@lucide/vue` to osobna zmiana po F-04. | **Potwierdzone 2026-11-15** | user | — |
+| D-10 | Nowy kierunek wyglądu: A · Zielnik (obecny), B · Bistro (karta menu) czy C · Spiżarnia (bloki koloru pór dnia)? | **Potwierdzone 2026-11-17:** C · Spiżarnia (§10). Zielnik i Bistro odrzucone; Bistro zostaje tylko w historii wersji artefaktu. | user | M-4 |
+| D-11 | Źródło prawdy dla wyglądu Spiżarni? | **Potwierdzone 2026-11-17:** artefakt Design System „Menu Maker — Spiżarnia” (§10.1) dla ekranów; ten plik (§10) dla wartości i zasad. Przy rozbieżności wygrywa ten plik. | user | — |
+| D-12 | Kolory kategorii jako pełne bloki zamiast pasteli, także w PDF? | **Potwierdzone 2026-11-17** (część D-10): tak; lustro w `meal-plan.blade.php` i `MealPlanPdfPaletteTest` dostają nowe hexy. | user | SP-01 |
+| D-13 | Strona startowa (ekran 01 artefaktu) w ramach restyle'u? | **Potwierdzone 2026-11-17:** nie; osobna zmiana po M-4, odwracająca D-7. | user | — |
+| D-14 | Dark mode dla Spiżarni? | Otwarte. D-1 nadal obowiązuje (MVP tylko jasny); SP-01 rozstrzyga, czy blok `.dark` dostaje wartości Spiżarni, czy zostaje usunięty do czasu osobnej zmiany. | user | SP-01 |
+
+## 10. Kierunek C · Spiżarnia (cel M-4)
+
+Kolor oddany posiłkom: miód rano, pomidor w południe, indygo wieczorem — pełne bloki zamiast pastelowych odznak. Marka cofa się do atramentu, a interfejs wygląda jak naklejki na lodówce: kontur 2px, duże zaokrąglenia, twardy cień.
+
+### 10.1 Źródło
+
+- Artefakt Design System: https://claude.ai/artifact/Py7fzUajDk1Ny57FG7oZMx (prywatny; czytać narzędziem Artifact, akcja `read`, zaczynając od `project/README.md`). Zawiera `tokens.json`, zasady i 15 ekranów desktop 1280 px: 01 Welcome, 02 Logowanie, 03 Rejestracja, 04 Nie pamiętasz hasła?, 05 Pulpit, 06 Pulpit pusty, 07 Przepisy, 08 Przepis, 09 Nowy przepis, 10 Jadłospisy, 11 Jadłospis gotowy, 12 Szkic jadłospisu, 13 Członkowie rodziny, 14 Profil, 15 Dialogi.
+- Ekrany to statyczne makiety HTML na danych z `E2eMealPlanSeeder`. Nie pokazują mobile ani stanów hover/focus/loading — każda zmiana widoku projektuje je sama według §5.4.
+
+### 10.2 Tokeny (motyw jasny)
+
+Nazwy zostają te same co w §4 (komponenty `ui/` nie wymagają zmian nazw). W `app.css` wartości zapisujemy w OKLCH (§4.1); hex poniżej to wartości z artefaktu i źródło lustra PDF.
+
+| Token | Hex | Rola |
+| --- | --- | --- |
+| `--background` | `#fff8ef` | Tło strony |
+| `--foreground` | `#1d1b2e` | Tekst, kontur 2px, twardy cień |
+| `--card` / `--popover` | `#ffffff` | Kafelki, pola, dialogi |
+| `--muted` / `--secondary` | `#f6eee3` | Tła sekcji, żetony składników, przycisk ikonowy |
+| `--muted-foreground` | `#5f5a6e` | Metadane (≥ 5.7:1 na `muted`) |
+| `--primary` | `#1d1b2e` | Atrament: główne CTA, aktywna nawigacja, wybrany filtr |
+| `--primary-foreground` | `#fff8ef` | Tekst na `primary` |
+| `--accent` / `--accent-foreground` | `#ffe7a3` / `#1d1b2e` | Hover, aktywny element listy |
+| `--border` / `--input` | `#e8dccb` | Separatory wewnątrz kafli (kontur kafla to `foreground`) |
+| `--ring` | `#4f5bd5` | Focus ring (≥ 5.6:1 na `card`) |
+| `--destructive` / `-foreground` | `#c7361b` / `#ffffff` | Usuwanie, błędy |
+| `--success` / `-foreground` | `#c9f0d3` / `#12452a` | Gotowy, zapisano |
+| `--warning` / `-foreground` | `#ffe7a3` / `#4a3500` | Ilości bez dopracowania AI |
+| `--info` / `-foreground` | `#dfe2ff` / `#232a7a` | Szkic (alert), generowanie |
+| `--meal-breakfast` / `-foreground` | `#ffd36e` / `#3b2a00` | Śniadanie (≥ 9:1) |
+| `--meal-supper` / `-foreground` | `#ff8a65` / `#3a1206` | Obiad (≥ 7:1) |
+| `--meal-dinner` / `-foreground` | `#8c93f0` / `#14163d` | Kolacja (≥ 6.2:1) |
+| `--sidebar` (nowy) | = `--background` | Pasek nawigacji |
+| `--sidebar-foreground` (nowy) | = `--muted-foreground` | Nieaktywne pozycje nawigacji |
+| `--sidebar-active` / `-foreground` (nowe) | = `--primary` / `--primary-foreground` | Aktywna pozycja |
+| `--highlight` / `-foreground` (nowe) | `#4f5bd5` / `#ffffff` | Jeden wyróżniony blok na ekran: hero pulpitu, panel ekranów gościa, numery kroków |
+| `--overlay` (nowy) | `rgba(29, 27, 46, 0.5)` | Tło pod dialogiem i szufladą |
+
+Kształt i cień:
+
+- Promienie: 12px (pola, komórki tygodnia), 20px (kafelki, karty, hero), 24px (dialogi), pełne zaokrąglenie (przyciski, zakładki, filtry, wyszukiwarka, paginacja, odznaki). Dzisiejsze `--radius-md = --radius - 2px` nie daje 12px przy 20px — SP-01 rozpisuje promienie jawnie.
+- Kontur 2px `foreground` na kafelkach, przyciskach drugorzędnych, polach i dialogach.
+- Cienie: `0 3px 0 0 foreground` (naklejka: kafelki, przycisk drugorzędny), `0 6px 0 0 foreground` (dialog). Strefa usuwania konta: kontur i cień w `destructive`.
+
+### 10.3 Typografia
+
+Jeden krój: **Bricolage Grotesque** (zmienna oś opsz, polskie znaki). Zastępuje Figtree w aplikacji; PDF zostaje na DejaVu Sans (§6).
+
+| Rola | Rozmiar / interlinia | Waga | Gdzie |
+| --- | --- | --- | --- |
+| Display | 60 / 68 px, −0.035em | 800 | Tylko strona startowa (D-13) |
+| Tytuł strony | 36 / 40 px, −0.03em | 800 | `PageHeader` |
+| Liczba w kafelku | 56 / 56 px, −0.04em | 800 | Statystyki pulpitu, `tabular-nums` |
+| Tytuł sekcji | 20 / 24 px | 700 | Kafelki, dialogi (24 px) |
+| Tekst | 15 / 22 px | 400 | Domyślny |
+| Etykieta | 14 / 20 px | 600 | Przyciski, zakładki, etykiety pól |
+| Metadane | 13 / 18 px | 500 | kcal, porcje, daty w `muted-foreground` |
+
+### 10.4 Zasady
+
+- Kolor niosą wyłącznie `meal-*` (bloki, komórki, kafelki, kategorie) i `highlight` (jeden blok na ekran). `primary` to atrament, nie kolor.
+- Tekst na tle kategorii zawsze `meal-*-foreground`; na `highlight` zawsze `highlight-foreground`; przycisk na `highlight` to `card` z tekstem `foreground` albo obrys `highlight-foreground`.
+- Status jadłospisu: pigułka z konturem; `draft` ma kontur przerywany na `card` („Szkic”), `processing` ma spinner.
+- Ikony bez zmian (§4.7), plus pory dnia: `Sun` (Śniadanie), `Soup` (Obiad), `Moon` (Kolacja).
+- §3 (warstwy), §5.4 (stany), §7 (egzekwowanie) i reguły z `CLAUDE.md` obowiązują bez zmian: tylko tokeny, żadnych literałów palety ani hexów w widokach.
+
+### 10.5 Widoki
+
+| Ekran artefaktu | Widok | Co się zmienia względem dziś |
+| --- | --- | --- |
+| 02–04 | `GuestLayout`, `Auth/*` | Ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej |
+| — | `AuthenticatedLayout`, `AppSidebar`, `UserMenu` | Panel boczny zastąpiony paskiem górnym z pigułkami nawigacji i awatarem (menu użytkownika); poniżej `lg` zostaje `Sheet` |
+| 05–06 | `Dashboard` | Hero `highlight` z ostatnim jadłospisem, kafelki statystyk w `meal-breakfast`/`meal-supper`, „Ten tydzień” w kolorach pór dnia (wymaga posiłków ostatniego planu w propsach `DashboardController`) |
+| 07 | `Recipes/Index` | Kafelki po 4 w rzędzie z paskiem kategorii i kcal; filtr kategorii jako pigułki z liczbą przepisów (backend zwraca liczności, zapytanie zawężone do właściciela) |
+| 08 | `Recipes/Show` | Blok w kolorze kategorii z pigułkami kcal/porcje, składniki jako żetony, kroki z numerami na `highlight` |
+| 09 | `Recipes/Form` | Sekcje w kaflach; kategoria jako trzy kolorowe kafle-radio (`radiogroup`) zamiast `Select` |
+| 10 | `MealPlans/Index` | Tygodnie jako kafle z paskiem wypełnienia, statusem i akcjami; filtr statusu jako pigułki |
+| 11–12 | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` | Siatka dni × posiłki z kolorowymi komórkami; w szkicu pigułka „Zmień” w komórce, pusty posiłek jako przerywana ramka z „Wybierz”; lista zakupów jako kafel obok |
+| 13 | `FamilyMembers/Index` | Karty osób (inicjał, wiek, waga, wzrost) i przerywany kafel „Dodaj członka rodziny” |
+| 14 | `Profile/Edit` | Trzy kafle; usunięcie konta w `destructive` |
+| 15 | `GenerateMealPlanDialog`, `RecipeSwapDialog`, `ConfirmDialog` | Dialog 24px z konturem, cieniem i przyciskiem zamknięcia; obecna opcja podmiany na tle kategorii |
+
+### 10.6 Proponowany rollout (wejście dla `/10x-roadmap`, M-4)
+
+| # | Change ID | Zakres | Prerequisites | Równolegle z |
+| --- | --- | --- | --- | --- |
+| SP-01 | `spizarnia-tokens` | §10.2–10.3 w `app.css` (OKLCH, nowe tokeny, promienie, cienie, Bricolage Grotesque), D-14, lustro PDF + `MealPlanPdfPaletteTest` (D-12), kolory i typografia w kitchen sinku, odświeżone baseline'y | — | — |
+| SP-02 | `spizarnia-primitives` | Warianty `ui/`: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), `Input`/`Select`/`Textarea`/`Checkbox` (kontur 2px, 12px), `Dialog` (24px, cień, zamknięcie); demo w kitchen sinku | SP-01 | — |
+| SP-03 | `spizarnia-app-shell` | `AuthenticatedLayout` z paskiem górnym, `UserMenu`, mobilny `Sheet`; `GuestLayout` jako ekran dzielony | SP-02 | — |
+| SP-04 | `spizarnia-dashboard-ui` | Ekrany 05–06 | SP-03 | SP-05, SP-06, SP-07 |
+| SP-05 | `spizarnia-recipes-ui` | Ekrany 07–09 (z licznościami kategorii w backendzie) | SP-03 | SP-04, SP-06, SP-07 |
+| SP-06 | `spizarnia-meal-plans-ui` | Ekrany 10–12 i dialogi z ekranu 15 | SP-03 | SP-04, SP-05, SP-07 |
+| SP-07 | `spizarnia-family-profile-ui` | Ekrany 13–14 | SP-03 | SP-04, SP-05, SP-06 |
+
+Po M-4 (poza milestonem): strona startowa z ekranu 01 (D-13). Równoległe zmiany SP-04…SP-07 dotykają wspólnego kitchen sinka (`Pages/Dev/DesignSystem.vue`) — przy merge'u rozwiązać konflikty w nim i odświeżyć baseline `design-system.spec.ts` raz, na końcu.

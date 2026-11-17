@@ -56,9 +56,10 @@ class MealPlanPdfExporter
                     continue;
                 }
 
-                $useLabel = $meal->feeds_meal_id !== null
-                    ? $dayLabel.' ('.($this->links->cookedPairFor($meal->meal_category)['use_suffix'] ?? 'na 2 dni').')'
-                    : $dayLabel;
+                $useSuffix = $meal->feeds_meal_id !== null
+                    ? ($this->links->cookedPairFor($meal->meal_category)['use_suffix'] ?? null)
+                    : null;
+                $useLabel = $useSuffix !== null ? $dayLabel.' ('.$useSuffix.')' : $dayLabel;
 
                 $groupKey = implode("\n", $lines);
                 $recipeUses[$meal->recipe_id] ??= ['recipe' => $meal->recipe, 'groups' => []];

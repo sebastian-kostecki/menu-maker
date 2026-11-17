@@ -1,7 +1,8 @@
 ---
 change_id: meal-plan-repeat-dinner
 title: Same Obiad two days in a row, cooked once (S-19)
-status: impl_reviewed
+status: archived
+archived_at: 2026-11-17T05:28:14Z
 created: 2026-11-16
 updated: 2026-11-17
 ---

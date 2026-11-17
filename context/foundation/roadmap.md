@@ -3,7 +3,7 @@ project: menu-maker
 version: 3
 status: draft                    # draft | active | locked
 created: 2026-11-13
-updated: 2026-11-16
+updated: 2026-11-17
 prd_version: —
 main_goal: quality
 top_blocker: decisions
@@ -52,7 +52,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
-| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | in-progress |
+| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | done |
 | S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05        | proposed |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
@@ -128,7 +128,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: jeden mechanizm „gotowane raz, jedzone dwa razy” (posiłek wskazuje kolejny posiłek, który z niego korzysta), wspólny z S-20.
   - Rozstrzygnięte 2026-11-16: gdy użytkownik podmieni przepis albo opróżni pierwszy posiłek, powiązanie znika, a drugi posiłek staje się pusty (stąd S-18 jako warunek wstępny).
 - **Risk:** Po S-18, bo rozpięcie powiązania zostawia pusty posiłek; zmienia zasadę „jeden posiłek = jedno skalowanie” i sumowanie listy zakupów; wprowadza mechanizm powiązania, który S-20 rozszerza na inną kategorię, więc idzie przed nim.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-20: Kolacja na śniadanie następnego dnia
 
@@ -193,6 +193,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
 
 ## Done
 
+- **S-19: Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-16-meal-plan-repeat-dinner/`. Lesson: —.
 - **S-18: Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-empty-slot/`. Lesson: —.
 - **S-21: Użytkownik może przy „Pobierz PDF” wybrać, czy dołączyć przepisy; tabela jadłospisu nie ma już długiego tekstu przygotowania, a dołączone przepisy (składniki z ilościami i sposób wykonania) są na osobnych stronach, każdy raz, nawet gdy występuje w tygodniu kilka razy.** — Archived 2026-11-16 → `context/archive/2026-11-16-pdf-recipe-pages/`. Lesson: —.
 - **S-17: Użytkownik może po kliknięciu „Generuj” zobaczyć wylosowany tydzień jako szkic (bez ilości i listy zakupów), podmienić przepis w dowolnej komórce na inny ze swojej listy i zatwierdzić szkic, po czym rusza skalowanie AI i plan przechodzi do dzisiejszego widoku z ilościami i listą zakupów.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-draft-with-swap/`. Lesson: —.

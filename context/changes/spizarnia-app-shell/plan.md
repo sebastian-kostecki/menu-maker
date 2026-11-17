@@ -553,12 +553,12 @@ The localStorage key `menu-maker:app-shell` is no longer read or written. Existi
 
 #### Automated
 
-- [x] 2.1 Build passes
-- [x] 2.2 Token scan and its self-test pass
-- [x] 2.3 No tagline or footer copy remains
-- [x] 2.4 Pest suite passes
-- [x] 2.5 E2E suite passes (register, login, password reset, confirm password)
-- [x] 2.6 Visual gate passes with 58 shots and exactly the 6 listed baselines changed or added
+- [x] 2.1 Build passes — abc5d44
+- [x] 2.2 Token scan and its self-test pass — abc5d44
+- [x] 2.3 No tagline or footer copy remains — abc5d44
+- [x] 2.4 Pest suite passes — abc5d44
+- [x] 2.5 E2E suite passes (register, login, password reset, confirm password) — abc5d44
+- [x] 2.6 Visual gate passes with 58 shots and exactly the 6 listed baselines changed or added — abc5d44
 
 #### Manual
 

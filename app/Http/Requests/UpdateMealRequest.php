@@ -16,7 +16,7 @@ class UpdateMealRequest extends FormRequest
 {
     public const INVALID_RECIPE_MESSAGE = 'Wybierz jeden ze swoich przepisów z tej kategorii.';
 
-    public const LINK_NOT_ALLOWED_MESSAGE = 'Tego obiadu nie można połączyć z poprzednim dniem.';
+    public const LINK_NOT_ALLOWED_MESSAGE = 'Tego posiłku nie można połączyć z poprzednim dniem.';
 
     public const EXACTLY_ONE_MESSAGE = 'Podaj dokładnie jedno z pól: recipe_id albo from_meal_id.';
 

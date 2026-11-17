@@ -182,3 +182,23 @@ it('reads the stored snapshot, not the current recipe, and skips zero quantities
 
     expect(array_map(fn ($item) => $item->display, $list->items))->toBe(['450 g']);
 });
+
+it('a Kolacja carried to breakfast adds the dish once in double quantity and lists no recipe without ingredients', function (): void {
+    $user = User::factory()->create();
+    $recipe = Recipe::factory()->dinner()->for($user)->create();
+    attachIngredient($recipe, 'Mąka', '300', 'g');
+    $plan = mealPlanWithRecipes($user, 'done', $recipe);
+    $kolacja = $plan->meals()->sole();
+    $sniadanie = $kolacja->replicate();
+    $sniadanie->meal_date = $kolacja->meal_date->copy()->addDay();
+    $sniadanie->meal_category = 'breakfast';
+    $sniadanie->save();
+    $kolacja->update(['feeds_meal_id' => $sniadanie->id]);
+    snapshotMealIngredients($plan);
+
+    $list = (new ShoppingListBuilder)->forMealPlan($plan->fresh());
+
+    expect($list->items)->toHaveCount(1)
+        ->and($list->items[0]->display)->toBe('600 g')
+        ->and($list->recipesWithoutIngredients)->toBe([]);
+});

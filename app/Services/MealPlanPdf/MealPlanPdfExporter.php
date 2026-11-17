@@ -56,7 +56,9 @@ class MealPlanPdfExporter
                     continue;
                 }
 
-                $useLabel = $meal->feeds_meal_id !== null ? $dayLabel.' (na 2 dni)' : $dayLabel;
+                $useLabel = $meal->feeds_meal_id !== null
+                    ? $dayLabel.' ('.($this->links->cookedPairFor($meal->meal_category)['use_suffix'] ?? 'na 2 dni').')'
+                    : $dayLabel;
 
                 $groupKey = implode("\n", $lines);
                 $recipeUses[$meal->recipe_id] ??= ['recipe' => $meal->recipe, 'groups' => []];
@@ -132,6 +134,12 @@ class MealPlanPdfExporter
             return new PdfMeal($category->label(), $category->value, 'Bez posiłku', false, [], true);
         }
 
+        $marker = match (true) {
+            $isCarriedOver => $this->links->carriedPairFor($meal->meal_category)['carried_label'] ?? null,
+            $meal->feeds_meal_id !== null => $this->links->cookedPairFor($meal->meal_category)['cooked_label'] ?? null,
+            default => null,
+        };
+
         return new PdfMeal(
             $category->label(),
             $category->value,
@@ -139,7 +147,7 @@ class MealPlanPdfExporter
             $recipe->trashed(),
             $isCarriedOver ? [] : $ingredients,
             false,
-            $isCarriedOver ? 'Z wczoraj' : ($meal->feeds_meal_id !== null ? 'Na 2 dni' : null),
+            $marker,
             $isCarriedOver,
         );
     }

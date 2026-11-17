@@ -53,7 +53,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje
 | S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
 | S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
 | S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | done |
-| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | planning |
+| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | in-progress |
 | S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
 
 ## Streams
@@ -142,7 +142,7 @@ Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepis
   - Rozstrzygnięte 2026-11-16: ten sam mechanizm co S-19, ilości liczone tak samo (kolacja przeskalowana na oba posiłki, śniadanie bez własnych składników).
   - Rozstrzygnięte 2026-11-16: śniadanie z przepisem kategorii „kolacja” ma na ekranie i w PDF kolor pory dnia komórki (śniadanie) z dopiskiem „z kolacji”.
 - **Risk:** Po S-19, bo rozszerza jego mechanizm powiązania o parę posiłków z różnych kategorii i dni; ryzykiem jest tylko prezentacja kategorii, nie ilości.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-21: PDF z przepisami na osobnych stronach
 

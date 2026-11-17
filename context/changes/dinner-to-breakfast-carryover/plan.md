@@ -21,7 +21,7 @@ S-19 is done (`context/archive/2026-11-16-meal-plan-repeat-dinner/`):
 **Naming trap.** `supper` is shown as Obiad, and `dinner` as Kolacja (`app/Enums/MealCategory.php`; `resources/js/lib/mealCategories.js:4-8`). S-20 links `dinner` → `breakfast`.
 
 **What is hard-coded to the Obiad pair** (the actual work):
-- Grid badges "Na 2 dni" / "Z wczoraj" (`resources/js/Components/MealPlans/MealPlanGrid.vue:43-44`).
+- Grid badges "Na 2 dni" / "Z wczoraj" (`resources/js/Components/MealPlans/MealPlanGrid.vue:41-42`).
 - Dialog item "Jak wczoraj: <name>" / "Gotujemy raz na 2 dni" (`RecipeSwapDialog.vue:31,36,39`) and the warning "Zmiana opróżni obiad z …, który jest „z wczoraj”." (`:134`).
 - PDF marker "Z wczoraj" / "Na 2 dni" (`app/Services/MealPlanPdf/MealPlanPdfExporter.php:142`) and the recipe-page use label " (na 2 dni)" (`:59`).
 - `UpdateMealRequest::LINK_NOT_ALLOWED_MESSAGE` "Tego obiadu nie można połączyć z poprzednim dniem." (`UpdateMealRequest.php:19`).
@@ -230,9 +230,9 @@ The grid and the dialog read their texts from the pair. The Śniadanie dialog of
 **Intent**: The client knows the same pairs as the server, plus the dialog-only labels.
 
 **Contract**:
-- `MEAL_LINK_PAIRS` mirrors `PAIRS` (both entries, same `cooked_label` / `carried_label`). Add `offerLabel`, `offerHint` and `feedsWarning(dateLabel)` per the labels table.
-- New exports `cookedPairFor(category)` and `carriedPairFor(category)`, matching the PHP lookups.
-- `linkSourceFor()` is unchanged. It already returns the Kolacja of day D for a breakfast.
+- `MEAL_LINK_PAIRS` mirrors `PAIRS` (both entries, the same label values). Keys are camelCase throughout, the JS style: `cookedLabel`, `carriedLabel`, plus the dialog-only `offerLabel`, `offerHint` and `feedsWarning(dateLabel)` per the labels table. `use_suffix` is PDF-only and is not mirrored.
+- New exports `cookedPairFor(category)` and `carriedPairFor(category)`, matching the PHP lookups: each returns the pair or `null` when the category has none.
+- `linkSourceFor()` is unchanged. It already returns the Kolacja of day D for a breakfast. Its docblock (`:12`, "Jak wczoraj") is reworded to name the link item generically.
 
 #### 2. Grid badges per pair
 
@@ -240,7 +240,7 @@ The grid and the dialog read their texts from the pair. The Śniadanie dialog of
 
 **Intent**: Both cells of either pair say what happens, in text.
 
-**Contract**: The cooked badge text is `cookedPairFor(category).cooked_label`, and the carried badge text is `carriedPairFor(category).carried_label`. Everything else is unchanged: `Badge variant="muted"`, the hidden kcal line and "Składniki" on the carried-over meal, the stripe by cell category, and the single "Zmień" button.
+**Contract**: The cooked badge text is `cookedPairFor(category)?.cookedLabel`, and the carried badge text is `carriedPairFor(category)?.carriedLabel`; a badge with no label is not rendered. Everything else is unchanged: `Badge variant="muted"`, the hidden kcal line and "Składniki" on the carried-over meal, the stripe by cell category, and the single "Zmień" button.
 
 #### 3. Dialog item and warning per pair
 
@@ -249,8 +249,8 @@ The grid and the dialog read their texts from the pair. The Śniadanie dialog of
 **Intent**: The Śniadanie of day D+1 offers "Z kolacji", and a linked Kolacja warns that a change empties the next breakfast.
 
 **Contract**:
-- The link item's label, `text-value` and hint come from `carriedPairFor(meal.meal_category)`: "<offerLabel>: <source recipe name>" and `offerHint`. Its visibility, the "obecny" rule and the `{ from_meal_id }` body are unchanged.
-- `feedsWarning` uses `cookedPairFor(meal.meal_category).feedsWarning(<formatWeekdayShort> <formatDayMonth> of the fed meal)`.
+- The link item's label, `text-value` and hint come from `carriedPairFor(meal.meal_category)`: "<offerLabel>: <source recipe name>" and `offerHint`. The item renders only when both `linkSource` and that pair exist. Its visibility, the "obecny" rule and the `{ from_meal_id }` body are otherwise unchanged.
+- `feedsWarning` uses `cookedPairFor(meal.meal_category)?.feedsWarning(<formatWeekdayShort> <formatDayMonth> of the fed meal) ?? ''`.
 - The Obiad item and warning render exactly today's text.
 
 #### 4. Redraw copy
@@ -268,8 +268,8 @@ The grid and the dialog read their texts from the pair. The Śniadanie dialog of
 **Intent**: The new cell and dialog states have demos (CLAUDE.md verification rule).
 
 **Contract**:
-- In `planMeals` (`:213-242`), link Friday's Kolacja (id 15) to Saturday's Śniadanie (id 16), next to the existing id 11 → 14 link (`:227`). Id 16 shows dish 15's recipe, no ingredients and `from_meal_id: 15`, and id 15 gets `feeds_meal_id: 16`.
-- Replace the single ternary with a small map, so both links read clearly.
+- In `planMeals` (`:213-242`), link Friday's Kolacja (id 15, "Leczo z kiełbasą") to Saturday's Śniadanie (id 16), next to the existing id 11 → 14 link (`:227`). Id 15 gets `feeds_meal_id: 16`; id 16 gets `from_meal_id: 15`, no ingredients, and Friday's recipe.
+- Both the `link` ternary (`:227`) and the `dish` ternary (`:228`, a 0-based index into the dishes) become one small map keyed by id: `11 → { feeds_meal_id: 14 }`, `14 → { from_meal_id: 11, dish: 10 }`, `15 → { feeds_meal_id: 16 }`, `16 → { from_meal_id: 15, dish: 14 }`. Every other id keeps `dish = index`. So id 16 shows "Leczo z kiełbasą", not Saturday's own "Tosty z awokado".
 - The editable grid caption (`:890`) also names the Friday "Też na śniadanie" / Saturday "Z kolacji" pair. Saturday's dialog shows "Z kolacji … obecny", and Friday's Kolacja dialog shows the warning.
 
 ### Success Criteria:
@@ -333,7 +333,9 @@ The S-19 assertions stay as they are. Their page-wide 0 counts for "Z wczoraj" a
 **Contract**:
 - `attachPinnedMeals`'s `$links` becomes `list<array{0: string, 1: int, 2: string}>`, i.e. `[fromCategory, fromOffset, toCategory]`. The target is `toCategory` at `fromOffset + 1`.
 - The draft call (`:182`) becomes `[[Supper, 0, Supper], [Dinner, 0, Breakfast]]`, so Monday's Kolacja "Kanapki z pastą jajeczną" feeds Tuesday's Śniadanie (replacing "Owsianka z jabłkiem i cynamonem"). The empty Wednesday breakfast and the done plan of 2026-06-15 are unchanged.
+- The comment above the draft call (`:181`, naming only "Na 2 dni" / "Z wczoraj") also names the Kolacja → Śniadanie link.
 - Seeder test:
+  - the `:57` test title ("one empty and one repeated") is updated to say two links (Obiad and Kolacja → Śniadanie);
   - `:66` unique recipe names go from 19 to 18;
   - `:78` `feeds_meal_id` count goes from 1 to 2;
   - 21 meals with 20 carrying a recipe stay as they are;
@@ -347,7 +349,7 @@ The S-19 assertions stay as they are. Their page-wide 0 counts for "Z wczoraj" a
 
 **Contract**:
 - `openSeededDraft` (`:60-78`) keeps 20 `tbody td a` and also waits for `getByText('Z kolacji', { exact: true })` and `getByText('Też na śniadanie', { exact: true })`.
-- The comment at `:58-59` also mentions that Tuesday's Śniadanie now holds Monday's Kolacja.
+- The comment at `:58-59` also mentions that Tuesday's Śniadanie now holds Monday's Kolacja, and drops the claim that the draft "uses every recipe of the visual user" (Owsianka is no longer on it).
 - The swap-dialog shot (Tuesday's Obiad) is unchanged.
 
 #### 4. Baseline updates
@@ -428,7 +430,7 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 - Pair rules: `app/Services/MealLinks/MealLinkRules.php:19-95`; JS mirror: `resources/js/lib/mealLinks.js:2-39`
 - Swap endpoint: `app/Http/Controllers/MealPlanMealController.php:27-106`; request: `app/Http/Requests/UpdateMealRequest.php:19,44-49`
 - Kcal shares: `app/Services/IngredientScaling/ScalingCalculator.php:18`
-- Hard-coded labels: `MealPlanGrid.vue:43-44`, `RecipeSwapDialog.vue:31-39,134`, `MealPlanPdfExporter.php:59,142`, `ScalingNotices.php:35`, `Show.vue:135`
+- Hard-coded labels: `MealPlanGrid.vue:41-42`, `RecipeSwapDialog.vue:31-39,134`, `MealPlanPdfExporter.php:59,142`, `ScalingNotices.php:35`, `Show.vue:135`
 - Seeder links: `database/seeders/E2eMealPlanSeeder.php:182,192-223`; E2E S-19 block: `tests/e2e/meal-plan.spec.ts:163-209`; visual draft: `tests/e2e/visual/meal-plan-show.spec.ts:58-78`
 - Kitchen-sink fixture: `resources/js/Pages/Dev/DesignSystem.vue:213-242,890`
 
@@ -440,9 +442,9 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 
 #### Automated
 
-- [ ] 1.1 Pest suite passes
-- [ ] 1.2 Larastan passes with no new baseline entries
-- [ ] 1.3 Pint passes
+- [x] 1.1 Pest suite passes
+- [x] 1.2 Larastan passes with no new baseline entries
+- [x] 1.3 Pint passes
 
 ### Phase 2: Badges, Dialog Item and Kitchen Sink (UI)
 

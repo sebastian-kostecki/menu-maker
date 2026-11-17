@@ -467,11 +467,11 @@ None. No schema change, and plans linked under S-19 read the same labels as befo
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Seeder runs and its test passes
-- [x] 3.3 E2E passes
-- [x] 3.4 Visual gate passes after the deliberate update
-- [x] 3.5 Full Pest suite passes
+- [x] 3.1 Build passes — cb44337
+- [x] 3.2 Seeder runs and its test passes — cb44337
+- [x] 3.3 E2E passes — cb44337
+- [x] 3.4 Visual gate passes after the deliberate update — cb44337
+- [x] 3.5 Full Pest suite passes — cb44337
 
 #### Manual
 

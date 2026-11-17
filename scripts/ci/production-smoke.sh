@@ -102,7 +102,7 @@ echo "==> Checking supervisor programs after 15 s..."
 sleep 15
 supervisor_status="$(${COMPOSE} exec -T app supervisorctl status || true)"
 echo "${supervisor_status}"
-for program in php queue scheduler; do
+for program in php-fpm nginx queue scheduler; do
     if ! grep -E "^${program}[: ].*RUNNING" <<< "${supervisor_status}" > /dev/null; then
         echo "ERROR: supervisor program '${program}' is not RUNNING." >&2
         exit 1

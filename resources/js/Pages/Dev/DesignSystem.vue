@@ -16,7 +16,8 @@ import {
   AlertDialogTrigger,
 } from '@/Components/ui/alert-dialog'
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
-import AppSidebar from '@/Components/Common/AppSidebar.vue'
+import AppBrand from '@/Components/Common/AppBrand.vue'
+import MainNav from '@/Components/Common/MainNav.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
 import PageHeader from '@/Components/Common/PageHeader.vue'
@@ -203,8 +204,6 @@ const shellItems = mainNavigation.map((item) => ({
   current: item.routeName === 'recipes.index',
 }))
 const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
-const shellExpandedCollapsed = ref(false)
-const shellCollapsedCollapsed = ref(true)
 const appCategories = ['breakfast', 'supper', 'dinner']
 const appStatuses = ['draft', 'pending', 'processing', 'done', 'error']
 const appSort = ref({ column: 'name', direction: 'asc' })
@@ -770,26 +769,13 @@ const showToast = () => {
 
       <section aria-labelledby="ds-powloka" class="flex flex-col gap-4">
         <h2 id="ds-powloka" class="text-lg font-semibold">Powłoka</h2>
-        <div class="flex flex-wrap items-start gap-6">
-          <div data-testid="shell-sidebar-expanded" class="h-96 w-64 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellExpandedCollapsed"
-              collapsible
-              @toggle-collapse="shellExpandedCollapsed = !shellExpandedCollapsed"
-            />
-          </div>
-          <div data-testid="shell-sidebar-collapsed" class="h-96 w-16 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellCollapsedCollapsed"
-              collapsible
-              @toggle-collapse="shellCollapsedCollapsed = !shellCollapsedCollapsed"
-            />
-          </div>
-        </div>
-        <div class="flex items-center">
+        <div data-testid="shell-top-bar" class="flex items-center gap-6 bg-sidebar px-8 py-4">
+          <AppBrand href="#" />
+          <MainNav :items="shellItems" orientation="horizontal" class="mx-auto" />
           <UserMenu :user="shellUser" />
+        </div>
+        <div data-testid="shell-drawer-nav" class="w-72 rounded-lg border-2 border-foreground bg-background p-5">
+          <MainNav :items="shellItems" orientation="vertical" />
         </div>
       </section>
 

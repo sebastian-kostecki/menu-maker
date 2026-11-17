@@ -1,9 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
-import { ChevronDown, LogOut, User } from 'lucide-vue-next'
+import { LogOut, User } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar'
-import { Button } from '@/Components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,18 +30,16 @@ const initials = computed(() =>
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" class="h-auto gap-3 px-3 py-2">
-        <span class="sr-only">Menu użytkownika</span>
-        <Avatar aria-hidden="true">
+      <button
+        type="button"
+        aria-label="Menu użytkownika"
+        class="rounded-full outline-ring hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <Avatar size="sm" variant="sticker" aria-hidden="true">
           <AvatarImage v-if="user.avatar" :src="user.avatar" alt="" />
           <AvatarFallback>{{ initials }}</AvatarFallback>
         </Avatar>
-        <span class="hidden text-left sm:block">
-          <span class="block text-sm font-medium">{{ user.name }}</span>
-          <span class="block text-xs text-muted-foreground">{{ user.email }}</span>
-        </span>
-        <ChevronDown class="size-4 text-muted-foreground" />
-      </Button>
+      </button>
     </DropdownMenuTrigger>
 
     <DropdownMenuContent align="end" class="w-56">

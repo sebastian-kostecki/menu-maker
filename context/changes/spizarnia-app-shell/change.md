@@ -1,7 +1,7 @@
 ---
 change_id: spizarnia-app-shell
 title: Spizarnia app shell
-status: new
+status: implementing
 created: 2026-11-17
 updated: 2026-11-17
 archived_at: null

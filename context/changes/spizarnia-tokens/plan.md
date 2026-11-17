@@ -456,13 +456,13 @@ No data or schema changes. Rollback means reverting the commits; the baselines r
 
 #### Automated
 
-- [x] 1.1 PDF palette test passes against the new `app.css`: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php`
-- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.3 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 1.4 Token lint and its self-test pass: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
-- [x] 1.5 No `Figtree`/`figtree` reference remains in `resources/` or `tests/`: `grep -rni figtree resources tests` returns nothing
-- [x] 1.6 `app.css` has no `.dark {` block and no `--radius:` declaration
-- [x] 1.9 `cn()` merges the new utilities correctly: `vendor/bin/sail node --input-type=module -e "import { cn } from './resources/js/lib/utils.js'; const ok = cn('text-meta','text-muted-foreground') === 'text-meta text-muted-foreground' && cn('text-sm','text-meta') === 'text-meta' && cn('shadow-sm','shadow-sticker') === 'shadow-sticker'; if (!ok) process.exit(1)"`
+- [x] 1.1 PDF palette test passes against the new `app.css`: `vendor/bin/sail pest tests/Unit/Services/MealPlanPdfPaletteTest.php` — 42e3165
+- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test` — 42e3165
+- [x] 1.3 Client and SSR bundles build: `vendor/bin/sail npm run build` — 42e3165
+- [x] 1.4 Token lint and its self-test pass: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh` — 42e3165
+- [x] 1.5 No `Figtree`/`figtree` reference remains in `resources/` or `tests/`: `grep -rni figtree resources tests` returns nothing — 42e3165
+- [x] 1.6 `app.css` has no `.dark {` block and no `--radius:` declaration — 42e3165
+- [x] 1.9 `cn()` merges the new utilities correctly: `vendor/bin/sail node --input-type=module -e "import { cn } from './resources/js/lib/utils.js'; const ok = cn('text-meta','text-muted-foreground') === 'text-meta text-muted-foreground' && cn('text-sm','text-meta') === 'text-meta' && cn('shadow-sm','shadow-sticker') === 'shadow-sticker'; if (!ok) process.exit(1)"` — 42e3165
 
 #### Manual
 
@@ -473,8 +473,8 @@ No data or schema changes. Rollback means reverting the commits; the baselines r
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
 
 #### Manual
 

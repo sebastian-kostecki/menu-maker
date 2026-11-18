@@ -46,7 +46,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | done        |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | done |
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | done     |
-| S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | ready    |
+| S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | done     |
 | S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | done        |
 | S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | ready    |
 
@@ -154,7 +154,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Carry-over z S-25:** lista jadłospisów ma już kafle (`MealPlanTile`), filtr jako pigułki (`StatusFilterPills`: zawsze co najmniej jedna wciśnięta, ta sama semantyka URL co stary `Select`) i sortowanie jako pigułkę (`SortMenu`), wszystko w `Components/MealPlans/`. Przy drugim użyciu przez filtr kategorii rozważyć przeniesienie do `Common/`. Wariant `Badge tag` może posłużyć za żetony składników.
 - **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
 - **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
-- **Status:** ready
+- **Status:** done
 
 ### S-25: Jadłospisy w Spiżarni
 
@@ -225,6 +225,7 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 
 ## Done
 
+- **S-24: Użytkownik może przeglądać przepisy jako kafle po 4 w rzędzie z paskiem kategorii i kcal, filtrować kategorią przez pigułki z liczbą przepisów, oglądać przepis w bloku koloru kategorii (składniki jako żetony, kroki numerowane na `highlight`) i dodawać lub edytować przepis w kaflach z kategorią jako trzy kolorowe kafle-radio.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-recipes-ui/`. Lesson: —.
 - **S-23: Użytkownik może zobaczyć na pulpicie hero `highlight` z ostatnim jadłospisem, kafelki statystyk w kolorach pór dnia i „Ten tydzień” jako posiłki ostatniego planu w kolorach kategorii; nowy użytkownik widzi pusty stan z ekranu 06.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-dashboard-ui/`. Lesson: —.
 - **S-22: Użytkownik może poruszać się po aplikacji w pasku górnym z pigułkami nawigacji i awatarem (menu użytkownika), poniżej `lg` w szufladzie, a na ekranach gościa (logowanie, rejestracja, reset hasła) widzi ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-app-shell/`. Lesson: —.
 - **F-06: (foundation) prymitywy `ui/` mają warianty Spiżarni: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), pola formularza (kontur 2px, promień 12px), `Dialog` (24px, cień, zamknięcie); każdy wariant ze stanami z §5.4 jest w kitchen sinku.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-primitives/`. Lesson: —.

@@ -34,9 +34,17 @@ import { Button } from '@/Components/ui/button'
 
 type SortDirection = 'asc' | 'desc'
 
+interface SortOption {
+  value: string
+  label: string
+  column: string
+  direction: SortDirection
+}
+
 interface Props {
   sort: string
   direction: SortDirection
+  options: SortOption[]
 }
 
 interface Emits {
@@ -46,22 +54,15 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const options: { value: string, label: string, column: string, direction: SortDirection }[] = [
-  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
-  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
-  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
-  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
-]
-
 const current = computed(() =>
-  options.find((option) => option.column === props.sort && option.direction === props.direction)
+  props.options.find((option) => option.column === props.sort && option.direction === props.direction)
 )
 
 const currentValue = computed(() => current.value?.value ?? '')
 const label = computed(() => current.value?.label ?? 'Sortuj')
 
 const handleChange = (value: string | undefined) => {
-  const option = options.find((candidate) => candidate.value === value)
+  const option = props.options.find((candidate) => candidate.value === value)
 
   if (option) {
     emit('sort-change', { column: option.column, direction: option.direction })

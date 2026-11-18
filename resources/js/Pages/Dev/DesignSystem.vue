@@ -33,8 +33,14 @@ import FirstRunTile from '@/Components/Dashboard/FirstRunTile.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
-import SortMenu from '@/Components/MealPlans/SortMenu.vue'
-import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
+import CategoryRadioTiles from '@/Components/recipes/CategoryRadioTiles.vue'
+import RecipeTile from '@/Components/recipes/RecipeTile.vue'
+import RecipeHero from '@/Components/recipes/RecipeHero.vue'
+import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue'
+import InstructionsSection from '@/Components/recipes/InstructionsSection.vue'
+import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -205,6 +211,12 @@ const recipes = [
 ]
 
 const comboboxValue = ref(undefined)
+const categoryTilesSelected = ref('supper')
+const categoryTileOptions = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
 const page = ref(2)
 
 const shellItems = mainNavigation.map((item) => ({
@@ -322,7 +334,41 @@ const demoPlanStatuses = [
   { value: 'done', label: 'Gotowy' },
   { value: 'error', label: 'Błąd' },
 ]
+const demoRecipeSearch = ref('')
+const demoRecipeCategory = ref('')
+const demoRecipeSort = ref({ column: 'created_at', direction: 'desc' })
+const demoRecipeCategories = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
+const demoRecipeCounts = { all: 21, breakfast: 7, supper: 7, dinner: 7 }
+const demoRecipeTiles = [
+  { id: 1, name: 'Owsianka z jabłkiem i cynamonem', category: 'breakfast', calories: '640.00', servings: 2, created_at: '2026-06-12T10:00:00+00:00' },
+  { id: 2, name: 'Rosół z makaronem', category: 'supper', calories: '1620.00', servings: 4, created_at: '2026-06-10T10:00:00+00:00' },
+  { id: 3, name: 'Kanapki z pastą jajeczną', category: 'dinner', calories: '1140.00', servings: 1, created_at: '2026-06-08T10:00:00+00:00' },
+]
+const demoRecipePage = {
+  name: 'Rosół z makaronem',
+  category: 'supper',
+  calories: '1080.00',
+  servings: 4,
+}
+const demoRecipeIngredients = [
+  { id: 1, name: 'Kurczak', quantity: 800, unit: { code: 'g' } },
+  { id: 2, name: 'Makaron nitki', quantity: 200, unit: { code: 'g' } },
+  { id: 3, name: 'Marchew', quantity: 3, unit: { code: 'szt.' } },
+  { id: 4, name: 'Woda', quantity: 2, unit: { code: 'l' } },
+]
+const demoRecipeSteps = 'Ugotuj bulion z kurczaka i warzyw.\nDodaj makaron i gotuj 4 minuty.\nPodaj z natką pietruszki.'
+const demoRecipeStepsSource = `${demoRecipeSteps}\n\nŹródło: https://example.com/rosol`
 const demoPlanStatus = ref('pending')
+const demoPlanSortOptions = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
 const demoPlanSort = ref({ column: 'created_at', direction: 'desc' })
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
@@ -642,6 +688,30 @@ const showToast = () => {
             </Combobox>
           </div>
         </div>
+        <div class="flex max-w-205 flex-col gap-6">
+          <CategoryRadioTiles
+            name="ds-category-empty"
+            :model-value="null"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            v-model="categoryTilesSelected"
+            name="ds-category-selected"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            name="ds-category-error"
+            :model-value="null"
+            :categories="categoryTileOptions"
+            error="Wybierz kategorię."
+          />
+          <CategoryRadioTiles
+            name="ds-category-disabled"
+            model-value="breakfast"
+            :categories="categoryTileOptions"
+            disabled
+          />
+        </div>
       </section>
 
       <section aria-labelledby="ds-karta-tabela" class="flex flex-col gap-4">
@@ -913,8 +983,9 @@ const showToast = () => {
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <StatusFilterPills v-model="demoPlanStatus" :statuses="demoPlanStatuses" />
+          <FilterPills v-model="demoPlanStatus" aria-label="Status" :options="demoPlanStatuses" />
           <SortMenu
+            :options="demoPlanSortOptions"
             :sort="demoPlanSort.column"
             :direction="demoPlanSort.direction"
             @sort-change="demoPlanSort = $event"
@@ -944,6 +1015,24 @@ const showToast = () => {
             </EmptyState>
           </Card>
         </div>
+
+        <RecipesToolbar
+          :search="demoRecipeSearch"
+          :category="demoRecipeCategory"
+          :sort="demoRecipeSort.column"
+          :direction="demoRecipeSort.direction"
+          :categories="demoRecipeCategories"
+          :category-counts="demoRecipeCounts"
+          @search="demoRecipeSearch = $event"
+          @category-change="demoRecipeCategory = $event"
+          @sort-change="demoRecipeSort = $event"
+        />
+
+        <ul aria-label="Przykładowe przepisy" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <li v-for="recipe in demoRecipeTiles" :key="recipe.id">
+            <RecipeTile :recipe="recipe" />
+          </li>
+        </ul>
 
         <ConfirmDialog
           v-model:open="confirmOpen"
@@ -1002,6 +1091,18 @@ const showToast = () => {
 
         <div class="rounded-lg border bg-card p-6">
           <EmptyState :icon="SearchX" title="Brak wyników" />
+        </div>
+
+        <RecipeHero :recipe="demoRecipePage" :heading-level="2" />
+
+        <div class="grid gap-6 lg:grid-cols-5">
+          <div class="lg:col-span-2">
+            <IngredientCardGrid :ingredients="demoRecipeIngredients" />
+          </div>
+          <div class="flex flex-col gap-6 lg:col-span-3">
+            <InstructionsSection :instructions="demoRecipeStepsSource" />
+            <InstructionsSection :instructions="demoRecipeSteps" />
+          </div>
         </div>
       </section>
 

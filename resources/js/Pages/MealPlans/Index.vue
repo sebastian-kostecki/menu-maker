@@ -10,12 +10,14 @@
       </PageHeader>
 
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <StatusFilterPills
+        <FilterPills
+          aria-label="Status"
           :model-value="currentFilters.status || ''"
-          :statuses="statuses"
+          :options="statuses"
           @update:model-value="handleStatusChange"
         />
         <SortMenu
+          :options="sortOptions"
           :sort="currentFilters.sort ?? 'created_at'"
           :direction="currentFilters.direction ?? 'desc'"
           @sort-change="handleSortChange"
@@ -134,19 +136,31 @@ interface MealPlanCollectionProps {
   statuses: StatusOption[]
 }
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
-import SortMenu from '@/Components/MealPlans/SortMenu.vue'
-import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
+
+const sortOptions: { value: string, label: string, column: string, direction: SortDirection }[] = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
 
 // Props from Inertia
 const props = defineProps<MealPlanCollectionProps>()
 
 // Filter state is derived from the URL (props.filters echoes the query as raw strings); nothing is stored locally.
+// Without query params the server sends `filters` as an empty JSON array, and `[].sort` is a function.
+const normalizedFilters = computed<MealPlanCollectionProps['filters']>(() =>
+  Array.isArray(props.filters) ? {} : props.filters
+)
+
 const currentFilters = computed<FiltersState>(() => ({
-  status: props.filters.filter?.status || '',
-  sort: props.filters.sort || 'created_at',
-  direction: props.filters.direction === 'asc' ? 'asc' : 'desc',
-  perPage: Number(props.filters.perPage) || 15
+  status: normalizedFilters.value.filter?.status || '',
+  sort: normalizedFilters.value.sort || 'created_at',
+  direction: normalizedFilters.value.direction === 'asc' ? 'asc' : 'desc',
+  perPage: Number(normalizedFilters.value.perPage) || 15
 }))
 
 const description = computed(() => {
@@ -162,7 +176,7 @@ const description = computed(() => {
 
 // A status filter, or a page beyond the first, with no rows is not the first-run state.
 const isFiltered = computed(() =>
-  Boolean(props.filters.filter?.status) || props.mealPlans.meta.current_page > 1
+  Boolean(normalizedFilters.value.filter?.status) || props.mealPlans.meta.current_page > 1
 )
 
 // Serialise the current filters merged with a change; an empty status is omitted

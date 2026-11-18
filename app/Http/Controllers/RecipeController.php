@@ -11,6 +11,7 @@ use App\Http\Resources\RecipeResource;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\Unit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -38,9 +39,14 @@ class RecipeController extends Controller
             $query->search($request->search);
         }
 
-        // Apply category filter
-        if ($request->filled('category')) {
-            $query->byCategory($request->category);
+        // Faceted counts: respect the search but ignore the selected category.
+        $categoryCounts = $this->categoryCounts($query);
+
+        // Apply category filter; an unknown value filters nothing.
+        $rawCategory = $request->input('category');
+        $category = is_string($rawCategory) ? MealCategory::tryFrom($rawCategory) : null;
+        if ($category !== null) {
+            $query->byCategory($category->value);
         }
 
         // Apply sorting
@@ -48,10 +54,12 @@ class RecipeController extends Controller
         $sortDirection = $request->get('direction', 'desc');
         $query->orderByField($sortField, $sortDirection === 'asc' ? 'asc' : 'desc');
 
-        $recipes = $query->paginate($request->get('per_page', 15));
+        $perPage = min(max((int) $request->get('per_page', 12), 5), 100);
+        $recipes = $query->paginate($perPage);
 
         return Inertia::render('Recipes/Index', [
             'recipes' => RecipeResource::collection($recipes),
+            'categoryCounts' => $categoryCounts,
             'filters' => $request->only(['search', 'category', 'sort', 'direction']),
             'categories' => $this->categoryOptions(),
         ]);
@@ -147,8 +155,27 @@ class RecipeController extends Controller
     {
         $recipe->delete();
 
-        return redirect()->route('recipes.index')
+        return redirect()->to($this->recipesIndexReturnUrl())
             ->with('success', 'Przepis został usunięty.');
+    }
+
+    /**
+     * The list URL to return to after a delete: the filtered list the request came from
+     * (without `page`, which may no longer exist), otherwise the plain index.
+     */
+    private function recipesIndexReturnUrl(): string
+    {
+        $indexUrl = route('recipes.index');
+        $previous = url()->previous();
+
+        if (! str_starts_with($previous, $indexUrl.'?')) {
+            return $indexUrl;
+        }
+
+        parse_str((string) parse_url($previous, PHP_URL_QUERY), $query);
+        unset($query['page']);
+
+        return route('recipes.index', $query);
     }
 
     /**
@@ -179,6 +206,35 @@ class RecipeController extends Controller
             ->get(['id', 'code'])
             ->sortBy(fn (Unit $unit): int => (int) array_search($unit->code, Unit::ALLOWED_CODES, true))
             ->values();
+    }
+
+    /**
+     * Recipe counts per category for the given (owner-scoped, optionally searched) query, plus their sum.
+     *
+     * @param  Builder<Recipe>  $query
+     * @return array{all: int, breakfast: int, supper: int, dinner: int}
+     */
+    private function categoryCounts(Builder $query): array
+    {
+        /** @var array<string, int> $grouped */
+        $grouped = (clone $query)
+            ->toBase()
+            ->select('category', DB::raw('count(*) as aggregate'))
+            ->groupBy('category')
+            ->pluck('aggregate', 'category')
+            ->map(fn ($count): int => (int) $count)
+            ->all();
+
+        $breakfast = $grouped[MealCategory::Breakfast->value] ?? 0;
+        $supper = $grouped[MealCategory::Supper->value] ?? 0;
+        $dinner = $grouped[MealCategory::Dinner->value] ?? 0;
+
+        return [
+            'all' => $breakfast + $supper + $dinner,
+            'breakfast' => $breakfast,
+            'supper' => $supper,
+            'dinner' => $dinner,
+        ];
     }
 
     /**

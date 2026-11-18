@@ -1,7 +1,8 @@
 ---
 change_id: spizarnia-family-profile-ui
 title: Spizarnia family and profile UI
-status: impl_reviewed
+status: archived
+archived_at: 2026-11-18T07:25:50Z
 created: 2026-11-17
 updated: 2026-11-18
 ---

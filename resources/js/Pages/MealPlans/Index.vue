@@ -10,12 +10,14 @@
       </PageHeader>
 
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <StatusFilterPills
+        <FilterPills
+          aria-label="Status"
           :model-value="currentFilters.status || ''"
-          :statuses="statuses"
+          :options="statuses"
           @update:model-value="handleStatusChange"
         />
         <SortMenu
+          :options="sortOptions"
           :sort="currentFilters.sort ?? 'created_at'"
           :direction="currentFilters.direction ?? 'desc'"
           @sort-change="handleSortChange"
@@ -134,9 +136,16 @@ interface MealPlanCollectionProps {
   statuses: StatusOption[]
 }
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
-import SortMenu from '@/Components/MealPlans/SortMenu.vue'
-import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
+
+const sortOptions: { value: string, label: string, column: string, direction: SortDirection }[] = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
 
 // Props from Inertia
 const props = defineProps<MealPlanCollectionProps>()

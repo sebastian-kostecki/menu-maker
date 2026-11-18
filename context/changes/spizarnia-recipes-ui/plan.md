@@ -643,14 +643,14 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [ ] 1.1 Recipe controller tests pass
-- [ ] 1.2 Full Pest suite passes
-- [ ] 1.3 Larastan passes without baseline additions
-- [ ] 1.4 Pint passes
-- [ ] 1.5 Build passes
-- [ ] 1.6 Token lint passes
-- [ ] 1.7 Functional E2E passes unchanged
-- [ ] 1.8 Visual gate passes with no snapshot update
+- [x] 1.1 Recipe controller tests pass
+- [x] 1.2 Full Pest suite passes
+- [x] 1.3 Larastan passes without baseline additions
+- [x] 1.4 Pint passes
+- [x] 1.5 Build passes
+- [x] 1.6 Token lint passes
+- [x] 1.7 Functional E2E passes unchanged
+- [x] 1.8 Visual gate passes with no snapshot update
 
 #### Manual
 

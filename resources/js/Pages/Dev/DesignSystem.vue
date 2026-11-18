@@ -29,8 +29,8 @@ import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
-import SortMenu from '@/Components/MealPlans/SortMenu.vue'
-import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -312,6 +312,12 @@ const demoPlanStatuses = [
   { value: 'error', label: 'Błąd' },
 ]
 const demoPlanStatus = ref('pending')
+const demoPlanSortOptions = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
 const demoPlanSort = ref({ column: 'created_at', direction: 'desc' })
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
@@ -902,8 +908,9 @@ const showToast = () => {
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <StatusFilterPills v-model="demoPlanStatus" :statuses="demoPlanStatuses" />
+          <FilterPills v-model="demoPlanStatus" aria-label="Status" :options="demoPlanStatuses" />
           <SortMenu
+            :options="demoPlanSortOptions"
             :sort="demoPlanSort.column"
             :direction="demoPlanSort.direction"
             @sort-change="demoPlanSort = $event"

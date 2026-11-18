@@ -60,7 +60,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | B      | Pulpit                     | `S-23`                     | Dołącza do strumienia A w `S-22`; równolegle do C, D, E.                                                  |
 | C      | Przepisy                   | `S-24`                     | Dołącza do strumienia A w `S-22`; równolegle do B, D, E.                                                  |
 | D      | Jadłospisy                 | `S-25`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, E.                                                  |
-| E      | Rodzina i profil           | `S-26`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, D. Wspólny kitchen sink: przy merge'u B–E konflikty w nim rozwiązać, a baseline `design-system.spec.ts` odświeżyć raz, na końcu (§10.6). |
+| E      | Rodzina i profil           | `S-26`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, D. Wspólny kitchen sink: przy merge'u B–E konflikty w nim rozwiązać, a baseline `design-system.spec.ts` odświeżyć raz, na końcu (§10.6). Po S-25 (D zamknięty) B, C i E idą równolegle, każdy w osobnym worktree z własnym stackiem Sail (`VISUAL_DOCKER_NETWORK`, `MAILPIT_URL`, `APP_PORT`, `VITE_PORT`); kolejność merge'a: E (`S-26`) → B (`S-23`) → C (`S-24`). |
 
 ## Baseline
 
@@ -136,6 +136,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
 - **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
 - **Carry-over z F-06:** `CardContent` ma `p-6 pt-0` (bez nagłówka karty), więc zawartość `StatCard` nie ma górnego odstępu — dać jej własny padding.
+- **Carry-over z S-25:** wzorzec „Ten tydzień” to siatka jadłospisu (`MealPlanGrid`): komórki wypełnione kolorem posiłku, oznaczenia powtórki i „z kolacji” na wariancie `Badge tag`, pusty posiłek jako przerywana ramka. To odpowiada na niewiadomą powyżej.
 - **Status:** ready
 
 ### S-24: Przepisy w Spiżarni
@@ -148,8 +149,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - Czy liczby przy pigułkach kategorii uwzględniają bieżące wyszukiwanie, czy liczą wszystkie przepisy użytkownika? — Owner: user. Block: no.
-  - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no.
+  - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no (precedens z S-25: sortowanie jako pigułka `SortMenu` nad kaflami).
 - **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
+- **Carry-over z S-25:** lista jadłospisów ma już kafle (`MealPlanTile`), filtr jako pigułki (`StatusFilterPills`: zawsze co najmniej jedna wciśnięta, ta sama semantyka URL co stary `Select`) i sortowanie jako pigułkę (`SortMenu`), wszystko w `Components/MealPlans/`. Przy drugim użyciu przez filtr kategorii rozważyć przeniesienie do `Common/`. Wariant `Badge tag` może posłużyć za żetony składników.
 - **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
 - **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
 - **Status:** ready

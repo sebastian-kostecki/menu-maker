@@ -10,6 +10,7 @@ import {
 } from '@/Components/ui/card'
 import { Input } from '@/Components/ui/input'
 import { useForm } from '@inertiajs/vue3'
+import { Check } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const passwordInput = ref(null)
@@ -68,40 +69,42 @@ const updatePassword = () => {
                     </template>
                 </FormField>
 
-                <FormField
-                    id="password"
-                    label="Nowe hasło"
-                    :error="form.errors.password"
-                >
-                    <template #default="{ id, invalid, describedBy }">
-                        <Input
-                            :id="id"
-                            ref="passwordInput"
-                            type="password"
-                            v-model="form.password"
-                            autocomplete="new-password"
-                            :aria-invalid="invalid || undefined"
-                            :aria-describedby="describedBy"
-                        />
-                    </template>
-                </FormField>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                        id="password"
+                        label="Nowe hasło"
+                        :error="form.errors.password"
+                    >
+                        <template #default="{ id, invalid, describedBy }">
+                            <Input
+                                :id="id"
+                                ref="passwordInput"
+                                type="password"
+                                v-model="form.password"
+                                autocomplete="new-password"
+                                :aria-invalid="invalid || undefined"
+                                :aria-describedby="describedBy"
+                            />
+                        </template>
+                    </FormField>
 
-                <FormField
-                    id="password_confirmation"
-                    label="Potwierdź hasło"
-                    :error="form.errors.password_confirmation"
-                >
-                    <template #default="{ id, invalid, describedBy }">
-                        <Input
-                            :id="id"
-                            type="password"
-                            v-model="form.password_confirmation"
-                            autocomplete="new-password"
-                            :aria-invalid="invalid || undefined"
-                            :aria-describedby="describedBy"
-                        />
-                    </template>
-                </FormField>
+                    <FormField
+                        id="password_confirmation"
+                        label="Potwierdź hasło"
+                        :error="form.errors.password_confirmation"
+                    >
+                        <template #default="{ id, invalid, describedBy }">
+                            <Input
+                                :id="id"
+                                type="password"
+                                v-model="form.password_confirmation"
+                                autocomplete="new-password"
+                                :aria-invalid="invalid || undefined"
+                                :aria-describedby="describedBy"
+                            />
+                        </template>
+                    </FormField>
+                </div>
 
                 <div class="flex items-center gap-4">
                     <Button type="submit" :disabled="form.processing">
@@ -116,8 +119,9 @@ const updatePassword = () => {
                     >
                         <p
                             v-if="form.recentlySuccessful"
-                            class="text-sm text-muted-foreground"
+                            class="flex items-center gap-1.5 text-meta font-semibold text-success-foreground"
                         >
+                            <Check class="size-4" aria-hidden="true" />
                             Zapisano.
                         </p>
                     </Transition>

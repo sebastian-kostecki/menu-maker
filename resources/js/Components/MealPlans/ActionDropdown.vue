@@ -2,12 +2,11 @@
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
       <Button
-        variant="ghost"
+        variant="secondary"
         size="icon"
-        class="size-8"
         :aria-label="`Akcje: ${formatDateRange(item.start_date, item.end_date)}`"
       >
-        <MoreHorizontal aria-hidden="true" />
+        <Ellipsis aria-hidden="true" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-56">
@@ -81,7 +80,7 @@
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import {
-  MoreHorizontal,
+  Ellipsis,
   Eye,
   ChefHat,
   FileDown,
@@ -118,6 +117,8 @@ import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 
 interface Props {
   item: MealPlanListItem
+  /** Kitchen-sink mode: the confirm dialogs only close and send no request. */
+  demo?: boolean
 }
 
 const props = defineProps<Props>()
@@ -155,6 +156,12 @@ const handleReturnToDraftClick = () => {
 
 // Handle back-to-draft confirm
 const handleReturnToDraftConfirm = () => {
+  if (props.demo) {
+    showReturnToDraftDialog.value = false
+
+    return
+  }
+
   returningToDraft.value = true
 
   router.post(
@@ -184,6 +191,12 @@ const handleDeleteClick = () => {
 
 // Handle delete confirm
 const handleDeleteConfirm = async () => {
+  if (props.demo) {
+    showDeleteDialog.value = false
+
+    return
+  }
+
   deleting.value = true
 
   try {

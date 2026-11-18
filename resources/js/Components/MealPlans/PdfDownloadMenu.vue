@@ -1,10 +1,10 @@
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="outline">
+      <Button :variant="variant" :size="size" :aria-label="ariaLabel">
         <FileDown class="size-4" aria-hidden="true" />
-        Pobierz PDF
-        <ChevronDown class="size-4 text-muted-foreground" aria-hidden="true" />
+        {{ label }}
+        <ChevronDown class="size-4" :class="variant === 'outline' && 'text-muted-foreground'" aria-hidden="true" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-48">
@@ -34,7 +34,14 @@ import {
 } from '@/Components/ui/dropdown-menu'
 import { Button } from '@/Components/ui/button'
 
-defineProps<{
-  links: { pdf: string; pdf_with_recipes: string }
-}>()
+withDefaults(
+  defineProps<{
+    links: { pdf: string; pdf_with_recipes: string }
+    label?: string
+    size?: 'default' | 'xs' | 'sm' | 'lg'
+    ariaLabel?: string
+    variant?: 'outline' | 'inverse-outline'
+  }>(),
+  { label: 'Pobierz PDF', size: 'default', ariaLabel: undefined, variant: 'outline' }
+)
 </script>

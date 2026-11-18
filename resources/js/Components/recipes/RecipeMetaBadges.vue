@@ -1,13 +1,17 @@
 <template>
   <div class="flex flex-wrap gap-3">
-    <Badge variant="outline" class="gap-2 px-3 py-1">
+    <Badge variant="tag" size="status" class="gap-2">
       <Flame class="size-4" aria-hidden="true" />
-      <span class="font-medium">{{ formatNumber(calories) }} kcal</span>
+      {{ formatNumber(calories) }} kcal
     </Badge>
 
-    <Badge variant="outline" class="gap-2 px-3 py-1">
+    <Badge variant="tag" size="status" class="gap-2">
       <Users class="size-4" aria-hidden="true" />
-      <span class="font-medium">{{ servings }} {{ pluralize(servings, { one: 'porcja', few: 'porcje', many: 'porcji' }) }}</span>
+      {{ servings }} {{ pluralize(servings, { one: 'porcja', few: 'porcje', many: 'porcji' }) }}
+    </Badge>
+
+    <Badge variant="tag" size="status">
+      {{ formatNumber(Math.round(Number(calories) / servings)) }} kcal / porcja
     </Badge>
   </div>
 </template>

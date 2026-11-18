@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Ingredients List -->
-    <div v-if="ingredients.length > 0" class="space-y-3">
+    <div v-if="ingredients.length > 0" class="space-y-4">
       <IngredientRow
         v-for="(ingredient, index) in ingredients"
         :key="`ingredient-${index}`"
@@ -16,21 +16,11 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-8 text-muted-foreground">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-        <Plus class="w-6 h-6" />
-      </div>
-      <p class="text-sm">Nie dodano jeszcze składników.</p>
-    </div>
+    <EmptyState v-else :icon="ShoppingBasket" title="Nie dodano jeszcze składników." :heading-level="3" class="py-4" />
 
     <!-- Add Ingredient Button -->
-    <Button
-      type="button"
-      variant="outline"
-      @click="handleAddIngredient"
-      class="w-full"
-    >
-      <Plus class="w-4 h-4 mr-2" />
+    <Button type="button" variant="dashed" class="h-12 w-full" @click="handleAddIngredient">
+      <Plus aria-hidden="true" />
       Dodaj składnik
     </Button>
 
@@ -42,8 +32,9 @@
 </template>
 
 <script setup>
-import { Plus } from 'lucide-vue-next'
+import { Plus, ShoppingBasket } from 'lucide-vue-next'
 import { Button } from '@/Components/ui/button'
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import IngredientRow from './IngredientRow.vue'
 
 // Define props

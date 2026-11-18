@@ -7,39 +7,39 @@
         /*
          * Mirror of resources/css/app.css :root (dompdf cannot read CSS variables). Keep in sync;
          * guarded by tests/Unit/Services/MealPlanPdfPaletteTest.php. Hexes are the sRGB-clipped
-         * values from context/foundation/design-system.md 4.2-4.4.
-         * --foreground  oklch(0.24 0.02 60)  #261d16
-         * --muted  oklch(0.955 0.012 85)  #f4f0e7
-         * --muted-foreground  oklch(0.50 0.02 60)  #6c6158
-         * --border  oklch(0.90 0.012 85)  #e2ded5
-         * --warning  oklch(0.96 0.06 90)  #fff1c4
-         * --warning-foreground  oklch(0.45 0.10 75)  #754b00
-         * --meal-breakfast  oklch(0.95 0.06 85)  #ffecc1
-         * --meal-breakfast-foreground  oklch(0.45 0.10 70)  #784900
-         * --meal-supper  oklch(0.94 0.045 40)  #ffe2d5
-         * --meal-supper-foreground  oklch(0.47 0.14 35)  #99351b
-         * --meal-dinner  oklch(0.94 0.035 280)  #e6e9ff
-         * --meal-dinner-foreground  oklch(0.45 0.12 280)  #4a4b96
+         * values from context/foundation/design-system.md 10.2.
+         * --foreground  oklch(0.234 0.036 288.1)  #1d1b2e
+         * --muted  oklch(0.952 0.017 76.1)  #f6eee3
+         * --muted-foreground  oklch(0.48 0.032 296.6)  #5f5a6e
+         * --border  oklch(0.9 0.026 76.8)  #e8dccb
+         * --warning  oklch(0.932 0.09 90.9)  #ffe7a3
+         * --warning-foreground  oklch(0.344 0.071 84.0)  #4a3500
+         * --meal-breakfast  oklch(0.885 0.129 86.1)  #ffd36e
+         * --meal-breakfast-foreground  oklch(0.297 0.061 84.8)  #3b2a00
+         * --meal-supper  oklch(0.755 0.151 38.3)  #ff8a65
+         * --meal-supper-foreground  oklch(0.245 0.067 37.6)  #3a1206
+         * --meal-dinner  oklch(0.697 0.136 279.0)  #8c93f0
+         * --meal-dinner-foreground  oklch(0.225 0.073 276.5)  #14163d
          */
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #261d16; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #1d1b2e; }
         h1 { font-size: 15pt; font-weight: bold; margin: 0 0 10px; }
         h2 { font-size: 12pt; font-weight: bold; margin: 0 0 10px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #e2ded5; padding: 4px 5px; vertical-align: top; text-align: left; }
-        th { background: #f4f0e7; font-size: 9pt; font-weight: bold; }
+        th, td { border: 1px solid #e8dccb; padding: 4px 5px; vertical-align: top; text-align: left; }
+        th { background: #f6eee3; font-size: 9pt; font-weight: bold; }
         thead { display: table-header-group; }
         tr { page-break-inside: avoid; }
-        tr.day-start td { border-top: 2px solid #6c6158; }
+        tr.day-start td { border-top: 2px solid #5f5a6e; }
         .day { font-size: 9pt; font-weight: bold; }
         td.day-continued { border-top: none; }
         td.category { font-size: 8pt; font-weight: bold; }
-        td.meal-breakfast { background: #ffecc1; color: #784900; }
-        td.meal-supper { background: #ffe2d5; color: #99351b; }
-        td.meal-dinner { background: #e6e9ff; color: #4a4b96; }
+        td.meal-breakfast { background: #ffd36e; color: #3b2a00; }
+        td.meal-supper { background: #ff8a65; color: #3a1206; }
+        td.meal-dinner { background: #8c93f0; color: #14163d; }
         td.quantity { text-align: right; }
-        .meta, .note { font-size: 8pt; color: #6c6158; }
+        .meta, .note { font-size: 8pt; color: #5f5a6e; }
         .note { margin-top: 10px; }
-        .notices { margin: 0 0 10px; padding: 6px 8px; border: 1px solid #e2ded5; border-radius: 4px; background: #fff1c4; color: #754b00; }
+        .notices { margin: 0 0 10px; padding: 6px 8px; border: 1px solid #e8dccb; border-radius: 4px; background: #ffe7a3; color: #4a3500; }
         .notices p { margin: 0 0 3px; }
     </style>
 </head>

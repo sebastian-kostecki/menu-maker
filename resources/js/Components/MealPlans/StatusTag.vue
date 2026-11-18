@@ -1,6 +1,6 @@
 <template>
-  <Badge :variant="badgeVariant">
-    <Loader2 v-if="value === 'processing'" class="mr-1 size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+  <Badge :variant="badgeVariant" size="status">
+    <Loader2 v-if="value === 'processing'" class="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
     {{ statusLabel }}
   </Badge>
 </template>
@@ -26,7 +26,7 @@ const statusLabels: Record<MealPlanStatus, string> = {
 }
 
 const statusVariants: Record<MealPlanStatus, string> = {
-  draft: 'outline',
+  draft: 'draft',
   pending: 'muted',
   processing: 'info',
   done: 'success',

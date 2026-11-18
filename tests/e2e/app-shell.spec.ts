@@ -8,20 +8,21 @@ async function login(page: Page, testInfo: TestInfo) {
   await page.waitForURL('**/dashboard');
 }
 
-test('sidebar collapse persists across navigation and reload', async ({ page }, testInfo) => {
+test('top bar marks the current page and keeps it after reload', async ({ page }, testInfo) => {
   await login(page, testInfo);
 
   const nav = page.getByRole('navigation', { name: 'Główna nawigacja' });
-  await page.getByRole('button', { name: 'Zwiń panel boczny' }).click();
-  await expect(page.getByRole('button', { name: 'Rozwiń panel boczny' })).toBeVisible();
+  const pulpit = nav.getByRole('link', { name: 'Pulpit', exact: true });
+  const przepisy = nav.getByRole('link', { name: 'Przepisy', exact: true });
+  await expect(pulpit).toHaveAttribute('aria-current', 'page');
 
-  await nav.getByRole('link', { name: 'Przepisy', exact: true }).click();
+  await przepisy.click();
   await page.waitForURL('**/recipes');
-  await expect(page.getByRole('button', { name: 'Rozwiń panel boczny' })).toBeVisible();
-  await expect(nav.getByRole('link', { name: 'Przepisy', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(przepisy).toHaveAttribute('aria-current', 'page');
+  await expect(pulpit).not.toHaveAttribute('aria-current', 'page');
 
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Rozwiń panel boczny' })).toBeVisible();
+  await expect(przepisy).toHaveAttribute('aria-current', 'page');
 });
 
 test('mobile navigation drawer opens, closes on Esc and navigates', async ({ page }, testInfo) => {

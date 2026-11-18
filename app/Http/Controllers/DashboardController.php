@@ -18,7 +18,9 @@ class DashboardController extends Controller
      *
      * Props:
      * - stats: array{recipes: int, mealPlans: int}
-     * - latestMealPlan: array<string, mixed>|null
+     * - latestMealPlan: array<string, mixed>|null, with its meals (id, meal_date, meal_category, feeds_meal_id,
+     *   from_meal_id and an optional recipe) sorted by date and category; meals[].ingredients is an empty object,
+     *   because the ingredients relation is not loaded
      */
     public function __invoke(Request $request): Response
     {
@@ -37,7 +39,7 @@ class DashboardController extends Controller
             ],
             'latestMealPlan' => $latestMealPlan === null
                 ? null
-                : (new MealPlanResource($latestMealPlan))->resolve(),
+                : (new MealPlanResource($latestMealPlan->load('meals.recipe')))->resolve(),
         ]);
     }
 }

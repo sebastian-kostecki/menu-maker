@@ -53,13 +53,13 @@ test('user deletes a family member through the confirmation dialog', async ({ pa
   await formDialog.getByRole('button', { name: 'Zapisz', exact: true }).click();
   await expect(formDialog).toBeHidden();
 
-  await expect(page.getByRole('cell', { name, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name, exact: true, level: 2 })).toBeVisible();
 
   await page.getByRole('button', { name: `Usuń ${name}` }).click();
   const dialog = page.getByRole('alertdialog');
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Usuń', exact: true }).click();
 
-  await expect(page.getByRole('cell', { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name, exact: true, level: 2 })).toHaveCount(0);
   await expect(page.getByText(`Członek rodziny "${name}" został usunięty`)).toBeVisible();
 });

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
@@ -118,4 +119,93 @@ it('gives a brand-new user zero stats and no plan', function (): void {
                 ->where('latestMealPlan', null)
                 ->missing('recipeShortfall')
         );
+});
+
+it('exposes the latest plan\'s meals in date and category order with their recipes', function (): void {
+    $breakfast = Recipe::factory()->breakfast()->create(['user_id' => $this->user->id]);
+    $dinner = Recipe::factory()->dinner()->create(['user_id' => $this->user->id]);
+    $plan = mealPlanWithRecipes($this->user, 'done', $breakfast, $dinner);
+
+    $this->actingAs($this->user)->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(
+            fn ($page) => $page
+                ->where('latestMealPlan.id', $plan->id)
+                ->has('latestMealPlan.meals', 2)
+                ->where('latestMealPlan.meals.0.meal_date', $plan->start_date->format('Y-m-d'))
+                ->where('latestMealPlan.meals.0.meal_category', $breakfast->category)
+                ->where('latestMealPlan.meals.0.recipe.name', $breakfast->name)
+                ->has('latestMealPlan.meals.0.ingredients', 0)
+        );
+});
+
+it('exposes an empty slot without a recipe and the link markers', function (): void {
+    $plan = MealPlan::factory()->for($this->user)->done()->create();
+    $recipe = Recipe::factory()->supper()->create(['user_id' => $this->user->id]);
+
+    $leftover = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => $plan->start_date->copy()->addDay(),
+        'meal_category' => $recipe->category,
+    ]);
+    $source = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => $plan->start_date->copy(),
+        'meal_category' => $recipe->category,
+        'feeds_meal_id' => $leftover->id,
+    ]);
+    $empty = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => null,
+        'meal_date' => $plan->start_date->copy()->addDays(2),
+        'meal_category' => $recipe->category,
+    ]);
+
+    $this->actingAs($this->user)->get(route('dashboard'))
+        ->assertInertia(
+            fn ($page) => $page
+                ->has('latestMealPlan.meals', 3)
+                ->where('latestMealPlan.meals.0.id', $source->id)
+                ->where('latestMealPlan.meals.0.feeds_meal_id', $leftover->id)
+                ->where('latestMealPlan.meals.1.id', $leftover->id)
+                ->where('latestMealPlan.meals.1.from_meal_id', $source->id)
+                ->where('latestMealPlan.meals.2.id', $empty->id)
+                ->missing('latestMealPlan.meals.2.recipe')
+        );
+});
+
+it('never exposes meals of another user\'s or a non-done plan', function (): void {
+    $own = mealPlanWithRecipes(
+        $this->user,
+        'done',
+        Recipe::factory()->breakfast()->create(['user_id' => $this->user->id]),
+        Recipe::factory()->dinner()->create(['user_id' => $this->user->id]),
+    );
+    $own->forceFill(['start_date' => '2026-06-15', 'end_date' => '2026-06-21'])->save();
+
+    $foreign = mealPlanWithRecipes(
+        $this->otherUser,
+        'done',
+        Recipe::factory()->breakfast()->create(['user_id' => $this->otherUser->id]),
+    );
+    $foreign->forceFill(['start_date' => '2026-07-06', 'end_date' => '2026-07-12'])->save();
+
+    $draft = mealPlanWithRecipes(
+        $this->user,
+        'draft',
+        Recipe::factory()->breakfast()->create(['user_id' => $this->user->id]),
+    );
+    $draft->forceFill(['start_date' => '2026-07-13', 'end_date' => '2026-07-19'])->save();
+
+    $ownMealIds = $own->meals()->pluck('id')->all();
+
+    $this->actingAs($this->user)->get(route('dashboard'))
+        ->assertInertia(function ($page) use ($own, $ownMealIds): void {
+            $page->where('latestMealPlan.id', $own->id);
+
+            $exposed = collect($page->toArray()['props']['latestMealPlan']['meals'])->pluck('id')->sort()->values()->all();
+            expect($exposed)->toBe(collect($ownMealIds)->sort()->values()->all());
+        });
 });

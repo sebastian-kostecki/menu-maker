@@ -1,110 +1,79 @@
 <template>
-  <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
-    <div class="flex flex-col sm:flex-row gap-4 items-center flex-1">
-      <!-- Pole wyszukiwania -->
-      <div class="w-full sm:w-auto min-w-75">
-        <SearchInput
-          v-model="searchValue"
-          placeholder="Szukaj przepisów…"
-          @update:model-value="handleSearchInput"
-          @keydown.enter="handleSearchEnter"
-        />
-      </div>
-
-      <!-- Filtr kategorii -->
-      <div class="w-full sm:w-auto min-w-50">
-        <CategoryFilterDropdown
-          v-model="categoryValue"
-          :options="categoriesWithAll"
-          @update:model-value="handleCategoryChange"
-        />
-      </div>
-
-      <!-- Przycisk czyszczenia filtrów -->
-      <ResetFiltersButton
-        :disabled="!hasActiveFilters"
-        @click="handleReset"
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <SearchInput
+        :model-value="search"
+        placeholder="Szukaj przepisów…"
+        @update:model-value="(value) => emit('search', value)"
+      />
+      <FilterPills
+        :model-value="category"
+        aria-label="Kategoria"
+        :options="categoryOptions"
+        :all-count="categoryCounts.all"
+        @update:model-value="(value) => emit('category-change', value)"
       />
     </div>
 
-    <!-- Przycisk dodawania przepisu -->
-    <div class="w-full sm:w-auto">
-      <CreateRecipeButton />
-    </div>
+    <SortMenu
+      :options="sortOptions"
+      :sort="sort"
+      :direction="direction"
+      @sort-change="(value) => emit('sort-change', value)"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { computed } from 'vue';
 import SearchInput from './SearchInput.vue';
-import CategoryFilterDropdown from './CategoryFilterDropdown.vue';
-import ResetFiltersButton from './ResetFiltersButton.vue';
-import CreateRecipeButton from './CreateRecipeButton.vue';
+import FilterPills from '@/Components/Common/FilterPills.vue';
+import SortMenu from '@/Components/Common/SortMenu.vue';
 
-// Props
+const sortOptions = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'name:asc', label: 'Nazwa A–Z', column: 'name', direction: 'asc' },
+  { value: 'name:desc', label: 'Nazwa Z–A', column: 'name', direction: 'desc' },
+  { value: 'calories:asc', label: 'Najmniej kcal', column: 'calories', direction: 'asc' },
+  { value: 'calories:desc', label: 'Najwięcej kcal', column: 'calories', direction: 'desc' },
+];
+
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({})
+  search: {
+    type: String,
+    default: ''
+  },
+  category: {
+    type: String,
+    default: ''
+  },
+  sort: {
+    type: String,
+    default: 'created_at'
+  },
+  direction: {
+    type: String,
+    default: 'desc'
   },
   categories: {
     type: Array,
     required: true
+  },
+  categoryCounts: {
+    type: Object,
+    required: true
   }
 });
 
-// Emits
-const emit = defineEmits(['update:modelValue', 'search', 'category-change', 'reset']);
+const emit = defineEmits(['search', 'category-change', 'sort-change']);
 
-// Local state
-const searchValue = ref(props.modelValue.search || '');
-const categoryValue = ref(props.modelValue.category || 'all');
-
-// Computed
-const categoriesWithAll = computed(() => [
-  { value: 'all', label: 'Wszystkie kategorie' },
-  ...props.categories
-]);
-
-const hasActiveFilters = computed(() => {
-  return searchValue.value !== '' || (categoryValue.value !== '' && categoryValue.value !== 'all');
-});
-
-// Watch for changes from parent
-watch(() => props.modelValue, (newValue) => {
-  searchValue.value = newValue.search || '';
-  categoryValue.value = newValue.category || 'all';
-}, { deep: true });
-
-// Event handlers
-const handleSearchInput = (value) => {
-  searchValue.value = value;
-  updateModelValue();
-  emit('search', value);
-};
-
-const handleSearchEnter = () => {
-  emit('search', searchValue.value);
-};
-
-const handleCategoryChange = (value) => {
-  categoryValue.value = value;
-  updateModelValue();
-  emit('category-change', value);
-};
-
-const handleReset = () => {
-  searchValue.value = '';
-  categoryValue.value = 'all';
-  updateModelValue();
-  emit('reset');
-};
-
-// Update model value ("all" to wartość tylko dla UI — rodzic dostaje null)
-const updateModelValue = () => {
-  emit('update:modelValue', {
-    search: searchValue.value,
-    category: categoryValue.value === 'all' ? null : categoryValue.value
-  });
-};
+const categoryOptions = computed(() =>
+  props.categories.map((category) => ({
+    value: category.value,
+    label: category.label,
+    variant: category.value,
+    count: props.categoryCounts[category.value] ?? 0
+  }))
+);
 </script>

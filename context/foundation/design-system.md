@@ -3,7 +3,7 @@ project: menu-maker
 version: 1
 status: draft                    # draft | active | locked
 created: 2026-11-14
-updated: 2026-11-15
+updated: 2026-11-17
 token_source: resources/css/app.css
 primitives_dir: resources/js/Components/ui/
 shared_dir: resources/js/Components/Common/   # potwierdzony, D-3
@@ -14,6 +14,12 @@ kitchen_sink: resources/js/Pages/Dev/DesignSystem.vue   # potwierdzony, D-4
 
 > Wspólny kontrakt wizualny dla wszystkich widoków aplikacji i PDF-u.
 > Edit-in-place: ten plik opisuje stan docelowy i kolejność dojścia do niego. Każdy krok rolloutu to osobna zmiana 10x (`/10x-new` → `/10x-research` → `/10x-plan` → `/10x-implement`), widoki przez `/10x-ui`.
+>
+> **2026-11-17: wybrany nowy kierunek wyglądu, C · Spiżarnia (D-10).** Sekcje 4–6 opisują stan wdrożony w M-2 (zieleń ziół, Figtree) i obowiązują, dopóki zmiany z §10.6 ich nie zastąpią. Cel i kolejność wdrożenia są w §10.
+>
+> **2026-11-17: SP-01 (`spizarnia-tokens`) jest zrobiony.** Tokeny w `app.css`, font i lustro PDF mają już wartości Spiżarni (§10.2–10.3), więc §4.2–4.6 opisują poprzedni stan (Zielnik). Obowiązującą mapę tokenów na klasy Tailwinda opisują §10.2 i §10.3.
+>
+> **2026-11-17: SP-02 (`spizarnia-primitives`) jest zrobiony.** Prymitywy `ui/` mają już kształt Spiżarni (pigułka z konturem 2px, naklejka, kafel 20px, pola 48px, dialog 24px), dochodzą wzorce `dashed` i `toggle` (pigułka filtra), a kontrakt stanów opisuje §10.4. Warianty i klasy opisuje §5.1; opisy komponentów w §4–6 sprzed SP-02 (np. 1px kontury, `rounded-md`) są nieaktualne.
 
 ## 1. Po co i dla kogo
 
@@ -156,6 +162,8 @@ Niektóre tokeny light z 4.3–4.4 (`--warning`, `--info`, `--meal-*` i `--warni
 
 ### 4.8 Dark mode
 
+> Wartości `.dark` poniżej są historyczne (Zielnik): blok `.dark` został usunięty z `app.css` w SP-01 (D-14). Ciemna Spiżarnia to osobna zmiana po M-4.
+
 Decyzja D-1 (potwierdzona 2026-11-14): **MVP tylko w trybie jasnym.** Martwe klasy `dark:` usuwamy przy migracji każdego widoku; blok `.dark` w `app.css` zostaje z wartościami OKLCH odpowiadającymi palecie z 4.2, żeby dark mode był później zmianą wyłącznie w tokenach i przełączniku, bez dotykania widoków.
 
 Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
@@ -185,10 +193,27 @@ Wartości `.dark` (F-03, kontrasty tekst/tło ≥ 4.5:1):
 
 | Status | Komponenty |
 | --- | --- |
-| Są | alert, alert-dialog, avatar, badge, button, card, checkbox, collapsible, combobox, dialog, dropdown-menu, input, label, pagination, select, separator, sheet, skeleton, sonner, table, textarea |
+| Są | alert, alert-dialog, avatar, badge, button, card, checkbox, collapsible, combobox, dialog, dropdown-menu, input, label, pagination, select, separator, sheet, skeleton, sonner, table, textarea, toggle |
 | Rozszerzyć | `badge`: warianty `breakfast`, `supper`, `dinner`, `success`, `warning`, `info`, `muted`; `alert`: warianty `warning`, `info`, `success` |
 
 `dropdown-menu`: pozycja (`DropdownMenuItem`) ma wariant `variant: default \| destructive` (S-10, port z new-york-v4; styl na tokenach `destructive` przez `data-[variant=destructive]:`). Akcje destrukcyjne używają wariantu, nie nadpisania koloru w miejscu użycia.
+
+Kształt prymitywów po SP-02 (klasy w `Components/ui/`; widoki nie nadpisują kształtu ani koloru):
+
+| Prymityw | Kontrakt |
+| --- | --- |
+| `button` | Pigułka z konturem 2px `foreground`, `text-label`. Rozmiary: `default` 44px, `xs` 28px, `sm` 32px, `lg` 52px, `icon` 34px (okrągły), `tile` (kafel dodawania: pełna szerokość, min. 230px wysokości, treść w kolumnie, `rounded-lg`, `text-label` 700; z wariantem `dashed`). Warianty: `default` (atrament), `destructive`, `outline` (`card` + `shadow-sticker`), `secondary` (okrągły przycisk ikonowy na `muted`, bez konturu), `ghost`, `link`, `dashed` (przerywany kontur, `rounded-md`, przezroczyste tło: „Dodaj…”), `inverse` (`card` z konturem `card`, do paneli na `highlight`) i `inverse-outline` (przezroczysty z konturem i tekstem `highlight-foreground`, odwraca się na hover); oba mają fokus `outline` w `highlight-foreground` |
+| `toggle` | Pigułka filtra (`reka-ui` `Toggle`: `aria-pressed`, `data-state=on\|off`): 44px (`size="sm"` 36px), `card` z konturem 2px, wybrana na atramencie. Tony kategorii `variant="breakfast" \| "supper" \| "dinner"` (wypełnienie `meal-*`, tekst `meal-*-foreground`); liczba w `<span>` po etykiecie |
+| `badge` | `size="status"` to pigułka statusu: 32px, kontur 2px `foreground`, `text-meta` 700; `variant="draft"` ma kontur przerywany na `card`. `variant="tag"` to znacznik powiązanego posiłku („Na 2 dni”, „Z wczoraj”…) na `card`, bez konturu, czytelny na wszystkich trzech wypełnieniach `meal-*`. Pozostałe warianty (kategorie, `success`, `warning`, `info`, `muted`) bez konturu |
+| `card` | Kafel: `rounded-lg` (20px), kontur 2px `foreground`, `shadow-sticker`. Wariant `destructive` (strefa niebezpieczna, np. „Usuń konto”): kontur, cień naklejki i `CardTitle` w `destructive`; wariant przekazywany do tytułu przez `provide`/`inject`, bez klasy w miejscu użycia |
+| `input`, `textarea`, `select` (trigger), `combobox` (input) | `rounded-md` (12px), kontur 2px `foreground`, `card`, `text-body`; `input`/`select`/`combobox` mają 48px, `textarea` min. 132px; błąd to `aria-invalid` (kontur `destructive`) |
+| `checkbox` | 22px, `rounded-sm`, kontur 2px, wybrany na atramencie |
+| `alert` | `rounded-md`, kontur 2px `foreground`; `destructive` to `card` z konturem i tekstem `destructive`; `warning`/`info`/`success` na swoich wypełnieniach |
+| Powierzchnie wyskakujące (`select`, `dropdown-menu`, `combobox`) | `rounded-md`, kontur 2px, `bg-popover`, `shadow-sticker` |
+| `dialog`, `alert-dialog` | Powłoka `card`, kontur 2px, `rounded-xl` (24px), `shadow-dialog`, padding 26px, tło `bg-overlay`; tytuł na `text-dialog-title`; `DialogContent` ma wbudowany okrągły przycisk zamknięcia (`secondary` `icon`, sr-only „Zamknij”) |
+| `avatar` | `variant="sticker"`: `meal-breakfast` z `meal-breakfast-foreground`, kontur 2px `foreground`, waga 700 (znacznik użytkownika w pasku górnym); `default` zostaje na `bg-secondary`; oba warianty obok siebie w sekcji „Ładowanie i rozwijanie” kitchen sinku |
+| `sheet` | Tło `bg-overlay`; okrągły przycisk „Zamknij” (`secondary`, `icon`) jak w dialogu; krawędź `border-2 border-foreground` tylko od strony treści; `SheetHeader` to `pr-12 text-left` (treść nie wchodzi pod przycisk zamknięcia), a układ szuflady powłoki definiuje SP-03 |
+| `pagination` | Pigułki 44px (`min-w-11`) na `button`: bieżąca strona to wariant `default`, pozostałe `outline` bez cienia i bez ruchu wciskania |
 
 Dodanie przez CLI może podbić zależności (`reka-ui` itp.) — to zmiana zależności, wymaga akceptacji (D-5).
 
@@ -198,21 +223,40 @@ Nowe prymitywy pochodzą ze stylu new-york-v4, z importami znormalizowanymi do `
 
 | Komponent | Zastępuje | Kontrakt |
 | --- | --- | --- |
-| `PageHeader` | Ręczne nagłówki w każdej stronie | Zbudowany równolegle w S-10 i S-11 i scalony przy merge'u S-11. Props `title`, `description?`, `as?: 'h1' \| 'h2'` (domyślnie `h1`; `h2` podaje tylko kitchen sink, by miał jedno `<h1>`; dodane w S-09); sloty `breadcrumbs` (w `<nav aria-label="Ścieżka nawigacji">`), `description` (zastępuje prop, może zawierać odznaki), `actions`; korzeń `<header>` z `min-w-0`, jedno `<h1 class="text-2xl font-semibold tracking-tight">` na stronę, łamane przy długich tytułach. Umiejscowienie jest jedno: `PageHeader` to pierwszy element treści strony, wewnątrz jej kontenera szerokości; pasek górny `AuthenticatedLayout` zawiera tylko nawigację i menu użytkownika, więc „Menu Maker” w pasku nie jest `<h1>` i strona ma jedno `<h1>` |
+| `PageHeader` | Ręczne nagłówki w każdej stronie | Zbudowany równolegle w S-10 i S-11 i scalony przy merge'u S-11. Props `title`, `description?`, `as?: 'h1' \| 'h2'` (domyślnie `h1`; `h2` podaje tylko kitchen sink, by miał jedno `<h1>`; dodane w S-09); sloty `breadcrumbs` (w `<nav aria-label="Ścieżka nawigacji">`), `description` (zastępuje prop, może zawierać odznaki), `actions`; korzeń `<header>` z `min-w-0`, jedno `<h1 class="text-2xl font-semibold tracking-tight">` na stronę, łamane przy długich tytułach. Umiejscowienie jest jedno: `PageHeader` to pierwszy element treści strony, wewnątrz jej kontenera szerokości; pasek górny `AuthenticatedLayout` zawiera tylko nawigację i menu użytkownika, więc „Menu Maker” w pasku nie jest `<h1>` i strona ma jedno `<h1>`. Wyjątek: na `Recipes/Show` jedyne `<h1>` leży w `RecipeHero` i strona nie ma `PageHeader`; ścieżka to własne `<nav aria-label="Ścieżka nawigacji">` (link „Przepisy” ze strzałką, „/” i nazwa z `aria-current="page"`) w rzędzie z akcjami „Edytuj” i „Usuń” |
 | `ConfirmDialog` | 4 obecne dialogi | Na `AlertDialog`; `open` (`v-model:open`), `title`, `description`, `confirmLabel`, `variant: default \| destructive`, `processing`; emituje `confirm`; opcjonalny slot domyślny między opisem a stopką (np. pole hasła); fokus na „Anuluj”; zostaje otwarty, dopóki `processing` |
 | `ServerPagination` | `recipes/` i `MealPlans/` | Props `meta` (bez `links`); emituje `page-change`; `aria-label="Paginacja"` |
 | `SortableHeader` | `recipes/` i `MealPlans/` | `column`, `sort`, `direction`; renderuje `TableHead`; `aria-sort`; emituje `sort-change({column, direction})` |
 | `EmptyState` | Ad hoc puste tabele | Zbudowany równolegle w S-10 i S-11 i scalony. Props `icon?` (komponent lucide, `aria-hidden`), `title`, `description?`, `headingLevel?` (2 lub 3, domyślnie 2); CTA w slocie domyślnym („Dodaj przepis”, „Wygeneruj jadłospis”). Bez własnego odstępu pionowego: samodzielny pusty stan dostaje `class="py-12"` od wywołującego, w tabeli siedzi w `TableEmpty` |
 | `FormField` | `InputLabel` + `InputError` | Props `id` (id kontrolki), `label`, `error?`, `description?`; etykieta `for=id`, kontrolka w slocie domyślnym ze slot props `{ id, invalid, describedBy }` (wywołanie wiąże `:id`, `:aria-invalid="invalid || undefined"`, `:aria-describedby="describedBy"`), opis `<id>-description` i błąd `<id>-error` |
-| `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Zrealizowany jako `Common/AppSidebar` i `Common/UserMenu`, z `AuthenticatedLayout` jako opakowaniem. Menu użytkownika na `ui/dropdown-menu`; nawigacja na tokenach `accent`/`primary`; nawigacja mobilna na `ui/sheet`; zwinięcie panelu zapamiętane w localStorage; `AuthenticatedLayout` nie ma slotu `header`, a jego pasek górny zawsze pokazuje „Menu Maker” |
+| `FilterPills` | `MealPlans/StatusFilterPills` (S-25) | Grupa `role="group"` z pigułkami `Toggle`. Props `modelValue` (`''` = wszystkie), `options` (`{value, label, variant?, count?}`; `variant` to ton `default`/`breakfast`/`supper`/`dinner`, `count` to liczba w `<span>` po etykiecie, formatowana `formatNumber`), `ariaLabel`, `allLabel?` (domyślnie „Wszystkie”), `allCount?`; emituje `update:modelValue`. Zawsze dokładnie jedna wciśnięta (ponowne kliknięcie wciśniętej jest ignorowane), wartość spoza `options` wciska „Wszystkie”. Bez liczników i tonów DOM jak dawny `StatusFilterPills` („Status”, „Wszystkie” = brak `filter[status]`) |
+| `SortMenu` | `MealPlans/SortMenu` (S-25) | Pigułka sortowania na `DropdownMenuRadioGroup`. Props `sort`, `direction`, `options` (`{value, label, column, direction}`; opcje podaje strona, np. 4 opcje jadłospisów: Najnowsze, Najstarsze, Tydzień od najpóźniejszego / od najwcześniejszego); etykieta przycisku to etykieta pasującej opcji, inaczej „Sortuj”; emituje `sort-change({column, direction})` |
+| `AppBrand` `tone="inverse"` | Znak i nazwa na `highlight` | Znak na `card` z ikoną `foreground` zamiast atramentowego `primary`; używany w panelu `GuestLayout` i w kitchen sinku („Powłoka”) na tle `bg-highlight text-highlight-foreground` |
+| `TextLink` | Powtarzane długie klasy linków w stronach Auth | Opakowuje Inertia `Link`, przekazuje wszystkie atrybuty; `rounded-sm font-semibold underline underline-offset-3 hover:text-muted-foreground`, focus: `outline-2 outline-ring outline-offset-2` (kontrakt §10.4); ikona (np. `ArrowLeft`) w slocie przed tekstem |
+| `AppShell` (rewizja `Sidebar` + `AuthenticatedLayout`) | Breeze `Dropdown`, ręczny `<svg>` | Zrealizowany jako `Common/AppBrand` (tony `default` i `inverse`) + `Common/MainNav` (orientacja `horizontal` lub `vertical`) + `Common/UserMenu` (trigger to awatar), złożone w `AuthenticatedLayout` jako przyklejony pasek górny na `bg-sidebar`, z szufladą na `ui/sheet` poniżej `lg`. Bez zwijania i bez localStorage; `Common/AppSidebar` usunięty. `AuthenticatedLayout` nie ma slotu `header`, a jego pasek górny zawiera tylko nawigację i menu użytkownika |
 
 ### 5.3 Komponenty domeny (po migracji)
 
 - `CategoryBadge` — tylko `<Badge :variant="category">`, bez klas kolorów.
-- `StatusTag` — `<Badge :variant>` wg mapowania z 4.4, z ikoną spinnera dla `processing`.
-- `MealPlanGrid` — komórka z lewą kreską w kolorze kategorii (`border-l-4 border-meal-*-foreground`; blada wypełniona wersja `meal-*` jest niewidoczna jako 4-pikselowa linia na bieli), składniki w `Collapsible`, skeleton z `ui/skeleton`.
-- `ShoppingList` — `Card` z listą, ilości `tabular-nums` do prawej. Od `xl` stoi obok siatki (`xl:w-72`), poniżej `xl` pod nią.
-- `IngredientCard`, `RecipeMetaBadges` — tokeny + ikony lucide zamiast `<svg>`.
+- `StatusTag` — `<Badge :variant size="status">` wg mapowania z 4.4 (pigułka statusu z konturem; `draft` przerywany na `card`), z ikoną spinnera dla `processing`.
+- `MealPlanGrid` — kafel (`Card`) z tabelą dni × posiłki. Wypełniona komórka to blok `rounded-md` w `bg-meal-*` z tekstem `meal-*-foreground` (zastępuje lewą kreskę `border-l-4`); nad nazwą przepisu stoi znacznik powiązanego posiłku (`Badge variant="tag"`), w szkicu pigułka „Zmień” (`Button size="xs"`), a „Składniki” w `Collapsible` są podkreślone w kolorze tekstu komórki. Pusty posiłek to przerywana ramka `muted-foreground` z „Bez posiłku” i, w szkicu, pigułką „Wybierz”. Na telefonie tabela przewija się w poziomie wewnątrz kafla z przypiętą kolumną dni; skeleton z `ui/skeleton`.
+- `MealPlanTile` — kafel tygodnia na liście jadłospisów (ekran 10): `Card` z linkiem z zakresem dat (`text-section-title`) i metadanymi „Utworzono …”, `StatusTag`, paskiem wypełnienia i akcjami. Pasek to 7 kwadratów `aria-hidden`, z których `floor(meals_count / 3)` jest wypełnionych (kolory śniadanie/obiad/kolacja po kolei, reszta `muted`), obok widoczna etykieta „n/21” (21 = `MEAL_CATEGORIES.length * 7`). Akcje: „PDF” (`PdfDownloadMenu`, tylko gotowe), „Otwórz” i „…” (`ActionDropdown`, okrągły przycisk `secondary` z `Ellipsis`). Poniżej `lg` kafel układa się w kolumnę, od `lg` w jeden rząd.
+- `RecipeTile` — kafel przepisu na liście (ekran 07): `Card` z `overflow-hidden`, nad treścią pasek w kolorze kategorii (`MEAL_CATEGORY_FILL_CLASSES`, dolna kreska `border-b-2 border-foreground`) z etykietą kategorii po lewej i „{kcal} kcal” po prawej (nieznana kategoria: `bg-muted text-foreground` z surową wartością). Treść: tytuł w `<h2 class="text-section-title">` z `Link` do przepisu (`hover:underline`), meta „{porcje} · {data}” i przyklejone na dole przyciski `secondary` `icon`: „Edytuj {nazwa}” (`Link`) i „Usuń {nazwa}”. Brak przycisku „Pokaż” (zastępuje go tytuł). Emituje tylko `delete-requested(recipe)`.
+- Lista przepisów (`Pages/Recipes/Index`) — nagłówek `PageHeader` z „Dodaj przepis” w `actions` (ukryte przy pierwszym uruchomieniu, gdzie CTA niesie `EmptyState`), `RecipesToolbar` (pigułkowe `SearchInput` `sm:w-75`, `FilterPills` „Kategoria” z licznikami per kategoria i tonem = kategoria, `SortMenu` z 6 opcjami: Najnowsze, Najstarsze, Nazwa A–Z / Z–A, Najmniej / Najwięcej kcal), siatka `<ul aria-label="Przepisy">` kafli (1 / 2 / 3 / 4 kolumny, 12 na stronę) i `ServerPagination`. Stan pochodzi wyłącznie z URL (`router.get` z `preserveState`, `replace`); pole wyszukiwania ma lokalny stan z debounce 300 ms. Liczniki są fasetowe: uwzględniają wyszukiwanie, ignorują wybraną kategorię. Puste stany to `Card` z `EmptyState` („Brak przepisów”, „Brak wyników” z „Wyczyść filtry”).
+- `CategoryRadioTiles` — wybór kategorii w formularzu przepisu (ekran 09): `<fieldset role="radiogroup">` z `<legend class="text-label">Kategoria *</legend>` i trzema kafelkami `h-16 rounded-md border-2 border-foreground` (`sm:grid-cols-3`). Każdy kafel to `<label>` z natywnym `<input type="radio">` (`absolute inset-0 opacity-0`, nie `sr-only`, żeby trafienie myszą i `.check()` działały) oraz ikoną, etykietą i kółkiem 22 px (`pointer-events-none`). Zaznaczony: `MEAL_CATEGORY_FILL_CLASSES`, `shadow-sticker` i wypełniona kropka; niezaznaczony: `bg-card`. Focus przez `has-[:focus-visible]:outline-2`. Grupa ma `aria-required="true"`; błąd: komunikat pod grupą (`{name}-error`), `aria-invalid` i `aria-describedby` na `fieldset`, kontur kafli `destructive`; prop `name` (domyślnie `category`) pozwala pokazać kilka grup na jednej stronie.
+- Formularz przepisu (`Pages/Recipes/Form`, `RecipeForm`) — `w-full max-w-205`, wyrównany do lewej; breadcrumb to link „Przepisy” ze strzałką. Trzy kafle `Card` z `<h2 class="text-section-title">`: „Podstawy” (`FormField` nazwy, `CategoryRadioTiles`, kcal i porcje w `md:grid-cols-2`), „Składniki” i „Sposób przygotowania” (textarea `rows=6` z podpowiedzią „Każda linia to osobny krok.”). Wiersz składnika bez ramki: `md:grid-cols-12` (nazwa 7, ilość 2, jednostka 2, usuń 1), usuń to `secondary` `icon` z `X`; „Dodaj składnik” to `Button variant="dashed"` na pełną szerokość (`h-12`); brak składników to `EmptyState` (`headingLevel` 3). Stopka: `Button size="lg"` „Zapisz przepis” / „Zapisz zmiany”, `outline` `lg` „Anuluj” i „* Pola wymagane” (`text-meta`) po prawej.
+- `FamilyMemberTile` — kafel osoby na liście członków rodziny (ekran 13): `Card role="article"` nazwany przez `<h2>` z imieniem, awatar-inicjał 56px w kolorze `meal-*` dobieranym po pozycji kafla na stronie (`supper`, `dinner`, `breakfast` po kolei), linia „Kobieta · ur. 4 lip 1987” i trzy pola faktów (wiek, waga, wzrost; brak pomiaru to „—”, jednostka zostaje) w `<dl>` z `sr-only` `<dt>`; akcje „Edytuj” (`outline sm`) i „Usuń” (`ghost sm`) z `aria-label` „Edytuj {imię}” / „Usuń {imię}”. Za ostatnim kaflem stoi przerywany kafel „Dodaj członka rodziny” (`Button variant="dashed" size="tile"`); pusta lista pokazuje tylko `EmptyState`.
+- Lista jadłospisów nie używa już `MealPlanTable`, `MealPlanRow`, `FiltersBar` ani „Na stronie” (usunięte; `perPage` z URL jest nadal zachowywane).
+- `ShoppingList` — `Card` z listą, ilości `tabular-nums` do prawej. Wiersze rozdziela kropkowana linia, ilości są pogrubione. Od `xl` stoi obok siatki (`xl:w-75`), poniżej `xl` pod nią. Z `pending` (szkic) pokazuje przerywany kafel „Pojawi się po zatwierdzeniu…” zamiast listy.
+- `RecipeHero` — blok strony przepisu (ekran 08): `<section>` z `rounded-lg border-2 border-foreground shadow-sticker` w kolorze kategorii (`MEAL_CATEGORY_FILL_CLASSES`, nieznana kategoria: `bg-muted text-foreground`), od góry: ikona i etykieta kategorii (`font-bold`), nazwa w `<h1 class="break-words text-page-title md:text-hero">` (prop `headingLevel` 1 lub 2, domyślnie 1; kitchen sink podaje 2, by mieć jedno `<h1>`) i `RecipeMetaBadges`.
+- `RecipeMetaBadges` — pigułki `Badge variant="tag" size="status"`: kcal (Flame), porcje (Users) i „{kcal / porcje} kcal / porcja”.
+- `IngredientCardGrid` + `IngredientCard` — kafel `Card` (`p-6`) z `<h2 class="text-section-title">` i ikoną ShoppingBasket „Składniki”; składniki to chipy `rounded-md bg-muted px-3.5 py-2.5` (nazwa `font-medium` po lewej, ilość `font-bold tabular-nums` po prawej) w siatce `sm:grid-cols-2 gap-2`; bez składników `EmptyState`.
+- `InstructionsSection` — kafel `Card` z `<h2>` i ikoną ScrollText „Sposób przygotowania” oraz `<ol aria-labelledby>` kroków z `parseInstructions` (`lib/recipeInstructions.js`: linie, puste pomijane); numer to `aria-hidden` koło `size-9 rounded-full bg-highlight text-highlight-foreground`. Końcowa linia „Źródło: …” z importu nie jest krokiem: renderuje się pod listą jako `text-meta text-muted-foreground`, a jako link zewnętrzny (`target="_blank" rel="noopener noreferrer"`) tylko gdy zaczyna się od `http(s)://`. Bez kroków `EmptyState`.
+- `PdfDownloadMenu` — prop `variant: 'outline' \| 'inverse-outline'` (domyślnie `outline`); `inverse-outline` dla menu na tle `highlight` (hero pulpitu).
+- `StatCard` (`Components/Dashboard/`) — kafel liczby na pulpicie: `Card` z `value` (`text-stat`, `tabular-nums`, `formatNumber`), odmienioną etykietą (`forms: {one, few, many}`, `pluralize`) i ikoną lucide (`icon`). Prop `tone: 'breakfast' \| 'supper' \| 'dinner'` wybiera wypełnienie `meal-*` z tekstem `meal-*-foreground`.
+- `LatestPlanHero` — kafel ostatniego gotowego jadłospisu na `bg-highlight text-highlight-foreground` (`lg:col-span-2`). Prop `mealPlan` (zasób z `meals[].recipe`) albo `null`. Ze zbiorem: etykieta „Ostatni jadłospis”, `StatusTag` `done`, zakres dat, liczba posiłków z przepisem i akcje: „Otwórz jadłospis” (`inverse`), `PdfDownloadMenu` `inverse-outline` (tylko gdy są oba linki PDF). Bez planu: komunikat, że nie ma jeszcze gotowego jadłospisu, bez akcji i bez `WeekOverview` na stronie.
+- `WeekOverview` — kafel tygodnia ostatniego planu pod hero. Props `startDate`, `endDate`, `meals`, `today?` (test). Tytuł jest uczciwy: „Ten tydzień”, gdy dziś mieści się w zakresie planu, w przeciwnym razie „Tydzień <zakres dat>”. Od `lg` siedem kolumn dni, w każdej trzy posiłki w kolorach `meal-*` z `Badge variant="tag"` dla powiązanych posiłków; puste posiłki to przerywana ramka. Poniżej `lg` każdy dzień to wiersz: nagłówek dnia nad trzema posiłkami obok siebie.
+- `FirstRunTile` — pusty pulpit (brak przepisów i jadłospisów): jedyny element strony poza nagłówkiem, bez akcji w nagłówku. Okrągła ikona `ChefHat` na `meal-breakfast`, `h2` „Zacznij od pierwszego przepisu” (`text-dialog-title`), opis i `Button size="lg"` „Dodaj pierwszy przepis”.
 
 ### 5.4 Stany, które każdy komponent pokazuje w kitchen sink
 
@@ -222,7 +266,7 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
 
 `resources/views/pdf/meal-plan.blade.php` (dompdf) nie czyta zmiennych CSS z aplikacji. Kontrakt:
 
-- PDF używa **hexów z tabel 4.2–4.4** jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
+- PDF używa **hexów z tabeli w §10.2** (od SP-01; wcześniej z 4.2–4.4) jako lustra tokenów. Komentarz na początku `<style>` mówi „mirror of resources/css/app.css :root; keep in sync” i wylicza po jednej linii `--token  oklch(...)  #hex` (ten sam wzorzec co `resources/js/lib/mealCategories.js` ↔ `App\Enums\MealCategory`).
 - Lustro obejmuje 12 tokenów: `--foreground`, `--muted`, `--muted-foreground`, `--border`, `--warning`, `--warning-foreground` oraz `--meal-breakfast`, `--meal-supper`, `--meal-dinner` wraz z ich `-foreground`. Żaden inny kolor nie jest dozwolony w szablonie, także w `style=""`.
 - Papier jest biały (`--card`), nie `--background`: ciepłe tło ekranu nie trafia do druku.
 - Kategoria w tabeli PDF: para `--meal-*` (tło i tekst) w komórce „Posiłek” — czytelne też w druku czarno-białym, bo etykieta zostaje.
@@ -249,7 +293,7 @@ default · hover · focus-visible · disabled · loading · error · empty. Form
    - w widokach zakaz klas palety Tailwinda, hexów, wartości arbitralnych i `dark:`;
    - nowy wzorzec trafia do kitchen sink.
 2. **Kitchen sink** — strona `Pages/Dev/DesignSystem.vue` pod `/dev/design-system`, rejestrowana tylko w środowiskach `local` i `testing` (D-4). Ma 14 sekcji (Kolory, Typografia, Kształt i cienie, Przyciski, Odznaki, Komunikaty, Formularze, Karta i tabela, Ładowanie i rozwijanie, Paginacja, Nakładki, Powłoka, Komponenty aplikacji, Jadłospis) z komponentami z 5.1 i 5.2 w stanach z 5.4. Nie ma layoutu aplikacji i nie wymaga logowania.
-3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 28 zrzutów `toHaveScreenshot`: 14 sekcji, `focus-visible` (na przycisku `outline`, bo pierścień przycisku domyślnego ma ten sam kolor co jego tło), hover i `focus-visible` pozycji nawigacji powłoki oraz 11 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, `ConfirmDialog` z polem, sheet, menu, menu użytkownika, select, combobox, toast). Tylko chromium, zero tolerancji na liczbę różniących się pikseli (`maxDiffPixels: 0` w projekcie `visual`) przy minimalnym progu koloru `threshold: 0.005`: przepuszcza on wyłącznie szum ±1 poziomu RGB na wygładzanych krawędziach, który ten sam obraz Dockera daje na różnych procesorach (runner GitHuba vs WSL), a różnicę od ok. 2 poziomów jasności już odrzuca, a spec sprawdza, że Figtree faktycznie się załadował. Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Spec jest pomijany poza obrazem Dockera. Drugi spec, `tests/e2e/visual/app-shell.spec.ts`, robi 4 zrzuty prawdziwych stron (logowanie, pulpit desktop, pulpit mobile, szuflada mobile) ze stałym zegarem (`page.clock.setFixedTime`) i zalogowany jako zasiany użytkownik `e2e-planner-visual@example.com` (`E2eMealPlanSeeder`). Trzeci spec, `tests/e2e/visual/account.spec.ts`, robi 2 zrzuty ekranów konta (`guest-register`, `profile-desktop`) w tej samej konfiguracji; logowanie współdzielą oba specy przez `tests/e2e/visual/support/auth.ts`. Czwarty spec, `tests/e2e/visual/meal-plans-index.spec.ts` (S-10), robi 4 zrzuty listy jadłospisów na tych samych zasadach (desktop, mobile, pusty stan po filtrze „Oczekuje”, otwarty dialog generowania), na czterech zasianych jadłospisach tego użytkownika (2 gotowe, 1 w trakcie generowania, 1 z błędem; stałe daty i znaczniki czasu). Piąty spec, `tests/e2e/visual/recipes.spec.ts` (S-11), robi 7 zrzutów widoków przepisów (lista desktop i mobile, lista bez wyników, szczegóły desktop i mobile, formularz tworzenia desktop i mobile); `E2eMealPlanSeeder` zasiewa dla tego użytkownika stałe 21 przepisów (po 7 na kategorię, stałe nazwy, porcje i instrukcje, `created_at` i `updated_at` o 12:00 UTC w kolejnych dniach), żeby zrzuty były identyczne lokalnie i w CI. Szósty spec, `tests/e2e/visual/meal-plan-show.spec.ts` (S-09), robi 2 zrzuty prawdziwej strony jadłospisu (`meal-plan-show-desktop.png` z rozwiniętymi składnikami pierwszej komórki oraz `meal-plan-show-mobile.png`); adres planu czyta z propsów Inertia strony `/meal-plans`, wybierając gotowy jadłospis startujący 2026-06-15 (jeden z fixture'ów listy), który `E2eMealPlanSeeder` buduje deterministycznie z tych samych 21 przypiętych przepisów (po 7 na kategorię w kolejności `created_at desc`) i przelicza `FakeIngredientRefiner`-em; logowanie także przez `tests/e2e/visual/support/auth.ts`.
+3. **Bramka wizualna** — projekt `visual` w `playwright.config.ts`, uruchamiany przez `npm run test:visual` (`scripts/visual-test.sh`) w obrazie `mcr.microsoft.com/playwright:v<wersja>-noble` przypiętym do zainstalowanej wersji `@playwright/test`, w sieci `menu-maker_sail` (w CI `host`). Spec `tests/e2e/visual/design-system.spec.ts` robi 35 zrzutów `toHaveScreenshot`: 15 sekcji, `focus-visible` (na przycisku `outline`), cztery zrzuty stanów z SP-02 (`button-hover` i `button-pressed` na przycisku `outline`, `input-focus-visible` na `#ds-input-default`, `chip-focus-visible` na pierwszej pigułce filtra), hover i `focus-visible` pozycji nawigacji w pasku górnym (sekcja „Powłoka”: pasek górny i nawigacja szuflady), `focus-visible` przycisku `inverse` na `highlight` (sekcja „Pulpit”) oraz 12 nakładek (dialog, alert dialog, `ConfirmDialog`, `ConfirmDialog` w toku, `ConfirmDialog` z polem, sheet, menu, menu pobierania PDF, menu użytkownika, select, combobox, toast). Tylko chromium, zero tolerancji na liczbę różniących się pikseli (`maxDiffPixels: 0` w projekcie `visual`) przy minimalnym progu koloru `threshold: 0.005`: przepuszcza on wyłącznie szum ±1 poziomu RGB na wygładzanych krawędziach, który ten sam obraz Dockera daje na różnych procesorach (runner GitHuba vs WSL), a różnicę od ok. 2 poziomów jasności już odrzuca, a spec sprawdza (`expectAppFontLoaded` w `tests/e2e/visual/support/fonts.ts`), że Bricolage Grotesque faktycznie się załadował, w wagach 400, 500, 600, 700 i 800 (każda dokładnie w swojej wadze, razem z podzbiorem `latin-ext` z polskimi znakami). Baseline'y aktualizuje się świadomie, wyłącznie przez wrapper: `npm run test:visual -- --update-snapshots`, i przegląda każdy zmieniony PNG w diffie. Zmiana wysokości sekcji kitchen sinku przesuwa sekcje pod nią, a to może odświeżyć ich zrzuty szumem wygładzania krawędzi (te same wymiary, kilkaset pikseli na zaokrągleniach, bez przesunięcia treści); taki zrzut też się przegląda, zanim się go przyjmie. Spec jest pomijany poza obrazem Dockera. Drugi spec, `tests/e2e/visual/app-shell.spec.ts`, robi 6 zrzutów prawdziwych stron (logowanie, logowanie mobile, pulpit desktop, pusty pulpit desktop, pulpit mobile, szuflada mobile) ze stałym zegarem (`page.clock.setFixedTime`) i zalogowany jako zasiany użytkownik `e2e-planner-visual@example.com` (`E2eMealPlanSeeder`); pusty pulpit loguje jako `e2e-dashboard-empty-visual@example.com`, którego seeder zostawia bez przepisów, jadłospisów i członków rodziny. Trzeci spec, `tests/e2e/visual/account.spec.ts`, robi 4 zrzuty ekranów konta (`guest-register`, `guest-forgot-password`, `profile-desktop`, `profile-mobile` w 390×844) w tej samej konfiguracji; logowanie współdzielą specy przez `tests/e2e/visual/support/auth.ts`. Czwarty spec, `tests/e2e/visual/meal-plans-index.spec.ts` (S-10), robi 4 zrzuty listy jadłospisów na tych samych zasadach (desktop, mobile, pusty stan po filtrze „Oczekuje”, otwarty dialog generowania), na pięciu zasianych jadłospisach tego użytkownika (2 gotowe, 1 szkic, 1 w trakcie generowania, 1 z błędem; stałe daty i znaczniki czasu), jako kafle z pigułkami statusu. Piąty spec, `tests/e2e/visual/recipes.spec.ts` (S-11), robi 7 zrzutów widoków przepisów (lista desktop i mobile, lista bez wyników, szczegóły desktop i mobile, formularz tworzenia desktop i mobile); `E2eMealPlanSeeder` zasiewa dla tego użytkownika stałe 21 przepisów (po 7 na kategorię, stałe nazwy, porcje i instrukcje, `created_at` i `updated_at` o 12:00 UTC w kolejnych dniach), żeby zrzuty były identyczne lokalnie i w CI. Szósty spec, `tests/e2e/visual/meal-plan-show.spec.ts` (S-09), robi 5 zrzutów prawdziwej strony jadłospisu (asercje `<h1>` z zakresem dat, np. „15–21 czerwca 2026”; `meal-plan-show-desktop.png` z rozwiniętymi składnikami pierwszej komórki, `meal-plan-show-mobile.png` oraz szkic: `meal-plan-draft-desktop.png`, `meal-plan-draft-mobile.png` i `meal-plan-draft-swap-dialog.png` z dialogiem podmiany przepisu); adres planu czyta z propsów Inertia strony `/meal-plans`, wybierając gotowy jadłospis startujący 2026-06-15 (jeden z fixture'ów listy), który `E2eMealPlanSeeder` buduje deterministycznie z tych samych 21 przypiętych przepisów (po 7 na kategorię w kolejności `created_at desc`) i przelicza `FakeIngredientRefiner`-em; logowanie także przez `tests/e2e/visual/support/auth.ts`. Dwa zrzuty gościa (`guest-login`, `guest-register`) czekają na `<h1>` („Logowanie”, „Rejestracja”), nie na stopkę „© 2026”. Siódmy spec, `tests/e2e/visual/family-members.spec.ts` (S-26), robi 3 zrzuty listy członków rodziny (`family-members-desktop`, `family-members-mobile`, `family-members-empty`) ze stałym zegarem; desktop i mobile loguje jako `e2e-family-visual@example.com`, któremu `E2eMealPlanSeeder` przy każdym uruchomieniu zakłada rodzinę z przypiętymi danymi (Anna 1987-07-04, Jan 1985-03-12, Zosia 2019-09-01 bez wagi i wzrostu; wiek 38, 41 i 6 lat) i bez przepisów oraz jadłospisów, a pusty stan loguje jako `e2e-dashboard-empty-visual@example.com`. Razem bramka ma 64 zrzuty (35 + 6 + 4 + 4 + 7 + 5 + 3).
 4. **Skan literałów** — `scripts/lint-tokens.sh` (`npm run lint:tokens`, `grep -P`, bez nowych zależności) na liście z `scripts/lint-tokens.paths` (`*.vue`, `*.js`, `*.ts`; `Components/ui/` zawsze pominięte). Flaguje cztery rodzaje literałów: klasy palety Tailwinda (w tym `white`/`black`), hexy, wartości arbitralne i `dark:`. Kody wyjścia: 0 brak trafień, 1 trafienia, 2 błąd konfiguracji (brak pliku listy, pusta lista, nieistniejąca ścieżka). Skaner ma test własny, `scripts/lint-tokens.test.sh`. Oba kroki (test i skan) działają w CI w zadaniu `frontend-build` (D-6). Lista obejmuje całe `resources/js` (poza `Components/ui/`, które skaner pomija).
 
 ## 8. Rollout
@@ -280,11 +324,128 @@ Testy E2E (`tests/e2e/`) opierają się na rolach i tekstach, nie na klasach —
 | ID | Pytanie | Rekomendacja | Owner | Blokuje |
 | --- | --- | --- | --- | --- |
 | D-1 | Dark mode w MVP? | **Potwierdzone 2026-11-14:** nie; usuwać `dark:` przy migracji, tokeny `.dark` utrzymywać | user | — |
-| D-2 | Kolor marki: zieleń ziół (`#21763c`) i ciepłe tło? | **Potwierdzone 2026-11-14:** tak — kuchnia, świeżość, nie koliduje z kolorami posiłków | user | — |
+| D-2 | Kolor marki: zieleń ziół (`#21763c`) i ciepłe tło? | **Potwierdzone 2026-11-14:** tak — kuchnia, świeżość, nie koliduje z kolorami posiłków. **Zastąpione 2026-11-17 przez D-10.** | user | — |
 | D-3 | Nowy katalog `resources/js/Components/Common/` na komponenty aplikacji? | **Potwierdzone 2026-11-14:** tak (CLAUDE.md wymaga zgody na nowe foldery) | user | — |
 | D-4 | Kitchen sink jako trasa `/dev/design-system` tylko w `local`/`testing`? | **Potwierdzone 2026-11-14:** tak — potrzebny bramce Playwright w CI | user | — |
 | D-5 | Zgoda na zależności, które przyniesie `shadcn-vue add` dla 6 prymitywów? | **Potwierdzone 2026-11-14:** tak, po przeglądzie diffu `package.json` | user | — |
 | D-6 | `lint:tokens` jako krok CI? | **Potwierdzone 2026-11-14:** tak, jako skrypt grep bez nowych zależności | user | — |
-| D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page | user | — |
-| D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia | user | — |
+| D-7 | `Welcome.vue` (domyślna strona Laravela pod `/`): przekierowanie na `/login`/`/dashboard` czy własna strona startowa? | **Potwierdzone 2026-11-14:** przekierowanie — PRD nie przewiduje landing page. Na razie bez zmian; strona startowa Spiżarni to osobna, późniejsza zmiana (D-13). | user | — |
+| D-8 | Zmiana kolorów kategorii (śniadanie żółte → miodowe, obiad niebieski → pomidorowy, kolacja zielona → wieczorny indygo)? | **Potwierdzone 2026-11-14:** tak — zieleń zostaje marce, kolory idą za porą dnia. Odcienie zostają w D-10; tła stają się pełnymi kolorami (§10.2). | user | — |
 | D-9 | Nowe prymitywy w new-york-v4 z importami znormalizowanymi do `@/lib/utils` i `lucide-vue-next`; regeneracja 15 starszych komponentów i przejście na `@lucide/vue` to osobna zmiana po F-04. | **Potwierdzone 2026-11-15** | user | — |
+| D-10 | Nowy kierunek wyglądu: A · Zielnik (obecny), B · Bistro (karta menu) czy C · Spiżarnia (bloki koloru pór dnia)? | **Potwierdzone 2026-11-17:** C · Spiżarnia (§10). Zielnik i Bistro odrzucone; Bistro zostaje tylko w historii wersji artefaktu. | user | M-4 |
+| D-11 | Źródło prawdy dla wyglądu Spiżarni? | **Potwierdzone 2026-11-17:** artefakt Design System „Menu Maker — Spiżarnia” (§10.1) dla ekranów; ten plik (§10) dla wartości i zasad. Przy rozbieżności wygrywa ten plik. | user | — |
+| D-12 | Kolory kategorii jako pełne bloki zamiast pasteli, także w PDF? | **Potwierdzone 2026-11-17** (część D-10): tak; lustro w `meal-plan.blade.php` i `MealPlanPdfPaletteTest` dostają nowe hexy. | user | SP-01 |
+| D-13 | Strona startowa (ekran 01 artefaktu) w ramach restyle'u? | **Potwierdzone 2026-11-17:** nie; osobna zmiana po M-4, odwracająca D-7. | user | — |
+| D-14 | Dark mode dla Spiżarni? | Potwierdzone 2026-11-17: blok `.dark` usunięty w SP-01; ciemna Spiżarnia to osobna zmiana po M-4 (D-1 obowiązuje). | user | — |
+
+## 10. Kierunek C · Spiżarnia (cel M-4)
+
+Kolor oddany posiłkom: miód rano, pomidor w południe, indygo wieczorem — pełne bloki zamiast pastelowych odznak. Marka cofa się do atramentu, a interfejs wygląda jak naklejki na lodówce: kontur 2px, duże zaokrąglenia, twardy cień.
+
+### 10.1 Źródło
+
+- Artefakt Design System: https://claude.ai/artifact/Py7fzUajDk1Ny57FG7oZMx (prywatny; czytać narzędziem Artifact, akcja `read`, zaczynając od `project/README.md`). Zawiera `tokens.json`, zasady i 15 ekranów desktop 1280 px: 01 Welcome, 02 Logowanie, 03 Rejestracja, 04 Nie pamiętasz hasła?, 05 Pulpit, 06 Pulpit pusty, 07 Przepisy, 08 Przepis, 09 Nowy przepis, 10 Jadłospisy, 11 Jadłospis gotowy, 12 Szkic jadłospisu, 13 Członkowie rodziny, 14 Profil, 15 Dialogi.
+- Ekrany to statyczne makiety HTML na danych z `E2eMealPlanSeeder`. Nie pokazują mobile ani stanów hover/focus/loading — każda zmiana widoku projektuje je sama według §5.4.
+
+### 10.2 Tokeny (motyw jasny)
+
+Nazwy zostają te same co w §4 (komponenty `ui/` nie wymagają zmian nazw). W `app.css` wartości zapisujemy w OKLCH (§4.1); hex poniżej to wartości z artefaktu i źródło lustra PDF.
+
+| Token | Hex | Rola |
+| --- | --- | --- |
+| `--background` | `#fff8ef` | Tło strony |
+| `--foreground` | `#1d1b2e` | Tekst, kontur 2px, twardy cień |
+| `--card` / `--popover` | `#ffffff` | Kafelki, pola, dialogi |
+| `--muted` / `--secondary` | `#f6eee3` | Tła sekcji, żetony składników, przycisk ikonowy |
+| `--muted-foreground` | `#5f5a6e` | Metadane (≥ 5.7:1 na `muted`) |
+| `--primary` | `#1d1b2e` | Atrament: główne CTA, aktywna nawigacja, wybrany filtr |
+| `--primary-foreground` | `#fff8ef` | Tekst na `primary` |
+| `--accent` / `--accent-foreground` | `#ffe7a3` / `#1d1b2e` | Hover, aktywny element listy |
+| `--border` / `--input` | `#e8dccb` | Separatory wewnątrz kafli (kontur kafla to `foreground`) |
+| `--ring` | `#4f5bd5` | Focus ring (≥ 5.6:1 na `card`) |
+| `--destructive` / `-foreground` | `#c7361b` / `#ffffff` | Usuwanie, błędy |
+| `--success` / `-foreground` | `#c9f0d3` / `#12452a` | Gotowy, zapisano |
+| `--warning` / `-foreground` | `#ffe7a3` / `#4a3500` | Ilości bez dopracowania AI |
+| `--info` / `-foreground` | `#dfe2ff` / `#232a7a` | Szkic (alert), generowanie |
+| `--meal-breakfast` / `-foreground` | `#ffd36e` / `#3b2a00` | Śniadanie (≥ 9:1) |
+| `--meal-supper` / `-foreground` | `#ff8a65` / `#3a1206` | Obiad (≥ 7:1) |
+| `--meal-dinner` / `-foreground` | `#8c93f0` / `#14163d` | Kolacja (≥ 6.2:1) |
+| `--sidebar` (nowy) | = `--background` | Pasek nawigacji |
+| `--sidebar-foreground` (nowy) | = `--muted-foreground` | Nieaktywne pozycje nawigacji |
+| `--sidebar-active` / `-foreground` (nowe) | = `--primary` / `--primary-foreground` | Aktywna pozycja |
+| `--highlight` / `-foreground` (nowe) | `#4f5bd5` / `#ffffff` | Jeden wyróżniony blok na ekran: hero pulpitu, panel ekranów gościa, numery kroków |
+| `--overlay` (nowy) | `rgba(29, 27, 46, 0.5)` | Tło pod dialogiem i szufladą |
+
+Kształt i cień:
+
+- Promienie: 12px (pola, komórki tygodnia), 20px (kafelki, karty, hero), 24px (dialogi), pełne zaokrąglenie (przyciski, zakładki, filtry, wyszukiwarka, paginacja, odznaki). SP-01 rozpisał promienie jawnie (zmienna `--radius` zniknęła, bo `--radius-md = --radius - 2px` nie dawał 12px przy 20px); 8px dla `sm` (pozycje menu) to dodatek SP-01 do artefaktu.
+- Kontur 2px `foreground` na kafelkach, przyciskach drugorzędnych, polach i dialogach.
+- Cienie: `0 3px 0 0 foreground` (naklejka: kafelki, przycisk drugorzędny), `0 6px 0 0 foreground` (dialog). Strefa usuwania konta: kontur i cień w `destructive`.
+
+W Tailwindzie (SP-01, `resources/css/app.css`):
+
+- **Kolory:** `bg-sidebar`, `text-sidebar-foreground`, `bg-sidebar-active`, `text-sidebar-active-foreground`, `bg-highlight`, `text-highlight-foreground` i `bg-overlay` (wszystkie przez `--color-*` w `@theme inline`); pozostałe tokeny mają klasy jak dotąd (`bg-meal-breakfast`, `text-meal-breakfast-foreground`…).
+- **Promienie** (jawne, bez `calc()`): `rounded-sm` = 8px, `rounded-md` = 12px, `rounded-lg` = 20px, `rounded-xl` = 24px, `rounded-full` = pełne zaokrąglenie.
+- **Cienie:** `shadow-sticker` = `0 3px 0 0 foreground`, `shadow-dialog` = `0 6px 0 0 foreground`. Nowy `--shadow-*` trzeba dopisać też do `extendTailwindMerge` w `resources/js/lib/utils.js` (klucz `shadow`), inaczej `cn()` weźmie go za kolor cienia i zgubi.
+- `ui/card` został na `rounded-xl` (24px) do SP-02; SP-02 zmienił go w kafel 20px (`rounded-lg`), a 24px (`rounded-xl`) zostało dialogom.
+
+### 10.3 Typografia
+
+Jeden krój: **Bricolage Grotesque** (polskie znaki). Zastępuje Figtree w aplikacji; PDF zostaje na DejaVu Sans (§6). Ładowany z Bunny Fonts w wagach 400–800 (`resources/views/app.blade.php`): statyczne cięcia, bez osi `opsz`.
+
+| Rola | Rozmiar / interlinia | Waga | Gdzie |
+| --- | --- | --- | --- |
+| Display | 60 / 68 px, −0.035em | 800 | Tylko strona startowa (D-13) |
+| Hasło gościa | 48 / 52 px, −0.035em | 800 | Panel `highlight` ekranów gościa (`GuestLayout`) |
+| Tytuł strony | 36 / 40 px, −0.03em | 800 | `PageHeader` |
+| Liczba w kafelku | 56 / 56 px, −0.04em | 800 | Statystyki pulpitu, `tabular-nums` |
+| Tytuł sekcji | 20 / 24 px | 700 | Kafelki, dialogi (24 px) |
+| Tekst | 15 / 22 px | 400 | Domyślny |
+| Etykieta | 14 / 20 px | 600 | Przyciski, zakładki, etykiety pól |
+| Metadane | 13 / 18 px | 500 | kcal, porcje, daty w `muted-foreground` |
+
+W Tailwindzie każda rola to jedna klasa, niosąca rozmiar, interlinię, odstęp liter i wagę z tabeli: `text-display`, `text-hero`, `text-page-title`, `text-stat`, `text-section-title`, `text-body`, `text-label`, `text-meta`. Tytuł dialogu (24 / 28 px, −0.02em, 800) to osobna rola `text-dialog-title` (SP-02), używana przez `DialogTitle` i `AlertDialogTitle`. `body` ma domyślnie `text-body` (15/22, 400). `text-stat` nie zawiera `tabular-nums`; dodaje je wywołujący. `text-meta` nie ustawia koloru: `text-muted-foreground` dopisuje wywołujący. Jawne `text-sm`/`text-xs` zostają 14/12 px. Wyjątek: znak słowny „Menu Maker” w `Common/AppBrand` to `text-section-title font-extrabold` (800 zamiast 700 roli), jak w makiecie. `<h1>` ekranów gościa używa `text-page-title` (36 px), nie 40 px z makiety: jedna rola tytułu dla gościa i aplikacji. Nowa rola trafia do `--text-*` w `app.css` i do listy `text` w `extendTailwindMerge` w `resources/js/lib/utils.js`, inaczej `cn()` weźmie ją za kolor tekstu.
+
+### 10.4 Zasady
+
+- Kolor niosą wyłącznie `meal-*` (bloki, komórki, kafelki, kategorie) i `highlight` (jeden blok na ekran). `primary` to atrament, nie kolor.
+- Tekst na tle kategorii zawsze `meal-*-foreground`; na `highlight` zawsze `highlight-foreground`; przycisk na `highlight` to `card` z tekstem `foreground` albo obrys `highlight-foreground`.
+- Status jadłospisu: pigułka z konturem; `draft` ma kontur przerywany na `card` („Szkic”), `processing` ma spinner.
+- Ikony bez zmian (§4.7), plus pory dnia: `Sun` (Śniadanie), `Soup` (Obiad), `Moon` (Kolacja).
+- **Kontrakt stanów kontrolek** (SP-02; makiety nie definiują hover, focus ani disabled):
+  - **hover:** kontrolki w stylu karty (`outline`, `secondary`, `ghost`, `dashed`, domyślna pigułka filtra) przechodzą na `accent`; przyciski atramentowe i `destructive` na `/90`; tony kategorii pigułki filtra przyciemnia `brightness-95`.
+  - **wciśnięcie (`active`):** tylko kontrolki z cieniem naklejki (`outline`) przesuwają się o 3px w dół i tracą cień, bez ruchu pod `motion-reduce`. Kontrolki płaskie (atrament, `destructive`, pigułki filtra i paginacji) się nie ruszają.
+  - **focus-visible:** `outline` 2px w `ring` z odsunięciem 2px (nie `ring`, bo cień naklejki to `box-shadow` i `active:shadow-none` nie może zabierać wskaźnika fokusu).
+  - **disabled:** `opacity-50`, brak zdarzeń wskaźnika, bez cienia.
+  - **loading:** `disabled` plus spinner `Loader2` w slocie; nie ma propa `loading`.
+- §3 (warstwy), §5.4 (stany), §7 (egzekwowanie) i reguły z `CLAUDE.md` obowiązują bez zmian: tylko tokeny, żadnych literałów palety ani hexów w widokach.
+
+### 10.5 Widoki
+
+| Ekran artefaktu | Widok | Co się zmienia względem dziś |
+| --- | --- | --- |
+| 02–04 | `GuestLayout`, `Auth/*` | Ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej |
+| — | `AuthenticatedLayout`, `AppSidebar`, `UserMenu` | Panel boczny zastąpiony paskiem górnym z pigułkami nawigacji i awatarem (menu użytkownika); poniżej `lg` zostaje `Sheet` |
+| 05–06 | `Dashboard` | Hero `highlight` z ostatnim jadłospisem, kafelki statystyk w `meal-breakfast`/`meal-supper`, „Ten tydzień” w kolorach pór dnia (wymaga posiłków ostatniego planu w propsach `DashboardController`) |
+| 07 | `Recipes/Index` | Kafelki po 4 w rzędzie z paskiem kategorii i kcal; filtr kategorii jako pigułki z liczbą przepisów (backend zwraca liczności, zapytanie zawężone do właściciela) |
+| 08 | `Recipes/Show` | Blok w kolorze kategorii z pigułkami kcal/porcje, składniki jako żetony, kroki z numerami na `highlight` |
+| 09 | `Recipes/Form` | Sekcje w kaflach; kategoria jako trzy kolorowe kafle-radio (`radiogroup`) zamiast `Select` |
+| 10 | `MealPlans/Index` | Tygodnie jako kafle z paskiem wypełnienia, statusem i akcjami; filtr statusu jako pigułki |
+| 11–12 | `MealPlans/Show`, `MealPlanGrid`, `ShoppingList` | Siatka dni × posiłki z kolorowymi komórkami; w szkicu pigułka „Zmień” w komórce, pusty posiłek jako przerywana ramka z „Wybierz”; lista zakupów jako kafel obok |
+| 13 | `FamilyMembers/Index` | Karty osób (inicjał, wiek, waga, wzrost) i przerywany kafel „Dodaj członka rodziny” |
+| 14 | `Profile/Edit` | Trzy kafle; usunięcie konta w `destructive` |
+| 15 | `GenerateMealPlanDialog`, `RecipeSwapDialog`, `ConfirmDialog` | Dialog 24px z konturem, cieniem i przyciskiem zamknięcia; obecna opcja podmiany na tle kategorii |
+
+### 10.6 Proponowany rollout (wejście dla `/10x-roadmap`, M-4)
+
+| # | Change ID | Zakres | Prerequisites | Równolegle z |
+| --- | --- | --- | --- | --- |
+| SP-01 | `spizarnia-tokens` | §10.2–10.3 w `app.css` (OKLCH, nowe tokeny, promienie, cienie, Bricolage Grotesque), D-14, lustro PDF + `MealPlanPdfPaletteTest` (D-12), kolory i typografia w kitchen sinku, odświeżone baseline'y | — | — |
+| SP-02 | `spizarnia-primitives` | Warianty `ui/`: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), `Input`/`Select`/`Textarea`/`Checkbox` (kontur 2px, 12px), `Dialog` (24px, cień, zamknięcie); demo w kitchen sinku | SP-01 | — |
+| SP-03 | `spizarnia-app-shell` | `AuthenticatedLayout` z paskiem górnym, `UserMenu`, mobilny `Sheet`; `GuestLayout` jako ekran dzielony | SP-02 | — |
+| SP-04 | `spizarnia-dashboard-ui` | Ekrany 05–06 | SP-03 | SP-05, SP-06, SP-07 |
+| SP-05 | `spizarnia-recipes-ui` | Ekrany 07–09 (z licznościami kategorii w backendzie) | SP-03 | SP-04, SP-06, SP-07 |
+| SP-06 | `spizarnia-meal-plans-ui` | Ekrany 10–12 i dialogi z ekranu 15 | SP-03 | SP-04, SP-05, SP-07 |
+| SP-07 | `spizarnia-family-profile-ui` | Ekrany 13–14 | SP-03 | SP-04, SP-05, SP-06 |
+
+Po M-4 (poza milestonem): strona startowa z ekranu 01 (D-13). Równoległe zmiany SP-04…SP-07 dotykają wspólnego kitchen sinka (`Pages/Dev/DesignSystem.vue`) — przy merge'u rozwiązać konflikty w nim i odświeżyć baseline `design-system.spec.ts` raz, na końcu.

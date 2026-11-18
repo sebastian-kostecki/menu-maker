@@ -13,11 +13,9 @@ test('user creates a recipe with a new ingredient', async ({ page }, testInfo) =
   await expect(page.getByRole('heading', { name: 'Nowy przepis' })).toBeVisible();
 
   await page.getByLabel('Nazwa przepisu').fill('Kasza z E2E');
-  await page.getByLabel('Kategoria').click();
-  await page.getByRole('option', { name: 'Obiad' }).click();
-  // The closing Select returns focus to its trigger; typing before it finishes loses the text (Firefox under load).
-  await expect(page.getByRole('listbox')).toBeHidden();
-  await page.getByLabel('Sposób przygotowania').fill('Ugotuj kaszę i podaj.');
+  await page.getByRole('radio', { name: 'Obiad' }).check();
+  await expect(page.getByRole('radio', { name: 'Obiad' })).toBeChecked();
+  await page.getByLabel('Sposób przygotowania').fill('Ugotuj kaszę.\nPodaj z warzywami.\n\nŹródło: https://example.com/kasza');
   await page.getByLabel('Kaloryczność całkowita (kcal)').fill('350');
   await page.getByLabel('Liczba porcji').fill('2');
 
@@ -39,4 +37,6 @@ test('user creates a recipe with a new ingredient', async ({ page }, testInfo) =
 
   await expect(page.getByText('Kasza jaglana E2E', { exact: true })).toBeVisible();
   await expect(page.getByText('200 g', { exact: true })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Sposób przygotowania' }).getByRole('listitem')).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'https://example.com/kasza' })).toBeVisible();
 });

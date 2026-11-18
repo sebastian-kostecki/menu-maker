@@ -1,5 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { test, expect, type Locator, type Page } from '@playwright/test';
+import { expectAppFontLoaded } from './support/fonts';
 
 test.skip(
   !process.env.PLAYWRIGHT_VISUAL_DOCKER,
@@ -20,17 +20,36 @@ const sections = [
   { name: 'Nakładki', slug: 'nakladki' },
   { name: 'Powłoka', slug: 'powloka' },
   { name: 'Komponenty aplikacji', slug: 'komponenty-aplikacji' },
-  { name: 'Jadłospis', slug: 'jadlospis' }
+  { name: 'Jadłospis', slug: 'jadlospis' },
+  { name: 'Pulpit', slug: 'pulpit' }
 ];
 
 async function openKitchenSink(page: Page) {
   await page.goto('/dev/design-system');
   await expect(page.getByRole('heading', { level: 1, name: 'Design system' })).toBeVisible();
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 function section(page: Page, name: string) {
   return page.getByRole('region', { name, exact: true });
+}
+
+/**
+ * Viewport clip around a focused control, padded so the 2px outline at a 2px offset is in the shot
+ * (an element screenshot stops at the border box and would cut the focus ring off).
+ */
+async function focusRingClip(control: Locator, margin = 8) {
+  await control.scrollIntoViewIfNeeded();
+  const box = await control.boundingBox();
+  if (!box) {
+    throw new Error('focusRingClip: control is not visible');
+  }
+  return {
+    x: box.x - margin,
+    y: box.y - margin,
+    width: box.width + margin * 2,
+    height: box.height + margin * 2
+  };
 }
 
 test.describe('sections', () => {
@@ -49,26 +68,82 @@ test('focus-visible on the outline button', async ({ page }) => {
   await buttons.getByText('destructive', { exact: true }).first().focus();
   // Keyboard navigation (not .focus()) is what triggers :focus-visible.
   await page.keyboard.press('Tab');
-  // The default button's ring is the same green as its fill, so the outline button shows the ring.
+  // The outline button shows the ring against the page background.
   await expect(outline).toBeFocused();
   await expect(section(page, 'Przyciski')).toHaveScreenshot('focus-visible.png');
 });
 
+test('button hover on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await expect(outline.locator('..')).toHaveScreenshot('button-hover.png');
+});
+
+test('button pressed on the outline button', async ({ page }) => {
+  await openKitchenSink(page);
+  const outline = section(page, 'Przyciski').getByRole('button', { name: 'outline', exact: true }).first();
+  await outline.hover();
+  await page.mouse.down();
+  try {
+    await expect(outline.locator('..')).toHaveScreenshot('button-pressed.png');
+  } finally {
+    await page.mouse.up();
+  }
+});
+
+test('input focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const input = page.locator('#ds-input-default');
+  // Start the Tab sequence from the section heading, the input is the first control after it.
+  await page.locator('#ds-formularze').evaluate((heading) => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  });
+  await page.keyboard.press('Tab');
+  await expect(input).toBeFocused();
+  await expect(page).toHaveScreenshot('input-focus-visible.png', { clip: await focusRingClip(input) });
+});
+
+test('chip focus-visible', async ({ page }) => {
+  await openKitchenSink(page);
+  const przyciski = section(page, 'Przyciski');
+  // The last enabled button before the chips; Tab skips the disabled ones.
+  await przyciski.getByRole('button', { name: 'Dodaj przepis' }).focus();
+  await page.keyboard.press('Tab');
+  const chip = przyciski.getByRole('button', { name: /^Wszystkie/ }).first();
+  await expect(chip).toBeFocused();
+  await expect(page).toHaveScreenshot('chip-focus-visible.png', { clip: await focusRingClip(chip) });
+});
+
+test('inverse focus-visible on highlight', async ({ page }) => {
+  await openKitchenSink(page);
+  const pulpit = section(page, 'Pulpit');
+  const inverse = pulpit.getByRole('button', { name: 'inverse', exact: true });
+  // Start the Tab sequence from the section heading and walk to the inverse button (hero links come first).
+  await pulpit.locator('#ds-pulpit').evaluate((heading) => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  });
+  // Keyboard navigation (not .focus()) is what triggers :focus-visible.
+  for (let step = 0; step < 20 && !(await inverse.evaluate((el) => el === document.activeElement)); step += 1) {
+    await page.keyboard.press('Tab');
+  }
+  await expect(inverse).toBeFocused();
+  await expect(page).toHaveScreenshot('inverse-focus-visible.png', { clip: await focusRingClip(inverse) });
+});
+
 test('shell nav hover', async ({ page }) => {
   await openKitchenSink(page);
-  const box = page.getByTestId('shell-sidebar-expanded');
-  await section(page, 'Powłoka')
-    .getByRole('navigation')
-    .first()
-    .getByRole('link', { name: 'Jadłospisy', exact: true })
-    .hover();
+  const box = page.getByTestId('shell-top-bar');
+  await box.getByRole('link', { name: 'Jadłospisy', exact: true }).hover();
   await expect(box).toHaveScreenshot('shell-nav-hover.png');
 });
 
 test('shell nav focus-visible', async ({ page }) => {
   await openKitchenSink(page);
-  const box = page.getByTestId('shell-sidebar-expanded');
-  await box.getByRole('button', { name: 'Zwiń panel boczny' }).focus();
+  const box = page.getByTestId('shell-top-bar');
+  await box.getByRole('link', { name: 'Menu Maker' }).focus();
   // Keyboard navigation (not .focus()) is what triggers :focus-visible.
   await page.keyboard.press('Tab');
   await expect(box.getByRole('link', { name: 'Pulpit', exact: true })).toBeFocused();

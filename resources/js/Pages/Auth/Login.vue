@@ -1,12 +1,14 @@
 <script setup>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
+import TextLink from '@/Components/Common/TextLink.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import { Alert, AlertDescription } from '@/Components/ui/alert'
 import { Button } from '@/Components/ui/button'
 import { Checkbox } from '@/Components/ui/checkbox'
 import { Input } from '@/Components/ui/input'
 import { Label } from '@/Components/ui/label'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { ArrowRight } from 'lucide-vue-next'
+import { Head, useForm } from '@inertiajs/vue3'
 
 defineProps({
     canResetPassword: {
@@ -31,10 +33,10 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout title="Logowanie" description="Witaj ponownie! Zaloguj się, żeby zaplanować tydzień.">
         <Head title="Logowanie" />
 
-        <Alert v-if="status" variant="success" class="mb-4">
+        <Alert v-if="status" variant="success">
             <AlertDescription>{{ status }}</AlertDescription>
         </Alert>
 
@@ -73,16 +75,20 @@ const submit = () => {
                 <Label for="remember">Zapamiętaj mnie</Label>
             </div>
 
-            <div class="flex items-center justify-end gap-4">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-muted-foreground underline transition-colors hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                    Nie pamiętasz hasła?
-                </Link>
+            <Button type="submit" size="lg" class="w-full" :disabled="form.processing">
+                Zaloguj się
+                <ArrowRight aria-hidden="true" />
+            </Button>
 
-                <Button type="submit" :disabled="form.processing">Zaloguj się</Button>
+            <div class="flex flex-wrap justify-between gap-3 text-sm">
+                <TextLink v-if="canResetPassword" :href="route('password.request')">
+                    Nie pamiętasz hasła?
+                </TextLink>
+
+                <span class="inline-flex gap-1">
+                    <span class="text-muted-foreground">Nie masz konta?</span>
+                    <TextLink :href="route('register')">Załóż konto</TextLink>
+                </span>
             </div>
         </form>
     </GuestLayout>

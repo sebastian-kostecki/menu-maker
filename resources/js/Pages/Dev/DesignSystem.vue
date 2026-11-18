@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CalendarDays, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -16,16 +16,32 @@ import {
   AlertDialogTrigger,
 } from '@/Components/ui/alert-dialog'
 import { Avatar, AvatarFallback } from '@/Components/ui/avatar'
-import AppSidebar from '@/Components/Common/AppSidebar.vue'
+import AppBrand from '@/Components/Common/AppBrand.vue'
+import MainNav from '@/Components/Common/MainNav.vue'
 import UserMenu from '@/Components/Common/UserMenu.vue'
 import { mainNavigation } from '@/lib/navigation'
+import TextLink from '@/Components/Common/TextLink.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
+import LatestPlanHero from '@/Components/Dashboard/LatestPlanHero.vue'
+import StatCard from '@/Components/Dashboard/StatCard.vue'
+import WeekOverview from '@/Components/Dashboard/WeekOverview.vue'
+import FirstRunTile from '@/Components/Dashboard/FirstRunTile.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
+import FamilyMemberTile from '@/Components/FamilyMembers/FamilyMemberTile.vue'
+import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import CategoryRadioTiles from '@/Components/recipes/CategoryRadioTiles.vue'
+import RecipeTile from '@/Components/recipes/RecipeTile.vue'
+import RecipeHero from '@/Components/recipes/RecipeHero.vue'
+import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue'
+import InstructionsSection from '@/Components/recipes/InstructionsSection.vue'
+import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
 import FormField from '@/Components/Common/FormField.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
@@ -34,6 +50,7 @@ import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
 import StatusTag from '@/Components/MealPlans/StatusTag.vue'
 import { Badge } from '@/Components/ui/badge'
 import { Button } from '@/Components/ui/button'
+import { Toggle } from '@/Components/ui/toggle'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Checkbox } from '@/Components/ui/checkbox'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/Components/ui/collapsible'
@@ -120,14 +137,23 @@ const colorSwatches = [
   { token: 'meal-breakfast', classes: 'bg-meal-breakfast text-meal-breakfast-foreground' },
   { token: 'meal-supper', classes: 'bg-meal-supper text-meal-supper-foreground' },
   { token: 'meal-dinner', classes: 'bg-meal-dinner text-meal-dinner-foreground' },
+  { token: 'sidebar', classes: 'bg-sidebar text-sidebar-foreground' },
+  { token: 'sidebar-active', classes: 'bg-sidebar-active text-sidebar-active-foreground' },
+  { token: 'highlight', classes: 'bg-highlight text-highlight-foreground' },
+  { token: 'overlay', classes: 'bg-overlay text-foreground' },
+  { token: 'sidebar-foreground', classes: 'bg-sidebar-foreground text-background' },
 ]
 
 const typographyRoles = [
-  { role: 'Tytuł strony', classes: 'text-2xl font-semibold tracking-tight', sample: 'Jadłospis na tydzień' },
-  { role: 'Tytuł sekcji / karty', classes: 'text-lg font-semibold', sample: 'Lista zakupów' },
-  { role: 'Tekst', classes: 'text-sm', sample: 'Zupa pomidorowa z makaronem i świeżą bazylią.' },
-  { role: 'Etykieta', classes: 'text-sm font-medium', sample: 'Nazwa przepisu' },
-  { role: 'Metadane', classes: 'text-xs text-muted-foreground', sample: '420 kcal · 4 porcje · 12 listopada' },
+  { role: 'Display', classes: 'text-display', sample: 'Cały tydzień na jednej kartce' },
+  { role: 'Hasło gościa', classes: 'text-hero', sample: 'Cały tydzień jedzenia na jednej kartce.' },
+  { role: 'Tytuł strony', classes: 'text-page-title', sample: 'Pulpit' },
+  { role: 'Liczba w kafelku', classes: 'text-stat tabular-nums', sample: '21' },
+  { role: 'Tytuł sekcji', classes: 'text-section-title', sample: 'Ten tydzień' },
+  { role: 'Tytuł dialogu', classes: 'text-dialog-title', sample: 'Usuń przepis' },
+  { role: 'Tekst', classes: 'text-body', sample: 'Dodaj przepisy, a Menu Maker ułoży tydzień.' },
+  { role: 'Etykieta', classes: 'text-label', sample: 'Dodaj przepis' },
+  { role: 'Metadane', classes: 'text-meta text-muted-foreground', sample: '3 porcje · 12 lis 2026' },
 ]
 
 const amounts = [
@@ -137,18 +163,42 @@ const amounts = [
 ]
 
 const shapes = [
-  { label: 'rounded-sm', classes: 'rounded-sm' },
-  { label: 'rounded-md', classes: 'rounded-md' },
-  { label: 'rounded-lg', classes: 'rounded-lg' },
+  { label: 'rounded-sm (8 px)', classes: 'rounded-sm' },
+  { label: 'rounded-md (12 px)', classes: 'rounded-md' },
+  { label: 'rounded-lg (20 px)', classes: 'rounded-lg' },
+  { label: 'rounded-xl (24 px)', classes: 'rounded-xl' },
   { label: 'rounded-full', classes: 'rounded-full' },
 ]
 
-const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']
+const buttonVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link', 'dashed']
+const chipTones = [
+  { variant: 'default', label: 'Wszystkie', count: 24 },
+  { variant: 'breakfast', label: 'Śniadanie', count: 8 },
+  { variant: 'supper', label: 'Obiad', count: 6 },
+  { variant: 'dinner', label: 'Kolacja', count: 10 },
+]
 const buttonSizes = [
   { size: 'xs', label: 'Mały xs' },
   { size: 'sm', label: 'Mały' },
   { size: 'default', label: 'Domyślny' },
   { size: 'lg', label: 'Duży' },
+]
+
+// The kitchen-sink spec does not freeze the clock, so the demo tiles get a fixed „today” (ages 38, 41, 6).
+const demoFamilyToday = new Date(2026, 5, 15)
+const demoFamilyMembers = [
+  {
+    colour: 'supper',
+    member: { id: 1, first_name: 'Anna', birth_date: '1987-07-04', gender: 'female', weight_kg: '64.0', height_cm: '168.0' },
+  },
+  {
+    colour: 'dinner',
+    member: { id: 2, first_name: 'Jan', birth_date: '1985-03-12', gender: 'male', weight_kg: '82.0', height_cm: '180.0' },
+  },
+  {
+    colour: 'breakfast',
+    member: { id: 3, first_name: 'Zosia', birth_date: '2019-09-01', gender: 'female', weight_kg: null, height_cm: null },
+  },
 ]
 
 const badgeVariants = [
@@ -163,6 +213,7 @@ const badgeVariants = [
   { variant: 'warning', label: 'Ostrzeżenie' },
   { variant: 'info', label: 'W toku' },
   { variant: 'muted', label: 'Wyciszona' },
+  { variant: 'tag', label: 'Znacznik' },
 ]
 
 const selectOptions = [
@@ -178,6 +229,12 @@ const recipes = [
 ]
 
 const comboboxValue = ref(undefined)
+const categoryTilesSelected = ref('supper')
+const categoryTileOptions = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
 const page = ref(2)
 
 const shellItems = mainNavigation.map((item) => ({
@@ -187,8 +244,6 @@ const shellItems = mainNavigation.map((item) => ({
   current: item.routeName === 'recipes.index',
 }))
 const shellUser = { name: 'Anna Kowalska', email: 'anna@example.com' }
-const shellExpandedCollapsed = ref(false)
-const shellCollapsedCollapsed = ref(true)
 const appCategories = ['breakfast', 'supper', 'dinner']
 const appStatuses = ['draft', 'pending', 'processing', 'done', 'error']
 const appSort = ref({ column: 'name', direction: 'asc' })
@@ -245,6 +300,13 @@ const planMeals = planRecipeNames
         : [],
     }
   })
+const pulpitPlan = {
+  start_date: planStartDate,
+  end_date: '2026-06-21',
+  status: 'done',
+  meals: planMeals,
+  links: { self: '#plan', pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' },
+}
 const planShoppingList = {
   items: [
     { ingredient_id: 1, name: 'Jajka', quantity: '42', unit: 'szt.', display: '42 szt.' },
@@ -266,6 +328,66 @@ const swapOptions = [
   { id: 13, name: 'Płatki z mlekiem', calories: '980' },
   { id: 16, name: 'Tosty z awokado', calories: null },
 ]
+const demoPlanLinks = (id, withPdf) => ({
+  self: `#ds-plan-${id}`,
+  pdf: withPdf ? `#ds-plan-${id}-pdf` : null,
+  pdf_with_recipes: withPdf ? `#ds-plan-${id}-pdf-recipes` : null,
+})
+const demoPlanTiles = [
+  { id: 1, status: 'draft', start_date: '2026-06-29', end_date: '2026-07-05', created_at: '2026-06-22T09:30:00', meals_count: 20, withPdf: false },
+  { id: 2, status: 'processing', start_date: '2026-06-22', end_date: '2026-06-28', created_at: '2026-06-15T08:15:00', meals_count: 21, withPdf: false },
+  { id: 3, status: 'done', start_date: '2026-06-15', end_date: '2026-06-21', created_at: '2026-06-08T18:00:00', meals_count: 21, withPdf: true },
+  { id: 4, status: 'error', start_date: '2026-06-08', end_date: '2026-06-14', created_at: '2026-06-01T12:45:00', meals_count: 0, withPdf: false },
+  { id: 5, status: 'pending', start_date: '2026-06-01', end_date: '2026-06-07', created_at: '2026-05-25T07:20:00', meals_count: 9, withPdf: false },
+].map(({ withPdf, ...plan }) => ({
+  ...plan,
+  updated_at: plan.created_at,
+  logs_count: 0,
+  links: demoPlanLinks(plan.id, withPdf),
+}))
+const demoPlanStatuses = [
+  { value: 'draft', label: 'Szkic' },
+  { value: 'pending', label: 'Oczekuje' },
+  { value: 'processing', label: 'Generowanie' },
+  { value: 'done', label: 'Gotowy' },
+  { value: 'error', label: 'Błąd' },
+]
+const demoRecipeSearch = ref('')
+const demoRecipeCategory = ref('')
+const demoRecipeSort = ref({ column: 'created_at', direction: 'desc' })
+const demoRecipeCategories = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
+const demoRecipeCounts = { all: 21, breakfast: 7, supper: 7, dinner: 7 }
+const demoRecipeTiles = [
+  { id: 1, name: 'Owsianka z jabłkiem i cynamonem', category: 'breakfast', calories: '640.00', servings: 2, created_at: '2026-06-12T10:00:00+00:00' },
+  { id: 2, name: 'Rosół z makaronem', category: 'supper', calories: '1620.00', servings: 4, created_at: '2026-06-10T10:00:00+00:00' },
+  { id: 3, name: 'Kanapki z pastą jajeczną', category: 'dinner', calories: '1140.00', servings: 1, created_at: '2026-06-08T10:00:00+00:00' },
+]
+const demoRecipePage = {
+  name: 'Rosół z makaronem',
+  category: 'supper',
+  calories: '1080.00',
+  servings: 4,
+}
+const demoRecipeIngredients = [
+  { id: 1, name: 'Kurczak', quantity: 800, unit: { code: 'g' } },
+  { id: 2, name: 'Makaron nitki', quantity: 200, unit: { code: 'g' } },
+  { id: 3, name: 'Marchew', quantity: 3, unit: { code: 'szt.' } },
+  { id: 4, name: 'Woda', quantity: 2, unit: { code: 'l' } },
+]
+const demoRecipeSteps = 'Ugotuj bulion z kurczaka i warzyw.\nDodaj makaron i gotuj 4 minuty.\nPodaj z natką pietruszki.'
+const demoRecipeStepsSource = `${demoRecipeSteps}\n\nŹródło: https://example.com/rosol`
+const demoPlanStatus = ref('pending')
+const demoPlanSortOptions = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
+const demoPlanSort = ref({ column: 'created_at', direction: 'desc' })
 const demoPlanCount = 22
 const demoPlanForms = { one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }
 const confirmOpen = ref(false)
@@ -352,9 +474,13 @@ const showToast = () => {
           </div>
         </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div class="rounded-lg border bg-card p-4 text-sm">Karta: ramka, bez cienia</div>
+          <div class="rounded-lg border-2 border-foreground bg-card p-4 text-sm shadow-sticker">
+            Kafel: kontur 2px, shadow-sticker
+          </div>
+          <div class="rounded-xl border-2 border-foreground bg-card p-4 text-sm shadow-dialog">
+            Dialog: shadow-dialog
+          </div>
           <div class="rounded-lg bg-card p-4 text-sm shadow-sm">shadow-sm</div>
-          <div class="rounded-lg bg-card p-4 text-sm shadow-lg">shadow-lg</div>
         </div>
       </section>
 
@@ -382,6 +508,31 @@ const showToast = () => {
             Zapisywanie…
           </Button>
         </div>
+        <h3 class="text-base font-semibold">Pigułki filtra</h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <Toggle v-for="chip in chipTones" :key="chip.variant" :variant="chip.variant">
+            {{ chip.label }}
+            <span>{{ chip.count }}</span>
+          </Toggle>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <Toggle :model-value="true">
+            Wszystkie
+            <span>24</span>
+          </Toggle>
+          <Toggle variant="breakfast" :model-value="true">
+            Śniadanie
+            <span>8</span>
+          </Toggle>
+          <Toggle disabled>
+            Niedostępne
+            <span>0</span>
+          </Toggle>
+          <Toggle size="sm">
+            Mała pigułka
+            <span>3</span>
+          </Toggle>
+        </div>
       </section>
 
       <section aria-labelledby="ds-odznaki" class="flex flex-col gap-4">
@@ -390,6 +541,25 @@ const showToast = () => {
           <Badge v-for="item in badgeVariants" :key="item.variant" :variant="item.variant">
             {{ item.label }}
           </Badge>
+        </div>
+        <div class="flex flex-wrap items-center gap-2" aria-label="Znacznik powiązanego posiłku (wariant tag na wypełnieniu posiłku)">
+          <span
+            v-for="swatch in colorSwatches.filter((item) => item.token.startsWith('meal-'))"
+            :key="swatch.token"
+            :class="['inline-flex items-center rounded-md p-2.5', swatch.classes]"
+          >
+            <Badge variant="tag">Na 2 dni</Badge>
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2" aria-label="Status">
+          <Badge variant="draft" size="status">Szkic</Badge>
+          <Badge variant="muted" size="status">Oczekuje</Badge>
+          <Badge variant="info" size="status">
+            <Loader2 class="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+            Generowanie
+          </Badge>
+          <Badge variant="success" size="status">Gotowy</Badge>
+          <Badge variant="destructive" size="status">Błąd</Badge>
         </div>
       </section>
 
@@ -536,6 +706,30 @@ const showToast = () => {
             </Combobox>
           </div>
         </div>
+        <div class="flex max-w-205 flex-col gap-6">
+          <CategoryRadioTiles
+            name="ds-category-empty"
+            :model-value="null"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            v-model="categoryTilesSelected"
+            name="ds-category-selected"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            name="ds-category-error"
+            :model-value="null"
+            :categories="categoryTileOptions"
+            error="Wybierz kategorię."
+          />
+          <CategoryRadioTiles
+            name="ds-category-disabled"
+            model-value="breakfast"
+            :categories="categoryTileOptions"
+            disabled
+          />
+        </div>
       </section>
 
       <section aria-labelledby="ds-karta-tabela" class="flex flex-col gap-4">
@@ -549,6 +743,15 @@ const showToast = () => {
           <CardFooter class="gap-2">
             <Button size="sm">Otwórz</Button>
             <Button size="sm" variant="outline">Edytuj</Button>
+          </CardFooter>
+        </Card>
+        <Card variant="destructive" class="max-w-md">
+          <CardHeader>
+            <CardTitle>Usuń konto</CardTitle>
+            <CardDescription>Po usunięciu konta wszystkie dane zostaną trwale usunięte.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button size="sm" variant="destructive">Usuń konto</Button>
           </CardFooter>
         </Card>
         <div class="rounded-lg border bg-card">
@@ -611,6 +814,10 @@ const showToast = () => {
             <AvatarFallback>JK</AvatarFallback>
           </Avatar>
           <span class="text-sm">Jan Kowalski</span>
+          <Avatar variant="sticker">
+            <AvatarFallback>JK</AvatarFallback>
+          </Avatar>
+          <span class="text-sm">Naklejka (pasek górny)</span>
         </div>
       </section>
 
@@ -715,26 +922,22 @@ const showToast = () => {
 
       <section aria-labelledby="ds-powloka" class="flex flex-col gap-4">
         <h2 id="ds-powloka" class="text-lg font-semibold">Powłoka</h2>
-        <div class="flex flex-wrap items-start gap-6">
-          <div data-testid="shell-sidebar-expanded" class="h-96 w-64 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellExpandedCollapsed"
-              collapsible
-              @toggle-collapse="shellExpandedCollapsed = !shellExpandedCollapsed"
-            />
-          </div>
-          <div data-testid="shell-sidebar-collapsed" class="h-96 w-16 overflow-hidden rounded-lg border">
-            <AppSidebar
-              :items="shellItems"
-              :collapsed="shellCollapsedCollapsed"
-              collapsible
-              @toggle-collapse="shellCollapsedCollapsed = !shellCollapsedCollapsed"
-            />
-          </div>
-        </div>
-        <div class="flex items-center">
+        <div data-testid="shell-top-bar" class="flex items-center gap-6 bg-sidebar px-8 py-4">
+          <AppBrand href="#" />
+          <MainNav :items="shellItems" orientation="horizontal" class="mx-auto" />
           <UserMenu :user="shellUser" />
+        </div>
+        <div data-testid="shell-drawer-nav" class="w-72 rounded-lg border-2 border-foreground bg-background p-5">
+          <MainNav :items="shellItems" orientation="vertical" />
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <div data-testid="shell-brand-inverse" class="rounded-lg bg-highlight p-6 text-highlight-foreground">
+            <AppBrand href="#" tone="inverse" />
+          </div>
+          <p class="text-sm">
+            <span class="text-muted-foreground">Masz już konto?</span>
+            <TextLink href="#">Zaloguj się</TextLink>
+          </p>
         </div>
       </section>
 
@@ -788,6 +991,25 @@ const showToast = () => {
 
         <ServerPagination :meta="appPaginationMeta" @page-change="handleAppPageChange" />
 
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <FamilyMemberTile
+            v-for="demo in demoFamilyMembers"
+            :key="demo.member.id"
+            :member="demo.member"
+            :colour="demo.colour"
+            :today="demoFamilyToday"
+          />
+          <Button variant="dashed" size="tile">
+            <span
+              aria-hidden="true"
+              class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            >
+              <Plus />
+            </span>
+            Dodaj członka rodziny
+          </Button>
+        </div>
+
         <div class="flex flex-wrap items-center gap-2">
           <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>
           <Button variant="outline" @click="processingOpen = true">Pokaż dialog w toku</Button>
@@ -806,22 +1028,57 @@ const showToast = () => {
           </PageHeader>
         </div>
 
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <FilterPills v-model="demoPlanStatus" aria-label="Status" :options="demoPlanStatuses" />
+          <SortMenu
+            :options="demoPlanSortOptions"
+            :sort="demoPlanSort.column"
+            :direction="demoPlanSort.direction"
+            @sort-change="demoPlanSort = $event"
+          />
+        </div>
+
+        <ul class="flex flex-col gap-3.5">
+          <li v-for="plan in demoPlanTiles" :key="plan.id">
+            <MealPlanTile :item="plan" demo />
+          </li>
+        </ul>
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div class="rounded-lg border bg-card p-6">
+          <Card>
             <EmptyState
+              class="py-12"
               :icon="CalendarDays"
               title="Nie masz jeszcze jadłospisów"
               description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
             >
               <Button>Wygeneruj pierwszy jadłospis</Button>
             </EmptyState>
-          </div>
-          <div class="rounded-lg border bg-card p-6">
-            <EmptyState :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
+          </Card>
+          <Card>
+            <EmptyState class="py-12" :icon="CalendarDays" title="Brak jadłospisów o wybranym statusie">
               <Button variant="outline">Wyczyść filtry</Button>
             </EmptyState>
-          </div>
+          </Card>
         </div>
+
+        <RecipesToolbar
+          :search="demoRecipeSearch"
+          :category="demoRecipeCategory"
+          :sort="demoRecipeSort.column"
+          :direction="demoRecipeSort.direction"
+          :categories="demoRecipeCategories"
+          :category-counts="demoRecipeCounts"
+          @search="demoRecipeSearch = $event"
+          @category-change="demoRecipeCategory = $event"
+          @sort-change="demoRecipeSort = $event"
+        />
+
+        <ul aria-label="Przykładowe przepisy" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <li v-for="recipe in demoRecipeTiles" :key="recipe.id">
+            <RecipeTile :recipe="recipe" />
+          </li>
+        </ul>
 
         <ConfirmDialog
           v-model:open="confirmOpen"
@@ -881,6 +1138,18 @@ const showToast = () => {
         <div class="rounded-lg border bg-card p-6">
           <EmptyState :icon="SearchX" title="Brak wyników" />
         </div>
+
+        <RecipeHero :recipe="demoRecipePage" :heading-level="2" />
+
+        <div class="grid gap-6 lg:grid-cols-5">
+          <div class="lg:col-span-2">
+            <IngredientCardGrid :ingredients="demoRecipeIngredients" />
+          </div>
+          <div class="flex flex-col gap-6 lg:col-span-3">
+            <InstructionsSection :instructions="demoRecipeStepsSource" />
+            <InstructionsSection :instructions="demoRecipeSteps" />
+          </div>
+        </div>
       </section>
 
       <section aria-labelledby="ds-jadlospis" class="flex flex-col gap-4">
@@ -919,7 +1188,7 @@ const showToast = () => {
           </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-3">
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów</p>
             <ShoppingList :list="planShoppingList" />
@@ -927,6 +1196,52 @@ const showToast = () => {
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów bez pozycji</p>
             <ShoppingList :list="emptyShoppingList" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="text-xs text-muted-foreground">Lista zakupów w szkicu (miejsce na listę)</p>
+            <ShoppingList pending />
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-pulpit" class="flex flex-col gap-4">
+        <h2 id="ds-pulpit" class="text-lg font-semibold">Pulpit</h2>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Hero z ostatnim jadłospisem (status „Gotowy”, liczba posiłków z przepisem, „Otwórz jadłospis” i menu PDF na tle highlight)</p>
+          <LatestPlanHero :meal-plan="pulpitPlan" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Hero bez gotowego jadłospisu</p>
+          <LatestPlanHero :meal-plan="null" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Kafelki statystyk: wartość 21 (śniadanie, formy „przepisów”) i wartość 1 (obiad, forma „jadłospis”)</p>
+          <div class="grid gap-6 sm:grid-cols-2">
+            <StatCard tone="breakfast" :value="21" :forms="{ one: 'przepis', few: 'przepisy', many: 'przepisów' }" :icon="ChefHat" />
+            <StatCard tone="supper" :value="1" :forms="{ one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }" :icon="CalendarDays" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Tydzień z datą spoza zakresu (tytuł z zakresem dat; pusty posiłek „Bez posiłku”, czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”, piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”, jeden usunięty przepis). „Ten tydzień” pokazuje zrzut pulpitu.</p>
+          <WeekOverview start-date="2026-06-15" end-date="2026-06-21" :meals="planMeals" today="2026-07-01" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Kafelek pierwszego uruchomienia</p>
+          <FirstRunTile />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Przyciski na tle highlight: inverse i inverse-outline, domyślne i wyłączone</p>
+          <div class="flex flex-wrap items-center gap-3 rounded-lg bg-highlight p-6">
+            <Button variant="inverse">inverse</Button>
+            <Button variant="inverse" disabled>inverse wyłączony</Button>
+            <Button variant="inverse-outline">inverse-outline</Button>
+            <Button variant="inverse-outline" disabled>inverse-outline wyłączony</Button>
           </div>
         </div>
       </section>

@@ -196,6 +196,27 @@ it('user can delete own recipe', function (): void {
     $this->assertSoftDeleted('recipes', ['id' => $recipe->id]);
 });
 
+it('deleting from a filtered list returns to that list without the page', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $listUrl = route('recipes.index', ['search' => 'zupa', 'category' => 'supper', 'page' => 2]);
+
+    $response = $this->actingAs($this->user)
+        ->from($listUrl)
+        ->delete(route('recipes.destroy', $recipe));
+
+    $response->assertRedirect(route('recipes.index', ['search' => 'zupa', 'category' => 'supper']));
+});
+
+it('deleting from the recipe page returns to the plain list', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)
+        ->from(route('recipes.show', $recipe))
+        ->delete(route('recipes.destroy', $recipe));
+
+    $response->assertRedirect(route('recipes.index'));
+});
+
 it("user cannot delete other user's recipe", function (): void {
     $recipe = Recipe::factory()->for($this->otherUser)->create();
 
@@ -259,6 +280,82 @@ it('recipes index can be filtered by category', function (): void {
     $response->assertInertia(
         fn ($page) => $page->has('recipes.data', 2)
     );
+});
+
+it('recipes index category counts are faceted by search but ignore the selected category', function (): void {
+    Recipe::factory()->for($this->user)->breakfast()->create(['name' => 'Placek jabłkowy']);
+    Recipe::factory()->for($this->user)->supper()->create(['name' => 'Placek drożdżowy']);
+    Recipe::factory()->for($this->user)->supper()->create(['name' => 'Kotlet']);
+    Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Placek ziemniaczany']);
+    Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Zupa']);
+
+    $response = $this->actingAs($this->user)
+        ->get(route('recipes.index', ['search' => 'placek', 'category' => 'breakfast']));
+
+    $response->assertInertia(
+        fn ($page) => $page
+            ->has('recipes.data', 1)
+            ->where('categoryCounts', ['all' => 3, 'breakfast' => 1, 'supper' => 1, 'dinner' => 1])
+    );
+});
+
+it('recipes index category counts are owner-scoped and exclude trashed recipes', function (): void {
+    Recipe::factory()->for($this->user)->breakfast()->count(2)->create();
+    Recipe::factory()->for($this->user)->dinner()->create();
+    Recipe::factory()->for($this->user)->dinner()->create()->delete();
+    Recipe::factory()->for($this->otherUser)->breakfast()->count(5)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index'));
+
+    $response->assertInertia(
+        fn ($page) => $page->where('categoryCounts', ['all' => 3, 'breakfast' => 2, 'supper' => 0, 'dinner' => 1])
+    );
+});
+
+it('recipes index category counts are zero for a user without recipes', function (): void {
+    $response = $this->actingAs($this->user)->get(route('recipes.index'));
+
+    $response->assertInertia(
+        fn ($page) => $page->where('categoryCounts', ['all' => 0, 'breakfast' => 0, 'supper' => 0, 'dinner' => 0])
+    );
+});
+
+it('recipes index ignores an unknown category', function (): void {
+    Recipe::factory()->for($this->user)->breakfast()->count(2)->create();
+    Recipe::factory()->for($this->user)->dinner()->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['category' => 'brunch']));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page->has('recipes.data', 3));
+});
+
+it('recipes index ignores a category sent as an array', function (): void {
+    Recipe::factory()->for($this->user)->breakfast()->count(2)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['category' => ['breakfast']]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page->has('recipes.data', 2));
+});
+
+it('recipes index paginates 12 per page by default', function (): void {
+    Recipe::factory()->for($this->user)->count(13)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('recipes.meta.per_page', 12)
+        ->has('recipes.data', 12)
+        ->where('recipes.meta.total', 13));
+});
+
+it('recipes index clamps per_page to 100', function (): void {
+    Recipe::factory()->for($this->user)->count(3)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['per_page' => 1000]));
+
+    $response->assertInertia(fn ($page) => $page->where('recipes.meta.per_page', 100));
 });
 
 it('recipe form and index expose Polish category labels in display order', function (): void {

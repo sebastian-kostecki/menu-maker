@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { expectFigtreeLoaded } from './support/fonts';
+import { expectAppFontLoaded } from './support/fonts';
 import { logIn } from './support/auth';
 
 test.skip(
@@ -27,10 +27,9 @@ async function openSeededPlan(page: Page) {
   const url = plan!.links.self;
   await page.goto(url);
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
-  await expect(page.getByText('15.06.2026 – 21.06.2026')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: '15–21 czerwca 2026' })).toBeVisible();
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(21);
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 test('meal plan show desktop', async ({ page }) => {
@@ -67,8 +66,7 @@ async function openSeededDraft(page: Page) {
   expect(plan, 'seeded draft starting 2026-06-29 in the plans list').toBeDefined();
   await page.goto(plan!.links.self);
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Jadłospis' })).toBeVisible();
-  await expect(page.getByText('29.06.2026 – 05.07.2026')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: '29 czerwca – 5 lipca 2026' })).toBeVisible();
   // One pinned empty meal (Wednesday breakfast): 20 recipe links.
   await expect(page.getByTestId('meal-plan-grid').locator('tbody td a')).toHaveCount(20);
   await expect(page.getByText('Bez posiłku').first()).toBeVisible();
@@ -77,7 +75,7 @@ async function openSeededDraft(page: Page) {
   await expect(page.getByText('Z kolacji', { exact: true })).toBeVisible();
   await expect(page.getByText('Też na śniadanie', { exact: true })).toBeVisible();
   await expect(page.getByText('Szkic', { exact: true }).first()).toBeVisible();
-  await expectFigtreeLoaded(page);
+  await expectAppFontLoaded(page);
 }
 
 test('meal plan draft desktop', async ({ page }) => {

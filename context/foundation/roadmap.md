@@ -1,202 +1,236 @@
 ---
 project: menu-maker
-version: 3
+version: 4
 status: draft                    # draft | active | locked
 created: 2026-11-13
-updated: 2026-11-17
+updated: 2026-11-18
 prd_version: —
 main_goal: quality
 top_blocker: decisions
-milestone_id: editable-meal-plan-draft
-milestone_seq: 3
+milestone_id: spizarnia-restyle
+milestone_seq: 4
 milestone_status: done           # open | done
 ---
 
 # Roadmap: Menu Maker
 
-> Derived from the user's M-3 description (anchors MS-01…MS-06 below) + auto-researched codebase baseline; `.ai/core/prd.md` is context only.
+> Derived from `context/foundation/design-system.md` §10 (decisions D-10…D-14, rollout SP-01…SP-07 in §10.6) + auto-researched codebase baseline; `.ai/core/prd.md` is context only.
 > Edit-in-place; the next milestone continues this file. Archive only when an independent roadmap replaces it.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
 ## Milestone
 
-**M-3: Jadłospis układany przed wygenerowaniem** — Status: done
+**M-4: Restyle: Spiżarnia** — Status: done
 
-- **Intent:** Użytkownik zanim uruchomi skalowanie AI, widzi wylosowany tydzień jako szkic i układa go po swojemu — podmienia przepisy, zostawia posiłki puste, planuje gotowanie raz na dwa dni — a PDF może zawierać pełne przepisy do gotowania.
-- **Source materials:** opis użytkownika z 2026-11-16 (dosłownie poniżej), doprecyzowany w rozmowie tego samego dnia (MS-06: przepisy na osobnych stronach, dołączane przełącznikiem). `.ai/core/prd.md` służy tylko jako kontekst.
-- **Opis użytkownika (dosłownie):** „najważniejszy na ten momement jest proces tworzenia jadlospisu - musi byc najpierw podglad przed wygenerowaniem; mozliwosc recznej zmiany przepisu; mozliwosc pozostawienia posilku pustego (np. nie robimy wybranego sniadania); mozliwosc zrobienia 2 takich samych obiadow dzien po dniu (zeby zrobic cos raz na 2 dni), albo polaczenia kolacja - sniadanie nastepnego dnia; ponadto w jadlospisie pdf musi byc mozliwosc dodania sposoby wykonania - samego przepisu”
+- **Intent:** Każdy ekran aplikacji po zalogowaniu i ekrany gościa wyglądają według kierunku C · Spiżarnia. Kolor niosą posiłki (miód, pomidor, indygo jako pełne bloki), marka cofa się do atramentu, a kafle mają kontur 2px, duże zaokrąglenia i twardy cień. PDF dostaje nowe kolory kategorii.
+- **Source materials:** `context/foundation/design-system.md` §10 (wersja z 2026-11-17, commit `fc57ec0`): tokeny §10.2, typografia §10.3, zasady §10.4, widoki §10.5, rollout §10.6 (SP-01…SP-07), decyzje D-10…D-14 w §9. Ekrany: artefakt Design System „Menu Maker — Spiżarnia” (§10.1); przy rozbieżności wygrywa `design-system.md` (D-11).
 - **Done when:** every F-NN and S-NN below is `done`.
-- **Scope anchors:**
-  - MS-01: Przed wygenerowaniem użytkownik widzi podgląd jadłospisu.
-  - MS-02: Użytkownik może ręcznie zmienić przepis w posiłku.
-  - MS-03: Użytkownik może zostawić posiłek pusty (np. nie robimy wybranego śniadania).
-  - MS-04: Użytkownik może zaplanować dwa takie same obiady dzień po dniu, żeby gotować raz na dwa dni.
-  - MS-05: Użytkownik może połączyć kolację ze śniadaniem następnego dnia.
-  - MS-06: PDF jadłospisu może zawierać sposób wykonania — sam przepis: pełne przepisy na osobnych stronach, dołączane przełącznikiem przy pobieraniu.
-- **Zmiany względem PRD:** MS-04 i MS-05 zastępują „Losowy dobór przepisów bez powtórzeń w obrębie tygodnia” (PRD §3 pkt 4) — powtórka jest świadomym wyborem użytkownika, losowanie nadal jej nie tworzy. MS-02 i MS-03 zastępują „Brak edycji wygenerowanego jadłospisu” (PRD §4) w zakresie szkicu przed wygenerowaniem. MS-06 zmienia układ PDF z PRD §3 pkt 7 (przepisy poza tabelą). Numery punktów odnoszą się do PRD sprzed 2026-11-17; tego dnia zmiany M-3 (w tym MS-05) wpisano do `.ai/core/prd.md` (§1, §3 pkt 4–8, §4, US-008…US-010, nowe US-013…US-017).
-- **Numbering:** identyfikatory kontynuują numerację M-1 i M-2 (S-17…), żeby nie zderzyć się z wpisami w `## Done`.
+- **Scope anchors:** SP-01…SP-07 (§10.6), D-10, D-12, D-14 (§9), §10.2–10.5, ekrany 02–15 artefaktu (§10.1). Ekran 01 (strona startowa, D-13) jest poza kamieniem milowym — zob. `## Parked`.
+- **Numbering:** identyfikatory kontynuują numerację M-1…M-3 (F-05…, S-22…), żeby nie zderzyć się z wpisami w `## Done`.
 
 ## Vision recap
 
-Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, generuje jadłospis 7 × 3 i drukuje PDF z listą zakupów. Po M-1 i M-2 generowanie działa i wygląda spójnie, ale jest „wszystko albo nic”: aplikacja losuje tydzień, od razu skaluje składniki przez AI i nie pozwala niczego zmienić. Ten kamień milowy wprowadza szkic — wylosowany, jeszcze nieprzeliczony tydzień, który użytkownik może przejrzeć i poprawić — żeby jadłospis odpowiadał temu, jak rodzina naprawdę gotuje: czasem bez śniadania, czasem jeden garnek na dwa dni, czasem kolacja, z której zostaje na rano.
+Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa szkic jadłospisu 7 × 3, zatwierdza go i drukuje PDF z listą zakupów. Po M-2 aplikacja ma spójny design system (tokeny, wspólne komponenty, kitchen sink, bramka zrzutów), ale wygląda jak typowy panel w zieleni ziół. Ten kamień milowy podmienia kierunek wyglądu na Spiżarnię bez zmiany zachowania: te same widoki, przepływy i testy E2E, nowy kolor, kształt i krój. Kitchen sink to jedna strona deweloperska (`/dev/design-system`) z wszystkimi tokenami i komponentami w ich stanach; bramka wizualna porównuje jej zrzuty i zrzuty prawdziwych stron z zatwierdzonymi wzorcami.
 
 ## North star
 
-**S-17: Użytkownik widzi wylosowany tydzień jako szkic, podmienia przepis w komórce i zatwierdza; dopiero wtedy rusza skalowanie AI** — przy celu „quality” to pierwszy przepływ, który sprawdza cały nowy cykl życia planu (szkic → edycja → generowanie) na prawdziwej edycji, a wszystkie pozostałe wycinki M-3 są kolejnymi edycjami tego samego szkicu.
+**S-22: Użytkownik porusza się po aplikacji w powłoce Spiżarni — pasek górny z pigułkami nawigacji i awatarem, ekrany gościa jako ekran dzielony** — przy celu „quality” to pierwszy widok, w którym nowe tokeny i prymitywy składają się w prawdziwy ekran widoczny na każdej stronie; wszystkie kolejne widoki stoją na tej powłoce.
 
-> „North star” oznacza tu najmniejszy przepływ end-to-end, którego dostarczenie dowodzi, że ten kamień milowy działa — dlatego stoi tak wcześnie, jak pozwalają jego warunki wstępne: puste posiłki, powtórki i resztki mają sens tylko wtedy, gdy szkic działa.
+> „North star” (gwiazda przewodnia) oznacza tu najmniejszy przepływ end-to-end, którego dostarczenie dowodzi, że ten kamień milowy działa — dlatego stoi tak wcześnie, jak pozwalają jego warunki wstępne: restyle widoków ma sens tylko wtedy, gdy powłoka Spiżarni działa i przechodzi bramkę wizualną.
 
 ## At a glance
 
-| ID   | Change ID                  | Outcome (user can …)                                                                       | Prerequisites | PRD refs     | Status   |
-| ---- | -------------------------- | ------------------------------------------------------------------------------------------ | ------------- | ------------ | -------- |
-| S-17 | meal-plan-draft-with-swap  | zobaczyć szkic tygodnia, podmienić przepis w komórce i zatwierdzić, zanim ruszy skalowanie AI | —             | MS-01, MS-02 | done |
-| S-18 | meal-plan-empty-slot       | zostawić wybrany posiłek pusty, bez składników na liście zakupów                           | S-17          | MS-03        | done |
-| S-19 | meal-plan-repeat-dinner    | zaplanować ten sam obiad dwa dni z rzędu, gotowany raz                                     | S-18          | MS-04        | done |
-| S-20 | dinner-to-breakfast-carryover | połączyć kolację ze śniadaniem następnego dnia                                          | S-19          | MS-05, US-017 | done |
-| S-21 | pdf-recipe-pages           | pobrać PDF z pełnymi przepisami na osobnych stronach albo bez nich                         | —             | MS-06        | done |
+| ID   | Change ID                   | Outcome (user can …)                                                                                       | Prerequisites | PRD refs                          | Status   |
+| ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
+| F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
+| F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | done        |
+| S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | done |
+| S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | done     |
+| S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | done     |
+| S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | done        |
+| S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | done        |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below; this table is the proposed reading order across parallel tracks.
 
-| Stream | Theme                    | Chain                    | Note                                                                                               |
-| ------ | ------------------------ | ------------------------ | -------------------------------------------------------------------------------------------------- |
-| A      | Szkic i edycje komórki   | `S-17` → `S-18` → `S-19` → `S-20` | Cel „quality”: jeden łańcuch (decyzja 2026-11-16) — powiązanie „gotowane raz, jedzone dwa razy” powstaje na gotowym pustym posiłku, a `S-20` tylko je rozszerza. |
-| B      | PDF z przepisami         | `S-21`                   | Niezależny od szkicu; może iść w osobnej sesji agenta równolegle do strumienia A.                  |
+| Stream | Theme                      | Chain                      | Note                                                                                                     |
+| ------ | -------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| A      | Fundament i powłoka        | `F-05` → `F-06` → `S-22`   | Cel „quality”: tokeny i prymitywy przechodzą bramkę zrzutów, zanim jakikolwiek widok na nich stanie.      |
+| B      | Pulpit                     | `S-23`                     | Dołącza do strumienia A w `S-22`; równolegle do C, D, E.                                                  |
+| C      | Przepisy                   | `S-24`                     | Dołącza do strumienia A w `S-22`; równolegle do B, D, E.                                                  |
+| D      | Jadłospisy                 | `S-25`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, E.                                                  |
+| E      | Rodzina i profil           | `S-26`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, D. Wspólny kitchen sink: przy merge'u B–E konflikty w nim rozwiązać, a baseline `design-system.spec.ts` odświeżyć raz, na końcu (§10.6). Po S-25 (D zamknięty) B, C i E idą równolegle, każdy w osobnym worktree z własnym stackiem Sail (`VISUAL_DOCKER_NETWORK`, `MAILPIT_URL`, `APP_PORT`, `VITE_PORT`); kolejność merge'a: E (`S-26`) → B (`S-23`) → C (`S-24`). |
 
 ## Baseline
 
-What's already in place in the codebase as of `2026-11-16` (auto-researched + user-confirmed).
+What's already in place in the codebase as of `2026-11-17` (auto-researched + user-confirmed).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** present — Vue 3 + Inertia + shadcn-vue na tokenach z M-2; generowanie przez `GenerateMealPlanDialog` (tylko data startu), widok planu z odpytywaniem co 3 s i siatką `MealPlanGrid`; komórka nie ma akcji edycji, tylko rozwijane składniki.
-- **Backend / API:** present — `POST meal-plans` tworzy plan `pending` i uruchamia `GenerateMealPlanJob`: losowanie (`MealPlanGenerator`, 7 różnych przepisów na kategorię), skalowanie (`MealIngredientScaler` + sterownik AI), status `done`; regeneracja tylko całego planu; brak podglądu, podmiany, powtórek i resztek.
-- **Data:** partial wobec M-3 — `meals.recipe_id` jest NOT NULL (pusty posiłek niemożliwy), statusy planu to `pending`/`processing`/`done`/`error` (brak szkicu), lista zakupów liczona z `meal_ingredients`; walidacja wymaga 7 przepisów na kategorię.
-- **Auth:** present — polityki zasobów, sesja 24 h; bez zmian w M-3.
-- **Deploy / infra:** present — CI z Larastanem, Pestem, E2E i bramką wizualną; worker kolejki w produkcji.
-- **Observability:** present — logi i alerty mailowe, `report()` w zadaniu generowania.
-- **PDF:** present — dompdf na żądanie; tabela ma kolumnę „Przygotowanie” (40% szerokości) z pełnym tekstem przepisu, potem lista zakupów.
-
-Zmiana `recipe-markdown-import` (import przepisów z Markdowna) jest zarchiwizowana (`context/archive/2026-11-15-recipe-markdown-import/`); jej otwarty punkt — tylko 6 kolacji przy wymogu 7 na kategorię — rozwiązuje S-18.
+- **Frontend:** present — tokeny Zielnika w OKLCH z blokiem `.dark` w `app.css`, promienie liczone od `--radius` (`--radius-md = --radius − 2px`), krój Figtree z bunny.net; 21 prymitywów w `ui/`; w `Common/` `AppSidebar` (panel boczny), `UserMenu`, `PageHeader`, `EmptyState`, `FormField`, `ConfirmDialog`, `ServerPagination`, `SortableHeader`. Brak tokenów `sidebar-active`, `highlight`, `overlay`.
+- **Backend / API:** present, partial wobec M-4 — pulpit dostaje liczby i ostatni gotowy plan, ale nie jego posiłki („Ten tydzień”); lista przepisów nie zwraca liczności kategorii (pigułki filtra).
+- **Data:** present — bez zmian schematu w M-4.
+- **Auth:** present — polityki zasobów, sesja 24 h; bez zmian.
+- **Deploy / infra:** present — CI z `lint:tokens`, Larastanem, Pestem, E2E i bramką wizualną (6 speców: kitchen sink, powłoka, konto, lista jadłospisów, przepisy, jadłospis ze szkicem i dialogiem podmiany); brak speca wizualnego dla członków rodziny.
+- **Observability:** present — bez zmian.
+- **PDF:** present — dompdf; lustro hexów Zielnika w szablonie PDF pilnowane testem palety (`MealPlanPdfPaletteTest`); krój DejaVu Sans zostaje (§10.3).
 
 ## Foundations
 
-Brak. Wszystko techniczne, czego wymaga M-3 (status szkicu, posiłek bez przepisu, powiązanie posiłków), wchodzi w pierwszy wycinek, który z tego korzysta — żaden z nich nie staje się niemożliwy do zaplanowania ani zweryfikowania bez wcześniejszego elementu bazowego.
+### F-05: Tokeny Spiżarni
+
+- **Outcome:** (foundation) `app.css` ma wartości Spiżarni z §10.2 w OKLCH (w tym nowe `sidebar*`, `highlight`, `overlay`), jawnie rozpisane promienie 12/20/24 px i pełne, dwa cienie „naklejki” i krój Bricolage Grotesque zamiast Figtree; PDF ma nowe kolory kategorii jako pełne bloki, a test palety pilnuje nowych hexów (D-12); kitchen sink pokazuje nowe kolory i typografię, a baseline'y są świadomie odświeżone.
+- **Change ID:** spizarnia-tokens
+- **PRD refs:** SP-01, D-10, D-12, D-14, §10.2–10.3
+- **Unlocks:** F-06, S-22 (każdy widok czyta te tokeny); decyzja D-14.
+- **Prerequisites:** —
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - D-14: czy blok `.dark` dostaje wartości Spiżarni, czy zostaje usunięty do osobnej zmiany dark mode? — Owner: user. Block: no (domyślnie D-1: MVP tylko jasny; rozstrzygnąć w `/10x-plan`).
+- **Risk:** Pierwszy, bo sama zmiana tokenów przemaluje całą aplikację i unieważni wszystkie zrzuty naraz; zmiana kroju zmienia metryki tekstu, więc każdy baseline trzeba przejrzeć, a spec sprawdzający załadowanie Figtree — przestawić.
+- **Status:** done
+
+### F-06: Prymitywy Spiżarni
+
+- **Outcome:** (foundation) prymitywy `ui/` mają warianty Spiżarni: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), pola formularza (kontur 2px, promień 12px), `Dialog` (24px, cień, zamknięcie); każdy wariant ze stanami z §5.4 jest w kitchen sinku.
+- **Change ID:** spizarnia-primitives
+- **PRD refs:** SP-02, §10.2, §10.4
+- **Unlocks:** S-22, S-23, S-24, S-25, S-26 — bez wspólnych wariantów cztery równoległe widoki edytowałyby te same pliki `ui/` i rozjechały się wizualnie.
+- **Prerequisites:** F-05
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:**
+  - Jak wyglądają hover, focus, disabled i ładowanie przycisku-naklejki i kafla? Makiety ich nie pokazują (§10.1). — Owner: user. Block: no (projektuje zmiana według §5.4).
+- **Risk:** Zakres ograniczony do wariantów, których używają ekrany 02–15; układy ekranów (kafle przepisów, siatka, karty osób) zostają w wycinkach widoków, żeby fundament nie stał się restyle'em całego UI.
+- **Carry-over z F-05 (impl-review):** `rounded-xl` (24 px) jest teraz większy niż domyślny `rounded-2xl` (16 px); jeśli prymityw potrzebuje większego promienia, zdefiniować `--radius-2xl` zamiast sięgać po domyślny.
+- **Status:** done
 
 ## Slices
 
-### S-17: Szkic tygodnia z podmianą przepisu (north star)
+### S-22: Powłoka aplikacji Spiżarni (north star)
 
-- **Outcome:** Użytkownik może po kliknięciu „Generuj” zobaczyć wylosowany tydzień jako szkic (bez ilości i listy zakupów), podmienić przepis w dowolnej komórce na inny ze swojej listy i zatwierdzić szkic, po czym rusza skalowanie AI i plan przechodzi do dzisiejszego widoku z ilościami i listą zakupów.
-- **Change ID:** meal-plan-draft-with-swap
-- **PRD refs:** MS-01, MS-02
-- **Prerequisites:** —
-- **Parallel with:** S-21
+- **Outcome:** Użytkownik może poruszać się po aplikacji w pasku górnym z pigułkami nawigacji i awatarem (menu użytkownika), poniżej `lg` w szufladzie, a na ekranach gościa (logowanie, rejestracja, reset hasła) widzi ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej.
+- **Change ID:** spizarnia-app-shell
+- **PRD refs:** SP-03, §10.5, ekrany 02–04
+- **Prerequisites:** F-06
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
-  - Rozstrzygnięte 2026-11-16: podmiana działa tylko w szkicu. Gotowy plan można cofnąć akcją „Wróć do szkicu” z zachowanymi edycjami; po ponownym zatwierdzeniu cały plan jest skalowany od nowa.
-  - Czy obok „Wróć do szkicu” zostaje „Regeneruj” jako losowanie od nowa (gubi edycje)? — Owner: user. Block: no.
-  - Czy w podmianie można wybrać tylko przepis z tej samej kategorii? — Owner: user. Block: no.
-- **Risk:** Pierwszy, bo zmienia cykl życia planu (nowy stan przed `pending`, zatwierdzenie zamiast natychmiastowego zadania) i dotyka dialogu generowania, widoku planu, E2E i bazowych zrzutów; każdy kolejny wycinek tylko dokłada edycję komórki.
+  - Jak wygląda pasek górny i ekran dzielony na mobile (makiety tylko desktop 1280 px)? — Owner: user. Block: no.
+- **Risk:** Zastępuje panel boczny, więc dotyka każdej strony i zrzutów powłoki i konta; idzie przed widokami, żeby SP-04…SP-07 odświeżały zrzuty tylko raz, już w nowej powłoce.
+- **Carry-over z F-05 (impl-review):** `--primary` = `--foreground`, więc `hover:text-primary` nic nie robi — logo w `GuestLayout.vue:16` potrzebuje niekolorowej wskazówki hover; aktywna pozycja nawigacji (`AppSidebar.vue:58`) jest na `bg-accent` (żółty = `--warning`), a pozycje mają 12 px zamiast 8 px.
+- **Carry-over z F-06:** zdjąć `shadow-none` z `Card` w `GuestLayout.vue:28` (kafel ma już cień naklejki); przycisk zamknięcia `Sheet` (okrągły `secondary` w rogu) ułożyć nad nowym nagłówkiem szuflady; `SheetHeader` wyrównać do `DialogHeader` (`pr-12 text-left`), żeby tytuł nie wchodził pod okrągły przycisk.
 - **Status:** done
 
-### S-18: Pusty posiłek
+### S-23: Pulpit Spiżarni
 
-- **Outcome:** Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.
-- **Change ID:** meal-plan-empty-slot
-- **PRD refs:** MS-03
-- **Prerequisites:** S-17
-- **Parallel with:** S-21
+- **Outcome:** Użytkownik może zobaczyć na pulpicie hero `highlight` z ostatnim jadłospisem, kafelki statystyk w kolorach pór dnia i „Ten tydzień” jako posiłki ostatniego planu w kolorach kategorii; nowy użytkownik widzi pusty stan z ekranu 06.
+- **Change ID:** spizarnia-dashboard-ui
+- **PRD refs:** SP-04, §10.5, ekrany 05–06
+- **Prerequisites:** S-22
+- **Parallel with:** S-24, S-25, S-26
 - **Blockers:** —
 - **Unknowns:**
-  - Rozstrzygnięte 2026-11-16: wymóg 7 przepisów na kategorię znika; braki zostają pustymi komórkami w szkicu (rozwiązuje też otwarty punkt `recipe-markdown-import`: 6 kolacji).
-  - Rozstrzygnięte 2026-11-16: generowanie odmawia (komunikat z linkiem „Dodaj przepis”) tylko wtedy, gdy użytkownik nie ma żadnego przepisu; kategoria bez przepisów daje puste komórki w szkicu z informacją nad siatką.
-- **Risk:** Wymaga posiłku bez przepisu, czyli zmiany założenia, na którym stoją siatka, skalowanie, lista zakupów i PDF; po S-17, żeby ta zmiana weszła w już działający szkic.
+  - Jak „Ten tydzień” pokazuje pusty posiłek, powtórzony obiad i kolację na śniadanie (M-3)? — Owner: user. Block: no (domyślnie tak jak siatka jadłospisu).
+- **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
+- **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
+- **Carry-over z F-06:** `CardContent` ma `p-6 pt-0` (bez nagłówka karty), więc zawartość `StatCard` nie ma górnego odstępu — dać jej własny padding.
+- **Carry-over z S-25:** wzorzec „Ten tydzień” to siatka jadłospisu (`MealPlanGrid`): komórki wypełnione kolorem posiłku, oznaczenia powtórki i „z kolacji” na wariancie `Badge tag`, pusty posiłek jako przerywana ramka. To odpowiada na niewiadomą powyżej.
 - **Status:** done
 
-### S-19: Ten sam obiad dwa dni z rzędu
+### S-24: Przepisy w Spiżarni
 
-- **Outcome:** Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.
-- **Change ID:** meal-plan-repeat-dinner
-- **PRD refs:** MS-04
-- **Prerequisites:** S-18
-- **Parallel with:** S-21
+- **Outcome:** Użytkownik może przeglądać przepisy jako kafle po 4 w rzędzie z paskiem kategorii i kcal, filtrować kategorią przez pigułki z liczbą przepisów, oglądać przepis w bloku koloru kategorii (składniki jako żetony, kroki numerowane na `highlight`) i dodawać lub edytować przepis w kaflach z kategorią jako trzy kolorowe kafle-radio.
+- **Change ID:** spizarnia-recipes-ui
+- **PRD refs:** SP-05, §10.5, ekrany 07–09
+- **Prerequisites:** S-22
+- **Parallel with:** S-23, S-25, S-26
 - **Blockers:** —
 - **Unknowns:**
-  - Rozstrzygnięte 2026-11-16: pierwszy dzień ma składniki przeskalowane na oba posiłki, drugi pokazuje „z wczoraj” bez własnych składników; na liście zakupów danie występuje raz, w podwójnej ilości.
-  - Rozstrzygnięte 2026-11-16: jeden mechanizm „gotowane raz, jedzone dwa razy” (posiłek wskazuje kolejny posiłek, który z niego korzysta), wspólny z S-20.
-  - Rozstrzygnięte 2026-11-16: gdy użytkownik podmieni przepis albo opróżni pierwszy posiłek, powiązanie znika, a drugi posiłek staje się pusty (stąd S-18 jako warunek wstępny).
-- **Risk:** Po S-18, bo rozpięcie powiązania zostawia pusty posiłek; zmienia zasadę „jeden posiłek = jedno skalowanie” i sumowanie listy zakupów; wprowadza mechanizm powiązania, który S-20 rozszerza na inną kategorię, więc idzie przed nim.
+  - Czy liczby przy pigułkach kategorii uwzględniają bieżące wyszukiwanie, czy liczą wszystkie przepisy użytkownika? — Owner: user. Block: no.
+  - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no (precedens z S-25: sortowanie jako pigułka `SortMenu` nad kaflami).
+- **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
+- **Carry-over z S-25:** lista jadłospisów ma już kafle (`MealPlanTile`), filtr jako pigułki (`StatusFilterPills`: zawsze co najmniej jedna wciśnięta, ta sama semantyka URL co stary `Select`) i sortowanie jako pigułkę (`SortMenu`), wszystko w `Components/MealPlans/`. Przy drugim użyciu przez filtr kategorii rozważyć przeniesienie do `Common/`. Wariant `Badge tag` może posłużyć za żetony składników.
+- **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
+- **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
 - **Status:** done
 
-### S-20: Kolacja na śniadanie następnego dnia
+### S-25: Jadłospisy w Spiżarni
 
-- **Outcome:** Użytkownik może w szkicu połączyć kolację z danego dnia ze śniadaniem następnego dnia; śniadanie pokazuje danie z kolacji z oznaczeniem, a ilości i lista zakupów odpowiadają gotowaniu raz.
-- **Change ID:** dinner-to-breakfast-carryover
-- **PRD refs:** MS-05, US-017
-- **Prerequisites:** S-19
-- **Parallel with:** S-21
+- **Outcome:** Użytkownik może przeglądać jadłospisy jako kafle tygodni z paskiem wypełnienia, statusem (pigułka z konturem, szkic przerywany) i filtrem statusu jako pigułki, a w jadłospisie widzi siatkę dni × posiłki z kolorowymi komórkami, w szkicu pigułkę „Zmień” i pusty posiłek jako przerywaną ramkę z „Wybierz”, listę zakupów jako kafel obok oraz dialogi generowania, podmiany i potwierdzenia w stylu Spiżarni.
+- **Change ID:** spizarnia-meal-plans-ui
+- **PRD refs:** SP-06, §10.5, ekrany 10–12, 15
+- **Prerequisites:** S-22
+- **Parallel with:** S-23, S-24, S-26
 - **Blockers:** —
 - **Unknowns:**
-  - Rozstrzygnięte 2026-11-16: ten sam mechanizm co S-19, ilości liczone tak samo (kolacja przeskalowana na oba posiłki, śniadanie bez własnych składników).
-  - Rozstrzygnięte 2026-11-16: śniadanie z przepisem kategorii „kolacja” ma na ekranie i w PDF kolor pory dnia komórki (śniadanie) z dopiskiem „z kolacji”.
-- **Risk:** Po S-19, bo rozszerza jego mechanizm powiązania o parę posiłków z różnych kategorii i dni; ryzykiem jest tylko prezentacja kategorii, nie ilości.
+  - Jak siatka dni × posiłki układa się na mobile i jak wyglądają w niej oznaczenia powtórki i „z kolacji”, których makiety mogą nie pokazywać? — Owner: user. Block: no.
+- **Risk:** Rdzeń produktu z największą liczbą stanów (szkic, w trakcie, gotowy, błąd, pusty posiłek, powiązania) i najwięcej zrzutów do odświeżenia; zachowanie i testy E2E bez zmian.
+- **Carry-over z F-05 (impl-review):** przełącznik „Składniki” (`MealPlanGrid.vue:60`, `text-primary`) nie odróżnia się już od tekstu; `MealPlans/Index.vue:18` i `MealPlans/Show.vue:56` mają `rounded-lg` = 20 px; paski kategorii w siatce są już na `border-meal-*` (poprawione w F-05).
+- **Carry-over z F-06:** filtr statusu jadłospisów z `Select` na `Toggle`; pusty posiłek i „Wybierz” na wariant `dashed` przycisku.
 - **Status:** done
 
-### S-21: PDF z przepisami na osobnych stronach
+### S-26: Rodzina i profil w Spiżarni
 
-- **Outcome:** Użytkownik może przy „Pobierz PDF” wybrać, czy dołączyć przepisy; tabela jadłospisu nie ma już długiego tekstu przygotowania, a dołączone przepisy (składniki z ilościami i sposób wykonania) są na osobnych stronach, każdy raz, nawet gdy występuje w tygodniu kilka razy.
-- **Change ID:** pdf-recipe-pages
-- **PRD refs:** MS-06
-- **Prerequisites:** —
-- **Parallel with:** S-17, S-18, S-19, S-20
+- **Outcome:** Użytkownik może zarządzać członkami rodziny na kartach osób (inicjał, wiek, waga, wzrost) z przerywanym kaflem „Dodaj członka rodziny” i edytować profil w trzech kaflach, z usunięciem konta w kolorze `destructive`.
+- **Change ID:** spizarnia-family-profile-ui
+- **PRD refs:** SP-07, §10.5, ekrany 13–14
+- **Prerequisites:** S-22
+- **Parallel with:** S-23, S-24, S-25
 - **Blockers:** —
-- **Unknowns:**
-  - Które ilości ma pokazywać strona przepisu przy przepisie użytym kilka razy: przeskalowane z planu (zsumowane czy osobno na dzień) czy oryginalne z przepisu? — Owner: user. Block: no (domyślnie przeskalowane, osobno na każde użycie).
-- **Risk:** Niezależny od szkicu, więc może iść od razu; zmienia układ PDF i jego testy, dlatego po S-18–S-20 ich wycinki muszą tylko dopisać swój stan komórki do tego samego szablonu.
+- **Unknowns:** —
+- **Risk:** Członkowie rodziny nie mają dziś speca wizualnego, więc wycinek dokłada go, żeby restyle był pilnowany jak pozostałe widoki.
+- **Carry-over z F-05 (impl-review):** `FamilyMembers/Index.vue:61` ma `rounded-lg overflow-hidden` = 20 px.
+- **Carry-over z F-06:** przerywany kafel „Dodaj członka rodziny” zbudować na wariancie `dashed` przycisku.
 - **Status:** done
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                     | Suggested issue title                                         | Ready for `/10x-plan` | Notes |
-| ---------- | ----------------------------- | ------------------------------------------------------------- | --------------------- | ----- |
-| S-17       | meal-plan-draft-with-swap     | Szkic jadłospisu z podmianą przepisu i zatwierdzeniem         | yes                   | North star. Run `/10x-plan meal-plan-draft-with-swap` |
-| S-18       | meal-plan-empty-slot          | Pusty posiłek w jadłospisie                                   | yes                   | Run `/10x-plan meal-plan-empty-slot`; zalecany jako następny |
-| S-19       | meal-plan-repeat-dinner       | Ten sam obiad dwa dni z rzędu                                 | yes                   | Run `/10x-plan meal-plan-repeat-dinner`; S-18 done (2026-11-16) |
-| S-20       | dinner-to-breakfast-carryover | Kolacja na śniadanie następnego dnia                          | yes                   | Run `/10x-plan dinner-to-breakfast-carryover`; S-19 done (2026-11-17) |
-| S-21       | pdf-recipe-pages              | PDF z przepisami na osobnych stronach i przełącznikiem        | yes                   | Run `/10x-plan pdf-recipe-pages`; równolegle do S-17 |
+| Roadmap ID | Change ID                   | Suggested issue title                                        | Ready for `/10x-plan` | Notes |
+| ---------- | --------------------------- | ------------------------------------------------------------ | --------------------- | ----- |
+| F-05       | spizarnia-tokens            | Tokeny, krój i kolory PDF kierunku Spiżarnia                 | yes                   | Run `/10x-plan spizarnia-tokens`; rozstrzyga D-14 |
+| F-06       | spizarnia-primitives        | Warianty prymitywów `ui/` w stylu Spiżarni                   | no                    | Po F-05 |
+| S-22       | spizarnia-app-shell         | Powłoka aplikacji: pasek górny i ekran dzielony gościa       | no                    | North star; po F-06 |
+| S-23       | spizarnia-dashboard-ui      | Pulpit w stylu Spiżarni                                      | yes                   | Run `/10x-plan spizarnia-dashboard-ui`; równolegle z S-24…S-26 |
+| S-24       | spizarnia-recipes-ui        | Przepisy w stylu Spiżarni (z licznościami kategorii)         | yes                   | Run `/10x-plan spizarnia-recipes-ui`; równolegle z S-23, S-25, S-26 |
+| S-25       | spizarnia-meal-plans-ui     | Jadłospisy i dialogi w stylu Spiżarni                        | yes                   | Run `/10x-plan spizarnia-meal-plans-ui`; równolegle z S-23, S-24, S-26 |
+| S-26       | spizarnia-family-profile-ui | Rodzina i profil w stylu Spiżarni                            | yes                   | Run `/10x-plan spizarnia-family-profile-ui`; równolegle z S-23…S-25 |
 
 ## Open Roadmap Questions
 
-Brak otwartych pytań. Rozstrzygnięte 2026-11-17:
-
-- ~~Jak mierzyć metryki sukcesu z PRD §6 (90% z profilem rodziny w 7 dni, 75% generuje co tydzień)?~~ — Nie mierzymy: obie metryki usunięte z PRD, wpis w Parked.
-- ~~Brak US-007 w PRD — usunięta historyjka czy luka?~~ — Usunięta: usuwanie przepisu jest kryterium 3 US-006; numeracja zostaje bez zmian.
-- ~~Czy `.ai/core/prd.md` zaktualizować o zmiany z karty M-3?~~ — Tak, zaktualizowany (zob. „Zmiany względem PRD” w karcie M-3).
+Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu (D-14, stany i mobile nieobecne w makietach) są w wycinkach; żadne nie blokuje planowania.
 
 ## Parked
 
-- **Edycja jadłospisu po wygenerowaniu (status `done`)** — Why parked: M-3 przenosi edycję do szkicu przed skalowaniem; edycja gotowego planu wymaga ponownego skalowania (S-17, Unknown nr 1).
-- **Losowanie, które samo tworzy powtórki lub resztki** — Why parked: MS-04/MS-05 to świadomy wybór użytkownika w szkicu; losowanie nadal bez powtórzeń.
-- **Dark mode** — Why parked: D-1 (MVP tylko w trybie jasnym); `design-system.md` §8 przewiduje go jako osobną zmianę, wyłącznie w tokenach i przełączniku.
-- **Własna strona startowa pod `/`** — Why parked: D-7 (przekierowanie zamiast landing page; PRD jej nie przewiduje).
+- **Strona startowa Spiżarni (ekran 01 artefaktu) pod `/`** — Why parked: D-13 — osobna zmiana po M-4, odwracająca D-7 (dziś `/` przekierowuje na logowanie lub pulpit).
+- **Dark mode** — Why parked: D-1 (MVP tylko w trybie jasnym); D-14 rozstrzyga w F-05 tylko los bloku `.dark`, nie wdrożenie trybu ciemnego.
+- **Regeneracja starszych komponentów `ui/` i przejście na `@lucide/vue`** — Why parked: D-9 — osobna zmiana; F-06 dokłada warianty, nie regeneruje komponentów CLI.
+- **Edycja jadłospisu po wygenerowaniu (status `done`)** — Why parked: M-3 przenosi edycję do szkicu przed skalowaniem; edycja gotowego planu wymaga ponownego skalowania.
+- **Losowanie, które samo tworzy powtórki lub resztki** — Why parked: powtórka i resztki to świadomy wybór użytkownika w szkicu (M-3); losowanie nadal bez powtórzeń.
 - **Ujednolicenie stron `FamilyMembers` do konwencji `Index/Show/Form.vue`** — Why parked: dług techniczny bez efektu dla użytkownika (przeniesione z M-2).
 - **Import przepisów z URL** — Why parked: PRD §4.
+- **`PageHeader` na `text-page-title`** — `PageHeader` nadal używa `text-2xl font-semibold`, a nie `text-page-title` (§10.3, 36 px). Why parked: zmiana przesuwa wzorce zrzutów każdej strony, a S-23…S-26 szły równolegle; do zrobienia raz, po ich scaleniu.
 - **Zdjęcia i filmy przepisów** — Why parked: PRD §4.
 - **Udostępnianie przepisów, funkcje społecznościowe, kopie zapasowe** — Why parked: PRD §4.
 - **Historia poprzednich wersji jadłospisu** — Why parked: US-009 kryterium 3 („Poprzednie wersje nie są zapisywane”).
 - **Limit generacji PDF i czyszczenie starych plików PDF** — Why parked: `.ai/core/api-plan.md` §3, poza wymaganiami PRD.
-- **Pomiar aktywności użytkowników (dawne metryki PRD §6: 90% z profilem rodziny w 7 dni, 75% generuje co tydzień)** — Why parked: narzędzie domowe dla jednej rodziny, odsetki użytkowników nie mają sensu; metryki usunięte z PRD 2026-11-17. Wraca, jeśli aplikacja zostanie udostępniona innym rodzinom.
+- **Pomiar aktywności użytkowników (dawne metryki PRD §6)** — Why parked: narzędzie domowe dla jednej rodziny; metryki usunięte z PRD 2026-11-17. Wraca, jeśli aplikacja zostanie udostępniona innym rodzinom.
 
 ## Milestone History
 
 - **M-1: Od przepisów do PDF z listą zakupów** (`mvp-meal-plan-to-pdf`) — closed 2026-11-15. Zalogowana rodzina generuje tydzień 7×3 z własnych przepisów, ze składnikami skalowanymi przez AI, zsumowaną listą zakupów i jednym PDF-em; aplikacja z workerem kolejki działa publicznie, a błędy trafiają do śledzenia błędów.
 - **M-2: Spójny wygląd aplikacji i PDF-u** (`consistent-design-system`) — closed 2026-11-16. Każdy widok aplikacji (powłoka, pulpit, jadłospisy, przepisy, rodzina, konto) i PDF korzysta z tokenów marki, kolorów pory dnia i wspólnych komponentów; kitchen sink, zrzuty Playwright i `lint:tokens` na całym `resources/js` pilnują tego w CI, a komponenty Breeze są usunięte.
 - **M-3: Jadłospis układany przed wygenerowaniem** (`editable-meal-plan-draft`) — closed 2026-11-17. Wylosowany tydzień jest najpierw szkicem: użytkownik podmienia przepisy, zostawia posiłki puste, planuje ten sam obiad dwa dni z rzędu i kolację na śniadanie następnego dnia, a skalowanie AI rusza dopiero po zatwierdzeniu; PDF może dołączać pełne przepisy na osobnych stronach.
+- **M-4: Restyle: Spiżarnia** (`spizarnia-restyle`) — closed 2026-11-18. Każdy ekran aplikacji i gościa wygląda według kierunku Spiżarnia: tokeny, krój Bricolage Grotesque i warianty prymitywów, pasek górny z pigułkami i ekran dzielony gościa, pulpit, przepisy, jadłospisy, rodzina i profil na kaflach w kolorach posiłków, PDF z nowymi kolorami kategorii; bramka wizualna (64 zrzuty, w tym nowy spec członków rodziny) pilnuje wyglądu, zachowanie i E2E bez zmian.
 
 ## Done
 
+- **S-24: Użytkownik może przeglądać przepisy jako kafle po 4 w rzędzie z paskiem kategorii i kcal, filtrować kategorią przez pigułki z liczbą przepisów, oglądać przepis w bloku koloru kategorii (składniki jako żetony, kroki numerowane na `highlight`) i dodawać lub edytować przepis w kaflach z kategorią jako trzy kolorowe kafle-radio.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-recipes-ui/`. Lesson: —.
+- **S-23: Użytkownik może zobaczyć na pulpicie hero `highlight` z ostatnim jadłospisem, kafelki statystyk w kolorach pór dnia i „Ten tydzień” jako posiłki ostatniego planu w kolorach kategorii; nowy użytkownik widzi pusty stan z ekranu 06.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-dashboard-ui/`. Lesson: —.
+- **S-22: Użytkownik może poruszać się po aplikacji w pasku górnym z pigułkami nawigacji i awatarem (menu użytkownika), poniżej `lg` w szufladzie, a na ekranach gościa (logowanie, rejestracja, reset hasła) widzi ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-app-shell/`. Lesson: —.
+- **F-06: (foundation) prymitywy `ui/` mają warianty Spiżarni: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), pola formularza (kontur 2px, promień 12px), `Dialog` (24px, cień, zamknięcie); każdy wariant ze stanami z §5.4 jest w kitchen sinku.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-primitives/`. Lesson: —.
+- **F-05: (foundation) `app.css` ma wartości Spiżarni z §10.2 w OKLCH (w tym nowe `sidebar*`, `highlight`, `overlay`), jawnie rozpisane promienie 12/20/24 px i pełne, dwa cienie „naklejki” i krój Bricolage Grotesque zamiast Figtree; PDF ma nowe kolory kategorii jako pełne bloki, a test palety pilnuje nowych hexów (D-12); kitchen sink pokazuje nowe kolory i typografię, a baseline'y są świadomie odświeżone.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-tokens/`. Lesson: —.
 - **S-20: Użytkownik może w szkicu połączyć kolację z danego dnia ze śniadaniem następnego dnia; śniadanie pokazuje danie z kolacji z oznaczeniem, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-17-dinner-to-breakfast-carryover/`. Lesson: —.
 - **S-19: Użytkownik może w szkicu ustawić, że obiad z danego dnia jest też obiadem następnego dnia (gotowany raz na dwa dni); obie komórki pokazują to samo danie z oznaczeniem powtórki, a ilości i lista zakupów odpowiadają gotowaniu raz.** — Archived 2026-11-17 → `context/archive/2026-11-16-meal-plan-repeat-dinner/`. Lesson: —.
 - **S-18: Użytkownik może w szkicu oznaczyć wybrany posiłek jako pusty („nie robimy”); po zatwierdzeniu komórka jest pusta na ekranie i w PDF, a lista zakupów nie zawiera na nią składników. Generowanie nie wymaga już 7 przepisów na kategorię: gdy przepisów jest mniej, losowanie zostawia brakujące komórki puste w szkicu.** — Archived 2026-11-16 → `context/archive/2026-11-16-meal-plan-empty-slot/`. Lesson: —.
@@ -222,3 +256,5 @@ Brak otwartych pytań. Rozstrzygnięte 2026-11-17:
 - **S-06: Użytkownik może pobrać jeden PDF, który najpierw zawiera tabelę jadłospisu (dzień, kategoria, nazwa, składniki, przygotowanie), a potem listę zakupów, zgodny z ostatnią wygenerowaną wersją i otwierający się w przeglądarce.** — Archived 2026-11-14 → `context/archive/2026-11-14-meal-plan-pdf-export/`. Lesson: —.
 - **S-01: Użytkownik może zarejestrować się, zalogować i zresetować hasło na polskich ekranach; sesja wygasa po 24 h braku aktywności, a link resetu (ważny 1 h) faktycznie dociera e-mailem.** — Archived 2026-11-14 → `context/archive/2026-11-14-polish-auth-with-24h-session/`. Lesson: —.
 - **F-02: (foundation) aplikacja działa pod publicznym adresem na serwerze Mikrus z działającym workerem kolejki; konfigurację serwera i wdrożenia trzyma osobne repo `kostecki-infra`, a to repo dostarcza artefakt, którego ono oczekuje.** — Archived 2026-11-14 → `context/archive/2026-11-14-public-deploy-with-queue-worker/`. Lesson: —.
+- **S-25: Użytkownik może przeglądać jadłospisy jako kafle tygodni z paskiem wypełnienia, statusem (pigułka z konturem, szkic przerywany) i filtrem statusu jako pigułki, a w jadłospisie widzi siatkę dni × posiłki z kolorowymi komórkami, w szkicu pigułkę „Zmień” i pusty posiłek jako przerywaną ramkę z „Wybierz”, listę zakupów jako kafel obok oraz dialogi generowania, podmiany i potwierdzenia w stylu Spiżarni.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-meal-plans-ui/`. Lesson: —.
+- **S-26: Użytkownik może zarządzać członkami rodziny na kartach osób (inicjał, wiek, waga, wzrost) z przerywanym kaflem „Dodaj członka rodziny” i edytować profil w trzech kaflach, z usunięciem konta w kolorze `destructive`.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-family-profile-ui/`. Lesson: —.

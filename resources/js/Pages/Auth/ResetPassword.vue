@@ -31,7 +31,10 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
+    <GuestLayout
+        title="Ustaw nowe hasło"
+        description="Wpisz nowe hasło dwa razy. Potem zalogujesz się nim jak zwykle."
+    >
         <Head title="Reset hasła" />
 
         <form class="grid gap-4" @submit.prevent="submit">
@@ -82,9 +85,9 @@ const submit = () => {
                 </template>
             </FormField>
 
-            <div class="flex items-center justify-end gap-4">
-                <Button type="submit" :disabled="form.processing">Zresetuj hasło</Button>
-            </div>
+            <Button type="submit" size="lg" class="w-full" :disabled="form.processing">
+                Zresetuj hasło
+            </Button>
         </form>
     </GuestLayout>
 </template>

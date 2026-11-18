@@ -72,9 +72,15 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
 
   const approve = async () => {
+    // The old draft grid also has 21 cells, and the pending state is too short-lived to assert on
+    // (the queue job takes ~300 ms): the approve request itself proves the approval.
+    const approval = page.waitForResponse(
+      (response) => response.request().method() === 'POST' && /\/meal-plans\/\d+\/approve$/.test(response.url()),
+    );
     await page.getByRole('button', { name: 'Zatwierdź' }).click();
-    // The old draft grid also has 21 cells: wait for the pending state first, so the approval is proven.
-    await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
+    expect((await approval).status()).toBeLessThan(400);
+    // The shopping list only exists on an approved plan: wait for the generation job to finish.
+    await expect(page.getByTestId('shopping-list')).toBeVisible({ timeout: 30_000 });
   };
   await approve();
   await expect(recipeCells).toHaveCount(20, { timeout: 15_000 });
@@ -234,7 +240,7 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(linkedSniadanieOption).toContainText('Gotujemy raz, zostaje na śniadanie');
   await expect(linkedSniadanieOption).toContainText('obecny');
   // The always-open recipe list hides the rest of the dialog from the accessibility tree and keeps Escape to itself.
-  await sniadanieLinkDialog.getByRole('button', { name: 'Close', includeHidden: true }).click();
+  await sniadanieLinkDialog.getByRole('button', { name: 'Zamknij', includeHidden: true }).click();
   await expect(sniadanieLinkDialog).toBeHidden();
 
   // Approve: Monday's Kolacja holds the amounts for both meals, Tuesday's Śniadanie has none, the totals stay the same.

@@ -9,22 +9,47 @@
         </template>
       </PageHeader>
 
-      <FiltersBar
-        :value="currentFilters"
-        :statuses="statuses"
-        @update:value="handleFiltersChange"
-      />
-
-      <div class="overflow-hidden rounded-lg border bg-card">
-        <MealPlanTable
-          :items="mealPlans.data"
-          :sort="currentFilters.sort"
-          :direction="currentFilters.direction"
-          :filtered="isFiltered"
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <FilterPills
+          aria-label="Status"
+          :model-value="currentFilters.status || ''"
+          :options="statuses"
+          @update:model-value="handleStatusChange"
+        />
+        <SortMenu
+          :options="sortOptions"
+          :sort="currentFilters.sort ?? 'created_at'"
+          :direction="currentFilters.direction ?? 'desc'"
           @sort-change="handleSortChange"
-          @clear-filters="handleClearFilters"
         />
       </div>
+
+      <ul v-if="mealPlans.data.length > 0" aria-label="Jadłospisy" class="flex flex-col gap-3.5">
+        <li v-for="item in mealPlans.data" :key="item.id">
+          <MealPlanTile :item="item" />
+        </li>
+      </ul>
+      <Card v-else>
+        <EmptyState
+          v-if="isFiltered"
+          class="py-12"
+          :icon="CalendarDays"
+          title="Brak jadłospisów o wybranym statusie"
+        >
+          <Button variant="outline" @click="handleClearFilters">
+            Wyczyść filtry
+          </Button>
+        </EmptyState>
+        <EmptyState
+          v-else
+          class="py-12"
+          :icon="CalendarDays"
+          title="Nie masz jeszcze jadłospisów"
+          description="Wygeneruj tydzień 7 dni × 3 posiłki z własnych przepisów."
+        >
+          <GenerateMealPlanDialog label="Wygeneruj pierwszy jadłospis" />
+        </EmptyState>
+      </Card>
 
       <ServerPagination
         :meta="mealPlans.meta"
@@ -37,6 +62,10 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import { CalendarDays } from 'lucide-vue-next'
+import { Button } from '@/Components/ui/button'
+import { Card } from '@/Components/ui/card'
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import GenerateMealPlanDialog from '@/Components/MealPlans/GenerateMealPlanDialog.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
@@ -106,19 +135,32 @@ interface MealPlanCollectionProps {
   }
   statuses: StatusOption[]
 }
-import FiltersBar from '@/Components/MealPlans/FiltersBar.vue'
-import MealPlanTable from '@/Components/MealPlans/MealPlanTable.vue'
+import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import SortMenu from '@/Components/Common/SortMenu.vue'
+import FilterPills from '@/Components/Common/FilterPills.vue'
 import ServerPagination from '@/Components/Common/ServerPagination.vue'
+
+const sortOptions: { value: string, label: string, column: string, direction: SortDirection }[] = [
+  { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
+  { value: 'created_at:asc', label: 'Najstarsze', column: 'created_at', direction: 'asc' },
+  { value: 'start_date:desc', label: 'Tydzień: od najpóźniejszego', column: 'start_date', direction: 'desc' },
+  { value: 'start_date:asc', label: 'Tydzień: od najwcześniejszego', column: 'start_date', direction: 'asc' },
+]
 
 // Props from Inertia
 const props = defineProps<MealPlanCollectionProps>()
 
 // Filter state is derived from the URL (props.filters echoes the query as raw strings); nothing is stored locally.
+// Without query params the server sends `filters` as an empty JSON array, and `[].sort` is a function.
+const normalizedFilters = computed<MealPlanCollectionProps['filters']>(() =>
+  Array.isArray(props.filters) ? {} : props.filters
+)
+
 const currentFilters = computed<FiltersState>(() => ({
-  status: props.filters.filter?.status || '',
-  sort: props.filters.sort || 'created_at',
-  direction: props.filters.direction === 'asc' ? 'asc' : 'desc',
-  perPage: Number(props.filters.perPage) || 15
+  status: normalizedFilters.value.filter?.status || '',
+  sort: normalizedFilters.value.sort || 'created_at',
+  direction: normalizedFilters.value.direction === 'asc' ? 'asc' : 'desc',
+  perPage: Number(normalizedFilters.value.perPage) || 15
 }))
 
 const description = computed(() => {
@@ -134,7 +176,7 @@ const description = computed(() => {
 
 // A status filter, or a page beyond the first, with no rows is not the first-run state.
 const isFiltered = computed(() =>
-  Boolean(props.filters.filter?.status) || props.mealPlans.meta.current_page > 1
+  Boolean(normalizedFilters.value.filter?.status) || props.mealPlans.meta.current_page > 1
 )
 
 // Serialise the current filters merged with a change; an empty status is omitted
@@ -164,6 +206,11 @@ const handleFiltersChange = (newFilters: FiltersState) => {
     preserveScroll: true,
     replace: true
   })
+}
+
+// Handle a status pill ('' = all)
+const handleStatusChange = (status: string) => {
+  handleFiltersChange({ status: status as FiltersState['status'] })
 }
 
 // Handle page change: current query plus the page

@@ -36,3 +36,13 @@ test('profile', async ({ page }) => {
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('profile-desktop.png', { fullPage: true });
 });
+
+test('profile mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await logIn(page);
+  await page.goto('/profile');
+  await expectAppFontLoaded(page);
+  await expect(page.getByRole('heading', { name: 'Profil', level: 1 })).toBeVisible();
+  await page.mouse.move(0, 0);
+  await expect(page).toHaveScreenshot('profile-mobile.png', { fullPage: true });
+});

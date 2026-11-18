@@ -11,7 +11,7 @@ import PageHeader from '@/Components/Common/PageHeader.vue'
     <Head title="Profil" />
 
     <AuthenticatedLayout>
-        <div class="mx-auto grid max-w-2xl gap-6">
+        <div class="mx-auto flex w-full max-w-180 flex-col gap-5">
             <PageHeader title="Profil" />
             <UpdateProfileInformationForm />
             <UpdatePasswordForm />

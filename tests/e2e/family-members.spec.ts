@@ -28,18 +28,18 @@ test('user adds, validates, edits and deletes a family member', async ({ page },
   await dialog.getByLabel('Wzrost').fill('165');
   await dialog.getByRole('button', { name: 'Zapisz', exact: true }).click();
 
-  const createdRow = page.getByRole('row', { name: /Ewa E2E/ });
-  await expect(createdRow).toBeVisible();
-  await expect(createdRow.getByText('1 maja 1990')).toBeVisible();
-  await expect(createdRow.getByText('60 kg')).toBeVisible();
+  const createdTile = page.getByRole('article', { name: /Ewa E2E/ });
+  await expect(createdTile).toBeVisible();
+  await expect(createdTile.getByText('Kobieta · ur. 1 maj 1990')).toBeVisible();
+  await expect(createdTile.getByRole('definition').filter({ hasText: /^60\s*kg$/ })).toBeVisible();
 
   await page.getByRole('button', { name: 'Edytuj Ewa E2E' }).click();
   await expect(dialog.getByLabel('Data urodzenia')).toHaveValue('1990-05-01');
   await dialog.getByLabel('Imię').fill('Ewa Edytowana');
   await dialog.getByRole('button', { name: 'Zapisz', exact: true }).click();
 
-  await expect(page.getByRole('row', { name: /Ewa Edytowana/ })).toBeVisible();
-  await expect(page.getByRole('row', { name: /Ewa E2E/ })).toHaveCount(0);
+  await expect(page.getByRole('article', { name: /Ewa Edytowana/ })).toBeVisible();
+  await expect(page.getByRole('article', { name: /Ewa E2E/ })).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Usuń Ewa Edytowana' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Usuń', exact: true }).click();

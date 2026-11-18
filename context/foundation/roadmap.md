@@ -48,7 +48,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | done     |
 | S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | done     |
 | S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | done        |
-| S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | ready    |
+| S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | done        |
 
 ## Streams
 
@@ -183,7 +183,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Członkowie rodziny nie mają dziś speca wizualnego, więc wycinek dokłada go, żeby restyle był pilnowany jak pozostałe widoki.
 - **Carry-over z F-05 (impl-review):** `FamilyMembers/Index.vue:61` ma `rounded-lg overflow-hidden` = 20 px.
 - **Carry-over z F-06:** przerywany kafel „Dodaj członka rodziny” zbudować na wariancie `dashed` przycisku.
-- **Status:** ready
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -256,3 +256,4 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 - **S-01: Użytkownik może zarejestrować się, zalogować i zresetować hasło na polskich ekranach; sesja wygasa po 24 h braku aktywności, a link resetu (ważny 1 h) faktycznie dociera e-mailem.** — Archived 2026-11-14 → `context/archive/2026-11-14-polish-auth-with-24h-session/`. Lesson: —.
 - **F-02: (foundation) aplikacja działa pod publicznym adresem na serwerze Mikrus z działającym workerem kolejki; konfigurację serwera i wdrożenia trzyma osobne repo `kostecki-infra`, a to repo dostarcza artefakt, którego ono oczekuje.** — Archived 2026-11-14 → `context/archive/2026-11-14-public-deploy-with-queue-worker/`. Lesson: —.
 - **S-25: Użytkownik może przeglądać jadłospisy jako kafle tygodni z paskiem wypełnienia, statusem (pigułka z konturem, szkic przerywany) i filtrem statusu jako pigułki, a w jadłospisie widzi siatkę dni × posiłki z kolorowymi komórkami, w szkicu pigułkę „Zmień” i pusty posiłek jako przerywaną ramkę z „Wybierz”, listę zakupów jako kafel obok oraz dialogi generowania, podmiany i potwierdzenia w stylu Spiżarni.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-meal-plans-ui/`. Lesson: —.
+- **S-26: Użytkownik może zarządzać członkami rodziny na kartach osób (inicjał, wiek, waga, wzrost) z przerywanym kaflem „Dodaj członka rodziny” i edytować profil w trzech kaflach, z usunięciem konta w kolorze `destructive`.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-family-profile-ui/`. Lesson: —.

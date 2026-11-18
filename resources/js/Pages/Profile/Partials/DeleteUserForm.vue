@@ -11,6 +11,7 @@ import {
 } from '@/Components/ui/card'
 import { Input } from '@/Components/ui/input'
 import { useForm } from '@inertiajs/vue3'
+import { Trash2 } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const confirmingUserDeletion = ref(false)
@@ -52,9 +53,20 @@ const handleOpenChange = (value) => {
 </script>
 
 <template>
-    <Card role="region" aria-labelledby="delete-account-title">
+    <Card
+        variant="destructive"
+        role="region"
+        aria-labelledby="delete-account-title"
+    >
         <CardHeader>
-            <CardTitle id="delete-account-title" as="h2">Usuń konto</CardTitle>
+            <CardTitle
+                id="delete-account-title"
+                as="h2"
+                class="flex items-center gap-2"
+            >
+                <Trash2 class="size-5" aria-hidden="true" />
+                Usuń konto
+            </CardTitle>
             <CardDescription>
                 Po usunięciu konta wszystkie jego zasoby i dane zostaną trwale
                 usunięte. Przed usunięciem konta zapisz wszystkie dane, które

@@ -664,6 +664,15 @@ const showToast = () => {
             <Button size="sm" variant="outline">Edytuj</Button>
           </CardFooter>
         </Card>
+        <Card variant="destructive" class="max-w-md">
+          <CardHeader>
+            <CardTitle>Usuń konto</CardTitle>
+            <CardDescription>Po usunięciu konta wszystkie dane zostaną trwale usunięte.</CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button size="sm" variant="destructive">Usuń konto</Button>
+          </CardFooter>
+        </Card>
         <div class="rounded-lg border bg-card">
           <Table>
             <TableHeader>

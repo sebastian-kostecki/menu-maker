@@ -442,14 +442,14 @@ There is no schema change. The new e2e user is created by the idempotent seeder.
 
 #### Automated
 
-- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 1.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
-- [x] 1.3 Removed family pieces are gone: `grep -rn -e FamilyMemberTable -e FamilyMemberPagination -e pluralizePl resources/js tests/e2e` returns nothing
-- [x] 1.4 Seeder test passes: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php`
-- [x] 1.5 Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.6 Larastan and Pint pass: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test`
-- [x] 1.7 Full E2E suite passes after re-seeding
-- [x] 1.8 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 9 changed
+- [x] 1.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 1d5a21c
+- [x] 1.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh` — 1d5a21c
+- [x] 1.3 Removed family pieces are gone: `grep -rn -e FamilyMemberTable -e FamilyMemberPagination -e pluralizePl resources/js tests/e2e` returns nothing — 1d5a21c
+- [x] 1.4 Seeder test passes: `vendor/bin/sail pest tests/Unit/Seeders/E2eMealPlanSeederTest.php` — 1d5a21c
+- [x] 1.5 Pest suite passes: `vendor/bin/sail composer test` — 1d5a21c
+- [x] 1.6 Larastan and Pint pass: `vendor/bin/sail composer phpstan` and `vendor/bin/sail composer pint-test` — 1d5a21c
+- [x] 1.7 Full E2E suite passes after re-seeding — 1d5a21c
+- [x] 1.8 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 9 changed — 1d5a21c
 
 #### Manual
 
@@ -463,11 +463,11 @@ There is no schema change. The new e2e user is created by the idempotent seeder.
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
-- [ ] 2.3 Pest suite passes unchanged: `vendor/bin/sail composer test`
-- [ ] 2.4 Full E2E suite passes after re-seeding, with `profile.spec.ts` untouched
-- [ ] 2.5 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 4 changed and 62 shots in total
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
+- [x] 2.3 Pest suite passes unchanged: `vendor/bin/sail composer test`
+- [x] 2.4 Full E2E suite passes after re-seeding, with `profile.spec.ts` untouched
+- [x] 2.5 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 4 changed and 62 shots in total
 
 #### Manual
 

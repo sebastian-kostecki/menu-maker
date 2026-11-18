@@ -1,7 +1,7 @@
 ---
 change_id: spizarnia-family-profile-ui
 title: Spizarnia family and profile UI
-status: implementing
+status: implemented
 created: 2026-11-17
 updated: 2026-11-18
 ---

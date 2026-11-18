@@ -463,11 +463,11 @@ There is no schema change. The new e2e user is created by the idempotent seeder.
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh`
-- [x] 2.3 Pest suite passes unchanged: `vendor/bin/sail composer test`
-- [x] 2.4 Full E2E suite passes after re-seeding, with `profile.spec.ts` untouched
-- [x] 2.5 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 4 changed and 62 shots in total
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — 846bbee
+- [x] 2.2 Token lint passes and its self-test passes: `vendor/bin/sail npm run lint:tokens` and `bash scripts/lint-tokens.test.sh` — 846bbee
+- [x] 2.3 Pest suite passes unchanged: `vendor/bin/sail composer test` — 846bbee
+- [x] 2.4 Full E2E suite passes after re-seeding, with `profile.spec.ts` untouched — 846bbee
+- [x] 2.5 Visual gate is green after a deliberate refresh against this worktree's stack, with only the PNGs listed in change 4 changed and 62 shots in total — 846bbee
 
 #### Manual
 

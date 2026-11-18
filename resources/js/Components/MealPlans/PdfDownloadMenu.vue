@@ -1,10 +1,10 @@
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="outline" :size="size" :aria-label="ariaLabel">
+      <Button :variant="variant" :size="size" :aria-label="ariaLabel">
         <FileDown class="size-4" aria-hidden="true" />
         {{ label }}
-        <ChevronDown class="size-4 text-muted-foreground" aria-hidden="true" />
+        <ChevronDown class="size-4" :class="variant === 'outline' && 'text-muted-foreground'" aria-hidden="true" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-48">
@@ -40,7 +40,8 @@ withDefaults(
     label?: string
     size?: 'default' | 'xs' | 'sm' | 'lg'
     ariaLabel?: string
+    variant?: 'outline' | 'inverse-outline'
   }>(),
-  { label: 'Pobierz PDF', size: 'default', ariaLabel: undefined }
+  { label: 'Pobierz PDF', size: 'default', ariaLabel: undefined, variant: 'outline' }
 )
 </script>

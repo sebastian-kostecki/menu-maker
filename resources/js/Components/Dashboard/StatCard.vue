@@ -1,24 +1,25 @@
 <script setup>
-import { Card, CardContent } from '@/Components/ui/card'
-import { formatNumber } from '@/lib/format'
+import { computed } from 'vue'
+import { Card } from '@/Components/ui/card'
+import { formatNumber, pluralize } from '@/lib/format'
+import { MEAL_CATEGORIES, MEAL_CATEGORY_FILL_CLASSES } from '@/lib/mealCategories'
 
-defineProps({
-  label: { type: String, required: true },
+const props = defineProps({
   value: { type: Number, required: true },
+  forms: { type: Object, required: true },
   icon: { type: [Object, Function], required: true },
+  tone: { type: String, required: true, validator: (tone) => MEAL_CATEGORIES.includes(tone) },
 })
+
+const toneClass = computed(() => MEAL_CATEGORY_FILL_CLASSES[props.tone])
 </script>
 
 <template>
-  <Card>
-    <CardContent class="flex items-center gap-4">
-      <div class="rounded-full bg-accent p-3">
-        <component :is="icon" class="size-6 text-primary" aria-hidden="true" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <p class="text-sm font-medium text-muted-foreground">{{ label }}</p>
-        <p class="text-2xl font-semibold tabular-nums">{{ formatNumber(value) }}</p>
-      </div>
-    </CardContent>
+  <Card class="flex flex-col justify-between gap-4 px-6 py-5" :class="toneClass">
+    <p class="text-stat tabular-nums">{{ formatNumber(value) }}</p>
+    <div class="flex items-center justify-between gap-3 text-base font-semibold">
+      <span>{{ pluralize(value, forms) }}</span>
+      <component :is="icon" class="size-6" aria-hidden="true" />
+    </div>
   </Card>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
 import { AlertCircle, CalendarDays, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
@@ -265,7 +265,7 @@ const planRecipeNames = [
   'Tosty z awokado', 'Barszcz czerwony', 'Ryba z pieca',
   'Omlet z warzywami', 'Chili sin carne', 'Tortilla z kurczakiem',
 ]
-const planMeals = planRecipeNames
+const planMeals = reactive(planRecipeNames
   .map((name, index) => {
     const day = Math.floor(index / 3)
     const base = {
@@ -290,7 +290,8 @@ const planMeals = planRecipeNames
     return {
       ...base,
       ...link,
-      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4 },
+      // Meal 6 (Tuesday's Kolacja) holds a Śniadanie recipe to show the category tag.
+      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4, category: index + 1 === 6 ? 'breakfast' : appCategories[dish % 3] },
       ingredients: index === 0
         ? [
             { ingredient_id: 1, name: 'Płatki owsiane', display: '200 g' },
@@ -299,7 +300,7 @@ const planMeals = planRecipeNames
           ]
         : [],
     }
-  })
+  }))
 const pulpitPlan = {
   start_date: planStartDate,
   end_date: '2026-06-21',
@@ -321,6 +322,13 @@ const swapMeal = ref(planMeals[0])
 const openSwap = (meal) => {
   swapMeal.value = meal
   swapOpen.value = true
+}
+const moveDemoMeals = (source, target) => {
+  const swapped = { recipe: source.recipe, ingredients: source.ingredients }
+  source.recipe = target.recipe
+  source.ingredients = target.ingredients
+  target.recipe = swapped.recipe
+  target.ingredients = swapped.ingredients
 }
 const swapGroups = [
   {
@@ -1175,13 +1183,13 @@ const showToast = () => {
         <h2 id="ds-jadlospis" class="text-lg font-semibold">Jadłospis</h2>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników)</p>
+          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników, wtorkowa kolacja z przepisem śniadaniowym: znacznik kategorii)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie)</p>
-          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" />
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie; przy wskaźniku myszy komórki z przepisem można przeciągać i upuszczać na inną komórkę, co w demo tylko zamienia przepisy)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" @move="moveDemoMeals" />
           <div>
             <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>
           </div>

@@ -3,7 +3,7 @@
     <table
       class="w-full min-w-160 border-separate border-spacing-x-0 border-spacing-y-2 text-sm"
       data-testid="meal-plan-grid"
-      :aria-busy="skeleton ? 'true' : undefined"
+      :aria-busy="skeleton || moving ? 'true' : undefined"
     >
       <thead>
         <tr class="text-left">
@@ -34,11 +34,25 @@
             <td v-for="category in MEAL_CATEGORIES" :key="category" class="pl-2">
               <div
                 v-if="day.meals[category]?.recipe"
-                class="flex min-h-18 flex-col items-start gap-1 rounded-md p-2.5"
-                :class="categoryFillClass(category)"
+                class="relative flex min-h-18 flex-col items-start gap-1 rounded-md p-2.5 transition-opacity motion-reduce:transition-none"
+                :class="[categoryFillClass(category), cellDragClass(day.meals[category])]"
+                :draggable="canDrag ? 'true' : undefined"
+                @dragstart="onDragStart($event, day.meals[category])"
+                @dragend="onDragEnd"
+                @dragenter="onDragOver($event, day.meals[category])"
+                @dragover="onDragOver($event, day.meals[category])"
+                @dragleave="onDragLeave(day.meals[category])"
+                @drop="onDrop($event, day.meals[category])"
               >
+                <GripVertical v-if="canDrag" class="absolute right-1 top-1 size-4 opacity-60" aria-hidden="true" />
                 <Badge v-if="day.meals[category].feeds_meal_id && cookedPairFor(category)" variant="tag">{{ cookedPairFor(category)?.cookedLabel }}</Badge>
                 <Badge v-else-if="day.meals[category].from_meal_id && carriedPairFor(category)" variant="tag">{{ carriedPairFor(category)?.carriedLabel }}</Badge>
+                <Badge
+                  v-if="day.meals[category].recipe.category !== category && !day.meals[category].from_meal_id"
+                  variant="tag"
+                >
+                  {{ mealCategoryLabel(day.meals[category].recipe.category) }}
+                </Badge>
                 <div class="font-semibold">
                   <span v-if="day.meals[category].recipe.deleted">
                     {{ day.meals[category].recipe.name }}
@@ -47,6 +61,7 @@
                   <Link
                     v-else
                     :href="route('recipes.show', day.meals[category].recipe.id)"
+                    draggable="false"
                     class="rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     {{ day.meals[category].recipe.name }}
@@ -89,6 +104,11 @@
               <div
                 v-else
                 class="flex min-h-18 flex-col items-start gap-1 rounded-md border-2 border-dashed border-muted-foreground bg-card p-2.5 text-muted-foreground"
+                :class="cellDragClass(day.meals[category])"
+                @dragenter="onDragOver($event, day.meals[category])"
+                @dragover="onDragOver($event, day.meals[category])"
+                @dragleave="onDragLeave(day.meals[category])"
+                @drop="onDrop($event, day.meals[category])"
               >
                 <div>Bez posiłku</div>
                 <Button
@@ -113,9 +133,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { Link } from '@inertiajs/vue3'
-import { ChevronDown, Moon, Plus, RefreshCw, Soup, Sun } from 'lucide-vue-next'
+import { ChevronDown, GripVertical, Moon, Plus, RefreshCw, Soup, Sun } from 'lucide-vue-next'
 import { Badge } from '@/Components/ui/badge'
 import { Button } from '@/Components/ui/button'
 import { Card } from '@/Components/ui/card'
@@ -131,6 +152,7 @@ interface GridRecipe {
   calories: number | string
   servings: number
   deleted: boolean
+  category: string
 }
 
 interface GridIngredient {
@@ -154,15 +176,97 @@ interface Props {
   meals?: GridMeal[]
   skeleton?: boolean
   editable?: boolean
+  moving?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   meals: () => [],
   skeleton: false,
   editable: false,
+  moving: false,
 })
 
-const emit = defineEmits<{ (e: 'swap', meal: GridMeal): void }>()
+const emit = defineEmits<{
+  (e: 'swap', meal: GridMeal): void
+  (e: 'move', source: GridMeal, target: GridMeal): void
+}>()
+
+const hasFinePointer = useMediaQuery('(pointer: fine)')
+const canDrag = computed(() => props.editable && !props.skeleton && !props.moving && hasFinePointer.value)
+const draggedMeal = ref<GridMeal | null>(null)
+const hoveredMealId = ref<number | null>(null)
+
+const isValidTarget = (target?: GridMeal): target is GridMeal =>
+  canDrag.value && draggedMeal.value !== null && target !== undefined && target.id !== draggedMeal.value.id
+
+const onDragStart = (event: DragEvent, meal?: GridMeal): void => {
+  if (!canDrag.value || !meal || !event.dataTransfer) {
+    event.preventDefault()
+
+    return
+  }
+
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/plain', String(meal.id))
+  draggedMeal.value = meal
+}
+
+const onDragEnd = (): void => {
+  draggedMeal.value = null
+  hoveredMealId.value = null
+}
+
+const onDragOver = (event: DragEvent, target?: GridMeal): void => {
+  if (!isValidTarget(target)) {
+    return
+  }
+
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  hoveredMealId.value = target.id
+}
+
+const onDragLeave = (target?: GridMeal): void => {
+  if (target && hoveredMealId.value === target.id) {
+    hoveredMealId.value = null
+  }
+}
+
+const onDrop = (event: DragEvent, target?: GridMeal): void => {
+  const source = draggedMeal.value
+
+  if (!isValidTarget(target) || source === null) {
+    return
+  }
+
+  event.preventDefault()
+  onDragEnd()
+  emit('move', source, target)
+}
+
+const cellDragClass = (meal?: GridMeal): string[] => {
+  if (!meal) {
+    return []
+  }
+
+  const classes: string[] = []
+
+  if (canDrag.value && meal.recipe) {
+    classes.push('cursor-grab select-none active:cursor-grabbing')
+  }
+
+  if (draggedMeal.value?.id === meal.id) {
+    classes.push('opacity-50')
+  }
+
+  if (hoveredMealId.value === meal.id) {
+    classes.push('outline-2 outline-dashed outline-offset-2 outline-ring')
+  }
+
+  return classes
+}
 
 const CATEGORY_FILL_CLASSES: Record<string, string> = {
   breakfast: 'bg-meal-breakfast text-meal-breakfast-foreground',

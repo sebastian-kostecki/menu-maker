@@ -119,7 +119,9 @@
               :start-date="mealPlan.start_date"
               :meals="mealPlan.meals"
               :editable="mealPlan.status === 'draft'"
+              :moving="moving"
               @swap="openSwap"
+              @move="handleMove"
             />
           </div>
           <div v-if="shoppingList || mealPlan.status === 'draft'" class="xl:w-75 xl:shrink-0">
@@ -177,7 +179,7 @@ import ActionDropdown from '@/Components/MealPlans/ActionDropdown.vue'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
-import { formatDateRange } from '@/lib/format'
+import { formatDateRange, formatWeekdayShort } from '@/lib/format'
 import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
 import type { RecipeOptionGroup, RecipeOptions, ShortCategory } from '@/types/meal-plan'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
@@ -188,6 +190,7 @@ interface Recipe {
   calories: number | string
   servings: number
   deleted: boolean
+  category: string
 }
 
 interface MealIngredient {
@@ -244,6 +247,7 @@ const swapMeal = ref<Meal | null>(null)
 const redrawing = ref(false)
 const returningToDraft = ref(false)
 const approving = ref(false)
+const moving = ref(false)
 const isSlow = ref(false)
 
 const isGenerating = computed(() => ['pending', 'processing'].includes(props.mealPlan.status))
@@ -314,6 +318,45 @@ onBeforeUnmount(() => {
 const openSwap = (meal: Meal) => {
   swapMeal.value = meal
   showSwapDialog.value = true
+}
+
+const mealLabel = (meal: Meal): string => `${formatWeekdayShort(meal.meal_date)} – ${mealCategoryLabel(meal.meal_category)}`
+
+const handleMove = (source: Meal, target: Meal) => {
+  if (moving.value || source.id === target.id || source.recipe?.id === target.recipe?.id) {
+    return
+  }
+
+  const meals = props.mealPlan.meals ?? []
+  const emptiedLabels = [source, target]
+    .filter((meal) => meal.feeds_meal_id)
+    .map((meal) => meals.find((candidate) => candidate.id === meal.feeds_meal_id))
+    .filter((carried): carried is Meal => carried !== undefined)
+    .map(mealLabel)
+
+  moving.value = true
+
+  router.post(
+    route('meal-plans.meals.move', { meal_plan: props.mealPlan.id, meal: source.id }),
+    { target_meal_id: target.id },
+    {
+      preserveScroll: true,
+      only: ['mealPlan', 'shortCategories'],
+      onSuccess: () => {
+        if (emptiedLabels.length === 1) {
+          toast.info(`Wyczyszczono ${emptiedLabels[0]}, bo korzystał z przeniesionego posiłku.`)
+        } else if (emptiedLabels.length > 1) {
+          toast.info(`Wyczyszczono ${emptiedLabels.join(', ')}, bo korzystały z przeniesionych posiłków.`)
+        }
+      },
+      onError: (errors) => {
+        toast.error(errors.target_meal_id ?? errors.status ?? 'Nie udało się przenieść posiłku.')
+      },
+      onFinish: () => {
+        moving.value = false
+      },
+    }
+  )
 }
 
 const handleApprove = () => {

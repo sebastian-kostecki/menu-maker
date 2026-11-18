@@ -334,8 +334,8 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [x] 2.1 Client and SSR build passes
-- [x] 2.2 Token lint passes
+- [x] 2.1 Client and SSR build passes — f39077d
+- [x] 2.2 Token lint passes — f39077d
 
 #### Manual
 
@@ -346,9 +346,9 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [ ] 3.1 Client and SSR build passes
-- [ ] 3.2 Token lint passes
-- [ ] 3.3 Full Pest suite still passes
+- [x] 3.1 Client and SSR build passes
+- [x] 3.2 Token lint passes
+- [x] 3.3 Full Pest suite still passes
 
 #### Manual
 

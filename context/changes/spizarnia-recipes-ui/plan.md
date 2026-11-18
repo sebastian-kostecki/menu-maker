@@ -660,12 +660,12 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [x] 2.1 Full Pest suite passes
-- [x] 2.2 Build passes
-- [x] 2.3 Token lint passes
-- [x] 2.4 Removed components have no importers
-- [x] 2.5 Functional E2E passes
-- [x] 2.6 Visual gate passes with only index and kitchen-sink shots changed
+- [x] 2.1 Full Pest suite passes — ea22c96
+- [x] 2.2 Build passes — ea22c96
+- [x] 2.3 Token lint passes — ea22c96
+- [x] 2.4 Removed components have no importers — ea22c96
+- [x] 2.5 Functional E2E passes — ea22c96
+- [x] 2.6 Visual gate passes with only index and kitchen-sink shots changed — ea22c96
 
 #### Manual
 
@@ -680,10 +680,10 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Token lint passes
-- [ ] 3.3 Functional E2E passes incl. steps and source assertions
-- [ ] 3.4 Visual gate passes with only show and kitchen-sink shots changed
+- [x] 3.1 Build passes
+- [x] 3.2 Token lint passes
+- [x] 3.3 Functional E2E passes incl. steps and source assertions
+- [x] 3.4 Visual gate passes with only show and kitchen-sink shots changed
 
 #### Manual
 

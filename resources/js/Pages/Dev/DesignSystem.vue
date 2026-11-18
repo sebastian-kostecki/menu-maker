@@ -30,6 +30,9 @@ import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
 import RecipeTile from '@/Components/recipes/RecipeTile.vue'
+import RecipeHero from '@/Components/recipes/RecipeHero.vue'
+import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue'
+import InstructionsSection from '@/Components/recipes/InstructionsSection.vue'
 import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue'
 import SortMenu from '@/Components/Common/SortMenu.vue'
 import FilterPills from '@/Components/Common/FilterPills.vue'
@@ -327,6 +330,20 @@ const demoRecipeTiles = [
   { id: 2, name: 'Rosół z makaronem', category: 'supper', calories: '1620.00', servings: 4, created_at: '2026-06-10T10:00:00+00:00' },
   { id: 3, name: 'Kanapki z pastą jajeczną', category: 'dinner', calories: '1140.00', servings: 1, created_at: '2026-06-08T10:00:00+00:00' },
 ]
+const demoRecipePage = {
+  name: 'Rosół z makaronem',
+  category: 'supper',
+  calories: '1080.00',
+  servings: 4,
+}
+const demoRecipeIngredients = [
+  { id: 1, name: 'Kurczak', quantity: 800, unit: { code: 'g' } },
+  { id: 2, name: 'Makaron nitki', quantity: 200, unit: { code: 'g' } },
+  { id: 3, name: 'Marchew', quantity: 3, unit: { code: 'szt.' } },
+  { id: 4, name: 'Woda', quantity: 2, unit: { code: 'l' } },
+]
+const demoRecipeSteps = 'Ugotuj bulion z kurczaka i warzyw.\nDodaj makaron i gotuj 4 minuty.\nPodaj z natką pietruszki.'
+const demoRecipeStepsSource = `${demoRecipeSteps}\n\nŹródło: https://example.com/rosol`
 const demoPlanStatus = ref('pending')
 const demoPlanSortOptions = [
   { value: 'created_at:desc', label: 'Najnowsze', column: 'created_at', direction: 'desc' },
@@ -1032,6 +1049,18 @@ const showToast = () => {
 
         <div class="rounded-lg border bg-card p-6">
           <EmptyState :icon="SearchX" title="Brak wyników" />
+        </div>
+
+        <RecipeHero :recipe="demoRecipePage" :heading-level="2" />
+
+        <div class="grid gap-6 lg:grid-cols-5">
+          <div class="lg:col-span-2">
+            <IngredientCardGrid :ingredients="demoRecipeIngredients" />
+          </div>
+          <div class="flex flex-col gap-6 lg:col-span-3">
+            <InstructionsSection :instructions="demoRecipeStepsSource" />
+            <InstructionsSection :instructions="demoRecipeSteps" />
+          </div>
         </div>
       </section>
 

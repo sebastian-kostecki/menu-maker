@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-wrap items-center gap-2">
-    <Button v-if="canEdit" as-child>
+    <Button v-if="canEdit" variant="outline" as-child>
       <Link :href="editHref">
         <Pencil class="size-4" aria-hidden="true" />
-        Edytuj przepis
+        Edytuj
       </Link>
     </Button>
 
@@ -13,7 +13,7 @@
       @click="$emit('delete-request')"
     >
       <Trash2 class="size-4" aria-hidden="true" />
-      Usuń przepis
+      Usuń
     </Button>
   </div>
 </template>

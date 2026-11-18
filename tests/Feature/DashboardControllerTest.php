@@ -141,20 +141,20 @@ it('exposes the latest plan\'s meals in date and category order with their recip
 
 it('exposes an empty slot without a recipe and the link markers', function (): void {
     $plan = MealPlan::factory()->for($this->user)->done()->create();
-    $recipe = Recipe::factory()->dinner()->create(['user_id' => $this->user->id]);
+    $recipe = Recipe::factory()->supper()->create(['user_id' => $this->user->id]);
 
-    $source = Meal::query()->create([
-        'meal_plan_id' => $plan->id,
-        'recipe_id' => $recipe->id,
-        'meal_date' => $plan->start_date->copy(),
-        'meal_category' => $recipe->category,
-    ]);
     $leftover = Meal::query()->create([
         'meal_plan_id' => $plan->id,
         'recipe_id' => $recipe->id,
         'meal_date' => $plan->start_date->copy()->addDay(),
         'meal_category' => $recipe->category,
-        'feeds_meal_id' => $source->id,
+    ]);
+    $source = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $recipe->id,
+        'meal_date' => $plan->start_date->copy(),
+        'meal_category' => $recipe->category,
+        'feeds_meal_id' => $leftover->id,
     ]);
     $empty = Meal::query()->create([
         'meal_plan_id' => $plan->id,
@@ -168,9 +168,9 @@ it('exposes an empty slot without a recipe and the link markers', function (): v
             fn ($page) => $page
                 ->has('latestMealPlan.meals', 3)
                 ->where('latestMealPlan.meals.0.id', $source->id)
-                ->where('latestMealPlan.meals.0.from_meal_id', $leftover->id)
+                ->where('latestMealPlan.meals.0.feeds_meal_id', $leftover->id)
                 ->where('latestMealPlan.meals.1.id', $leftover->id)
-                ->where('latestMealPlan.meals.1.feeds_meal_id', $source->id)
+                ->where('latestMealPlan.meals.1.from_meal_id', $source->id)
                 ->where('latestMealPlan.meals.2.id', $empty->id)
                 ->missing('latestMealPlan.meals.2.recipe')
         );

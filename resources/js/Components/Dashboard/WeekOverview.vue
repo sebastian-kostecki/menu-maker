@@ -5,14 +5,8 @@ import { Card } from '@/Components/ui/card'
 import CategoryBadge from '@/Components/recipes/CategoryBadge.vue'
 import { formatDateRange, formatDayMonth, formatWeekdayShort } from '@/lib/format'
 import { carriedPairFor, cookedPairFor } from '@/lib/mealLinks'
-import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
+import { MEAL_CATEGORIES, MEAL_CATEGORY_FILL_CLASSES, mealCategoryLabel } from '@/lib/mealCategories'
 import { todayYmd, weekDays } from '@/lib/mealWeek'
-
-const CATEGORY_FILL_CLASSES = {
-  breakfast: 'bg-meal-breakfast text-meal-breakfast-foreground',
-  supper: 'bg-meal-supper text-meal-supper-foreground',
-  dinner: 'bg-meal-dinner text-meal-dinner-foreground',
-}
 
 const props = defineProps({
   startDate: { type: String, required: true },
@@ -76,7 +70,7 @@ const tagFor = (meal, category) => {
           <div
             v-if="day.meals[category]?.recipe"
             class="flex min-h-13 flex-col items-start gap-1 rounded-md px-2.5 py-2 text-meta"
-            :class="CATEGORY_FILL_CLASSES[category]"
+            :class="MEAL_CATEGORY_FILL_CLASSES[category]"
           >
             <Badge v-if="tagFor(day.meals[category], category)" variant="tag">{{ tagFor(day.meals[category], category) }}</Badge>
             <span>

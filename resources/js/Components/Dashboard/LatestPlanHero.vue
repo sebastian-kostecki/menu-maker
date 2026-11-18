@@ -24,7 +24,7 @@ const hasPdfLinks = computed(() => Boolean(props.mealPlan?.links?.pdf && props.m
         <p class="text-label">Ostatni jadłospis</p>
         <StatusTag value="done" />
       </div>
-      <h2 class="text-page-title">{{ formatDateRange(mealPlan.start_date, mealPlan.end_date) }}</h2>
+      <h2 class="text-page-title"><span class="sr-only">Ostatni jadłospis: </span>{{ formatDateRange(mealPlan.start_date, mealPlan.end_date) }}</h2>
       <p class="max-w-xl">{{ mealsCount }} {{ mealsLabel }}. Lista zakupów i ilości są już przeliczone.</p>
       <div class="flex flex-wrap items-center gap-3">
         <Button variant="inverse" as-child>

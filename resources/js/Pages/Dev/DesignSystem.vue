@@ -1071,7 +1071,7 @@ const showToast = () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Kafelki statystyk: wartość 21 (śniadanie, formy „przepisów”) i wartość 1 (kolacja, forma „jadłospis”)</p>
+          <p class="text-xs text-muted-foreground">Kafelki statystyk: wartość 21 (śniadanie, formy „przepisów”) i wartość 1 (obiad, forma „jadłospis”)</p>
           <div class="grid gap-6 sm:grid-cols-2">
             <StatCard tone="breakfast" :value="21" :forms="{ one: 'przepis', few: 'przepisy', many: 'przepisów' }" :icon="ChefHat" />
             <StatCard tone="supper" :value="1" :forms="{ one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }" :icon="CalendarDays" />

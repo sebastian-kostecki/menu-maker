@@ -133,7 +133,7 @@ test('inverse focus-visible on highlight', async ({ page }) => {
   await expect(page).toHaveScreenshot('inverse-focus-visible.png', { clip: await focusRingClip(inverse) });
 });
 
-test('shell nav hover',async ({ page }) => {
+test('shell nav hover', async ({ page }) => {
   await openKitchenSink(page);
   const box = page.getByTestId('shell-top-bar');
   await box.getByRole('link', { name: 'Jadłospisy', exact: true }).hover();

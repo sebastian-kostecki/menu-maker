@@ -2,21 +2,16 @@
 import { computed } from 'vue'
 import { Card } from '@/Components/ui/card'
 import { formatNumber, pluralize } from '@/lib/format'
-
-const TONE_CLASSES = {
-  breakfast: 'bg-meal-breakfast text-meal-breakfast-foreground',
-  supper: 'bg-meal-supper text-meal-supper-foreground',
-  dinner: 'bg-meal-dinner text-meal-dinner-foreground',
-}
+import { MEAL_CATEGORIES, MEAL_CATEGORY_FILL_CLASSES } from '@/lib/mealCategories'
 
 const props = defineProps({
   value: { type: Number, required: true },
   forms: { type: Object, required: true },
   icon: { type: [Object, Function], required: true },
-  tone: { type: String, required: true, validator: (tone) => ['breakfast', 'supper', 'dinner'].includes(tone) },
+  tone: { type: String, required: true, validator: (tone) => MEAL_CATEGORIES.includes(tone) },
 })
 
-const toneClass = computed(() => TONE_CLASSES[props.tone])
+const toneClass = computed(() => MEAL_CATEGORY_FILL_CLASSES[props.tone])
 </script>
 
 <template>

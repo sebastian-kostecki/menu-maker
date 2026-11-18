@@ -29,6 +29,8 @@ import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import RecipeTile from '@/Components/recipes/RecipeTile.vue'
+import RecipesToolbar from '@/Components/recipes/RecipesToolbar.vue'
 import SortMenu from '@/Components/Common/SortMenu.vue'
 import FilterPills from '@/Components/Common/FilterPills.vue'
 import ShoppingList from '@/Components/MealPlans/ShoppingList.vue'
@@ -310,6 +312,20 @@ const demoPlanStatuses = [
   { value: 'processing', label: 'Generowanie' },
   { value: 'done', label: 'Gotowy' },
   { value: 'error', label: 'Błąd' },
+]
+const demoRecipeSearch = ref('')
+const demoRecipeCategory = ref('')
+const demoRecipeSort = ref({ column: 'created_at', direction: 'desc' })
+const demoRecipeCategories = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
+const demoRecipeCounts = { all: 21, breakfast: 7, supper: 7, dinner: 7 }
+const demoRecipeTiles = [
+  { id: 1, name: 'Owsianka z jabłkiem i cynamonem', category: 'breakfast', calories: '640.00', servings: 2, created_at: '2026-06-12T10:00:00+00:00' },
+  { id: 2, name: 'Rosół z makaronem', category: 'supper', calories: '1620.00', servings: 4, created_at: '2026-06-10T10:00:00+00:00' },
+  { id: 3, name: 'Kanapki z pastą jajeczną', category: 'dinner', calories: '1140.00', servings: 1, created_at: '2026-06-08T10:00:00+00:00' },
 ]
 const demoPlanStatus = ref('pending')
 const demoPlanSortOptions = [
@@ -940,6 +956,24 @@ const showToast = () => {
             </EmptyState>
           </Card>
         </div>
+
+        <RecipesToolbar
+          :search="demoRecipeSearch"
+          :category="demoRecipeCategory"
+          :sort="demoRecipeSort.column"
+          :direction="demoRecipeSort.direction"
+          :categories="demoRecipeCategories"
+          :category-counts="demoRecipeCounts"
+          @search="demoRecipeSearch = $event"
+          @category-change="demoRecipeCategory = $event"
+          @sort-change="demoRecipeSort = $event"
+        />
+
+        <ul aria-label="Przykładowe przepisy" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <li v-for="recipe in demoRecipeTiles" :key="recipe.id">
+            <RecipeTile :recipe="recipe" />
+          </li>
+        </ul>
 
         <ConfirmDialog
           v-model:open="confirmOpen"

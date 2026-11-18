@@ -643,14 +643,14 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [x] 1.1 Recipe controller tests pass
-- [x] 1.2 Full Pest suite passes
-- [x] 1.3 Larastan passes without baseline additions
-- [x] 1.4 Pint passes
-- [x] 1.5 Build passes
-- [x] 1.6 Token lint passes
-- [x] 1.7 Functional E2E passes unchanged
-- [x] 1.8 Visual gate passes with no snapshot update
+- [x] 1.1 Recipe controller tests pass — 75265bf
+- [x] 1.2 Full Pest suite passes — 75265bf
+- [x] 1.3 Larastan passes without baseline additions — 75265bf
+- [x] 1.4 Pint passes — 75265bf
+- [x] 1.5 Build passes — 75265bf
+- [x] 1.6 Token lint passes — 75265bf
+- [x] 1.7 Functional E2E passes unchanged — 75265bf
+- [x] 1.8 Visual gate passes with no snapshot update — 75265bf
 
 #### Manual
 
@@ -660,12 +660,12 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [ ] 2.1 Full Pest suite passes
-- [ ] 2.2 Build passes
-- [ ] 2.3 Token lint passes
-- [ ] 2.4 Removed components have no importers
-- [ ] 2.5 Functional E2E passes
-- [ ] 2.6 Visual gate passes with only index and kitchen-sink shots changed
+- [x] 2.1 Full Pest suite passes
+- [x] 2.2 Build passes
+- [x] 2.3 Token lint passes
+- [x] 2.4 Removed components have no importers
+- [x] 2.5 Functional E2E passes
+- [x] 2.6 Visual gate passes with only index and kitchen-sink shots changed
 
 #### Manual
 

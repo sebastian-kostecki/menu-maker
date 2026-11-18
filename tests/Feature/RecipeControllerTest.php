@@ -309,6 +309,17 @@ it('recipes index ignores an unknown category', function (): void {
     $response->assertInertia(fn ($page) => $page->has('recipes.data', 3));
 });
 
+it('recipes index paginates 12 per page by default', function (): void {
+    Recipe::factory()->for($this->user)->count(13)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('recipes.meta.per_page', 12)
+        ->has('recipes.data', 12)
+        ->where('recipes.meta.total', 13));
+});
+
 it('recipes index clamps per_page to 100', function (): void {
     Recipe::factory()->for($this->user)->count(3)->create();
 

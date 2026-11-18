@@ -8,7 +8,7 @@ test('searching by an existing recipe name keeps that recipe in the list', async
   await page.waitForURL('**/dashboard');
 
   await page.goto('/recipes');
-  const firstName = (await page.getByRole('row').nth(1).getByRole('link').first().textContent())!.trim();
+  const firstName = (await page.getByRole('list', { name: 'Przepisy' }).getByRole('listitem').first().getByRole('heading').textContent())!.trim();
 
   await page.getByRole('searchbox', { name: 'Szukaj przepisów' }).fill(firstName);
   await page.waitForURL((url) => url.searchParams.get('search') === firstName);

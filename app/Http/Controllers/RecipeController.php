@@ -53,7 +53,7 @@ class RecipeController extends Controller
         $sortDirection = $request->get('direction', 'desc');
         $query->orderByField($sortField, $sortDirection === 'asc' ? 'asc' : 'desc');
 
-        $perPage = min(max((int) $request->get('per_page', 15), 5), 100);
+        $perPage = min(max((int) $request->get('per_page', 12), 5), 100);
         $recipes = $query->paginate($perPage);
 
         return Inertia::render('Recipes/Index', [

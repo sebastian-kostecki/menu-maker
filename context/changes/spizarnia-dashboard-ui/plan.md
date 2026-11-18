@@ -431,13 +431,13 @@ None: no schema or data change.
 
 #### Automated
 
-- [x] 3.1 Build passes
-- [x] 3.2 Token lint passes
-- [x] 3.3 Pest suite passes
-- [x] 3.4 Larastan and Pint pass
-- [x] 3.5 Dashboard baselines refreshed after review and full `npm run test:visual` green
-- [x] 3.6 Exactly the four `dashboard-*.png` files changed
-- [x] 3.7 Functional E2E passes after re-seeding
+- [x] 3.1 Build passes — 6905d8f
+- [x] 3.2 Token lint passes — 6905d8f
+- [x] 3.3 Pest suite passes — 6905d8f
+- [x] 3.4 Larastan and Pint pass — 6905d8f
+- [x] 3.5 Dashboard baselines refreshed after review and full `npm run test:visual` green — 6905d8f
+- [x] 3.6 Exactly the four `dashboard-*.png` files changed — 6905d8f
+- [x] 3.7 Functional E2E passes after re-seeding — 6905d8f
 
 #### Manual
 

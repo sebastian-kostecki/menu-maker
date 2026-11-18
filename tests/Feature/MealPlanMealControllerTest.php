@@ -624,7 +624,6 @@ it('moving a carried-over meal unlinks it and keeps the cooked meal intact', fun
 it('a drop onto the linked partner, onto itself or onto the same recipe changes nothing', function (): void {
     [$plan, $monday, $tuesday, $wednesday] = planWithThreeObiady($this->user);
     linkMeals($this->user, $plan, $monday, $tuesday);
-    $wednesday->update(['recipe_id' => $wednesday->recipe_id]);
     $sameRecipe = Meal::query()->create([
         'meal_plan_id' => $plan->id,
         'recipe_id' => $wednesday->recipe_id,
@@ -640,6 +639,45 @@ it('a drop onto the linked partner, onto itself or onto the same recipe changes 
     expect($monday->fresh()->feeds_meal_id)->toBe($tuesday->id)
         ->and($tuesday->fresh()->recipe_id)->toBe($monday->recipe_id)
         ->and($wednesday->fresh()->recipe_id)->toBe($sameRecipe->recipe_id);
+});
+
+it('a drop between two empty meals changes nothing', function (): void {
+    [$plan, $monday, $tuesday] = planWithThreeObiady($this->user);
+    $monday->update(['recipe_id' => null]);
+    $tuesday->update(['recipe_id' => null]);
+
+    moveMeal($plan, $monday, $tuesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBeNull()
+        ->and($tuesday->fresh()->recipe_id)->toBeNull();
+});
+
+it('a move from an empty meal fills it and empties the target', function (): void {
+    [$plan, $monday, $tuesday] = planWithThreeObiady($this->user);
+    $tuesdayRecipe = $tuesday->recipe_id;
+    $monday->update(['recipe_id' => null]);
+
+    moveMeal($plan, $monday, $tuesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBe($tuesdayRecipe)
+        ->and($tuesday->fresh()->recipe_id)->toBeNull();
+});
+
+it("moving a carried-over meal onto another pair's cooked meal unlinks the first pair and empties the second carried meal", function (): void {
+    [$plan, $monday, $tuesday, $wednesday, $thursday] = planWithFourObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    linkMeals($this->user, $plan, $wednesday, $thursday);
+    $mondayRecipe = $monday->fresh()->recipe_id;
+    $wednesdayRecipe = $wednesday->fresh()->recipe_id;
+
+    moveMeal($plan, $tuesday, $wednesday->id)->assertOk();
+
+    expect($tuesday->fresh()->recipe_id)->toBe($wednesdayRecipe)
+        ->and($monday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($monday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($wednesday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($wednesday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($thursday->fresh()->recipe_id)->toBeNull();
 });
 
 it('move is refused for a meal of another plan in the URL', function (): void {

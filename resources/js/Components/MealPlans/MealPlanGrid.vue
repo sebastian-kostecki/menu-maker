@@ -41,16 +41,13 @@
                 @dragend="onDragEnd"
                 @dragenter="onDragOver($event, day.meals[category])"
                 @dragover="onDragOver($event, day.meals[category])"
-                @dragleave="onDragLeave(day.meals[category])"
+                @dragleave="onDragLeave($event, day.meals[category])"
                 @drop="onDrop($event, day.meals[category])"
               >
                 <GripVertical v-if="canDrag" class="absolute right-1 top-1 size-4 opacity-60" aria-hidden="true" />
                 <Badge v-if="day.meals[category].feeds_meal_id && cookedPairFor(category)" variant="tag">{{ cookedPairFor(category)?.cookedLabel }}</Badge>
                 <Badge v-else-if="day.meals[category].from_meal_id && carriedPairFor(category)" variant="tag">{{ carriedPairFor(category)?.carriedLabel }}</Badge>
-                <Badge
-                  v-if="day.meals[category].recipe.category !== category && !day.meals[category].from_meal_id"
-                  variant="tag"
-                >
+                <Badge v-if="showsCategoryTag(day.meals[category], category)" variant="tag">
                   {{ mealCategoryLabel(day.meals[category].recipe.category) }}
                 </Badge>
                 <div class="font-semibold">
@@ -107,7 +104,7 @@
                 :class="cellDragClass(day.meals[category])"
                 @dragenter="onDragOver($event, day.meals[category])"
                 @dragover="onDragOver($event, day.meals[category])"
-                @dragleave="onDragLeave(day.meals[category])"
+                @dragleave="onDragLeave($event, day.meals[category])"
                 @drop="onDrop($event, day.meals[category])"
               >
                 <div>Bez posiłku</div>
@@ -196,8 +193,26 @@ const canDrag = computed(() => props.editable && !props.skeleton && !props.movin
 const draggedMeal = ref<GridMeal | null>(null)
 const hoveredMealId = ref<number | null>(null)
 
+/**
+ * A drop is valid only where it would change something: not the dragged meal itself and not a meal with the same recipe (which includes its own linked partner).
+ */
 const isValidTarget = (target?: GridMeal): target is GridMeal =>
-  canDrag.value && draggedMeal.value !== null && target !== undefined && target.id !== draggedMeal.value.id
+  canDrag.value &&
+  draggedMeal.value !== null &&
+  target !== undefined &&
+  target.id !== draggedMeal.value.id &&
+  target.recipe?.id !== draggedMeal.value.recipe?.id
+
+/**
+ * The recipe-category tag marks a recipe from another time of day, unless the carried-over link already explains it (a Kolacja recipe „Z kolacji” at Śniadanie).
+ */
+const showsCategoryTag = (meal: GridMeal | undefined, category: string): boolean => {
+  if (!meal?.recipe || meal.recipe.category === category) {
+    return false
+  }
+
+  return !(meal.from_meal_id && meal.recipe.category === carriedPairFor(category)?.from)
+}
 
 const onDragStart = (event: DragEvent, meal?: GridMeal): void => {
   if (!canDrag.value || !meal || !event.dataTransfer) {
@@ -228,7 +243,14 @@ const onDragOver = (event: DragEvent, target?: GridMeal): void => {
   hoveredMealId.value = target.id
 }
 
-const onDragLeave = (target?: GridMeal): void => {
+const onDragLeave = (event: DragEvent, target?: GridMeal): void => {
+  const cell = event.currentTarget as Node | null
+
+  // Moving onto a child of the same cell (badge, link, button) is not leaving it.
+  if (cell && event.relatedTarget instanceof Node && cell.contains(event.relatedTarget)) {
+    return
+  }
+
   if (target && hoveredMealId.value === target.id) {
     hoveredMealId.value = null
   }
@@ -254,7 +276,7 @@ const cellDragClass = (meal?: GridMeal): string[] => {
   const classes: string[] = []
 
   if (canDrag.value && meal.recipe) {
-    classes.push('cursor-grab select-none active:cursor-grabbing')
+    classes.push('cursor-grab select-none pr-6 active:cursor-grabbing')
   }
 
   if (draggedMeal.value?.id === meal.id) {

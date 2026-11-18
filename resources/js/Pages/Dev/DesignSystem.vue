@@ -265,7 +265,7 @@ const planRecipeNames = [
   'Tosty z awokado', 'Barszcz czerwony', 'Ryba z pieca',
   'Omlet z warzywami', 'Chili sin carne', 'Tortilla z kurczakiem',
 ]
-const planMeals = reactive(planRecipeNames
+const planMeals = planRecipeNames
   .map((name, index) => {
     const day = Math.floor(index / 3)
     const base = {
@@ -300,7 +300,9 @@ const planMeals = reactive(planRecipeNames
           ]
         : [],
     }
-  }))
+  })
+// The editable draft grid works on its own copy, so a demo drag leaves the read-only grid, Pulpit and WeekOverview untouched.
+const draftPlanMeals = reactive(structuredClone(planMeals))
 const pulpitPlan = {
   start_date: planStartDate,
   end_date: '2026-06-21',
@@ -318,12 +320,34 @@ const planShoppingList = {
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
 const swapOpen = ref(false)
-const swapMeal = ref(planMeals[0])
+const swapMeal = ref(draftPlanMeals[0])
 const openSwap = (meal) => {
   swapMeal.value = meal
   swapOpen.value = true
 }
+// Like the server's move: a moved cooked meal empties the meal it fed, a moved carried meal is just unlinked.
+const unlinkDemoMeal = (meal) => {
+  if (meal.feeds_meal_id) {
+    const carried = draftPlanMeals.find((other) => other.id === meal.feeds_meal_id)
+    if (carried) {
+      carried.recipe = undefined
+      carried.ingredients = []
+      carried.from_meal_id = null
+    }
+    meal.feeds_meal_id = null
+  }
+
+  if (meal.from_meal_id) {
+    const cooked = draftPlanMeals.find((other) => other.id === meal.from_meal_id)
+    if (cooked) {
+      cooked.feeds_meal_id = null
+    }
+    meal.from_meal_id = null
+  }
+}
 const moveDemoMeals = (source, target) => {
+  unlinkDemoMeal(source)
+  unlinkDemoMeal(target)
   const swapped = { recipe: source.recipe, ingredients: source.ingredients }
   source.recipe = target.recipe
   source.ingredients = target.ingredients
@@ -1189,16 +1213,16 @@ const showToast = () => {
 
         <div class="flex flex-col gap-2">
           <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie; przy wskaźniku myszy komórki z przepisem można przeciągać i upuszczać na inną komórkę, co w demo tylko zamienia przepisy)</p>
-          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" @move="moveDemoMeals" />
+          <MealPlanGrid :start-date="planStartDate" :meals="draftPlanMeals" editable @swap="openSwap" @move="moveDemoMeals" />
           <div>
-            <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>
+            <Button variant="outline" @click="openSwap(draftPlanMeals[0])">Otwórz okno wyboru przepisu</Button>
           </div>
           <RecipeSwapDialog
             v-model:open="swapOpen"
             :meal-plan-id="1"
             :meal="swapMeal"
             :groups="swapGroups"
-            :week-meals="planMeals"
+            :week-meals="draftPlanMeals"
             demo
           />
         </div>

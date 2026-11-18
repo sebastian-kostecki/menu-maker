@@ -371,4 +371,5 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 #### Manual
 
 - [ ] 4.5 Every changed PNG reviewed; done-plan screenshots unchanged
+  - Note (impl-review F4): 304f3cd also changed `design-system.spec.ts/section-pulpit.png` and `inverse-focus-visible.png` (same content; anti-aliasing noise from the taller Jadłospis section above them, see design-system.md §bramka wizualna). The review fixes then re-baselined `section-jadlospis.png` and the three `meal-plan-draft-*.png` for the `pr-6` grip padding (F7).
 - [ ] 4.6 PRD FR 5, US-014 and US-018 consistent with shipped behaviour

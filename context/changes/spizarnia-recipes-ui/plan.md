@@ -697,12 +697,12 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 
 #### Automated
 
-- [x] 4.1 Full Pest suite passes
-- [x] 4.2 Build passes
-- [x] 4.3 Token lint passes
-- [x] 4.4 Functional E2E passes with the radio step
-- [x] 4.5 Visual gate passes with only form and kitchen-sink shots changed
-- [x] 4.6 No recipe file keeps the old card border or hover:text-primary
+- [x] 4.1 Full Pest suite passes — 9767d79
+- [x] 4.2 Build passes — 9767d79
+- [x] 4.3 Token lint passes — 9767d79
+- [x] 4.4 Functional E2E passes with the radio step — 9767d79
+- [x] 4.5 Visual gate passes with only form and kitchen-sink shots changed — 9767d79
+- [x] 4.6 No recipe file keeps the old card border or hover:text-primary — 9767d79
 
 #### Manual
 

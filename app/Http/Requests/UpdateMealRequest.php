@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 
 class UpdateMealRequest extends FormRequest
 {
-    public const INVALID_RECIPE_MESSAGE = 'Wybierz jeden ze swoich przepisów z tej kategorii.';
+    public const INVALID_RECIPE_MESSAGE = 'Wybierz jeden ze swoich przepisów.';
 
     public const LINK_NOT_ALLOWED_MESSAGE = 'Tego posiłku nie można połączyć z poprzednim dniem.';
 
@@ -47,7 +47,6 @@ class UpdateMealRequest extends FormRequest
                 'integer',
                 Rule::exists('recipes', 'id')
                     ->where('user_id', $meal->mealPlan->user_id)
-                    ->where('category', $meal->meal_category)
                     ->whereNull('deleted_at'),
             ],
             'from_meal_id' => [

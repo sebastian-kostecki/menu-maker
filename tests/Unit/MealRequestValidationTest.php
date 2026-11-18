@@ -119,14 +119,16 @@ class MealRequestValidationTest extends TestCase
         $this->assertArrayHasKey('from_meal_id', $this->validatorFor(['from_meal_id' => 'abc'])->errors()->toArray());
     }
 
-    public function test_rejects_other_category_deleted_and_foreign_recipes(): void
+    public function test_accepts_other_category_but_rejects_deleted_and_foreign_recipes(): void
     {
         $dinner = Recipe::factory()->dinner()->for($this->user)->create();
+        $this->assertFalse($this->validatorFor(['recipe_id' => $dinner->id])->fails());
+
         $deleted = Recipe::factory()->breakfast()->for($this->user)->create();
         $deleted->delete();
         $foreign = Recipe::factory()->breakfast()->for(User::factory()->create())->create();
 
-        foreach ([$dinner, $deleted, $foreign] as $recipe) {
+        foreach ([$deleted, $foreign] as $recipe) {
             $validator = $this->validatorFor(['recipe_id' => $recipe->id]);
 
             $this->assertTrue($validator->fails());

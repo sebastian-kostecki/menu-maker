@@ -31,6 +31,10 @@ Route::middleware(['auth'])->group(function () {
         ->only(['update'])
         ->scoped();
 
+    Route::post('/meal-plans/{meal_plan}/meals/{meal}/move', [MealPlanMealController::class, 'move'])
+        ->scopeBindings()
+        ->name('meal-plans.meals.move');
+
     // Additional meal plan routes
     Route::post('/meal-plans/{meal_plan}/approve', [MealPlanController::class, 'approve'])
         ->name('meal-plans.approve');

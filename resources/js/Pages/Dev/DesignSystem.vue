@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
-import { AlertCircle, CalendarDays, CheckCircle2, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
+import { AlertCircle, CalendarDays, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert'
 import {
   AlertDialog,
@@ -26,6 +26,10 @@ import EmptyState from '@/Components/Common/EmptyState.vue'
 import { pluralize } from '@/lib/format'
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
+import LatestPlanHero from '@/Components/Dashboard/LatestPlanHero.vue'
+import StatCard from '@/Components/Dashboard/StatCard.vue'
+import WeekOverview from '@/Components/Dashboard/WeekOverview.vue'
+import FirstRunTile from '@/Components/Dashboard/FirstRunTile.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
@@ -266,6 +270,13 @@ const planMeals = planRecipeNames
         : [],
     }
   })
+const pulpitPlan = {
+  start_date: planStartDate,
+  end_date: '2026-06-21',
+  status: 'done',
+  meals: planMeals,
+  links: { self: '#plan', pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' },
+}
 const planShoppingList = {
   items: [
     { ingredient_id: 1, name: 'Jajka', quantity: '42', unit: 'szt.', display: '42 szt.' },
@@ -1042,6 +1053,48 @@ const showToast = () => {
           <div class="flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">Lista zakupów w szkicu (miejsce na listę)</p>
             <ShoppingList pending />
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="ds-pulpit" class="flex flex-col gap-4">
+        <h2 id="ds-pulpit" class="text-lg font-semibold">Pulpit</h2>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Hero z ostatnim jadłospisem (status „Gotowy”, liczba posiłków z przepisem, „Otwórz jadłospis” i menu PDF na tle highlight)</p>
+          <LatestPlanHero :meal-plan="pulpitPlan" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Hero bez gotowego jadłospisu</p>
+          <LatestPlanHero :meal-plan="null" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Kafelki statystyk: wartość 21 (śniadanie, formy „przepisów”) i wartość 1 (kolacja, forma „jadłospis”)</p>
+          <div class="grid gap-6 sm:grid-cols-2">
+            <StatCard tone="breakfast" :value="21" :forms="{ one: 'przepis', few: 'przepisy', many: 'przepisów' }" :icon="ChefHat" />
+            <StatCard tone="supper" :value="1" :forms="{ one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }" :icon="CalendarDays" />
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Tydzień z datą spoza zakresu (tytuł z zakresem dat; pusty posiłek „Bez posiłku”, czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”, piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”, jeden usunięty przepis). „Ten tydzień” pokazuje zrzut pulpitu.</p>
+          <WeekOverview start-date="2026-06-15" end-date="2026-06-21" :meals="planMeals" today="2026-07-01" />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Kafelek pierwszego uruchomienia</p>
+          <FirstRunTile />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs text-muted-foreground">Przyciski na tle highlight: inverse i inverse-outline, domyślne i wyłączone</p>
+          <div class="flex flex-wrap items-center gap-3 rounded-lg bg-highlight p-6">
+            <Button variant="inverse">inverse</Button>
+            <Button variant="inverse" disabled>inverse wyłączony</Button>
+            <Button variant="inverse-outline">inverse-outline</Button>
+            <Button variant="inverse-outline" disabled>inverse-outline wyłączony</Button>
           </div>
         </div>
       </section>

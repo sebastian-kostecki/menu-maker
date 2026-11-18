@@ -405,20 +405,20 @@ None: no schema or data change.
 
 #### Automated
 
-- [x] 1.1 Dashboard tests pass: `vendor/bin/sail pest --filter=DashboardControllerTest`
-- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan`
-- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Dashboard tests pass: `vendor/bin/sail pest --filter=DashboardControllerTest` — 4b597d0
+- [x] 1.2 Full Pest suite passes: `vendor/bin/sail composer test` — 4b597d0
+- [x] 1.3 Larastan passes: `vendor/bin/sail composer phpstan` — 4b597d0
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test` — 4b597d0
 
 ### Phase 2: Klocki pulpitu w kitchen sinku
 
 #### Automated
 
-- [ ] 2.1 Token lint and its self-test pass
-- [ ] 2.2 Client and SSR build passes
-- [ ] 2.3 Kitchen-sink baselines created after review and `npm run test:visual` green
-- [ ] 2.4 Only `section-pulpit.png` and `inverse-focus-visible.png` are new; no existing kitchen-sink PNG changed
-- [ ] 2.5 Pest suite still passes
+- [x] 2.1 Token lint and its self-test pass
+- [x] 2.2 Client and SSR build passes
+- [x] 2.3 Kitchen-sink baselines created after review and `npm run test:visual` green
+- [x] 2.4 Only `section-pulpit.png` and `inverse-focus-visible.png` are new; no existing kitchen-sink PNG changed
+- [x] 2.5 Pest suite still passes
 
 #### Manual
 

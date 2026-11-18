@@ -41,8 +41,8 @@ const isFirstRun = computed(() => props.stats.recipes === 0 && props.stats.mealP
 
       <template v-else>
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <StatCard label="Przepisy" :value="stats.recipes" :icon="ChefHat" />
-          <StatCard label="Jadłospisy" :value="stats.mealPlans" :icon="CalendarDays" />
+          <StatCard tone="breakfast" :value="stats.recipes" :forms="{ one: 'przepis', few: 'przepisy', many: 'przepisów' }" :icon="ChefHat" />
+          <StatCard tone="supper" :value="stats.mealPlans" :forms="{ one: 'jadłospis', few: 'jadłospisy', many: 'jadłospisów' }" :icon="CalendarDays" />
 
           <Card class="lg:col-span-2">
             <CardHeader>

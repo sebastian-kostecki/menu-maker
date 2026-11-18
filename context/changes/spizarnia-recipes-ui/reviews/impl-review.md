@@ -164,7 +164,7 @@ Automated gates re-run on 2026-11-18 against the worktree stack `mm-recipes-ui` 
 - **Fix**: Redirect back to the referring index URL when the delete came from the list (e.g. `redirect()->back()` unless the referrer is the recipe page).
 - **Decision**: FIXED — `destroy` returns to the Referer list URL without `page`, otherwise to the plain index; two feature tests.
 
-### F9 — All 24 manual checks are still pending
+### F9 — All 17 manual checks are still pending
 
 - **Severity**: 💡 OBSERVATION
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped

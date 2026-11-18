@@ -414,11 +414,11 @@ None: no schema or data change.
 
 #### Automated
 
-- [x] 2.1 Token lint and its self-test pass
-- [x] 2.2 Client and SSR build passes
-- [x] 2.3 Kitchen-sink baselines created after review and `npm run test:visual` green
-- [x] 2.4 Only `section-pulpit.png` and `inverse-focus-visible.png` are new; no existing kitchen-sink PNG changed
-- [x] 2.5 Pest suite still passes
+- [x] 2.1 Token lint and its self-test pass — c10aa49
+- [x] 2.2 Client and SSR build passes — c10aa49
+- [x] 2.3 Kitchen-sink baselines created after review and `npm run test:visual` green — c10aa49
+- [x] 2.4 Only `section-pulpit.png` and `inverse-focus-visible.png` are new; no existing kitchen-sink PNG changed — c10aa49
+- [x] 2.5 Pest suite still passes — c10aa49
 
 #### Manual
 
@@ -431,13 +431,13 @@ None: no schema or data change.
 
 #### Automated
 
-- [ ] 3.1 Build passes
-- [ ] 3.2 Token lint passes
-- [ ] 3.3 Pest suite passes
-- [ ] 3.4 Larastan and Pint pass
-- [ ] 3.5 Dashboard baselines refreshed after review and full `npm run test:visual` green
-- [ ] 3.6 Exactly the four `dashboard-*.png` files changed
-- [ ] 3.7 Functional E2E passes after re-seeding
+- [x] 3.1 Build passes
+- [x] 3.2 Token lint passes
+- [x] 3.3 Pest suite passes
+- [x] 3.4 Larastan and Pint pass
+- [x] 3.5 Dashboard baselines refreshed after review and full `npm run test:visual` green
+- [x] 3.6 Exactly the four `dashboard-*.png` files changed
+- [x] 3.7 Functional E2E passes after re-seeding
 
 #### Manual
 

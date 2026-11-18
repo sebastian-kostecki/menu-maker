@@ -89,7 +89,7 @@
               Za mało przepisów, żeby wypełnić cały tydzień:
               {{ shortCategories.map((short) => `${short.label} (${short.recipes} z 7)`).join(', ') }}.
             </p>
-            <p>Puste posiłki możesz uzupełnić przepisem, który już jest w tygodniu, albo dodać nowy przepis.</p>
+            <p>Puste posiłki możesz uzupełnić przepisem z innej pory dnia albo dodać nowy przepis.</p>
             <Link
               :href="route('recipes.create')"
               class="mt-2 inline-block rounded-sm font-medium underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -154,7 +154,7 @@
       v-model:open="showSwapDialog"
       :meal-plan-id="mealPlan.id"
       :meal="swapMeal"
-      :options="swapOptions"
+      :groups="swapGroups"
       :week-meals="mealPlan.meals ?? []"
     />
   </AuthenticatedLayout>
@@ -178,7 +178,8 @@ import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import { formatDateRange } from '@/lib/format'
-import type { RecipeOption, RecipeOptions, ShortCategory } from '@/types/meal-plan'
+import { MEAL_CATEGORIES, mealCategoryLabel } from '@/lib/mealCategories'
+import type { RecipeOptionGroup, RecipeOptions, ShortCategory } from '@/types/meal-plan'
 import ShoppingList, { type ShoppingListPayload } from '@/Components/MealPlans/ShoppingList.vue'
 
 interface Recipe {
@@ -249,10 +250,19 @@ const isGenerating = computed(() => ['pending', 'processing'].includes(props.mea
 const hasMeals = computed(() => (props.mealPlan.meals?.length ?? 0) > 0)
 const isDraftWithMeals = computed(() => props.mealPlan.status === 'draft' && hasMeals.value)
 const canReturnToDraft = computed(() => props.mealPlan.status === 'done' && hasMeals.value)
-const swapOptions = computed<RecipeOption[]>(() => {
-  const category = swapMeal.value?.meal_category as keyof RecipeOptions | undefined
+const swapGroups = computed<RecipeOptionGroup[]>(() => {
+  const slotCategory = swapMeal.value?.meal_category as string | undefined
+  const ordered = slotCategory
+    ? [slotCategory, ...MEAL_CATEGORIES.filter((category) => category !== slotCategory)]
+    : MEAL_CATEGORIES
 
-  return (category && props.recipeOptions?.[category]) || []
+  return ordered
+    .map((category) => ({
+      category,
+      label: mealCategoryLabel(category),
+      options: props.recipeOptions?.[category as keyof RecipeOptions] ?? [],
+    }))
+    .filter((group) => group.options.length > 0)
 })
 const errorMessage = computed(
   () => props.mealPlan.generation_meta?.error_message ?? 'Generowanie jadłospisu nie powiodło się.'

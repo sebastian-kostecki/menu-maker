@@ -324,18 +324,18 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [x] 1.1 Meal controller and request tests pass
-- [x] 1.2 Full Pest suite passes
-- [x] 1.3 Larastan passes without baseline additions
-- [x] 1.4 Pint passes
-- [x] 1.5 Route is registered
+- [x] 1.1 Meal controller and request tests pass — 7e07230
+- [x] 1.2 Full Pest suite passes — 7e07230
+- [x] 1.3 Larastan passes without baseline additions — 7e07230
+- [x] 1.4 Pint passes — 7e07230
+- [x] 1.5 Route is registered — 7e07230
 
 ### Phase 2: Swap dialog with all categories
 
 #### Automated
 
-- [ ] 2.1 Client and SSR build passes
-- [ ] 2.2 Token lint passes
+- [x] 2.1 Client and SSR build passes
+- [x] 2.2 Token lint passes
 
 #### Manual
 

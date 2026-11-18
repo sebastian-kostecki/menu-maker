@@ -322,11 +322,30 @@ const openSwap = (meal) => {
   swapMeal.value = meal
   swapOpen.value = true
 }
-const swapOptions = [
-  { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
-  { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
-  { id: 13, name: 'Płatki z mlekiem', calories: '980' },
-  { id: 16, name: 'Tosty z awokado', calories: null },
+const swapGroups = [
+  {
+    category: 'breakfast',
+    label: 'Śniadanie',
+    options: [
+      { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
+      { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
+      { id: 13, name: 'Płatki z mlekiem', calories: '980' },
+      { id: 16, name: 'Tosty z awokado', calories: null },
+    ],
+  },
+  {
+    category: 'supper',
+    label: 'Obiad',
+    options: [
+      { id: 7, name: 'Zupa pomidorowa z ryżem', calories: '1450' },
+      { id: 9, name: 'Kotlety mielone z ziemniakami', calories: '1800' },
+    ],
+  },
+  {
+    category: 'dinner',
+    label: 'Kolacja',
+    options: [{ id: 19, name: 'Kanapki z serem i rzodkiewką', calories: '900' }],
+  },
 ]
 const demoPlanLinks = (id, withPdf) => ({
   self: `#ds-plan-${id}`,
@@ -1170,7 +1189,7 @@ const showToast = () => {
             v-model:open="swapOpen"
             :meal-plan-id="1"
             :meal="swapMeal"
-            :options="swapOptions"
+            :groups="swapGroups"
             :week-meals="planMeals"
             demo
           />

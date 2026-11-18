@@ -38,9 +38,11 @@
               </span>
               <span :class="['text-xs', isLinkCurrent ? 'opacity-85' : 'text-muted-foreground']">{{ linkPair.offerHint }}</span>
             </ComboboxItem>
-            <p v-if="!filteredItems.length" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
-            <ComboboxItem
-              v-for="option in filteredItems"
+            <p v-if="!hasMatches" class="p-2 text-sm text-muted-foreground">Brak przepisów</p>
+            <ComboboxGroup v-for="group in filteredGroups" :key="group.category" :data-testid="`swap-group-${group.category}`">
+              <ComboboxLabel class="px-2 py-1.5 text-meta text-muted-foreground">{{ group.label }}</ComboboxLabel>
+              <ComboboxItem
+              v-for="option in group.options"
               :key="option.id"
               :value="option"
               :text-value="option.name"
@@ -56,6 +58,7 @@
                 <span v-if="option.usedOn"> · jest już: {{ option.usedOn }}</span>
               </span>
             </ComboboxItem>
+            </ComboboxGroup>
           </ComboboxViewport>
         </ComboboxContent>
       </Combobox>
@@ -68,11 +71,12 @@ import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 // ui/combobox's ComboboxList always portals out and is sized as a popper; inside a Dialog the list must stay
 // inline (position="inline") within the dialog's focus trap, so the reka-ui parts are used directly here.
-import { ComboboxContent, ComboboxViewport } from 'reka-ui'
+import { ComboboxContent, ComboboxLabel, ComboboxViewport } from 'reka-ui'
 import { toast } from 'vue-sonner'
 import {
   Combobox,
   ComboboxAnchor,
+  ComboboxGroup,
   ComboboxInput,
   ComboboxItem,
 } from '@/Components/ui/combobox'
@@ -80,7 +84,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { formatDayMonth, formatNumber, formatWeekdayShort } from '@/lib/format'
 import { mealCategoryLabel } from '@/lib/mealCategories'
 import { carriedPairFor, cookedPairFor, linkSourceFor } from '@/lib/mealLinks'
-import type { RecipeOption } from '@/types/meal-plan'
+import type { RecipeOption, RecipeOptionGroup } from '@/types/meal-plan'
 
 interface SwapMeal {
   id: number
@@ -95,7 +99,7 @@ interface Props {
   open: boolean
   mealPlanId: number
   meal: SwapMeal | null
-  options: RecipeOption[]
+  groups: RecipeOptionGroup[]
   weekMeals: SwapMeal[]
   /** Kitchen-sink mode: picking a recipe only closes the dialog and sends no request. */
   demo?: boolean
@@ -155,25 +159,36 @@ const feedsWarning = computed(() => {
   return fed && pair ? pair.feedsWarning(`${formatWeekdayShort(fed.meal_date)} ${formatDayMonth(fed.meal_date)}`) : ''
 })
 
-const items = computed(() =>
-  props.options.map((option) => {
-    const days = props.weekMeals
-      .filter((other) => other.recipe?.id === option.id && other.id !== props.meal?.id)
-      .map((other) => formatWeekdayShort(other.meal_date))
+const groupsWithUsage = computed(() =>
+  props.groups.map((group) => ({
+    ...group,
+    options: group.options.map((option) => {
+      const days = props.weekMeals
+        .filter((other) => other.recipe?.id === option.id && other.id !== props.meal?.id)
+        .map((other) => formatWeekdayShort(other.meal_date))
 
-    return { ...option, usedOn: [...new Set(days)].join(', ') }
-  })
+      return { ...option, usedOn: [...new Set(days)].join(', ') }
+    }),
+  }))
 )
 
 // reka-ui highlights the first item on every keystroke, so while the user searches the "Nie robimy" row stays hidden:
 // otherwise Enter after typing a name would empty the meal instead of picking the top match.
 const isSearching = computed(() => searchTerm.value.trim() !== '')
 
-const filteredItems = computed(() => {
+const filteredGroups = computed(() => {
   const term = searchTerm.value.trim().toLocaleLowerCase('pl')
 
-  return term ? items.value.filter((option) => option.name.toLocaleLowerCase('pl').includes(term)) : items.value
+  if (!term) {
+    return groupsWithUsage.value
+  }
+
+  return groupsWithUsage.value
+    .map((group) => ({ ...group, options: group.options.filter((option) => option.name.toLocaleLowerCase('pl').includes(term)) }))
+    .filter((group) => group.options.length > 0)
 })
+
+const hasMatches = computed(() => filteredGroups.value.length > 0)
 
 const handleSelect = (option: unknown) => {
   const picked = option as RecipeOption | typeof EMPTY_OPTION | { linkFrom: SwapMeal } | undefined

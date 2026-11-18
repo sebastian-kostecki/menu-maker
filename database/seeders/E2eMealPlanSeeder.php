@@ -28,7 +28,8 @@ use RuntimeException;
  * The visual planner additionally owns four meal plans with pinned dates for the plans list; the done one starting
  * 2026-06-15 is reproducible (its pinned recipes, scaled with the fake refiner), so the real meal plan page can be
  * screenshotted. The dashboard-empty user always ends without recipes (trashed ones included), meal plans or family
- * members, so the dashboard shows its first-run state.
+ * members, so the dashboard shows its first-run state. The family-visual user owns three pinned family members (and
+ * no recipes or plans), so the family members screenshots are stable against the frozen clock.
  */
 class E2eMealPlanSeeder extends Seeder
 {
@@ -60,6 +61,8 @@ class E2eMealPlanSeeder extends Seeder
     public const PASSWORD = 'Password123!';
 
     public const DASHBOARD_EMPTY_EMAIL = 'e2e-dashboard-empty-visual@example.com';
+
+    public const FAMILY_VISUAL_EMAIL = 'e2e-family-visual@example.com';
 
     public const VISUAL_EMAIL = 'e2e-planner-visual@example.com';
 
@@ -131,6 +134,8 @@ class E2eMealPlanSeeder extends Seeder
             FamilyMember::where('user_id', $familyUser->id)->delete();
         }
 
+        $this->syncFamilyVisualUser();
+
         $emptyUser = User::firstOrCreate(
             ['email' => self::DASHBOARD_EMPTY_EMAIL],
             [
@@ -143,6 +148,33 @@ class E2eMealPlanSeeder extends Seeder
         $emptyUser->recipes()->withTrashed()->forceDelete();
         $emptyUser->mealPlans()->delete();
         FamilyMember::where('user_id', $emptyUser->id)->delete();
+    }
+
+    /**
+     * Give the family-visual user exactly three pinned members (ages 38, 41 and 6 on the frozen 2026-06-15 clock).
+     */
+    private function syncFamilyVisualUser(): void
+    {
+        $user = User::firstOrCreate(
+            ['email' => self::FAMILY_VISUAL_EMAIL],
+            [
+                'name' => 'E2E Family Visual',
+                'password' => Hash::make(self::PASSWORD),
+                'email_verified_at' => now(),
+            ],
+        );
+
+        FamilyMember::where('user_id', $user->id)->delete();
+
+        $members = [
+            ['first_name' => 'Anna', 'birth_date' => '1987-07-04', 'gender' => 'female', 'weight_kg' => '64', 'height_cm' => '168'],
+            ['first_name' => 'Jan', 'birth_date' => '1985-03-12', 'gender' => 'male', 'weight_kg' => '82', 'height_cm' => '180'],
+            ['first_name' => 'Zosia', 'birth_date' => '2019-09-01', 'gender' => 'female', 'weight_kg' => null, 'height_cm' => null],
+        ];
+
+        foreach ($members as $member) {
+            FamilyMember::create(['user_id' => $user->id, ...$member]);
+        }
     }
 
     /**

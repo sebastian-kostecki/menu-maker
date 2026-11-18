@@ -24,6 +24,7 @@ export const buttonVariants = cva(
         sm: "h-8 px-3 text-meta font-semibold",
         lg: "h-13 px-6.5 text-base font-semibold",
         icon: "size-8.5 p-0",
+        tile: "min-h-57.5 w-full flex-col gap-2.5 rounded-lg px-5 py-5.5 text-label font-bold",
       },
     },
     compoundVariants: [

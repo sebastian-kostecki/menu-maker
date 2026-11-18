@@ -28,6 +28,7 @@ import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'
 import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
+import FamilyMemberTile from '@/Components/FamilyMembers/FamilyMemberTile.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
 import SortMenu from '@/Components/MealPlans/SortMenu.vue'
 import StatusFilterPills from '@/Components/MealPlans/StatusFilterPills.vue'
@@ -171,6 +172,23 @@ const buttonSizes = [
   { size: 'sm', label: 'Mały' },
   { size: 'default', label: 'Domyślny' },
   { size: 'lg', label: 'Duży' },
+]
+
+// The kitchen-sink spec does not freeze the clock, so the demo tiles get a fixed „today” (ages 38, 41, 6).
+const demoFamilyToday = new Date(2026, 5, 15)
+const demoFamilyMembers = [
+  {
+    colour: 'supper',
+    member: { id: 1, first_name: 'Anna', birth_date: '1987-07-04', gender: 'female', weight_kg: '64.0', height_cm: '168.0' },
+  },
+  {
+    colour: 'dinner',
+    member: { id: 2, first_name: 'Jan', birth_date: '1985-03-12', gender: 'male', weight_kg: '82.0', height_cm: '180.0' },
+  },
+  {
+    colour: 'breakfast',
+    member: { id: 3, first_name: 'Zosia', birth_date: '2019-09-01', gender: 'female', weight_kg: null, height_cm: null },
+  },
 ]
 
 const badgeVariants = [
@@ -882,6 +900,25 @@ const showToast = () => {
         </Table>
 
         <ServerPagination :meta="appPaginationMeta" @page-change="handleAppPageChange" />
+
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <FamilyMemberTile
+            v-for="demo in demoFamilyMembers"
+            :key="demo.member.id"
+            :member="demo.member"
+            :colour="demo.colour"
+            :today="demoFamilyToday"
+          />
+          <Button variant="dashed" size="tile">
+            <span
+              aria-hidden="true"
+              class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            >
+              <Plus />
+            </span>
+            Dodaj członka rodziny
+          </Button>
+        </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <Button variant="destructive" @click="confirmOpen = true">Otwórz ConfirmDialog</Button>

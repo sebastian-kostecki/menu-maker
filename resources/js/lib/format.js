@@ -12,6 +12,8 @@ const pluralRules = new Intl.PluralRules(LOCALE)
 
 const isValidDate = (date) => !Number.isNaN(date.getTime())
 
+const BARE_YMD = /^\d{4}-\d{2}-\d{2}$/
+
 // Only the Y-m-d prefix is read, so a full ISO timestamp still parses as a local date.
 const parseYmd = (ymd) => {
   const [year, month, day] = String(ymd ?? '').slice(0, 10).split('-').map(Number)
@@ -49,13 +51,39 @@ export function formatDate(value) {
     return ''
   }
 
-  const date = value instanceof Date ? value : new Date(value)
+  // A bare Y-m-d is a calendar date: new Date() would read it as UTC midnight and show a day early west of UTC.
+  const date = value instanceof Date
+    ? value
+    : (typeof value === 'string' && BARE_YMD.test(value) ? parseYmd(value) : new Date(value))
 
   if (!isValidDate(date)) {
     return ''
   }
 
   return dateFormat.format(date)
+}
+
+/**
+ * Pełne ukończone lata od daty urodzenia Y-m-d (0 poniżej roku); null dla błędnej daty.
+ */
+export const ageInYears = (birthYmd, today = new Date()) => {
+  if (typeof birthYmd !== 'string' || !BARE_YMD.test(birthYmd.slice(0, 10))) {
+    return null
+  }
+
+  const birth = parseYmd(birthYmd)
+
+  if (!isValidDate(birth) || !isValidDate(today)) {
+    return null
+  }
+
+  let age = today.getFullYear() - birth.getFullYear()
+
+  if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+    age -= 1
+  }
+
+  return age < 0 ? null : age
 }
 
 // Invalid input renders as '' instead of throwing a RangeError during render.

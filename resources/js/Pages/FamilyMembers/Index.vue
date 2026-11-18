@@ -1,15 +1,16 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import { Plus, Users } from 'lucide-vue-next'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import EmptyState from '@/Components/Common/EmptyState.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
+import ServerPagination from '@/Components/Common/ServerPagination.vue'
 import FamilyMemberDeleteDialog from '@/Components/FamilyMembers/FamilyMemberDeleteDialog.vue'
 import FamilyMemberDialog from '@/Components/FamilyMembers/FamilyMemberDialog.vue'
-import FamilyMemberPagination from '@/Components/FamilyMembers/FamilyMemberPagination.vue'
-import FamilyMemberTable from '@/Components/FamilyMembers/FamilyMemberTable.vue'
+import FamilyMemberTile from '@/Components/FamilyMembers/FamilyMemberTile.vue'
 import { Button } from '@/Components/ui/button'
-import { pluralizePl } from '@/lib/pluralizePl'
+import { pluralize } from '@/lib/format'
 
 const props = defineProps({
   familyMembers: {
@@ -18,6 +19,9 @@ const props = defineProps({
   },
 })
 
+// The avatar colour cycles by the tile's position on the current page.
+const TILE_COLOURS = ['supper', 'dinner', 'breakfast']
+
 const dialogOpen = ref(false)
 const editingMember = ref(null)
 const memberToDelete = ref(null)
@@ -25,7 +29,7 @@ const memberToDelete = ref(null)
 const totalLabel = computed(() => {
   const total = props.familyMembers.total
 
-  return `${total} ${pluralizePl(total, 'osoba', 'osoby', 'osób')}`
+  return `${total} ${pluralize(total, { one: 'osoba', few: 'osoby', many: 'osób' })}`
 })
 
 const openCreateDialog = () => {
@@ -36,6 +40,13 @@ const openCreateDialog = () => {
 const openEditDialog = (member) => {
   editingMember.value = member
   dialogOpen.value = true
+}
+
+const handlePageChange = (page) => {
+  router.get(route('family-members.index'), { page }, {
+    preserveScroll: true,
+    replace: true,
+  })
 }
 </script>
 
@@ -58,31 +69,43 @@ const openEditDialog = (member) => {
         </template>
       </PageHeader>
 
-      <div class="overflow-hidden rounded-lg border border-border bg-card">
-        <div v-if="familyMembers.total === 0" class="flex flex-col items-center gap-2 px-6 py-12 text-center">
-          <Users class="size-10 text-muted-foreground" />
-          <h2 class="text-sm font-semibold">Brak członków rodziny</h2>
-          <p class="text-sm text-muted-foreground">Rozpocznij od dodania pierwszego członka rodziny.</p>
-          <Button class="mt-4" @click="openCreateDialog">
-            <Plus class="size-4" />
-            Dodaj pierwszego członka
-          </Button>
-        </div>
+      <EmptyState
+        v-if="familyMembers.total === 0"
+        class="py-12"
+        :icon="Users"
+        title="Brak członków rodziny"
+        description="Rozpocznij od dodania pierwszego członka rodziny."
+      >
+        <Button @click="openCreateDialog">
+          <Plus class="size-4" />
+          Dodaj pierwszego członka
+        </Button>
+      </EmptyState>
 
-        <template v-else>
-          <FamilyMemberTable
-            :members="familyMembers.data"
+      <template v-else>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <FamilyMemberTile
+            v-for="(member, index) in familyMembers.data"
+            :key="member.id"
+            :member="member"
+            :colour="TILE_COLOURS[index % TILE_COLOURS.length]"
             @edit="openEditDialog"
             @delete="memberToDelete = $event"
           />
-          <FamilyMemberPagination
-            :current-page="familyMembers.current_page"
-            :last-page="familyMembers.last_page"
-            :prev-page-url="familyMembers.prev_page_url"
-            :next-page-url="familyMembers.next_page_url"
-          />
-        </template>
-      </div>
+
+          <Button variant="dashed" size="tile" @click="openCreateDialog">
+            <span
+              aria-hidden="true"
+              class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            >
+              <Plus />
+            </span>
+            Dodaj członka rodziny
+          </Button>
+        </div>
+
+        <ServerPagination :meta="familyMembers" @page-change="handlePageChange" />
+      </template>
     </div>
 
     <FamilyMemberDialog v-model:open="dialogOpen" :member="editingMember" />

@@ -346,9 +346,9 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [x] 3.1 Client and SSR build passes
-- [x] 3.2 Token lint passes
-- [x] 3.3 Full Pest suite still passes
+- [x] 3.1 Client and SSR build passes — 02bf401
+- [x] 3.2 Token lint passes — 02bf401
+- [x] 3.3 Full Pest suite still passes — 02bf401
 
 #### Manual
 
@@ -363,10 +363,10 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [ ] 4.1 Seeder test passes
-- [ ] 4.2 E2E passes in Chromium and Firefox
-- [ ] 4.3 Visual gate passes after the deliberate update
-- [ ] 4.4 Full Pest suite passes
+- [x] 4.1 Seeder test passes
+- [x] 4.2 E2E passes in Chromium and Firefox
+- [x] 4.3 Visual gate passes after the deliberate update
+- [x] 4.4 Full Pest suite passes
 
 #### Manual
 

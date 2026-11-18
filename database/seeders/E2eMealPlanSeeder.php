@@ -218,6 +218,9 @@ class E2eMealPlanSeeder extends Seeder
                 $this->attachPinnedMeals($user, $mealPlan, [[MealCategory::Breakfast->value, 2]], [
                     [MealCategory::Supper->value, 0, MealCategory::Supper->value],
                     [MealCategory::Dinner->value, 0, MealCategory::Breakfast->value],
+                ], [
+                    // Thursday's Śniadanie and Kolacja trade recipes, so the draft shows the category tag in two cells.
+                    [MealCategory::Breakfast->value, 3, MealCategory::Dinner->value],
                 ]);
             } elseif ($fixture['status'] === 'done') {
                 app(MealPlanGenerator::class)->generate($mealPlan);
@@ -230,8 +233,9 @@ class E2eMealPlanSeeder extends Seeder
      *
      * @param  list<array{0: string, 1: int}>  $emptySlots  `[category, day offset]` pairs that get a meal without a recipe
      * @param  list<array{0: string, 1: int, 2: string}>  $links  `[from category, from offset, to category]` triples: the `to category` meal on the next day gets the source's recipe and the source feeds it
+     * @param  list<array{0: string, 1: int, 2: string}>  $swaps  `[category A, day offset, category B]` triples: the two meals of that day exchange recipes (applied before links)
      */
-    private function attachPinnedMeals(User $user, MealPlan $plan, array $emptySlots = [], array $links = []): void
+    private function attachPinnedMeals(User $user, MealPlan $plan, array $emptySlots = [], array $links = [], array $swaps = []): void
     {
         /** @var array<string, Meal> $created */
         $created = [];
@@ -251,6 +255,15 @@ class E2eMealPlanSeeder extends Seeder
                     'meal_category' => $category,
                 ]);
             }
+        }
+
+        foreach ($swaps as [$categoryA, $offset, $categoryB]) {
+            $mealA = $created[$categoryA.':'.$offset];
+            $mealB = $created[$categoryB.':'.$offset];
+            $recipeIdA = $mealA->recipe_id;
+
+            $mealA->update(['recipe_id' => $mealB->recipe_id]);
+            $mealB->update(['recipe_id' => $recipeIdA]);
         }
 
         foreach ($links as [$category, $fromOffset, $toCategory]) {

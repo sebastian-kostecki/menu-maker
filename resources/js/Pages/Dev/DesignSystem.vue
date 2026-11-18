@@ -29,6 +29,7 @@ import PdfDownloadMenu from '@/Components/MealPlans/PdfDownloadMenu.vue'
 import MealPlanGrid from '@/Components/MealPlans/MealPlanGrid.vue'
 import RecipeSwapDialog from '@/Components/MealPlans/RecipeSwapDialog.vue'
 import MealPlanTile from '@/Components/MealPlans/MealPlanTile.vue'
+import CategoryRadioTiles from '@/Components/recipes/CategoryRadioTiles.vue'
 import RecipeTile from '@/Components/recipes/RecipeTile.vue'
 import RecipeHero from '@/Components/recipes/RecipeHero.vue'
 import IngredientCardGrid from '@/Components/recipes/IngredientCardGrid.vue'
@@ -206,6 +207,12 @@ const recipes = [
 ]
 
 const comboboxValue = ref(undefined)
+const categoryTilesSelected = ref('supper')
+const categoryTileOptions = [
+  { value: 'breakfast', label: 'Śniadanie' },
+  { value: 'supper', label: 'Obiad' },
+  { value: 'dinner', label: 'Kolacja' },
+]
 const page = ref(2)
 
 const shellItems = mainNavigation.map((item) => ({
@@ -669,6 +676,30 @@ const showToast = () => {
               </ComboboxList>
             </Combobox>
           </div>
+        </div>
+        <div class="flex max-w-205 flex-col gap-6">
+          <CategoryRadioTiles
+            name="ds-category-empty"
+            :model-value="null"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            v-model="categoryTilesSelected"
+            name="ds-category-selected"
+            :categories="categoryTileOptions"
+          />
+          <CategoryRadioTiles
+            name="ds-category-error"
+            :model-value="null"
+            :categories="categoryTileOptions"
+            error="Wybierz kategorię."
+          />
+          <CategoryRadioTiles
+            name="ds-category-disabled"
+            model-value="breakfast"
+            :categories="categoryTileOptions"
+            disabled
+          />
         </div>
       </section>
 

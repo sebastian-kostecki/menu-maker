@@ -2,28 +2,28 @@
   <Head :title="pageTitle" />
 
   <AuthenticatedLayout>
-    <div class="mx-auto flex max-w-2xl flex-col gap-6">
+    <div class="flex w-full max-w-205 flex-col gap-6">
       <PageHeader :title="pageTitle">
         <template #breadcrumbs>
-          <div class="flex items-center gap-2">
-            <Link :href="route('recipes.index')" class="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Przepisy</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page" class="text-foreground">{{ pageTitle }}</span>
-          </div>
+          <Link
+            :href="route('recipes.index')"
+            class="inline-flex items-center gap-1.5 rounded-sm text-label text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <ArrowLeft class="size-4" aria-hidden="true" />
+            Przepisy
+          </Link>
         </template>
       </PageHeader>
 
-      <div class="rounded-lg border bg-card p-6">
-        <RecipeForm
-          :form="form"
-          :categories="categories"
-          :ingredients="ingredients"
-          :units="units"
-          :is-editing="!!recipe?.data"
-          @submit="handleSubmit"
-          @cancel="handleCancel"
-        />
-      </div>
+      <RecipeForm
+        :form="form"
+        :categories="categories"
+        :ingredients="ingredients"
+        :units="units"
+        :is-editing="!!recipe?.data"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+      />
     </div>
   </AuthenticatedLayout>
 </template>
@@ -31,6 +31,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Head, Link, router, useForm } from '@inertiajs/vue3'
+import { ArrowLeft } from 'lucide-vue-next'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import PageHeader from '@/Components/Common/PageHeader.vue'
 import RecipeForm from '@/Components/recipes/RecipeForm.vue'

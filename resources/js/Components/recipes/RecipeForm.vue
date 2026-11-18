@@ -1,121 +1,64 @@
 <template>
-  <form @submit.prevent="$emit('submit')" class="space-y-6">
-    <!-- Recipe Name -->
-    <div class="space-y-2">
-      <Label for="name">
-        Nazwa przepisu *
-      </Label>
-      <Input
-        id="name"
-        v-model="form.name"
-        type="text"
-        placeholder="Wpisz nazwę przepisu"
-        :class="{ 'border-destructive': form.errors.name }"
-        :aria-invalid="!!form.errors.name"
-        :aria-describedby="form.errors.name ? 'name-error' : undefined"
-        required
+  <form @submit.prevent="$emit('submit')" class="flex flex-col gap-6">
+    <Card class="grid gap-5 p-6">
+      <h2 class="text-section-title">Podstawy</h2>
+
+      <FormField id="name" label="Nazwa przepisu *" :error="form.errors.name">
+        <template #default="{ invalid, describedBy }">
+          <Input
+            id="name"
+            v-model="form.name"
+            type="text"
+            placeholder="Wpisz nazwę przepisu"
+            :aria-invalid="invalid || undefined"
+            :aria-describedby="describedBy"
+            required
+          />
+        </template>
+      </FormField>
+
+      <CategoryRadioTiles
+        v-model="form.category"
+        :categories="categories"
+        :error="form.errors.category"
+        :disabled="form.processing"
       />
-      <p v-if="form.errors.name" id="name-error" class="text-sm text-destructive">
-        {{ form.errors.name }}
-      </p>
-    </div>
 
-    <!-- Category -->
-    <div class="space-y-2">
-      <Label for="category">
-        Kategoria *
-      </Label>
-      <Select v-model="form.category" :disabled="form.processing">
-        <SelectTrigger id="category" :class="{ 'border-destructive': form.errors.category }"
-          :aria-invalid="!!form.errors.category"
-          :aria-describedby="form.errors.category ? 'category-error' : undefined">
-          <SelectValue placeholder="Wybierz kategorię" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem
-            v-for="category in categories"
-            :key="category.value"
-            :value="category.value"
-          >
-            {{ category.label }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-      <p v-if="form.errors.category" id="category-error" class="text-sm text-destructive">
-        {{ form.errors.category }}
-      </p>
-    </div>
+      <div class="grid gap-5 md:grid-cols-2">
+        <FormField id="calories" label="Kaloryczność całkowita (kcal) *" :error="form.errors.calories">
+          <template #default="{ invalid, describedBy }">
+            <Input
+              id="calories"
+              v-model="form.calories"
+              type="number"
+              min="50"
+              placeholder="np. 350"
+              :aria-invalid="invalid || undefined"
+              :aria-describedby="describedBy"
+              required
+            />
+          </template>
+        </FormField>
 
-    <!-- Instructions -->
-    <div class="space-y-2">
-      <Label for="instructions">
-        Sposób przygotowania *
-      </Label>
-      <Textarea
-        id="instructions"
-        v-model="form.instructions"
-        rows="5"
-        placeholder="Opisz sposób przygotowania"
-        :class="{ 'border-destructive': form.errors.instructions }"
-        :aria-invalid="!!form.errors.instructions"
-        :aria-describedby="form.errors.instructions ? 'instructions-error' : undefined"
-        required
-      />
-      <p v-if="form.errors.instructions" id="instructions-error" class="text-sm text-destructive">
-        {{ form.errors.instructions }}
-      </p>
-    </div>
-
-    <!-- Calories and Servings Row -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Calories -->
-      <div class="space-y-2">
-        <Label for="calories">
-          Kaloryczność całkowita (kcal) *
-        </Label>
-        <Input
-          id="calories"
-          v-model="form.calories"
-          type="number"
-          min="50"
-          placeholder="np. 350"
-          :class="{ 'border-destructive': form.errors.calories }"
-        :aria-invalid="!!form.errors.calories"
-        :aria-describedby="form.errors.calories ? 'calories-error' : undefined"
-          required
-        />
-        <p v-if="form.errors.calories" id="calories-error" class="text-sm text-destructive">
-        {{ form.errors.calories }}
-      </p>
+        <FormField id="servings" label="Liczba porcji *" :error="form.errors.servings">
+          <template #default="{ invalid, describedBy }">
+            <Input
+              id="servings"
+              v-model="form.servings"
+              type="number"
+              min="1"
+              placeholder="np. 4"
+              :aria-invalid="invalid || undefined"
+              :aria-describedby="describedBy"
+              required
+            />
+          </template>
+        </FormField>
       </div>
+    </Card>
 
-      <!-- Servings -->
-      <div class="space-y-2">
-        <Label for="servings">
-          Liczba porcji *
-        </Label>
-        <Input
-          id="servings"
-          v-model="form.servings"
-          type="number"
-          min="1"
-          placeholder="np. 4"
-          :class="{ 'border-destructive': form.errors.servings }"
-        :aria-invalid="!!form.errors.servings"
-        :aria-describedby="form.errors.servings ? 'servings-error' : undefined"
-          required
-        />
-        <p v-if="form.errors.servings" id="servings-error" class="text-sm text-destructive">
-        {{ form.errors.servings }}
-      </p>
-      </div>
-    </div>
-
-    <!-- Ingredients -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Składniki</h2>
-      </div>
+    <Card class="grid gap-5 p-6">
+      <h2 class="text-section-title">Składniki</h2>
 
       <IngredientManager
         v-model:ingredients="form.ingredients"
@@ -123,15 +66,33 @@
         :available-units="units"
         :errors="form.errors"
       />
-    </div>
+    </Card>
 
-        <!-- Action Buttons -->
-    <div class="flex items-center gap-4 pt-6 border-t">
-      <Button
-        type="submit"
-        :disabled="form.processing || !isFormValid"
-        class="flex-1 md:flex-none"
+    <Card class="grid gap-5 p-6">
+      <h2 class="text-section-title">Sposób przygotowania</h2>
+
+      <FormField
+        id="instructions"
+        label="Sposób przygotowania *"
+        description="Każda linia to osobny krok."
+        :error="form.errors.instructions"
       >
+        <template #default="{ invalid, describedBy }">
+          <Textarea
+            id="instructions"
+            v-model="form.instructions"
+            rows="6"
+            placeholder="Opisz sposób przygotowania"
+            :aria-invalid="invalid || undefined"
+            :aria-describedby="describedBy"
+            required
+          />
+        </template>
+      </FormField>
+    </Card>
+
+    <div class="flex flex-wrap items-center gap-4">
+      <Button type="submit" size="lg" :disabled="form.processing || !isFormValid">
         <template v-if="form.processing">
           <Loader2 class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           Zapisywanie…
@@ -141,18 +102,13 @@
         </template>
       </Button>
 
-      <Button
-        type="button"
-        variant="outline"
-        @click="$emit('cancel')"
-        :disabled="form.processing"
-      >
+      <Button type="button" variant="outline" size="lg" :disabled="form.processing" @click="$emit('cancel')">
         Anuluj
       </Button>
-    </div>
 
-    <div class="text-xs text-muted-foreground">
-      * Pola wymagane
+      <div class="flex-1" />
+
+      <p class="text-meta text-muted-foreground">* Pola wymagane</p>
     </div>
   </form>
 </template>
@@ -160,17 +116,12 @@
 <script setup>
 import { computed } from 'vue'
 import { Loader2 } from 'lucide-vue-next'
-import { Label } from '@/Components/ui/label'
 import { Input } from '@/Components/ui/input'
 import { Button } from '@/Components/ui/button'
 import { Textarea } from '@/Components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/Components/ui/select'
+import { Card } from '@/Components/ui/card'
+import FormField from '@/Components/Common/FormField.vue'
+import CategoryRadioTiles from './CategoryRadioTiles.vue'
 import IngredientManager from './IngredientManager.vue'
 
 // Define props

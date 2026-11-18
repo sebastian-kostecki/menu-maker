@@ -1,14 +1,14 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border border-border rounded-lg bg-card"
+    class="grid gap-3 md:grid-cols-12 md:items-end"
     role="group"
     :aria-label="`Składnik ${index + 1}`"
   >
     <!-- Ingredient name -->
-    <div class="md:col-span-2 space-y-1">
+    <div class="space-y-1 md:col-span-7">
       <label
         :for="`ingredient-name-${index}`"
-        class="block text-sm font-medium leading-6 text-foreground"
+        class="block text-label text-foreground"
       >
         Składnik *
       </label>
@@ -42,10 +42,10 @@
     </div>
 
     <!-- Quantity -->
-    <div class="space-y-1">
+    <div class="space-y-1 md:col-span-2">
       <label
         :for="`quantity-${index}`"
-        class="block text-sm font-medium leading-6 text-foreground"
+        class="block text-label text-foreground"
       >
         Ilość *
       </label>
@@ -72,10 +72,10 @@
     </div>
 
     <!-- Unit -->
-    <div class="space-y-1">
+    <div class="space-y-1 md:col-span-2">
       <label
         :for="`unit-${index}`"
-        class="block text-sm font-medium leading-6 text-foreground"
+        class="block text-label text-foreground"
       >
         Jednostka *
       </label>
@@ -112,24 +112,22 @@
     </div>
 
     <!-- Remove Button -->
-    <div class="flex items-end">
+    <div class="flex md:col-span-1">
       <Button
         type="button"
-        variant="outline"
-        size="sm"
+        variant="secondary"
+        size="icon"
+        :aria-label="`Usuń składnik ${ingredient.name || index + 1}`"
         @click="emit('remove', index)"
-        class="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-        :aria-label="`Usuń składnik ${index + 1}`"
       >
-        <Trash2 class="w-4 h-4" />
-        <span class="sr-only">Usuń składnik</span>
+        <X aria-hidden="true" />
       </Button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { Trash2 } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 import { Input } from '@/Components/ui/input'
 import { Button } from '@/Components/ui/button'
 import {

@@ -1,7 +1,8 @@
 ---
 change_id: spizarnia-dashboard-ui
 title: Spizarnia dashboard UI
-status: impl_reviewed
+status: archived
+archived_at: 2026-11-18T06:36:55Z
 created: 2026-11-17
 updated: 2026-11-18
 ---

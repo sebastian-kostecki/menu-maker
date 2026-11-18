@@ -4,6 +4,22 @@ All notable changes to Menu Maker are recorded here. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-18
+
+Meals in the draft can be rearranged with the mouse, and any recipe can go into any meal. Change: `context/archive/2026-11-18-meals-draft/`.
+
+### Added
+
+- Drag and drop in the meal plan draft (mouse or another fine pointer). Dropping a meal on a filled cell swaps the two recipes; dropping it on an empty cell moves the recipe there and leaves the source empty. The result is saved at once and survives a refresh. Touch and keyboard users get the same result through „Zmień”.
+- Moving a meal that is cooked for the next day ("Na 2 dni", "Też na śniadanie") empties the meal it fed, and a toast names it. A cell with the same recipe, including the linked partner, is not a drop target.
+- A recipe from another time of day shows its category as a tag in the grid cell (e.g. „Śniadanie” at Kolacja); the cell keeps the column colour. Ingredients still scale by the meal's own kcal share.
+- `POST /meal-plans/{meal_plan}/meals/{meal}/move` with `target_meal_id`, which exchanges two meals of the same draft in one transaction.
+
+### Changed
+
+- Any of the user's own recipes can be picked for any meal, not only recipes of the meal's category. The „Zmień” / „Wybierz” dialog lists the meal's category first, then the other two under their own headings, and search covers all of them.
+- The notice about too few recipes in a category now suggests filling empty meals with a recipe from another time of day.
+
 ## [1.0.0] - 2026-11-18
 
 First tagged release. It covers everything built from the first commit to the close of milestone M-4: the MVP (M-1), the design system (M-2), the editable meal plan draft (M-3) and the Spiżarnia restyle (M-4). Each change was planned, reviewed and archived under `context/archive/`; the milestones are listed in `context/foundation/roadmap.md`.
@@ -65,5 +81,6 @@ First tagged release. It covers everything built from the first commit to the cl
 
 - Laravel Breeze components and the default Laravel welcome page.
 
-[Unreleased]: https://github.com/sebastian-kostecki/menu-maker/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/sebastian-kostecki/menu-maker/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/sebastian-kostecki/menu-maker/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/sebastian-kostecki/menu-maker/releases/tag/v1.0.0

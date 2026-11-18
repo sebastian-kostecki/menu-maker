@@ -163,7 +163,7 @@ Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dock
 
 ## 8. Project Status
 
-Version 1.0.0 is released and runs in production. Changes are listed in [`CHANGELOG.md`](CHANGELOG.md), and the milestones in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
+Version 1.1.0 is released and runs in production. Changes are listed in [`CHANGELOG.md`](CHANGELOG.md), and the milestones in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
 
 ## 9. License
 

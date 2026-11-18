@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Requests\MoveMealRequest;
 use App\Http\Requests\UpdateMealRequest;
 use App\Models\Meal;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
 
@@ -70,16 +72,17 @@ it('swapping to the current recipe is a valid no-op', function (): void {
     expect($meal->fresh()->recipe_id)->toBe($this->current->id);
 });
 
-it('swap is refused for a recipe of another category', function (): void {
+it('owner can put a recipe of another category in a draft meal', function (): void {
     [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
     $dinner = Recipe::factory()->dinner()->for($this->user)->create();
 
     $this->actingAs($this->user)->patchJson(
         route('meal-plans.meals.update', [$plan, $meal]),
         ['recipe_id' => $dinner->id],
-    )->assertStatus(422)->assertJsonValidationErrors(['recipe_id' => UpdateMealRequest::INVALID_RECIPE_MESSAGE]);
+    )->assertOk();
 
-    expect($meal->fresh()->recipe_id)->toBe($this->current->id);
+    expect($meal->fresh()->recipe_id)->toBe($dinner->id)
+        ->and($meal->fresh()->meal_category)->toBe('breakfast');
 });
 
 it('swap is refused for a deleted recipe', function (): void {
@@ -444,16 +447,16 @@ it('swapping or emptying the carried-over Śniadanie drops the link and keeps th
         ->and($sniadanie->fresh()->recipe_id)->toBe($empty ? null : $spareSniadanie->id);
 })->with([true, false]);
 
-it('a carried-over Śniadanie cannot be given the Kolacja recipe through recipe_id', function (): void {
+it('a carried-over Śniadanie given the Kolacja recipe through recipe_id is cooked fresh', function (): void {
     [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
     linkMeals($this->user, $plan, $kolacja, $sniadanie);
 
     $this->actingAs($this->user)->patchJson(
         route('meal-plans.meals.update', [$plan, $sniadanie]),
         ['recipe_id' => $kolacja->recipe_id],
-    )->assertStatus(422)->assertJsonValidationErrors(['recipe_id' => UpdateMealRequest::INVALID_RECIPE_MESSAGE]);
+    )->assertOk();
 
-    expect($kolacja->fresh()->feeds_meal_id)->toBe($sniadanie->id)
+    expect($kolacja->fresh()->feeds_meal_id)->toBeNull()
         ->and($sniadanie->fresh()->recipe_id)->toBe($kolacja->recipe_id);
 });
 
@@ -519,4 +522,204 @@ it('a link that lost the race to an approval is refused', function (): void {
     )->assertStatus(422)->assertJsonValidationErrors(['status']);
 
     expect($monday->fresh()->feeds_meal_id)->toBeNull();
+});
+
+/**
+ * A plan with four consecutive Obiady (Monday to Thursday).
+ *
+ * @return array{0: MealPlan, 1: Meal, 2: Meal, 3: Meal, 4: Meal}
+ */
+function planWithFourObiady(User $user, string $status = 'draft'): array
+{
+    $plan = mealPlanWithRecipes($user, $status, ...Recipe::factory()->count(4)->supper()->for($user)->create());
+
+    return [$plan, ...$plan->meals()->orderBy('meal_date')->get()->all()];
+}
+
+function moveMeal(MealPlan $plan, Meal $source, int|string|null $targetId, bool $json = true): TestResponse
+{
+    $uri = route('meal-plans.meals.move', [$plan, $source]);
+    $data = $targetId === null ? [] : ['target_meal_id' => $targetId];
+
+    $test = test();
+    $test->actingAs(auth()->user() ?? $plan->user);
+
+    return $json ? $test->postJson($uri, $data) : $test->post($uri, $data);
+}
+
+it('move swaps two filled meals of different categories', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $kolacjaRecipe = $kolacja->recipe_id;
+    $sniadanieRecipe = $sniadanie->recipe_id;
+
+    $this->actingAs($this->user);
+    moveMeal($plan, $kolacja, $sniadanie->id)->assertOk()
+        ->assertJsonPath('message', 'Meal moved.')
+        ->assertJsonPath('data.id', $plan->id)
+        ->assertJsonCount(2, 'data.meals');
+
+    expect($kolacja->fresh()->recipe_id)->toBe($sniadanieRecipe)
+        ->and($sniadanie->fresh()->recipe_id)->toBe($kolacjaRecipe)
+        ->and($kolacja->fresh()->meal_category)->toBe('dinner')
+        ->and($sniadanie->fresh()->meal_category)->toBe('breakfast');
+});
+
+it('move into an empty meal empties the source', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $kolacjaRecipe = $kolacja->recipe_id;
+    $sniadanie->update(['recipe_id' => null]);
+
+    $this->actingAs($this->user);
+    moveMeal($plan, $kolacja, $sniadanie->id)->assertOk();
+
+    expect($kolacja->fresh()->recipe_id)->toBeNull()
+        ->and($sniadanie->fresh()->recipe_id)->toBe($kolacjaRecipe);
+});
+
+it('moving a cooked meal empties its carried-over meal and drops the link', function (): void {
+    [$plan, $monday, $tuesday, $wednesday] = planWithThreeObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    $wednesdayRecipe = $wednesday->recipe_id;
+    $mondayRecipe = $monday->recipe_id;
+
+    moveMeal($plan, $monday, $wednesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBe($wednesdayRecipe)
+        ->and($monday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($tuesday->fresh()->recipe_id)->toBeNull()
+        ->and($wednesday->fresh()->recipe_id)->toBe($mondayRecipe);
+});
+
+it('swapping two cooked meals empties and unlinks both carried-over meals', function (): void {
+    [$plan, $monday, $tuesday, $wednesday, $thursday] = planWithFourObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    linkMeals($this->user, $plan, $wednesday, $thursday);
+    $mondayRecipe = $monday->fresh()->recipe_id;
+    $wednesdayRecipe = $wednesday->fresh()->recipe_id;
+
+    moveMeal($plan, $monday, $wednesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBe($wednesdayRecipe)
+        ->and($wednesday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($monday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($wednesday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($tuesday->fresh()->recipe_id)->toBeNull()
+        ->and($thursday->fresh()->recipe_id)->toBeNull();
+});
+
+it('moving a carried-over meal unlinks it and keeps the cooked meal intact', function (): void {
+    [$plan, $monday, $tuesday, $wednesday] = planWithThreeObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    $mondayRecipe = $monday->fresh()->recipe_id;
+    $wednesdayRecipe = $wednesday->recipe_id;
+
+    moveMeal($plan, $tuesday, $wednesday->id)->assertOk();
+
+    expect($tuesday->fresh()->recipe_id)->toBe($wednesdayRecipe)
+        ->and($wednesday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($monday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($monday->fresh()->feeds_meal_id)->toBeNull();
+});
+
+it('a drop onto the linked partner, onto itself or onto the same recipe changes nothing', function (): void {
+    [$plan, $monday, $tuesday, $wednesday] = planWithThreeObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    $sameRecipe = Meal::query()->create([
+        'meal_plan_id' => $plan->id,
+        'recipe_id' => $wednesday->recipe_id,
+        'meal_date' => $wednesday->meal_date->copy()->addDay(),
+        'meal_category' => 'supper',
+    ]);
+
+    moveMeal($plan, $monday, $tuesday->id)->assertOk();
+    moveMeal($plan, $tuesday, $monday->id)->assertOk();
+    moveMeal($plan, $monday, $monday->id)->assertOk();
+    moveMeal($plan, $wednesday, $sameRecipe->id)->assertOk();
+
+    expect($monday->fresh()->feeds_meal_id)->toBe($tuesday->id)
+        ->and($tuesday->fresh()->recipe_id)->toBe($monday->recipe_id)
+        ->and($wednesday->fresh()->recipe_id)->toBe($sameRecipe->recipe_id);
+});
+
+it('a drop between two empty meals changes nothing', function (): void {
+    [$plan, $monday, $tuesday] = planWithThreeObiady($this->user);
+    $monday->update(['recipe_id' => null]);
+    $tuesday->update(['recipe_id' => null]);
+
+    moveMeal($plan, $monday, $tuesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBeNull()
+        ->and($tuesday->fresh()->recipe_id)->toBeNull();
+});
+
+it('a move from an empty meal fills it and empties the target', function (): void {
+    [$plan, $monday, $tuesday] = planWithThreeObiady($this->user);
+    $tuesdayRecipe = $tuesday->recipe_id;
+    $monday->update(['recipe_id' => null]);
+
+    moveMeal($plan, $monday, $tuesday->id)->assertOk();
+
+    expect($monday->fresh()->recipe_id)->toBe($tuesdayRecipe)
+        ->and($tuesday->fresh()->recipe_id)->toBeNull();
+});
+
+it("moving a carried-over meal onto another pair's cooked meal unlinks the first pair and empties the second carried meal", function (): void {
+    [$plan, $monday, $tuesday, $wednesday, $thursday] = planWithFourObiady($this->user);
+    linkMeals($this->user, $plan, $monday, $tuesday);
+    linkMeals($this->user, $plan, $wednesday, $thursday);
+    $mondayRecipe = $monday->fresh()->recipe_id;
+    $wednesdayRecipe = $wednesday->fresh()->recipe_id;
+
+    moveMeal($plan, $tuesday, $wednesday->id)->assertOk();
+
+    expect($tuesday->fresh()->recipe_id)->toBe($wednesdayRecipe)
+        ->and($monday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($monday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($wednesday->fresh()->recipe_id)->toBe($mondayRecipe)
+        ->and($wednesday->fresh()->feeds_meal_id)->toBeNull()
+        ->and($thursday->fresh()->recipe_id)->toBeNull();
+});
+
+it('move is refused for a meal of another plan in the URL', function (): void {
+    [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
+    [, $foreignMeal] = planWithBreakfast($this->user, 'draft', $this->current);
+
+    moveMeal($plan, $foreignMeal, $meal->id)->assertNotFound();
+});
+
+it('move is refused for a target of another plan', function (): void {
+    [$plan, $meal] = planWithBreakfast($this->user, 'draft', $this->current);
+    [, $foreignMeal] = planWithBreakfast($this->user, 'draft', $this->candidate);
+
+    moveMeal($plan, $meal, $foreignMeal->id)->assertStatus(422)
+        ->assertJsonValidationErrors(['target_meal_id' => MoveMealRequest::TARGET_INVALID_MESSAGE]);
+
+    expect($foreignMeal->fresh()->recipe_id)->toBe($this->candidate->id)
+        ->and($meal->fresh()->recipe_id)->toBe($this->current->id);
+});
+
+it('move is refused outside a draft', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user, 'done');
+    $kolacjaRecipe = $kolacja->recipe_id;
+
+    moveMeal($plan, $kolacja, $sniadanie->id)->assertStatus(422)->assertJsonValidationErrors(['status']);
+
+    expect($kolacja->fresh()->recipe_id)->toBe($kolacjaRecipe);
+});
+
+it('move by another user gets 403', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $this->actingAs($this->otherUser);
+
+    moveMeal($plan, $kolacja, $sniadanie->id)->assertForbidden();
+});
+
+it('Inertia move redirects back', function (): void {
+    [$plan, $kolacja, $sniadanie] = planWithKolacjaAndSniadanie($this->user);
+    $sniadanieRecipe = $sniadanie->recipe_id;
+
+    $this->actingAs($this->user)->from(route('meal-plans.show', $plan));
+    moveMeal($plan, $kolacja, $sniadanie->id, false)->assertRedirect(route('meal-plans.show', $plan));
+
+    expect($kolacja->fresh()->recipe_id)->toBe($sniadanieRecipe);
 });

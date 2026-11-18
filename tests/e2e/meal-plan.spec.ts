@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
 
 test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ page }, testInfo) => {
   // Two queued scalings plus four PDF renders (two with 21 recipe pages) take about a minute on their own.
@@ -270,4 +270,68 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(page.getByText('Z kolacji', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Też na śniadanie', { exact: true })).toHaveCount(0);
   await expect(recipeCells).toHaveCount(19);
+
+  // Drag Friday's Śniadanie onto Friday's Kolacja: the two recipes trade places and each cell tags the other category.
+  const fridayRow = grid.locator('tbody tr').nth(4);
+  const fridaySniadanie = fridayRow.locator('td').nth(0);
+  const fridayKolacja = fridayRow.locator('td').nth(2);
+  const fridaySniadanieName = (await fridaySniadanie.locator('a').textContent())!.trim();
+  const fridayKolacjaName = (await fridayKolacja.locator('a').textContent())!.trim();
+  expect(fridayKolacjaName).not.toBe(fridaySniadanieName);
+
+  // dragTo scrolls a cell that is off screen into view after the mouse went down, and the browser then takes the
+  // drag source from under the old pointer position: a viewport that shows the whole grid keeps the page still.
+  await page.setViewportSize({ width: 1280, height: 1800 });
+  await expect(grid.locator('tbody tr').last()).toBeInViewport();
+
+  const waitForMove = () =>
+    page.waitForResponse((response) => response.request().method() === 'POST' && /\/meals\/\d+\/move$/.test(response.url()));
+  const dragCell = async (source: Locator, target: Locator) => {
+    const moved = waitForMove();
+    await source.locator('div[draggable="true"]').dragTo(target.locator('> div'));
+    expect((await moved).status()).toBeLessThan(400);
+  };
+
+  const expectDragSwapped = async () => {
+    await expect(fridaySniadanie.locator('a')).toHaveText(fridayKolacjaName);
+    await expect(fridayKolacja.locator('a')).toHaveText(fridaySniadanieName);
+    await expect(fridaySniadanie.getByText('Kolacja', { exact: true })).toBeVisible();
+    await expect(fridayKolacja.getByText('Śniadanie', { exact: true })).toBeVisible();
+    await expect(recipeCells).toHaveCount(19);
+  };
+  await dragCell(fridaySniadanie, fridayKolacja);
+  await expectDragSwapped();
+
+  await page.reload();
+  await expectDragSwapped();
+
+  // Drag a filled cell onto Tuesday's empty Śniadanie: the recipe moves and the source cell is left empty.
+  await dragCell(fridaySniadanie, tuesdaySniadanie);
+  await expect(tuesdaySniadanie.locator('a')).toHaveText(fridayKolacjaName);
+  await expect(tuesdaySniadanie.getByText('Kolacja', { exact: true })).toBeVisible();
+  await expect(fridaySniadanie.getByText('Bez posiłku')).toBeVisible();
+  await expect(fridaySniadanie.getByRole('button', { name: 'Wybierz' })).toBeVisible();
+  await expect(recipeCells).toHaveCount(19);
+
+  await page.reload();
+  await expect(tuesdaySniadanie.locator('a')).toHaveText(fridayKolacjaName);
+  await expect(fridaySniadanie.getByText('Bez posiłku')).toBeVisible();
+  await expect(recipeCells).toHaveCount(19);
+
+  // The dialog also offers recipes of other categories, under their own heading: a Kolacja recipe goes into Wednesday's Śniadanie.
+  const wednesdaySniadanie = grid.locator('tbody tr').nth(2).locator('td').nth(0);
+  await wednesdaySniadanie.getByRole('button', { name: /^Zmień przepis: .* – Śniadanie$/ }).click();
+  const crossDialog = page.getByRole('dialog');
+  const kolacjaGroup = crossDialog.getByTestId('swap-group-dinner');
+  await expect(kolacjaGroup).toContainText('Kolacja');
+  const crossOption = kolacjaGroup.getByRole('option').first();
+  const crossName = (await crossOption.locator('span.font-medium').textContent())!.trim();
+  await crossOption.click();
+  await expect(crossDialog).toBeHidden();
+  await expect(wednesdaySniadanie.locator('a')).toHaveText(crossName);
+  await expect(wednesdaySniadanie.getByText('Kolacja', { exact: true })).toBeVisible();
+
+  await page.reload();
+  await expect(wednesdaySniadanie.locator('a')).toHaveText(crossName);
+  await expect(wednesdaySniadanie.getByText('Kolacja', { exact: true })).toBeVisible();
 });

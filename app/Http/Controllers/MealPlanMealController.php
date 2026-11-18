@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MoveMealRequest;
 use App\Http\Requests\UpdateMealRequest;
 use App\Http\Resources\MealPlanResource;
 use App\Models\Meal;
@@ -56,6 +57,47 @@ class MealPlanMealController extends Controller
 
         return response()->json([
             'message' => 'Meal recipe swapped.',
+            'data' => new MealPlanResource($mealPlan),
+        ]);
+    }
+
+    /**
+     * Exchange the recipes of a meal and another meal of the same draft (an empty target just receives the recipe).
+     */
+    public function move(MoveMealRequest $request, MealPlan $mealPlan, Meal $meal): JsonResponse|RedirectResponse
+    {
+        DB::transaction(function () use ($request, $mealPlan, $meal): void {
+            $plan = MealPlan::query()->whereKey($mealPlan->getKey())->lockForUpdate()->first();
+
+            if ($plan === null || $plan->status !== 'draft') {
+                throw ValidationException::withMessages([
+                    'status' => UpdateMealRequest::NOT_DRAFT_MESSAGE,
+                ]);
+            }
+
+            $source = Meal::query()->where('meal_plan_id', $plan->id)->findOrFail($meal->getKey());
+            $target = Meal::query()->where('meal_plan_id', $plan->id)->findOrFail($request->integer('target_meal_id'));
+
+            // Same meal or same recipe (every linked pair shares one): nothing moves, and no link may be dropped.
+            if ($source->is($target) || $source->recipe_id === $target->recipe_id) {
+                return;
+            }
+
+            $sourceRecipeId = $source->recipe_id;
+            $targetRecipeId = $target->recipe_id;
+
+            $this->changeRecipe($source, $targetRecipeId);
+            $this->changeRecipe($target->refresh(), $sourceRecipeId);
+        });
+
+        if (! $request->expectsJson()) {
+            return back();
+        }
+
+        $mealPlan->refresh()->load('meals.recipe');
+
+        return response()->json([
+            'message' => 'Meal moved.',
             'data' => new MealPlanResource($mealPlan),
         ]);
     }

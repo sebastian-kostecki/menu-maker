@@ -91,6 +91,17 @@ it('links Monday dinner of the visual draft to Tuesday breakfast with the same r
         ->and($dinner->recipe->name)->toBe('Kanapki z pastą jajeczną');
 });
 
+it('swaps the recipes of Thursday breakfast and dinner in the visual draft', function (): void {
+    $draft = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
+    $thursday = $draft->start_date->copy()->addDays(3)->toDateString();
+    $breakfast = $draft->meals()->with('recipe')->where('meal_category', 'breakfast')->whereDate('meal_date', $thursday)->sole();
+    $dinner = $draft->meals()->with('recipe')->where('meal_category', 'dinner')->whereDate('meal_date', $thursday)->sole();
+
+    expect($breakfast->recipe->category)->toBe('dinner')
+        ->and($dinner->recipe->category)->toBe('breakfast')
+        ->and($draft->meals()->with('recipe')->get()->filter(fn ($meal): bool => $meal->recipe !== null && $meal->recipe->category !== $meal->meal_category)->count())->toBe(3);
+});
+
 it('leaves Wednesday breakfast of the visual draft without a recipe', function (): void {
     $draft = User::where('email', E2eMealPlanSeeder::VISUAL_EMAIL)->firstOrFail()->mealPlans()->whereDate('start_date', E2eMealPlanSeeder::VISUAL_DRAFT_START)->sole();
     $empty = $draft->meals()->whereNull('recipe_id')->get();

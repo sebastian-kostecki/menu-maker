@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { toast } from 'vue-sonner'
 import { AlertCircle, CalendarDays, CheckCircle2, ChefHat, Info, Loader2, Plus, SearchX, TriangleAlert } from 'lucide-vue-next'
@@ -290,7 +290,8 @@ const planMeals = planRecipeNames
     return {
       ...base,
       ...link,
-      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4 },
+      // Meal 6 (Tuesday's Kolacja) holds a Śniadanie recipe to show the category tag.
+      recipe: { id: dish + 1, name: planRecipeNames[dish], calories: 1200 + dish * 40, servings: 4, deleted: dish === 4, category: index + 1 === 6 ? 'breakfast' : appCategories[dish % 3] },
       ingredients: index === 0
         ? [
             { ingredient_id: 1, name: 'Płatki owsiane', display: '200 g' },
@@ -300,6 +301,8 @@ const planMeals = planRecipeNames
         : [],
     }
   })
+// The editable draft grid works on its own copy, so a demo drag leaves the read-only grid, Pulpit and WeekOverview untouched.
+const draftPlanMeals = reactive(structuredClone(planMeals))
 const pulpitPlan = {
   start_date: planStartDate,
   end_date: '2026-06-21',
@@ -317,16 +320,64 @@ const planShoppingList = {
 }
 const emptyShoppingList = { items: [], recipes_without_ingredients: [] }
 const swapOpen = ref(false)
-const swapMeal = ref(planMeals[0])
+const swapMeal = ref(draftPlanMeals[0])
 const openSwap = (meal) => {
   swapMeal.value = meal
   swapOpen.value = true
 }
-const swapOptions = [
-  { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
-  { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
-  { id: 13, name: 'Płatki z mlekiem', calories: '980' },
-  { id: 16, name: 'Tosty z awokado', calories: null },
+// Like the server's move: a moved cooked meal empties the meal it fed, a moved carried meal is just unlinked.
+const unlinkDemoMeal = (meal) => {
+  if (meal.feeds_meal_id) {
+    const carried = draftPlanMeals.find((other) => other.id === meal.feeds_meal_id)
+    if (carried) {
+      carried.recipe = undefined
+      carried.ingredients = []
+      carried.from_meal_id = null
+    }
+    meal.feeds_meal_id = null
+  }
+
+  if (meal.from_meal_id) {
+    const cooked = draftPlanMeals.find((other) => other.id === meal.from_meal_id)
+    if (cooked) {
+      cooked.feeds_meal_id = null
+    }
+    meal.from_meal_id = null
+  }
+}
+const moveDemoMeals = (source, target) => {
+  unlinkDemoMeal(source)
+  unlinkDemoMeal(target)
+  const swapped = { recipe: source.recipe, ingredients: source.ingredients }
+  source.recipe = target.recipe
+  source.ingredients = target.ingredients
+  target.recipe = swapped.recipe
+  target.ingredients = swapped.ingredients
+}
+const swapGroups = [
+  {
+    category: 'breakfast',
+    label: 'Śniadanie',
+    options: [
+      { id: 1, name: 'Owsianka z jabłkiem', calories: '1200' },
+      { id: 4, name: 'Jajecznica ze szczypiorkiem', calories: '1320' },
+      { id: 13, name: 'Płatki z mlekiem', calories: '980' },
+      { id: 16, name: 'Tosty z awokado', calories: null },
+    ],
+  },
+  {
+    category: 'supper',
+    label: 'Obiad',
+    options: [
+      { id: 7, name: 'Zupa pomidorowa z ryżem', calories: '1450' },
+      { id: 9, name: 'Kotlety mielone z ziemniakami', calories: '1800' },
+    ],
+  },
+  {
+    category: 'dinner',
+    label: 'Kolacja',
+    options: [{ id: 19, name: 'Kanapki z serem i rzodkiewką', calories: '900' }],
+  },
 ]
 const demoPlanLinks = (id, withPdf) => ({
   self: `#ds-plan-${id}`,
@@ -1156,22 +1207,22 @@ const showToast = () => {
         <h2 id="ds-jadlospis" class="text-lg font-semibold">Jadłospis</h2>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników)</p>
+          <p class="text-xs text-muted-foreground">Siatka tygodnia (jeden posiłek bez przepisu: „Bez posiłku”, jeden usunięty przepis, jedna lista składników, wtorkowa kolacja z przepisem śniadaniowym: znacznik kategorii)</p>
           <MealPlanGrid :start-date="planStartDate" :meals="planMeals" />
         </div>
 
         <div class="flex flex-col gap-2">
-          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie)</p>
-          <MealPlanGrid :start-date="planStartDate" :meals="planMeals" editable @swap="openSwap" />
+          <p class="text-xs text-muted-foreground">Siatka szkicu (tryb edycji, przycisk „Zmień” w każdej komórce, „Wybierz” w pustej; czwartkowy obiad „Na 2 dni” i piątkowy „Z wczoraj”: okno piątku pokazuje „Jak wczoraj … obecny”, okno czwartku ostrzeżenie; piątkowa kolacja „Też na śniadanie” i sobotnie śniadanie „Z kolacji”: okno soboty pokazuje „Z kolacji … obecny”, okno piątkowej kolacji ostrzeżenie; przy wskaźniku myszy komórki z przepisem można przeciągać i upuszczać na inną komórkę, co w demo tylko zamienia przepisy)</p>
+          <MealPlanGrid :start-date="planStartDate" :meals="draftPlanMeals" editable @swap="openSwap" @move="moveDemoMeals" />
           <div>
-            <Button variant="outline" @click="openSwap(planMeals[0])">Otwórz okno wyboru przepisu</Button>
+            <Button variant="outline" @click="openSwap(draftPlanMeals[0])">Otwórz okno wyboru przepisu</Button>
           </div>
           <RecipeSwapDialog
             v-model:open="swapOpen"
             :meal-plan-id="1"
             :meal="swapMeal"
-            :options="swapOptions"
-            :week-meals="planMeals"
+            :groups="swapGroups"
+            :week-meals="draftPlanMeals"
             demo
           />
         </div>

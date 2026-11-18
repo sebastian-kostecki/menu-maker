@@ -76,4 +76,10 @@ export interface ShortCategory {
   recipes: number
 }
 
+export interface RecipeOptionGroup {
+  category: string
+  label: string
+  options: RecipeOption[]
+}
+
 export type RecipeOptions = Record<'breakfast' | 'supper' | 'dinner', RecipeOption[]>

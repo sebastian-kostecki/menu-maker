@@ -196,6 +196,27 @@ it('user can delete own recipe', function (): void {
     $this->assertSoftDeleted('recipes', ['id' => $recipe->id]);
 });
 
+it('deleting from a filtered list returns to that list without the page', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+    $listUrl = route('recipes.index', ['search' => 'zupa', 'category' => 'supper', 'page' => 2]);
+
+    $response = $this->actingAs($this->user)
+        ->from($listUrl)
+        ->delete(route('recipes.destroy', $recipe));
+
+    $response->assertRedirect(route('recipes.index', ['search' => 'zupa', 'category' => 'supper']));
+});
+
+it('deleting from the recipe page returns to the plain list', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->create();
+
+    $response = $this->actingAs($this->user)
+        ->from(route('recipes.show', $recipe))
+        ->delete(route('recipes.destroy', $recipe));
+
+    $response->assertRedirect(route('recipes.index'));
+});
+
 it("user cannot delete other user's recipe", function (): void {
     $recipe = Recipe::factory()->for($this->otherUser)->create();
 
@@ -307,6 +328,15 @@ it('recipes index ignores an unknown category', function (): void {
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page->has('recipes.data', 3));
+});
+
+it('recipes index ignores a category sent as an array', function (): void {
+    Recipe::factory()->for($this->user)->breakfast()->count(2)->create();
+
+    $response = $this->actingAs($this->user)->get(route('recipes.index', ['category' => ['breakfast']]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page->has('recipes.data', 2));
 });
 
 it('recipes index paginates 12 per page by default', function (): void {

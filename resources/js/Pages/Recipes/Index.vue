@@ -181,8 +181,9 @@ let searchTimeout = null;
 
 // Nadpisujemy pole tylko gdy nie czeka debounce i wartość nie pochodzi z naszego żądania
 // (np. „Wyczyść filtry” lub zewnętrzna wizyta), nigdy przez własne, trwające wyszukiwanie.
+// Serwer przycina spacje (TrimStrings), więc porównujemy z przyciętą wysłaną wartością.
 watch(() => currentFilters.value.search, (incoming) => {
-  if (searchTimeout === null && incoming !== lastSentSearch) {
+  if (searchTimeout === null && incoming !== lastSentSearch.trim()) {
     searchValue.value = incoming;
     lastSentSearch = incoming;
   }
@@ -208,24 +209,34 @@ const handleSearch = (value) => {
   }, SEARCH_DEBOUNCE_MS);
 };
 
-// Zmiana pigułki, sortowania i resetu wraca na stronę 1 (brak `page` w zapytaniu)
-const handleCategoryChange = (category) => {
-  visit(buildQuery({ category, search: searchValue.value }));
-};
-
-const handleSortChange = ({ column, direction }) => {
-  visit(buildQuery({ sort: column, direction, search: searchValue.value }));
-};
-
-const handlePageChange = (page) => {
-  visit({ ...buildQuery(), page });
-};
-
-const handleReset = () => {
+// Oczekujące wyszukiwanie jedzie razem z tą wizytą; inaczej timer wysłałby później
+// zapytanie ze starą kategorią i Inertia anulowałaby kliknięcie pigułki.
+const flushPendingSearch = () => {
   if (searchTimeout !== null) {
     clearTimeout(searchTimeout);
     searchTimeout = null;
   }
+  lastSentSearch = searchValue.value;
+};
+
+// Zmiana pigułki, sortowania i resetu wraca na stronę 1 (brak `page` w zapytaniu)
+const handleCategoryChange = (category) => {
+  flushPendingSearch();
+  visit(buildQuery({ category, search: searchValue.value }));
+};
+
+const handleSortChange = ({ column, direction }) => {
+  flushPendingSearch();
+  visit(buildQuery({ sort: column, direction, search: searchValue.value }));
+};
+
+const handlePageChange = (page) => {
+  flushPendingSearch();
+  visit({ ...buildQuery({ search: searchValue.value }), page });
+};
+
+const handleReset = () => {
+  flushPendingSearch();
   searchValue.value = '';
   lastSentSearch = '';
   visit({});

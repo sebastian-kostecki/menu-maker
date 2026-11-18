@@ -151,11 +151,16 @@ const sortOptions: { value: string, label: string, column: string, direction: So
 const props = defineProps<MealPlanCollectionProps>()
 
 // Filter state is derived from the URL (props.filters echoes the query as raw strings); nothing is stored locally.
+// Without query params the server sends `filters` as an empty JSON array, and `[].sort` is a function.
+const normalizedFilters = computed<MealPlanCollectionProps['filters']>(() =>
+  Array.isArray(props.filters) ? {} : props.filters
+)
+
 const currentFilters = computed<FiltersState>(() => ({
-  status: props.filters.filter?.status || '',
-  sort: props.filters.sort || 'created_at',
-  direction: props.filters.direction === 'asc' ? 'asc' : 'desc',
-  perPage: Number(props.filters.perPage) || 15
+  status: normalizedFilters.value.filter?.status || '',
+  sort: normalizedFilters.value.sort || 'created_at',
+  direction: normalizedFilters.value.direction === 'asc' ? 'asc' : 'desc',
+  perPage: Number(normalizedFilters.value.perPage) || 15
 }))
 
 const description = computed(() => {
@@ -171,7 +176,7 @@ const description = computed(() => {
 
 // A status filter, or a page beyond the first, with no rows is not the first-run state.
 const isFiltered = computed(() =>
-  Boolean(props.filters.filter?.status) || props.mealPlans.meta.current_page > 1
+  Boolean(normalizedFilters.value.filter?.status) || props.mealPlans.meta.current_page > 1
 )
 
 // Serialise the current filters merged with a change; an empty status is omitted

@@ -43,7 +43,8 @@ class RecipeController extends Controller
         $categoryCounts = $this->categoryCounts($query);
 
         // Apply category filter; an unknown value filters nothing.
-        $category = MealCategory::tryFrom((string) $request->input('category'));
+        $rawCategory = $request->input('category');
+        $category = is_string($rawCategory) ? MealCategory::tryFrom($rawCategory) : null;
         if ($category !== null) {
             $query->byCategory($category->value);
         }
@@ -154,8 +155,27 @@ class RecipeController extends Controller
     {
         $recipe->delete();
 
-        return redirect()->route('recipes.index')
+        return redirect()->to($this->recipesIndexReturnUrl())
             ->with('success', 'Przepis został usunięty.');
+    }
+
+    /**
+     * The list URL to return to after a delete: the filtered list the request came from
+     * (without `page`, which may no longer exist), otherwise the plain index.
+     */
+    private function recipesIndexReturnUrl(): string
+    {
+        $indexUrl = route('recipes.index');
+        $previous = url()->previous();
+
+        if (! str_starts_with($previous, $indexUrl.'?')) {
+            return $indexUrl;
+        }
+
+        parse_str((string) parse_url($previous, PHP_URL_QUERY), $query);
+        unset($query['page']);
+
+        return route('recipes.index', $query);
     }
 
     /**

@@ -29,7 +29,14 @@ defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <fieldset role="radiogroup" :aria-labelledby="`${name}-legend`" class="grid gap-2">
+  <fieldset
+    role="radiogroup"
+    :aria-labelledby="`${name}-legend`"
+    aria-required="true"
+    :aria-invalid="!!error || undefined"
+    :aria-describedby="error ? `${name}-error` : undefined"
+    class="grid gap-2"
+  >
     <legend :id="`${name}-legend`" class="text-label">Kategoria *</legend>
     <div class="grid gap-3 sm:grid-cols-3">
       <label
@@ -52,8 +59,6 @@ defineEmits(['update:modelValue'])
           :value="category.value"
           :checked="modelValue === category.value"
           :disabled="disabled"
-          :aria-invalid="!!error || undefined"
-          :aria-describedby="error ? `${name}-error` : undefined"
           class="absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
           @change="$emit('update:modelValue', category.value)"
         />

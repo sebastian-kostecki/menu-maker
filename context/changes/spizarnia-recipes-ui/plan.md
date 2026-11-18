@@ -635,6 +635,15 @@ Rebuild create/edit as screen 09: three section tiles, the category radio tiles,
 - Lenient index filters: `app/Http/Controllers/MealPlanController.php:47-87`
 - Lessons: `context/foundation/lessons.md` (worktree Sail stack for E2E and visual)
 
+## Addendum: impl-review fixes (2026-11-18)
+
+Recorded after `reviews/impl-review.md`; these deviations are accepted.
+
+- **`per_page` source (F4):** `Recipes/Index` reads the page size from the server's clamped `recipes.meta.per_page`, not from the URL. `buildQuery` sends `per_page` only when it differs from 12, so `?per_page=1000` is carried as 100 and an explicit `?per_page=12` is dropped on the next change.
+- **`CategoryRadioTiles` (F4, F7):** an extra `name` prop (default `category`) lets the kitchen sink show four groups; the error state also turns the tile borders `destructive`. `aria-required`, `aria-invalid` and `aria-describedby` sit on the `fieldset`, not on each radio.
+- **Meal-plans baselines (F3):** `MealPlans/Index` now normalises `filters` sent as `[]`, so a bare `/meal-plans` sort pill reads „Najnowsze” instead of „Sortuj”. This breaks the "meal plans unchanged" promise of the Desired End State; the `meal-plans-index-*` baselines were refreshed deliberately.
+- **Delete redirect (F8):** `RecipeController@destroy` returns to the filtered list the delete came from (Referer, without `page`); from the recipe page it still goes to the plain index.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

@@ -5,29 +5,15 @@
       Sposób przygotowania
     </h2>
 
-    <template v-if="parsed.steps.length > 0">
-      <ol :aria-labelledby="headingId" class="flex flex-col gap-3">
-        <li v-for="(step, index) in parsed.steps" :key="index" class="flex items-start gap-3">
-          <span
-            class="flex size-9 shrink-0 items-center justify-center rounded-full bg-highlight font-extrabold text-highlight-foreground"
-            aria-hidden="true"
-          >{{ index + 1 }}</span>
-          <span class="min-w-0 break-words pt-1.5">{{ step }}</span>
-        </li>
-      </ol>
-
-      <p v-if="parsed.source" class="text-meta text-muted-foreground">
-        Źródło:
-        <a
-          v-if="isUrl"
-          :href="parsed.source"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="break-all rounded-sm underline underline-offset-3 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >{{ parsed.source }}</a>
-        <template v-else>{{ parsed.source }}</template>
-      </p>
-    </template>
+    <ol v-if="parsed.steps.length > 0" :aria-labelledby="headingId" class="flex flex-col gap-3">
+      <li v-for="(step, index) in parsed.steps" :key="index" class="flex items-start gap-3">
+        <span
+          class="flex size-9 shrink-0 items-center justify-center rounded-full bg-highlight font-extrabold text-highlight-foreground"
+          aria-hidden="true"
+        >{{ index + 1 }}</span>
+        <span class="min-w-0 break-words pt-1.5">{{ step }}</span>
+      </li>
+    </ol>
 
     <EmptyState
       v-else
@@ -37,6 +23,18 @@
       description="Sposób przygotowania tego przepisu nie został jeszcze dodany."
       :heading-level="3"
     />
+
+    <p v-if="parsed.source" class="text-meta text-muted-foreground">
+      Źródło:
+      <a
+        v-if="isUrl"
+        :href="parsed.source"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="break-all rounded-sm underline underline-offset-3 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      >{{ parsed.source }}</a>
+      <template v-else>{{ parsed.source }}</template>
+    </p>
   </Card>
 </template>
 

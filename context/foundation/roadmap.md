@@ -9,7 +9,7 @@ main_goal: quality
 top_blocker: decisions
 milestone_id: spizarnia-restyle
 milestone_seq: 4
-milestone_status: open           # open | done
+milestone_status: done           # open | done
 ---
 
 # Roadmap: Menu Maker
@@ -20,7 +20,7 @@ milestone_status: open           # open | done
 
 ## Milestone
 
-**M-4: Restyle: Spiżarnia** — Status: open
+**M-4: Restyle: Spiżarnia** — Status: done
 
 - **Intent:** Każdy ekran aplikacji po zalogowaniu i ekrany gościa wyglądają według kierunku C · Spiżarnia. Kolor niosą posiłki (miód, pomidor, indygo jako pełne bloki), marka cofa się do atramentu, a kafle mają kontur 2px, duże zaokrąglenia i twardy cień. PDF dostaje nowe kolory kategorii.
 - **Source materials:** `context/foundation/design-system.md` §10 (wersja z 2026-11-17, commit `fc57ec0`): tokeny §10.2, typografia §10.3, zasady §10.4, widoki §10.5, rollout §10.6 (SP-01…SP-07), decyzje D-10…D-14 w §9. Ekrany: artefakt Design System „Menu Maker — Spiżarnia” (§10.1); przy rozbieżności wygrywa `design-system.md` (D-11).
@@ -222,6 +222,7 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 - **M-1: Od przepisów do PDF z listą zakupów** (`mvp-meal-plan-to-pdf`) — closed 2026-11-15. Zalogowana rodzina generuje tydzień 7×3 z własnych przepisów, ze składnikami skalowanymi przez AI, zsumowaną listą zakupów i jednym PDF-em; aplikacja z workerem kolejki działa publicznie, a błędy trafiają do śledzenia błędów.
 - **M-2: Spójny wygląd aplikacji i PDF-u** (`consistent-design-system`) — closed 2026-11-16. Każdy widok aplikacji (powłoka, pulpit, jadłospisy, przepisy, rodzina, konto) i PDF korzysta z tokenów marki, kolorów pory dnia i wspólnych komponentów; kitchen sink, zrzuty Playwright i `lint:tokens` na całym `resources/js` pilnują tego w CI, a komponenty Breeze są usunięte.
 - **M-3: Jadłospis układany przed wygenerowaniem** (`editable-meal-plan-draft`) — closed 2026-11-17. Wylosowany tydzień jest najpierw szkicem: użytkownik podmienia przepisy, zostawia posiłki puste, planuje ten sam obiad dwa dni z rzędu i kolację na śniadanie następnego dnia, a skalowanie AI rusza dopiero po zatwierdzeniu; PDF może dołączać pełne przepisy na osobnych stronach.
+- **M-4: Restyle: Spiżarnia** (`spizarnia-restyle`) — closed 2026-11-18. Każdy ekran aplikacji i gościa wygląda według kierunku Spiżarnia: tokeny, krój Bricolage Grotesque i warianty prymitywów, pasek górny z pigułkami i ekran dzielony gościa, pulpit, przepisy, jadłospisy, rodzina i profil na kaflach w kolorach posiłków, PDF z nowymi kolorami kategorii; bramka wizualna (64 zrzuty, w tym nowy spec członków rodziny) pilnuje wyglądu, zachowanie i E2E bez zmian.
 
 ## Done
 

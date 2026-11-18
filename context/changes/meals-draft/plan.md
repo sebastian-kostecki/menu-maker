@@ -363,10 +363,10 @@ None: no schema change. Existing drafts and done plans are unaffected; cross-cat
 
 #### Automated
 
-- [x] 4.1 Seeder test passes
-- [x] 4.2 E2E passes in Chromium and Firefox
-- [x] 4.3 Visual gate passes after the deliberate update
-- [x] 4.4 Full Pest suite passes
+- [x] 4.1 Seeder test passes — 304f3cd
+- [x] 4.2 E2E passes in Chromium and Firefox — 304f3cd
+- [x] 4.3 Visual gate passes after the deliberate update — 304f3cd
+- [x] 4.4 Full Pest suite passes — 304f3cd
 
 #### Manual
 

@@ -72,9 +72,15 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
   await expect(breakfastCell.getByText('Bez posiłku')).toBeVisible();
 
   const approve = async () => {
+    // The old draft grid also has 21 cells, and the pending state is too short-lived to assert on
+    // (the queue job takes ~300 ms): the approve request itself proves the approval.
+    const approval = page.waitForResponse(
+      (response) => response.request().method() === 'POST' && /\/meal-plans\/\d+\/approve$/.test(response.url()),
+    );
     await page.getByRole('button', { name: 'Zatwierdź' }).click();
-    // The old draft grid also has 21 cells: wait for the pending state first, so the approval is proven.
-    await expect(page.getByText('Generujemy jadłospis…')).toBeVisible();
+    expect((await approval).status()).toBeLessThan(400);
+    // The shopping list only exists on an approved plan: wait for the generation job to finish.
+    await expect(page.getByTestId('shopping-list')).toBeVisible({ timeout: 30_000 });
   };
   await approve();
   await expect(recipeCells).toHaveCount(20, { timeout: 15_000 });

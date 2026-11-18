@@ -151,7 +151,8 @@ class E2eMealPlanSeeder extends Seeder
     }
 
     /**
-     * Give the family-visual user exactly three pinned members (ages 38, 41 and 6 on the frozen 2026-06-15 clock).
+     * Give the family-visual user exactly three pinned members (ages 38, 41 and 6 on the frozen 2026-06-15 clock)
+     * and no recipes (trashed ones included) or meal plans.
      */
     private function syncFamilyVisualUser(): void
     {
@@ -164,6 +165,8 @@ class E2eMealPlanSeeder extends Seeder
             ],
         );
 
+        $user->recipes()->withTrashed()->forceDelete();
+        $user->mealPlans()->delete();
         FamilyMember::where('user_id', $user->id)->delete();
 
         $members = [

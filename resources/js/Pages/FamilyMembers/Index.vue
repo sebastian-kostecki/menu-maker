@@ -83,26 +83,32 @@ const handlePageChange = (page) => {
       </EmptyState>
 
       <template v-else>
-        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <FamilyMemberTile
+        <ul aria-label="Członkowie rodziny" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <li
             v-for="(member, index) in familyMembers.data"
             :key="member.id"
-            :member="member"
-            :colour="TILE_COLOURS[index % TILE_COLOURS.length]"
-            @edit="openEditDialog"
-            @delete="memberToDelete = $event"
-          />
+            class="grid"
+          >
+            <FamilyMemberTile
+              :member="member"
+              :colour="TILE_COLOURS[index % TILE_COLOURS.length]"
+              @edit="openEditDialog"
+              @delete="memberToDelete = $event"
+            />
+          </li>
 
-          <Button variant="dashed" size="tile" @click="openCreateDialog">
-            <span
-              aria-hidden="true"
-              class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
-            >
-              <Plus />
-            </span>
-            Dodaj członka rodziny
-          </Button>
-        </div>
+          <li class="grid">
+            <Button variant="dashed" size="tile" @click="openCreateDialog">
+              <span
+                aria-hidden="true"
+                class="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+              >
+                <Plus />
+              </span>
+              Dodaj członka rodziny
+            </Button>
+          </li>
+        </ul>
 
         <ServerPagination :meta="familyMembers" @page-change="handlePageChange" />
       </template>

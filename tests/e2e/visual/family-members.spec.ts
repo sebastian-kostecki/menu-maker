@@ -17,6 +17,8 @@ test('family members desktop', async ({ page }) => {
   await page.goto('/family-members');
   await expectAppFontLoaded(page);
   await expect(page.getByRole('heading', { name: 'Członkowie rodziny', level: 1 })).toBeVisible();
+  // A stale seed fails here with a clear message instead of as a pixel diff.
+  await expect(page.getByRole('article')).toHaveCount(3);
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('family-members-desktop.png', { fullPage: true });
 });
@@ -27,6 +29,8 @@ test('family members mobile', async ({ page }) => {
   await page.goto('/family-members');
   await expectAppFontLoaded(page);
   await expect(page.getByRole('heading', { name: 'Członkowie rodziny', level: 1 })).toBeVisible();
+  // A stale seed fails here with a clear message instead of as a pixel diff.
+  await expect(page.getByRole('article')).toHaveCount(3);
   await page.mouse.move(0, 0);
   await expect(page).toHaveScreenshot('family-members-mobile.png', { fullPage: true });
 });

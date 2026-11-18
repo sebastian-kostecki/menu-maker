@@ -150,6 +150,20 @@ it('gives the family-visual user exactly the three pinned members, however often
         ->and(MealPlan::where('user_id', $user->id)->count())->toBe(0);
 });
 
+it('clears recipes and plans the family-visual user gained since the last seed', function (): void {
+    $user = User::where('email', E2eMealPlanSeeder::FAMILY_VISUAL_EMAIL)->firstOrFail();
+
+    Recipe::factory()->for($user)->create();
+    Recipe::factory()->for($user)->create()->delete();
+    MealPlan::factory()->for($user)->create();
+
+    $this->seed(E2eMealPlanSeeder::class);
+
+    expect(Recipe::withTrashed()->where('user_id', $user->id)->count())->toBe(0)
+        ->and(MealPlan::where('user_id', $user->id)->count())->toBe(0)
+        ->and(FamilyMember::where('user_id', $user->id)->count())->toBe(3);
+});
+
 it('leaves the other planners without plans', function (): void {
     foreach (['e2e-planner-chromium@example.com', 'e2e-planner-firefox@example.com'] as $email) {
         expect(MealPlan::where('user_id', User::where('email', $email)->value('id'))->count())->toBe(0);

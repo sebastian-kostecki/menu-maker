@@ -15,10 +15,12 @@ const isValidDate = (date) => !Number.isNaN(date.getTime())
 const BARE_YMD = /^\d{4}-\d{2}-\d{2}$/
 
 // Only the Y-m-d prefix is read, so a full ISO timestamp still parses as a local date.
+// An impossible date (2023-02-31) is an Invalid Date instead of rolling over into the next month.
 const parseYmd = (ymd) => {
   const [year, month, day] = String(ymd ?? '').slice(0, 10).split('-').map(Number)
+  const date = new Date(year, month - 1, day)
 
-  return new Date(year, month - 1, day)
+  return date.getMonth() === month - 1 && date.getDate() === day ? date : new Date(Number.NaN)
 }
 
 /**

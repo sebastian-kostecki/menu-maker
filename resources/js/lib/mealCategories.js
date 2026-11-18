@@ -15,7 +15,8 @@ export const MEAL_CATEGORY_ICONS = {
   dinner: Moon,
 }
 
-// Static full strings so Tailwind sees them; callers fall back to 'bg-muted text-foreground' for an unknown category.
+// Complete class strings per category, so Tailwind finds them literally in the source;
+// callers fall back to 'bg-muted text-foreground' for an unknown category.
 export const MEAL_CATEGORY_FILL_CLASSES = {
   breakfast: 'bg-meal-breakfast text-meal-breakfast-foreground',
   supper: 'bg-meal-supper text-meal-supper-foreground',

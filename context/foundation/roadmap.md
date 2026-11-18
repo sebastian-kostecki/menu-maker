@@ -3,7 +3,7 @@ project: menu-maker
 version: 4
 status: draft                    # draft | active | locked
 created: 2026-11-13
-updated: 2026-11-17
+updated: 2026-11-18
 prd_version: —
 main_goal: quality
 top_blocker: decisions
@@ -45,7 +45,7 @@ Menu Maker to narzędzie domowe: rodzic raz w tygodniu dodaje przepisy, układa 
 | F-05 | spizarnia-tokens            | (foundation) tokeny, promienie, cienie i krój Spiżarni w `app.css`; lustro PDF z nowymi kolorami kategorii  | —             | SP-01, D-10, D-12, D-14, §10.2–10.3 | done |
 | F-06 | spizarnia-primitives        | (foundation) prymitywy `ui/` mają warianty Spiżarni (pigułka, kontur, naklejka, kafel, dialog) w kitchen sinku | F-05          | SP-02, §10.2, §10.4               | done        |
 | S-22 | spizarnia-app-shell         | poruszać się po aplikacji w pasku górnym Spiżarni i logować na ekranie dzielonym                           | F-06          | SP-03, §10.5, ekrany 02–04        | done |
-| S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | ready    |
+| S-23 | spizarnia-dashboard-ui      | zobaczyć pulpit z hero ostatniego jadłospisu, kafelkami statystyk i tygodniem w kolorach pór dnia          | S-22          | SP-04, §10.5, ekrany 05–06        | done     |
 | S-24 | spizarnia-recipes-ui        | przeglądać przepisy jako kafle z filtrem kategorii (pigułki z liczbą), oglądać i edytować przepis w Spiżarni | S-22          | SP-05, §10.5, ekrany 07–09        | ready    |
 | S-25 | spizarnia-meal-plans-ui     | przeglądać jadłospisy jako kafle tygodni i układać szkic w siatce kolorowych komórek z dialogami Spiżarni  | S-22          | SP-06, §10.5, ekrany 10–12, 15    | done        |
 | S-26 | spizarnia-family-profile-ui | zarządzać członkami rodziny na kartach osób i edytować profil w trzech kaflach                             | S-22          | SP-07, §10.5, ekrany 13–14        | ready    |
@@ -60,7 +60,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | B      | Pulpit                     | `S-23`                     | Dołącza do strumienia A w `S-22`; równolegle do C, D, E.                                                  |
 | C      | Przepisy                   | `S-24`                     | Dołącza do strumienia A w `S-22`; równolegle do B, D, E.                                                  |
 | D      | Jadłospisy                 | `S-25`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, E.                                                  |
-| E      | Rodzina i profil           | `S-26`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, D. Wspólny kitchen sink: przy merge'u B–E konflikty w nim rozwiązać, a baseline `design-system.spec.ts` odświeżyć raz, na końcu (§10.6). |
+| E      | Rodzina i profil           | `S-26`                     | Dołącza do strumienia A w `S-22`; równolegle do B, C, D. Wspólny kitchen sink: przy merge'u B–E konflikty w nim rozwiązać, a baseline `design-system.spec.ts` odświeżyć raz, na końcu (§10.6). Po S-25 (D zamknięty) B, C i E idą równolegle, każdy w osobnym worktree z własnym stackiem Sail (`VISUAL_DOCKER_NETWORK`, `MAILPIT_URL`, `APP_PORT`, `VITE_PORT`); kolejność merge'a: E (`S-26`) → B (`S-23`) → C (`S-24`). |
 
 ## Baseline
 
@@ -136,7 +136,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Risk:** Jedyna zmiana backendu w tym wycinku to posiłki ostatniego planu w propsach pulpitu, ograniczone do właściciela; reszta to układ.
 - **Carry-over z F-05 (impl-review):** krążek ikony `StatCard.vue:15` jest na `bg-accent` (żółty = `--warning`).
 - **Carry-over z F-06:** `CardContent` ma `p-6 pt-0` (bez nagłówka karty), więc zawartość `StatCard` nie ma górnego odstępu — dać jej własny padding.
-- **Status:** ready
+- **Carry-over z S-25:** wzorzec „Ten tydzień” to siatka jadłospisu (`MealPlanGrid`): komórki wypełnione kolorem posiłku, oznaczenia powtórki i „z kolacji” na wariancie `Badge tag`, pusty posiłek jako przerywana ramka. To odpowiada na niewiadomą powyżej.
+- **Status:** done
 
 ### S-24: Przepisy w Spiżarni
 
@@ -148,8 +149,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:**
   - Czy liczby przy pigułkach kategorii uwzględniają bieżące wyszukiwanie, czy liczą wszystkie przepisy użytkownika? — Owner: user. Block: no.
-  - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no.
+  - Czy sortowanie z dzisiejszej tabeli zostaje przy widoku kafli, i w jakiej formie? — Owner: user. Block: no (precedens z S-25: sortowanie jako pigułka `SortMenu` nad kaflami).
 - **Risk:** Trzy widoki i liczności kategorii w backendzie; jeśli diff rośnie, `/10x-plan` może podzielić wycinek na listę i szczegóły/formularz (po jednym widoku).
+- **Carry-over z S-25:** lista jadłospisów ma już kafle (`MealPlanTile`), filtr jako pigułki (`StatusFilterPills`: zawsze co najmniej jedna wciśnięta, ta sama semantyka URL co stary `Select`) i sortowanie jako pigułkę (`SortMenu`), wszystko w `Components/MealPlans/`. Przy drugim użyciu przez filtr kategorii rozważyć przeniesienie do `Common/`. Wariant `Badge tag` może posłużyć za żetony składników.
 - **Carry-over z F-05 (impl-review):** `RecipesTable.vue:2`, `IngredientCard`, `IngredientRow`, `InstructionsSection` i `Recipes/Form.vue:16` mają `rounded-lg` = 20 px (z `overflow-hidden` przycina rogi nagłówka tabeli); `hover:text-primary` w `RecipeRow.vue:6` nie zmienia koloru (zostaje podkreślenie).
 - **Carry-over z F-06:** filtr kategorii przepisów z `Select` na `Toggle` w tonach `breakfast`/`supper`/`dinner` z licznościami; dodawanie składnika na wariant `dashed` przycisku; akcje tabeli z `ghost size="icon"` na `secondary` (okrągły przycisk ikonowy); pigułkowe pole wyszukiwania (zostało poza F-06).
 - **Status:** ready
@@ -208,6 +210,7 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 - **Losowanie, które samo tworzy powtórki lub resztki** — Why parked: powtórka i resztki to świadomy wybór użytkownika w szkicu (M-3); losowanie nadal bez powtórzeń.
 - **Ujednolicenie stron `FamilyMembers` do konwencji `Index/Show/Form.vue`** — Why parked: dług techniczny bez efektu dla użytkownika (przeniesione z M-2).
 - **Import przepisów z URL** — Why parked: PRD §4.
+- **`PageHeader` na `text-page-title`** — `PageHeader` nadal używa `text-2xl font-semibold`, a nie `text-page-title` (§10.3, 36 px). Why parked: zmiana przesuwa wzorce zrzutów każdej strony, a S-23…S-26 szły równolegle; do zrobienia raz, po ich scaleniu.
 - **Zdjęcia i filmy przepisów** — Why parked: PRD §4.
 - **Udostępnianie przepisów, funkcje społecznościowe, kopie zapasowe** — Why parked: PRD §4.
 - **Historia poprzednich wersji jadłospisu** — Why parked: US-009 kryterium 3 („Poprzednie wersje nie są zapisywane”).
@@ -222,6 +225,7 @@ Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu
 
 ## Done
 
+- **S-23: Użytkownik może zobaczyć na pulpicie hero `highlight` z ostatnim jadłospisem, kafelki statystyk w kolorach pór dnia i „Ten tydzień” jako posiłki ostatniego planu w kolorach kategorii; nowy użytkownik widzi pusty stan z ekranu 06.** — Archived 2026-11-18 → `context/archive/2026-11-17-spizarnia-dashboard-ui/`. Lesson: —.
 - **S-22: Użytkownik może poruszać się po aplikacji w pasku górnym z pigułkami nawigacji i awatarem (menu użytkownika), poniżej `lg` w szufladzie, a na ekranach gościa (logowanie, rejestracja, reset hasła) widzi ekran dzielony: blok `highlight` z hasłem i trzema blokami kategorii po lewej, formularz po prawej.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-app-shell/`. Lesson: —.
 - **F-06: (foundation) prymitywy `ui/` mają warianty Spiżarni: `Button` (pigułka, kontur, naklejka), `Badge` (status z konturem, `draft` przerywany), `Alert`, `Card` (kafel), pola formularza (kontur 2px, promień 12px), `Dialog` (24px, cień, zamknięcie); każdy wariant ze stanami z §5.4 jest w kitchen sinku.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-primitives/`. Lesson: —.
 - **F-05: (foundation) `app.css` ma wartości Spiżarni z §10.2 w OKLCH (w tym nowe `sidebar*`, `highlight`, `overlay`), jawnie rozpisane promienie 12/20/24 px i pełne, dwa cienie „naklejki” i krój Bricolage Grotesque zamiast Figtree; PDF ma nowe kolory kategorii jako pełne bloki, a test palety pilnuje nowych hexów (D-12); kitchen sink pokazuje nowe kolory i typografię, a baseline'y są świadomie odświeżone.** — Archived 2026-11-17 → `context/archive/2026-11-17-spizarnia-tokens/`. Lesson: —.

@@ -15,6 +15,10 @@ export const buttonVariants = cva(
         secondary: "border-transparent bg-muted hover:bg-accent",
         ghost: "border-transparent hover:bg-accent",
         link: "h-auto border-0 p-0 text-foreground underline underline-offset-4 decoration-1 hover:decoration-2",
+        inverse:
+          "border-card bg-card text-foreground hover:bg-accent focus-visible:outline-highlight-foreground",
+        "inverse-outline":
+          "border-highlight-foreground bg-transparent text-highlight-foreground hover:bg-highlight-foreground hover:text-highlight focus-visible:outline-highlight-foreground",
         dashed:
           "rounded-md border-dashed bg-transparent text-foreground hover:bg-accent",
       },

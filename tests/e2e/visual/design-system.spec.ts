@@ -20,7 +20,8 @@ const sections = [
   { name: 'Nakładki', slug: 'nakladki' },
   { name: 'Powłoka', slug: 'powloka' },
   { name: 'Komponenty aplikacji', slug: 'komponenty-aplikacji' },
-  { name: 'Jadłospis', slug: 'jadlospis' }
+  { name: 'Jadłospis', slug: 'jadlospis' },
+  { name: 'Pulpit', slug: 'pulpit' }
 ];
 
 async function openKitchenSink(page: Page) {
@@ -113,6 +114,23 @@ test('chip focus-visible', async ({ page }) => {
   const chip = przyciski.getByRole('button', { name: /^Wszystkie/ }).first();
   await expect(chip).toBeFocused();
   await expect(page).toHaveScreenshot('chip-focus-visible.png', { clip: await focusRingClip(chip) });
+});
+
+test('inverse focus-visible on highlight', async ({ page }) => {
+  await openKitchenSink(page);
+  const pulpit = section(page, 'Pulpit');
+  const inverse = pulpit.getByRole('button', { name: 'inverse', exact: true });
+  // Start the Tab sequence from the section heading and walk to the inverse button (hero links come first).
+  await pulpit.locator('#ds-pulpit').evaluate((heading) => {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus();
+  });
+  // Keyboard navigation (not .focus()) is what triggers :focus-visible.
+  for (let step = 0; step < 20 && !(await inverse.evaluate((el) => el === document.activeElement)); step += 1) {
+    await page.keyboard.press('Tab');
+  }
+  await expect(inverse).toBeFocused();
+  await expect(page).toHaveScreenshot('inverse-focus-visible.png', { clip: await focusRingClip(inverse) });
 });
 
 test('shell nav hover', async ({ page }) => {

@@ -266,10 +266,10 @@ None. There is no schema change, the existing links and query flags are unchange
 
 #### Automated
 
-- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
-- [x] 2.3 Pest suite still passes: `vendor/bin/sail composer test`
-- [x] 2.4 Visual gate passes after the deliberate baseline update: `npm run test:visual`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build` — a344927
+- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens` — a344927
+- [x] 2.3 Pest suite still passes: `vendor/bin/sail composer test` — a344927
+- [x] 2.4 Visual gate passes after the deliberate baseline update: `npm run test:visual` — a344927
 
 #### Manual
 

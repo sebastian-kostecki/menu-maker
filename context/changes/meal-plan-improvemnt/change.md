@@ -1,7 +1,7 @@
 ---
 change_id: meal-plan-improvemnt
 title: Optional PDF export of the meal plan only, by day and meal, without recipes
-status: implementing
+status: implemented
 created: 2026-11-21
 updated: 2026-11-21
 archived_at: null

@@ -253,10 +253,10 @@ None. There is no schema change, the existing links and query flags are unchange
 
 #### Automated
 
-- [x] 1.1 Pest suite passes: `vendor/bin/sail composer test`
-- [x] 1.2 Menu exporter and controller tests pass: `vendor/bin/sail pest --filter=menu`
-- [x] 1.3 Larastan passes with no new baseline entries: `vendor/bin/sail composer phpstan`
-- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test`
+- [x] 1.1 Pest suite passes: `vendor/bin/sail composer test` — f2fd471
+- [x] 1.2 Menu exporter and controller tests pass: `vendor/bin/sail pest --filter=menu` — f2fd471
+- [x] 1.3 Larastan passes with no new baseline entries: `vendor/bin/sail composer phpstan` — f2fd471
+- [x] 1.4 Pint passes: `vendor/bin/sail composer pint-test` — f2fd471
 
 #### Manual
 
@@ -266,10 +266,10 @@ None. There is no schema change, the existing links and query flags are unchange
 
 #### Automated
 
-- [ ] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
-- [ ] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
-- [ ] 2.3 Pest suite still passes: `vendor/bin/sail composer test`
-- [ ] 2.4 Visual gate passes after the deliberate baseline update: `npm run test:visual`
+- [x] 2.1 Client and SSR bundles build: `vendor/bin/sail npm run build`
+- [x] 2.2 Token lint passes: `vendor/bin/sail npm run lint:tokens`
+- [x] 2.3 Pest suite still passes: `vendor/bin/sail composer test`
+- [x] 2.4 Visual gate passes after the deliberate baseline update: `npm run test:visual`
 
 #### Manual
 

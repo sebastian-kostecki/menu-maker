@@ -130,7 +130,12 @@ test('inverse focus-visible on highlight', async ({ page }) => {
     await page.keyboard.press('Tab');
   }
   await expect(inverse).toBeFocused();
-  await expect(page).toHaveScreenshot('inverse-focus-visible.png', { clip: await focusRingClip(inverse) });
+  // GitHub runners alternate between two renders of this shot that differ in 2 anti-aliased glyph-edge pixels
+  // (up to 4 levels, over the global 0.005 threshold); a real focus-ring change touches far more pixels.
+  await expect(page).toHaveScreenshot('inverse-focus-visible.png', {
+    clip: await focusRingClip(inverse),
+    maxDiffPixels: 2,
+  });
 });
 
 test('shell nav hover', async ({ page }) => {

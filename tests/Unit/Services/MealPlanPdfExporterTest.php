@@ -490,3 +490,85 @@ it('a Kolacja carried to breakfast is one use on the recipe page labelled też n
         ->and($recipes[0]->ingredientGroups[0]->dayLabels)->toBe(['Poniedziałek 16.11 (też na śniadanie)'])
         ->and($recipes[0]->ingredientGroups[0]->lines)->toBe(['Mąka — 200 g']);
 });
+
+it('builds the menu grid with days by date, rows by category and a plain name for a trashed recipe', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $breakfast = Recipe::factory()->breakfast()->for($user)->create(['name' => 'Owsianka']);
+    $supper = Recipe::factory()->supper()->for($user)->create(['name' => 'Stara zupa']);
+    $dinner = Recipe::factory()->dinner()->for($user)->create(['name' => 'Kanapki']);
+
+    addMeal($plan, $dinner, '2026-11-17');
+    addMeal($plan, $breakfast, '2026-11-17');
+    addMeal($plan, $supper, '2026-11-16');
+    Meal::query()->create(['meal_plan_id' => $plan->id, 'recipe_id' => null, 'meal_date' => '2026-11-16', 'meal_category' => 'breakfast']);
+    $supper->delete();
+
+    $menu = app(MealPlanPdfExporter::class)->menu($plan);
+
+    expect($menu->title)->toBe('Jadłospis 16.11.2026 – 22.11.2026')
+        ->and($menu->dayLabels)->toBe(['Poniedziałek 16.11', 'Wtorek 17.11'])
+        ->and(array_map(fn ($row) => $row->category, $menu->rows))->toBe(['Śniadanie', 'Obiad', 'Kolacja'])
+        ->and(array_map(fn ($row) => $row->categoryValue, $menu->rows))->toBe(['breakfast', 'supper', 'dinner'])
+        ->and($menu->rows[0]->cells)->toBe(['Bez posiłku', 'Owsianka'])
+        ->and($menu->rows[1]->cells)->toBe(['Stara zupa', ''])
+        ->and($menu->rows[2]->cells)->toBe(['', 'Kanapki']);
+});
+
+it('truncates a 255-character menu name to the limit with an ellipsis', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    addMeal($plan, Recipe::factory()->breakfast()->for($user)->create(['name' => str_repeat('a', 255)]), '2026-11-16');
+
+    $cell = app(MealPlanPdfExporter::class)->menu($plan)->rows[0]->cells[0];
+
+    expect($cell)->toBe(str_repeat('a', MealPlanPdfExporter::MENU_NAME_LIMIT).'...')
+        ->and(mb_strlen($cell))->toBeLessThan(255);
+});
+
+it('renders the menu of a full week with maximal names on exactly one page', function (): void {
+    $user = User::factory()->create();
+    $plan = fixedPlan($user);
+    $recipes = [];
+
+    foreach (['breakfast', 'supper', 'dinner'] as $category) {
+        $recipes[$category] = Recipe::factory()->{$category}()->for($user)->create(['name' => str_repeat('Ąęśćżółń Wxyz ', 17)]);
+    }
+
+    for ($day = 16; $day <= 22; $day++) {
+        foreach ($recipes as $recipe) {
+            addMeal($plan, $recipe, '2026-11-'.$day);
+        }
+    }
+
+    $bytes = app(MealPlanPdfExporter::class)->renderMenu($plan);
+    $text = pdfText($bytes);
+
+    expect(count((new Parser)->parseContent($bytes)->getPages()))->toBe(1)
+        ->and($text)->toContain('Jadłospis 16.11.2026', 'Poniedziałek 16.11', 'Niedziela 22.11', 'Śniadanie', 'Obiad', 'Kolacja', 'Ąęśćżółń');
+});
+
+it('keeps ingredients, shopping list, preparation, markers and notices out of the menu', function (): void {
+    $user = User::factory()->create();
+    $plan = linkedSupperPlan($user);
+    $plan->update(['generation_meta' => ['version' => 'scaled-v1', 'scaling' => ['status' => 'as_written']]]);
+    Recipe::query()->where('name', 'Gulasz')->update(['instructions' => 'Gotować długo.']);
+
+    $text = pdfText(app(MealPlanPdfExporter::class)->renderMenu($plan->fresh()));
+
+    expect($text)->toContain('Gulasz')
+        ->not->toContain('Lista zakupów')
+        ->not->toContain('Składniki')
+        ->not->toContain('Przygotowanie')
+        ->not->toContain('Mąka')
+        ->not->toContain('Gotować długo')
+        ->not->toContain('Z wczoraj')
+        ->not->toContain('Na 2 dni')
+        ->not->toContain('(usunięty)');
+});
+
+it('names the menu file after the plan dates and the variant', function (): void {
+    $plan = fixedPlan(User::factory()->create());
+
+    expect(app(MealPlanPdfExporter::class)->menuFilename($plan))->toBe('jadlospis-2026-11-16-2026-11-22-sam-jadlospis.pdf');
+});

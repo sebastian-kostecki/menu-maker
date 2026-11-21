@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 
 class MealPlanPdfExporter
 {
-    /** Longest recipe name (in characters) printed in a menu cell; longer names are cut with an ellipsis so the page stays single. */
+    /** Longest recipe name (in characters) printed in a menu cell; longer names are cut with an ellipsis (…) so the page stays single. */
     public const MENU_NAME_LIMIT = 60;
 
     public function __construct(
@@ -119,8 +119,8 @@ class MealPlanPdfExporter
                 $meal = $meals->first(fn (Meal $candidate): bool => $candidate->meal_category === $category->value);
                 $cells[$category->value][] = match (true) {
                     $meal === null => '',
-                    $meal->recipe === null => 'Bez posiłku',
-                    default => Str::limit($meal->recipe->name, self::MENU_NAME_LIMIT),
+                    $meal->recipe === null => PdfMenuRow::EMPTY_SLOT,
+                    default => Str::limit($meal->recipe->name, self::MENU_NAME_LIMIT, '…'),
                 };
             }
         }

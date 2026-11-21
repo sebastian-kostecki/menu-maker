@@ -10,6 +10,7 @@
          * values from context/foundation/design-system.md 10.2.
          * --foreground  oklch(0.234 0.036 288.1)  #1d1b2e
          * --muted  oklch(0.952 0.017 76.1)  #f6eee3
+         * --muted-foreground  oklch(0.48 0.032 296.6)  #5f5a6e
          * --border  oklch(0.9 0.026 76.8)  #e8dccb
          * --meal-breakfast  oklch(0.885 0.129 86.1)  #ffd36e
          * --meal-breakfast-foreground  oklch(0.297 0.061 84.8)  #3b2a00
@@ -29,6 +30,7 @@
         td.meal-breakfast { background: #ffd36e; color: #3b2a00; }
         td.meal-supper { background: #ff8a65; color: #3a1206; }
         td.meal-dinner { background: #8c93f0; color: #14163d; }
+        .meta { color: #5f5a6e; }
     </style>
 </head>
 <body>
@@ -48,7 +50,11 @@
                 <tr>
                     <td class="category meal-{{ $row->categoryValue }}">{{ $row->category }}</td>
                     @foreach ($row->cells as $cell)
-                        <td class="cell">{{ $cell }}</td>
+                        @if ($cell === \App\Services\MealPlanPdf\PdfMenuRow::EMPTY_SLOT)
+                            <td class="cell"><span class="meta">{{ $cell }}</span></td>
+                        @else
+                            <td class="cell">{{ $cell }}</td>
+                        @endif
                     @endforeach
                 </tr>
             @endforeach

@@ -88,7 +88,7 @@ function clippedHexFromOklch(string $oklch): string
 
 dataset('pdf palette templates', [
     'full plan' => ['meal-plan', 12],
-    'menu only' => ['meal-plan-menu', 9],
+    'menu only' => ['meal-plan-menu', 10],
 ]);
 
 it('lists the expected number of mirrored tokens in the template comment', function (string $view, int $minimum): void {

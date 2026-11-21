@@ -137,6 +137,21 @@ class MealPlanRequestValidationTest extends TestCase
         }
     }
 
+    public function test_download_meal_plan_pdf_request_validates_menu_flag(): void
+    {
+        $rules = (new DownloadMealPlanPdfRequest)->rules();
+
+        foreach ([['menu' => '1'], ['menu' => '0'], ['menu' => true], ['menu' => '0', 'recipes' => '1']] as $input) {
+            $this->assertTrue(Validator::make($input, $rules)->passes());
+        }
+
+        foreach ([[['menu' => 'abc'], 'menu'], [['menu' => '1', 'recipes' => '1'], 'recipes'], [['menu' => '1', 'recipes' => '0'], 'recipes']] as [$input, $invalidKey]) {
+            $validator = Validator::make($input, $rules);
+            $this->assertFalse($validator->passes());
+            $this->assertArrayHasKey($invalidKey, $validator->errors()->toArray());
+        }
+    }
+
     public function test_regenerate_meal_plan_request_ignores_force_flag_and_limiter(): void
     {
         $request = new RegenerateMealPlanRequest;

@@ -522,17 +522,17 @@ it('truncates a 255-character menu name to the limit with an ellipsis', function
 
     $cell = app(MealPlanPdfExporter::class)->menu($plan)->rows[0]->cells[0];
 
-    expect($cell)->toBe(str_repeat('a', MealPlanPdfExporter::MENU_NAME_LIMIT).'...')
+    expect($cell)->toBe(str_repeat('a', MealPlanPdfExporter::MENU_NAME_LIMIT).'…')
         ->and(mb_strlen($cell))->toBeLessThan(255);
 });
 
-it('renders the menu of a full week with maximal names on exactly one page', function (): void {
+it('renders the menu of a full week with maximal names on exactly one page', function (string $name): void {
     $user = User::factory()->create();
     $plan = fixedPlan($user);
     $recipes = [];
 
     foreach (['breakfast', 'supper', 'dinner'] as $category) {
-        $recipes[$category] = Recipe::factory()->{$category}()->for($user)->create(['name' => str_repeat('Ąęśćżółń Wxyz ', 17)]);
+        $recipes[$category] = Recipe::factory()->{$category}()->for($user)->create(['name' => $name]);
     }
 
     for ($day = 16; $day <= 22; $day++) {
@@ -545,8 +545,12 @@ it('renders the menu of a full week with maximal names on exactly one page', fun
     $text = pdfText($bytes);
 
     expect(count((new Parser)->parseContent($bytes)->getPages()))->toBe(1)
-        ->and($text)->toContain('Jadłospis 16.11.2026', 'Poniedziałek 16.11', 'Niedziela 22.11', 'Śniadanie', 'Obiad', 'Kolacja', 'Ąęśćżółń');
-});
+        ->and($text)->toContain('Jadłospis 16.11.2026', 'Poniedziałek 16.11', 'Niedziela 22.11', 'Śniadanie', 'Obiad', 'Kolacja', mb_substr($name, 0, 8))
+        ->and(app(MealPlanPdfExporter::class)->menu($plan)->dayLabels)->toHaveCount(7);
+})->with([
+    'words with Polish characters' => [mb_substr(str_repeat('Ąęśćżółń Wxyz ', 19), 0, 255)],
+    'one unbreakable wide word' => [str_repeat('W', 255)],
+]);
 
 it('keeps ingredients, shopping list, preparation, markers and notices out of the menu', function (): void {
     $user = User::factory()->create();
@@ -564,7 +568,8 @@ it('keeps ingredients, shopping list, preparation, markers and notices out of th
         ->not->toContain('Gotować długo')
         ->not->toContain('Z wczoraj')
         ->not->toContain('Na 2 dni')
-        ->not->toContain('(usunięty)');
+        ->not->toContain('(usunięty)')
+        ->not->toContain('Dodaj członków rodziny');
 });
 
 it('names the menu file after the plan dates and the variant', function (): void {

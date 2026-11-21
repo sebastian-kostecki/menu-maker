@@ -536,6 +536,7 @@ it('a draft gets no shopping list and no PDF link', function (): void {
         ->assertInertia(
             fn ($page) => $page->where('shoppingList', null)
                 ->where('mealPlan.links.pdf', null)
+                ->where('mealPlan.links.pdf_menu', null)
         );
     $this->actingAs($this->user)->get(route('meal-plans.pdf', $plan))->assertNotFound();
 });
@@ -861,6 +862,35 @@ it('PDF with recipes names the file after the variant and includes the method', 
     expect(pdfText($plain->getContent()))->not->toContain('Piecz rybę dwadzieścia minut.');
 });
 
+it('PDF menu names the file after the variant and prints only the recipe names', function (): void {
+    $recipe = Recipe::factory()->for($this->user)->dinner()->create(['name' => 'Łosoś pieczony']);
+    attachIngredient($recipe, 'Mąka', '600', 'g');
+    $mealPlan = mealPlanWithRecipes($this->user, 'done', $recipe);
+
+    $response = $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, 'menu' => 1]));
+
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'application/pdf');
+    $response->assertHeader(
+        'Content-Disposition',
+        'inline; filename="jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'-sam-jadlospis.pdf"'
+    );
+    expect($response->headers->get('Cache-Control'))->toContain('no-store');
+
+    $text = pdfText($response->getContent());
+    expect($text)->toContain('Łosoś pieczony')->not->toContain('Lista zakupów')->not->toContain('Mąka');
+});
+
+it('PDF menu rejects an invalid flag and the combination with recipes', function (array $query, string $invalidKey): void {
+    $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
+
+    $this->actingAs($this->user)->get(route('meal-plans.pdf', [$mealPlan, ...$query]))
+        ->assertInvalid([$invalidKey]);
+})->with([
+    'menu with recipes' => [['menu' => 1, 'recipes' => 1], 'recipes'],
+    'invalid menu flag' => [['menu' => 'abc'], 'menu'],
+]);
+
 it('PDF rejects an invalid recipes flag', function (): void {
     $mealPlan = MealPlan::factory()->done()->for($this->user)->create();
 
@@ -875,6 +905,7 @@ it("user cannot download another user's PDF whatever its status", function (stri
 })->with(['done', 'pending'])->with([
     'without recipes' => [[]],
     'with recipes' => [['recipes' => 1]],
+    'with menu' => [['menu' => 1]],
     'invalid flag' => [['recipes' => 'abc']],
 ]);
 
@@ -885,6 +916,7 @@ it('PDF is not available until the plan is done', function (string $status, arra
 })->with(['pending', 'processing', 'error'])->with([
     'without recipes' => [[]],
     'with recipes' => [['recipes' => 1]],
+    'with menu' => [['menu' => 1]],
 ]);
 
 it('guest is redirected to login from the PDF route', function (array $query): void {
@@ -894,6 +926,7 @@ it('guest is redirected to login from the PDF route', function (array $query): v
 })->with([
     'without recipes' => [[]],
     'with recipes' => [['recipes' => 1]],
+    'with menu' => [['menu' => 1]],
 ]);
 
 it('PDF reflects the current meals after regeneration', function (): void {
@@ -921,11 +954,13 @@ it('exposes the PDF links only for a done plan and no stored path', function ():
     $this->actingAs($this->user)->get(route('meal-plans.show', $done))->assertInertia(
         fn ($page) => $page->where('mealPlan.links.pdf', route('meal-plans.pdf', $done))
             ->where('mealPlan.links.pdf_with_recipes', route('meal-plans.pdf', [$done, 'recipes' => 1]))
+            ->where('mealPlan.links.pdf_menu', route('meal-plans.pdf', [$done, 'menu' => 1]))
             ->missing('mealPlan.pdf_path')
     );
     $this->actingAs($this->user)->get(route('meal-plans.show', $pending))->assertInertia(
         fn ($page) => $page->where('mealPlan.links.pdf', null)
             ->where('mealPlan.links.pdf_with_recipes', null)
+            ->where('mealPlan.links.pdf_menu', null)
     );
 });
 
@@ -938,11 +973,14 @@ it('exposes the PDF link on the list only for done plans', function (): void {
             $plans = collect($page->toArray()['props']['mealPlans']['data']);
             $links = $plans->pluck('links.pdf', 'id');
             $linksWithRecipes = $plans->pluck('links.pdf_with_recipes', 'id');
+            $linksMenu = $plans->pluck('links.pdf_menu', 'id');
 
             expect($links[$done->id])->toBe(route('meal-plans.pdf', $done))
                 ->and($links[$pending->id])->toBeNull()
                 ->and($linksWithRecipes[$done->id])->toBe(route('meal-plans.pdf', [$done, 'recipes' => 1]))
-                ->and($linksWithRecipes[$pending->id])->toBeNull();
+                ->and($linksWithRecipes[$pending->id])->toBeNull()
+                ->and($linksMenu[$done->id])->toBe(route('meal-plans.pdf', [$done, 'menu' => 1]))
+                ->and($linksMenu[$pending->id])->toBeNull();
         }
     );
 });

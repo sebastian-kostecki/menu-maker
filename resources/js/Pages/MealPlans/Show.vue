@@ -29,8 +29,8 @@
             Wróć do szkicu
           </Button>
           <PdfDownloadMenu
-            v-if="mealPlan.links.pdf && mealPlan.links.pdf_with_recipes"
-            :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes }"
+            v-if="mealPlan.links.pdf && mealPlan.links.pdf_with_recipes && mealPlan.links.pdf_menu"
+            :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes, pdf_menu: mealPlan.links.pdf_menu }"
           />
           <ActionDropdown :item="mealPlan" />
         </template>
@@ -225,6 +225,7 @@ interface MealPlan {
     self: string
     pdf: string | null
     pdf_with_recipes: string | null
+    pdf_menu: string | null
   }
 }
 

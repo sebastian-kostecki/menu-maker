@@ -91,6 +91,7 @@ interface MealPlanListItem {
     self: string
     pdf: string | null
     pdf_with_recipes: string | null
+    pdf_menu: string | null
   }
 }
 

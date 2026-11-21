@@ -308,7 +308,7 @@ const pulpitPlan = {
   end_date: '2026-06-21',
   status: 'done',
   meals: planMeals,
-  links: { self: '#plan', pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' },
+  links: { self: '#plan', pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami', pdf_menu: '#pdf-sam-jadlospis' },
 }
 const planShoppingList = {
   items: [
@@ -383,6 +383,7 @@ const demoPlanLinks = (id, withPdf) => ({
   self: `#ds-plan-${id}`,
   pdf: withPdf ? `#ds-plan-${id}-pdf` : null,
   pdf_with_recipes: withPdf ? `#ds-plan-${id}-pdf-recipes` : null,
+  pdf_menu: withPdf ? `#ds-plan-${id}-pdf-menu` : null,
 })
 const demoPlanTiles = [
   { id: 1, status: 'draft', start_date: '2026-06-29', end_date: '2026-07-05', created_at: '2026-06-22T09:30:00', meals_count: 20, withPdf: false },
@@ -1235,7 +1236,7 @@ const showToast = () => {
         <div class="flex flex-col gap-2">
           <p class="text-xs text-muted-foreground">Pobieranie PDF</p>
           <div>
-            <PdfDownloadMenu :links="{ pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami' }" />
+            <PdfDownloadMenu :links="{ pdf: '#pdf', pdf_with_recipes: '#pdf-z-przepisami', pdf_menu: '#pdf-sam-jadlospis' }" />
           </div>
         </div>
 

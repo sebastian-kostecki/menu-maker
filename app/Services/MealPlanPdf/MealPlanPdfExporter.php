@@ -17,6 +17,9 @@ use Illuminate\Support\Str;
 
 class MealPlanPdfExporter
 {
+    /** Longest recipe name (in characters) printed in a menu cell; longer names are cut with an ellipsis (…) so the page stays single. */
+    public const MENU_NAME_LIMIT = 60;
+
     public function __construct(
         private readonly ShoppingListBuilder $shoppingListBuilder,
         private readonly QuantityFormatter $quantityFormatter,
@@ -41,8 +44,7 @@ class MealPlanPdfExporter
         $recipeUses = [];
 
         foreach ($byDate as $meals) {
-            $day = $meals->first()->meal_date->copy()->locale('pl');
-            $dayLabel = Str::ucfirst($day->isoFormat('dddd')).' '.$day->format('d.m');
+            $dayLabel = $this->dayLabel($meals->first());
             $pdfMeals = [];
 
             $sortedMeals = $meals->sortBy(fn (Meal $meal): int => MealCategory::displayIndex($meal->meal_category));
@@ -96,10 +98,73 @@ class MealPlanPdfExporter
             ->output();
     }
 
+    /**
+     * Build the typed one-page grid (days as columns, meal categories as rows) of recipe names only.
+     */
+    public function menu(MealPlan $mealPlan): MealPlanMenu
+    {
+        $mealPlan->loadMissing('meals.recipe');
+
+        $byDate = $mealPlan->meals
+            ->groupBy(fn (Meal $meal): string => $meal->meal_date->format('Y-m-d'))
+            ->sortKeys();
+
+        $dayLabels = [];
+        $cells = [];
+
+        foreach ($byDate as $meals) {
+            $dayLabels[] = $this->dayLabel($meals->first());
+
+            foreach (MealCategory::cases() as $category) {
+                $meal = $meals->first(fn (Meal $candidate): bool => $candidate->meal_category === $category->value);
+                $cells[$category->value][] = match (true) {
+                    $meal === null => '',
+                    $meal->recipe === null => PdfMenuRow::EMPTY_SLOT,
+                    default => Str::limit($meal->recipe->name, self::MENU_NAME_LIMIT, '…'),
+                };
+            }
+        }
+
+        return new MealPlanMenu(
+            'Jadłospis '.$mealPlan->start_date->format('d.m.Y').' – '.$mealPlan->end_date->format('d.m.Y'),
+            $dayLabels,
+            array_map(
+                fn (MealCategory $category): PdfMenuRow => new PdfMenuRow($category->label(), $category->value, $cells[$category->value] ?? array_fill(0, count($dayLabels), '')),
+                MealCategory::cases(),
+            ),
+        );
+    }
+
+    /**
+     * Render the menu-only grid as a single landscape page of PDF bytes.
+     */
+    public function renderMenu(MealPlan $mealPlan): string
+    {
+        return Pdf::loadView('pdf.meal-plan-menu', ['menu' => $this->menu($mealPlan)])
+            ->setPaper('a4', 'landscape')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('isPhpEnabled', false)
+            ->setOption('isFontSubsettingEnabled', true)
+            ->output();
+    }
+
+    public function menuFilename(MealPlan $mealPlan): string
+    {
+        return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d').'-sam-jadlospis.pdf';
+    }
+
     public function filename(MealPlan $mealPlan, bool $withRecipes = false): string
     {
         return 'jadlospis-'.$mealPlan->start_date->format('Y-m-d').'-'.$mealPlan->end_date->format('Y-m-d')
             .($withRecipes ? '-z-przepisami' : '').'.pdf';
+    }
+
+    private function dayLabel(Meal $meal): string
+    {
+        $day = $meal->meal_date->copy()->locale('pl');
+
+        return Str::ucfirst($day->isoFormat('dddd')).' '.$day->format('d.m');
     }
 
     /**

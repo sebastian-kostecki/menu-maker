@@ -81,6 +81,7 @@ it('exposes the newest done plan by start date, ignoring other statuses and othe
                 ->where('latestMealPlan.status', 'done')
                 ->where('latestMealPlan.links.pdf', route('meal-plans.pdf', $newer->id))
                 ->where('latestMealPlan.links.pdf_with_recipes', route('meal-plans.pdf', [$newer->id, 'recipes' => 1]))
+                ->where('latestMealPlan.links.pdf_menu', route('meal-plans.pdf', [$newer->id, 'menu' => 1]))
         );
 });
 

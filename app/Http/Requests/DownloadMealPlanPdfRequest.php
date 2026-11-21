@@ -26,7 +26,8 @@ class DownloadMealPlanPdfRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recipes' => ['sometimes', 'boolean'],
+            'recipes' => ['sometimes', 'boolean', 'prohibited_if_accepted:menu'],
+            'menu' => ['sometimes', 'boolean'],
         ];
     }
 }

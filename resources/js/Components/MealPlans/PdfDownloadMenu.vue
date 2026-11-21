@@ -20,12 +20,18 @@
           Bez przepisów
         </a>
       </DropdownMenuItem>
+      <DropdownMenuItem as-child>
+        <a :href="links.pdf_menu" target="_blank" rel="noopener">
+          <CalendarDays aria-hidden="true" />
+          Sam jadłospis
+        </a>
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
 
 <script setup lang="ts">
-import { ChefHat, ChevronDown, FileDown } from 'lucide-vue-next'
+import { CalendarDays, ChefHat, ChevronDown, FileDown } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +42,7 @@ import { Button } from '@/Components/ui/button'
 
 withDefaults(
   defineProps<{
-    links: { pdf: string; pdf_with_recipes: string }
+    links: { pdf: string; pdf_with_recipes: string; pdf_menu: string }
     label?: string
     size?: 'default' | 'xs' | 'sm' | 'lg'
     ariaLabel?: string

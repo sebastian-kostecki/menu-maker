@@ -347,7 +347,7 @@ class MealPlanController extends Controller
     }
 
     /**
-     * Render the PDF (plan table, shopping list, optionally recipe pages) of a finished meal plan and show it inline.
+     * Render the PDF (plan table, shopping list, optionally recipe pages, or with `menu=1` only a one-page menu grid) of a finished meal plan and show it inline.
      * The Form Request authorizes first, so a non-owner cannot tell from a 404 whether the plan is ready.
      */
     public function downloadPdf(DownloadMealPlanPdfRequest $request, MealPlan $mealPlan, MealPlanPdfExporter $exporter): Response
@@ -356,6 +356,14 @@ class MealPlanController extends Controller
 
         if ($mealPlan->status !== 'done') {
             abort(404, 'PDF jest dostępny tylko dla gotowego jadłospisu.');
+        }
+
+        if ($request->boolean('menu')) {
+            return response($exporter->renderMenu($mealPlan), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$exporter->menuFilename($mealPlan).'"',
+                'Cache-Control' => 'no-store, private',
+            ]);
         }
 
         return response($exporter->render($mealPlan, $withRecipes), 200, [

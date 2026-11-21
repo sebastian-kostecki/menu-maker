@@ -122,20 +122,21 @@ test('user drafts, swaps, approves and reopens a weekly meal plan', async ({ pag
     await pdfButton.click();
     const withRecipesHref = await page.getByRole('menuitem', { name: 'Z przepisami', exact: true }).getAttribute('href');
     const withoutRecipesHref = await page.getByRole('menuitem', { name: 'Bez przepisów', exact: true }).getAttribute('href');
+    const menuOnlyHref = await page.getByRole('menuitem', { name: 'Sam jadłospis', exact: true }).getAttribute('href');
     await page.keyboard.press('Escape');
     await expect(page.getByRole('menu')).toBeHidden();
 
-    for (const [href, withRecipes] of [[withRecipesHref, true], [withoutRecipesHref, false]] as const) {
+    for (const [href, variant] of [[withRecipesHref, '-z-przepisami'], [withoutRecipesHref, null], [menuOnlyHref, '-sam-jadlospis']] as const) {
       const response = await page.request.get(href!);
       expect(response.status()).toBe(200);
       expect(response.headers()['content-type']).toContain('application/pdf');
       const disposition = response.headers()['content-disposition'];
       expect(disposition).toMatch(/^inline/);
       expect(disposition).toContain('jadlospis-');
-      if (withRecipes) {
-        expect(disposition).toContain('-z-przepisami');
+      if (variant) {
+        expect(disposition).toContain(variant);
       } else {
-        expect(disposition).not.toContain('-z-przepisami');
+        expect(disposition).not.toMatch(/-z-przepisami|-sam-jadlospis/);
       }
       expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
     }

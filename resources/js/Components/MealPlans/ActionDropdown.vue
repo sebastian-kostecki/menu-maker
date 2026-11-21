@@ -31,6 +31,13 @@
         <FileDown />
         PDF bez przepisów
       </DropdownMenuItem>
+      <DropdownMenuItem
+        :disabled="!item.links.pdf_menu"
+        @click="handleDownloadPdf(item.links.pdf_menu)"
+      >
+        <CalendarDays />
+        PDF — sam jadłospis
+      </DropdownMenuItem>
 
       <DropdownMenuSeparator />
 
@@ -82,6 +89,7 @@ import { router } from '@inertiajs/vue3'
 import {
   Ellipsis,
   Eye,
+  CalendarDays,
   ChefHat,
   FileDown,
   Undo2,
@@ -111,6 +119,7 @@ interface MealPlanListItem {
     self: string
     pdf: string | null
     pdf_with_recipes: string | null
+    pdf_menu: string | null
   }
 }
 import ConfirmDialog from '@/Components/Common/ConfirmDialog.vue'

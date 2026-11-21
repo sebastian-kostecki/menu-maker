@@ -36,8 +36,8 @@
 
     <div class="flex flex-wrap items-center gap-2 lg:w-72 lg:justify-end">
       <PdfDownloadMenu
-        v-if="item.links.pdf && item.links.pdf_with_recipes"
-        :links="{ pdf: item.links.pdf, pdf_with_recipes: item.links.pdf_with_recipes }"
+        v-if="item.links.pdf && item.links.pdf_with_recipes && item.links.pdf_menu"
+        :links="{ pdf: item.links.pdf, pdf_with_recipes: item.links.pdf_with_recipes, pdf_menu: item.links.pdf_menu }"
         label="PDF"
         size="sm"
         :aria-label="`Pobierz PDF: ${range}`"

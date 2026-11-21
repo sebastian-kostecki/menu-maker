@@ -14,7 +14,7 @@ const props = defineProps({
 
 const mealsCount = computed(() => (props.mealPlan?.meals ?? []).filter((meal) => meal.recipe).length)
 const mealsLabel = computed(() => pluralize(mealsCount.value, { one: 'posiłek', few: 'posiłki', many: 'posiłków' }))
-const hasPdfLinks = computed(() => Boolean(props.mealPlan?.links?.pdf && props.mealPlan?.links?.pdf_with_recipes))
+const hasPdfLinks = computed(() => Boolean(props.mealPlan?.links?.pdf && props.mealPlan?.links?.pdf_with_recipes && props.mealPlan?.links?.pdf_menu))
 </script>
 
 <template>
@@ -36,7 +36,7 @@ const hasPdfLinks = computed(() => Boolean(props.mealPlan?.links?.pdf && props.m
         <PdfDownloadMenu
           v-if="hasPdfLinks"
           variant="inverse-outline"
-          :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes }"
+          :links="{ pdf: mealPlan.links.pdf, pdf_with_recipes: mealPlan.links.pdf_with_recipes, pdf_menu: mealPlan.links.pdf_menu }"
         />
       </div>
     </template>

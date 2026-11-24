@@ -1,131 +1,109 @@
+<div align="center">
+
 # Menu Maker
 
-A web application that plans a family's week of meals from its own recipes, scales the ingredients to the family with help from AI, and exports one PDF with the meal plan and a consolidated shopping list.
+**Plan a family's week of meals from your own recipes, scale the ingredients with AI and print one PDF with the plan and the shopping list.**
 
-![Version](https://img.shields.io/github/v/release/sebastian-kostecki/menu-maker)
-![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Live](https://img.shields.io/website?url=https%3A%2F%2Fmenu.kostecki.dev%2Fup&style=for-the-badge&label=menu.kostecki.dev&up_message=online&down_message=offline)](https://menu.kostecki.dev)
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/menu-maker?style=for-the-badge&logo=github)](https://github.com/sebastian-kostecki/menu-maker/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/menu-maker/master.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/sebastian-kostecki/menu-maker/actions/workflows/master.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-## Table of Contents
+[![PHP 8.5](https://img.shields.io/badge/PHP_8.5-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
+[![Laravel 13](https://img.shields.io/badge/Laravel_13-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
+[![Inertia 3](https://img.shields.io/badge/Inertia_3-9553E9?style=for-the-badge&logo=inertia&logoColor=white)](https://inertiajs.com/)
+[![Vue 3](https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![PostgreSQL 18](https://img.shields.io/badge/PostgreSQL_18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 
-- [1. Project Description](#1-project-description)
-- [2. Tech Stack](#2-tech-stack)
-- [3. Getting Started Locally](#3-getting-started-locally)
-- [4. Available Scripts](#4-available-scripts)
-- [5. Testing \& Quality](#5-testing--quality)
-- [6. Deployment](#6-deployment)
-- [7. Project Scope](#7-project-scope)
-- [8. Project Status](#8-project-status)
-- [9. License](#9-license)
+[Live app](https://menu.kostecki.dev) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/sebastian-kostecki/menu-maker/issues/new)
 
-## 1. Project Description
+**English** · [Polski](README.pl.md)
 
-Menu Maker automates weekly meal planning for a family:
+</div>
 
-- Save your own recipes (category, ingredients, preparation, calories, servings) and the members of your family (birth date, gender, weight, height).
-- Draw a week of 7 days × 3 meals from your recipes. The week is a draft: swap any recipe, leave a meal empty, cook a dinner once for two days or turn supper leftovers into the next day's breakfast.
-- Approve the draft. A queue job scales every ingredient to your family in code and then refines the quantities with AI; if the AI call fails, you still get the computed quantities.
-- Read the plan and the shopping list on screen, or download one PDF with the plan, the shopping list and, optionally, the full recipes.
+<p align="center">
+  <img src="tests/e2e/__screenshots__/visual/app-shell.spec.ts/dashboard-desktop.png" width="820" alt="Menu Maker dashboard: the latest meal plan, recipe and plan counters and this week's meals">
+</p>
 
-The interface is in Polish.
+## About
 
-## 2. Tech Stack
+Menu Maker takes the weekly "what do we eat?" off your head. You keep your own recipes and the members of your family; the app draws a week of 7 days × 3 meals, lets you adjust it, scales every ingredient to your family and gives you one PDF with the plan and a consolidated shopping list. The interface is in Polish.
 
-**Backend**
+## Features
 
-- PHP 8.5, Laravel 13, Inertia.js 3 (Laravel adapter)
-- PostgreSQL 18 (`unaccent` extension for accent-insensitive search)
-- Database queue for meal plan generation
-- AI scaling through OpenRouter or the Anthropic API (`AI_SCALING_DRIVER`)
-- DomPDF for the PDF export, `spatie/laravel-backup` for production backups
+- **Your recipes** — category, ingredients, preparation, calories and servings, with accent-insensitive search and a Markdown import.
+- **Your family** — name, birth date, gender, weight and height; quantities are scaled to these people.
+- **Draft week** — 7 days × 3 meals drawn from your recipes without repeats, redrawn as often as you like. Swap a recipe, leave a meal empty, cook a dinner once for two days or turn supper leftovers into the next day's breakfast.
+- **AI-refined scaling** — after approval a queue job scales every ingredient in code, then refines the quantities with AI (OpenRouter or the Anthropic API). If the AI call fails you still get the computed quantities.
+- **Shopping list** — summed quantities, g → kg and ml → l above 1000, rounded to two decimals.
+- **One PDF** — the plan, the shopping list and, optionally, full recipe pages.
 
-**Frontend**
+<p align="center">
+  <img src="tests/e2e/__screenshots__/visual/meal-plan-show.spec.ts/meal-plan-show-desktop.png" width="820" alt="A ready meal plan for one week with breakfasts, dinners and suppers and the shopping list next to it">
+</p>
 
-- Vue 3 with Inertia.js 3, Vite 8
-- Tailwind CSS 4 (CSS-first, `@tailwindcss/vite`) and shadcn-vue (reka-ui)
-- Design tokens in `resources/css/app.css`, described in `context/foundation/design-system.md`
+<sub>Screenshots are the approved baselines of the visual test suite, rendered with seeded sample data.</sub>
 
-**Tooling & Testing**
+## Tech stack
 
-- Laravel Sail (Docker) for development
-- Pest 5 + PHPUnit 13, Larastan (level 5), Laravel Pint
-- Playwright for E2E tests and the visual gate
+| Layer | Technology |
+| --- | --- |
+| Backend | PHP 8.5, Laravel 13, Inertia.js 3 (Laravel adapter), database queue |
+| Frontend | Vue 3, Vite 8, Tailwind CSS 4 (CSS-first), shadcn-vue (reka-ui) |
+| Database | PostgreSQL 18 (`unaccent` for accent-insensitive search) |
+| AI | OpenRouter or Anthropic API, selected with `AI_SCALING_DRIVER` (`fake` for local work and CI) |
+| PDF and backups | DomPDF, `spatie/laravel-backup` |
+| Quality | Pest 5, Larastan (level 5), Laravel Pint, Playwright E2E and a visual gate |
+| Infrastructure | Laravel Sail locally; Docker Compose, nginx, PHP-FPM and Traefik on a VPS |
 
-## 3. Getting Started Locally
+## Getting started
 
 ### Prerequisites
 
 - Docker and Docker Compose
-- Node.js 22+ and npm on the host (Playwright tests run from the host)
-- Composer for the first `composer install`. Every later `php`, `composer` and `artisan` command runs through Sail (PHP 8.5 in Docker).
+- Node.js 22+ and npm on the host (Playwright runs from the host)
+- Composer for the first `composer install`; every later `php`, `composer` and `artisan` command runs through Sail (PHP 8.5 in Docker)
 
-### Setup
+### Installation
 
 ```bash
-# 1. Clone the repository
-git clone git@github.com:sebastian-kostecki/menu-maker.git
+git clone https://github.com/sebastian-kostecki/menu-maker.git
 cd menu-maker
 
-# 2. Configure the environment
-cp .env.example .env
-# Without AI keys, set AI_SCALING_DRIVER=fake in .env
+cp .env.example .env              # without AI keys set AI_SCALING_DRIVER=fake
+composer install                  # needs PHP 8.5, or add --ignore-platform-reqs
 
-# 3. Install PHP dependencies (needs PHP 8.5 on the host, or add --ignore-platform-reqs)
-composer install
-
-# 4. Start the containers: app, queue worker, PostgreSQL and Mailpit
-./vendor/bin/sail up -d
-
-# 5. Generate the key and migrate (the seeder creates test@example.com / password)
+./vendor/bin/sail up -d           # app, queue worker, PostgreSQL and Mailpit
 ./vendor/bin/sail artisan key:generate
-./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail artisan migrate --seed   # creates test@example.com / password
 
-# 6. Install JS dependencies and start Vite
 ./vendor/bin/sail npm ci
 ./vendor/bin/sail npm run dev
 ```
 
-The app runs on `http://localhost` (or `APP_PORT` from `.env`), and Mailpit, which catches password-reset e-mails, on `http://localhost:8025`.
+The app runs on <http://localhost> (or `APP_PORT`), Mailpit on <http://localhost:8025>.
 
-To import Markdown recipes onto an account:
+Import Markdown recipes onto an account:
 
 ```bash
 ./vendor/bin/sail artisan recipes:import <dir> --user=<id|email> --dry-run
 ```
 
-## 4. Available Scripts
+## Development
 
-### NPM
+| Command | What it does |
+| --- | --- |
+| `sail composer test` | Pest suite |
+| `sail composer phpstan` | Larastan static analysis |
+| `sail composer pint-test` | Code style check (`composer pint` fixes it) |
+| `sail npm run build` | Client and SSR bundles |
+| `sail npm run lint:tokens` | Rejects palette classes, hex colours and `dark:` outside `Components/ui/` |
+| `npm run test:e2e` | Playwright E2E (Chromium and Firefox) |
+| `npm run test:visual` | Visual gate in the pinned Playwright Docker image |
 
-| Command                   | Description                                                |
-| ------------------------- | ---------------------------------------------------------- |
-| `npm run dev`             | Start the Vite development server with HMR                 |
-| `npm run build`           | Build the client and SSR bundles                           |
-| `npm run lint:tokens`     | Reject palette classes, hex colours and `dark:` in `resources/js` |
-| `npm run test:e2e`        | Run the Playwright E2E tests (Chromium and Firefox)        |
-| `npm run test:e2e:headed` | Run the E2E tests in headed mode                           |
-| `npm run test:e2e:ui`     | Run the E2E tests in the Playwright UI                     |
-| `npm run test:visual`     | Run the visual gate in the pinned Playwright Docker image  |
-| `npm run pw:install`      | Install Playwright browsers                                |
-
-### Composer (run through Sail)
-
-| Command                     | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| `composer test`             | Clear the config cache and run the Pest suite       |
-| `composer pint`             | Fix code style with Laravel Pint                    |
-| `composer pint-test`        | Check code style without fixing                     |
-| `composer phpstan`          | Run static analysis with Larastan                   |
-
-## 5. Testing & Quality
-
-```bash
-./vendor/bin/sail composer test        # Pest
-./vendor/bin/sail composer pint-test   # code style
-./vendor/bin/sail composer phpstan     # static analysis
-./vendor/bin/sail npm run lint:tokens  # design-token lint
-```
-
-**E2E (Playwright, from the host, against Sail).** `.env` needs `AI_SCALING_DRIVER=fake` and Mailpit as the mailer:
+**E2E** run from the host against Sail. `.env` needs `AI_SCALING_DRIVER=fake` and Mailpit as the mailer:
 
 ```bash
 ./vendor/bin/sail npm run build
@@ -133,38 +111,32 @@ To import Markdown recipes onto an account:
 E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost npm run test:e2e
 ```
 
-**Visual gate.** After `npm run build`, with `npm run dev` stopped and the E2E seeder run, `npm run test:visual` compares screenshots with the approved baselines. Update the baselines only on purpose, with `npm run test:visual -- --update-snapshots`, and review every changed PNG.
+**Visual gate** — after `npm run build`, with `npm run dev` stopped and the E2E seeder run, `npm run test:visual` compares screenshots with the approved baselines. Update them only on purpose (`npm run test:visual -- --update-snapshots`) and review every changed PNG.
 
-CI (`.github/workflows/master.yml`) runs all of the above on pull requests into `main`, plus a smoke test of the production image.
+CI ([`master.yml`](.github/workflows/master.yml)) runs all of the above on pull requests into `main`, plus a smoke test of the production image. Day-to-day work happens on `develop`; `main` is the release branch. Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
 
-## 6. Deployment
+## Deployment
 
-Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dockerfile.prod`: nginx and PHP-FPM, the queue worker and the scheduler under supervisord, PostgreSQL 18 and encrypted nightly database backups. Copy `.env.prod.example` to `.env.prod`, fill it in and run `scripts/deploy.sh`. The script backs up the database, migrates inside a maintenance window and restarts the workers.
+Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dockerfile.prod`: nginx and PHP-FPM, the queue worker and the scheduler under supervisord, PostgreSQL 18 and encrypted nightly database backups. Copy `.env.prod.example` to `.env.prod`, fill it in and run `scripts/deploy.sh`; it backs up the database, migrates inside a maintenance window and restarts the workers.
 
-## 7. Project Scope
+## Project scope
 
-### Included
+**Included:** e-mail authentication with a 24-hour session · family members · recipe CRUD with search and Markdown import · weekly plan drawn without repeats · editable draft · AI-refined scaling with a fallback · consolidated shopping list · one PDF export.
 
-- E-mail authentication (registration, login, password reset) with a 24-hour session
-- Family members (name, birth date, gender, weight, height)
-- Recipe CRUD with required fields, accent-insensitive search and Markdown import
-- Weekly meal plan (7 days × 3 meals) drawn from your recipes without repeats, redrawn without limit
-- Editable draft: swap a recipe, leave a meal empty, repeat a dinner, carry supper over to breakfast
-- AI-refined scaling of ingredient quantities to the family, with a fallback to computed quantities
-- Shopping list with summed quantities, g → kg and ml → l above 1000, rounded to two decimals
-- One PDF with the meal plan, the shopping list and optional recipe pages
+**Out of scope:** importing recipes from URLs · images or videos · sharing recipes between users · dark mode.
 
-### Out of Scope
+## Documentation
 
-- Importing recipes from external URLs
-- Images or videos
-- Sharing recipes with other users
-- Dark mode
+- [`CHANGELOG.md`](CHANGELOG.md) — released versions
+- [`context/foundation/roadmap.md`](context/foundation/roadmap.md) — milestones
+- [`context/foundation/design-system.md`](context/foundation/design-system.md) — design tokens and components
+- [`.ai/core/prd.md`](.ai/core/prd.md) — product requirements and user stories
+- [`CLAUDE.md`](CLAUDE.md) — rules for coding agents and contributors
 
-## 8. Project Status
+## Project status
 
-Version 1.1.0 is released and runs in production. Changes are listed in [`CHANGELOG.md`](CHANGELOG.md), and the milestones in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
+Version **1.1.0** is released and runs in production at [menu.kostecki.dev](https://menu.kostecki.dev).
 
-## 9. License
+## License
 
-This project is licensed under the **MIT License**. See the [`LICENSE`](LICENSE) file for details.
+Released under the [MIT License](LICENSE).

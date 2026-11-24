@@ -5,8 +5,8 @@
 **Plan a family's week of meals from your own recipes, scale the ingredients with AI and print one PDF with the plan and the shopping list.**
 
 [![Live](https://img.shields.io/website?url=https%3A%2F%2Fmenu.kostecki.dev%2Fup&style=for-the-badge&label=menu.kostecki.dev&up_message=online&down_message=offline)](https://menu.kostecki.dev)
-[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/menu-maker?style=for-the-badge&logo=github)](../../releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/menu-maker/master.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](../../actions/workflows/master.yml)
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/menu-maker?style=for-the-badge&logo=github)](https://github.com/sebastian-kostecki/menu-maker/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/menu-maker/master.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/sebastian-kostecki/menu-maker/actions/workflows/master.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 [![PHP 8.5](https://img.shields.io/badge/PHP_8.5-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/)
@@ -17,7 +17,7 @@
 [![PostgreSQL 18](https://img.shields.io/badge/PostgreSQL_18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 
-[Live app](https://menu.kostecki.dev) · [Changelog](CHANGELOG.md) · [Report a bug](../../issues/new)
+[Live app](https://menu.kostecki.dev) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/sebastian-kostecki/menu-maker/issues/new)
 
 **English** · [Polski](README.pl.md)
 

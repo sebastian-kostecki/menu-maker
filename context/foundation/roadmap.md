@@ -3,7 +3,7 @@ project: menu-maker
 version: 4
 status: draft                    # draft | active | locked
 created: 2026-11-13
-updated: 2026-11-18
+updated: 2026-11-25
 prd_version: —
 main_goal: quality
 top_blocker: decisions
@@ -201,17 +201,33 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 Brak pytań przekrojowych. Pytania bez odpowiedzi należące do jednego elementu (D-14, stany i mobile nieobecne w makietach) są w wycinkach; żadne nie blokuje planowania.
 
+## Upcoming Milestones
+
+Kolejne kamienie milowe zaplanowane 2026-11-25 jako kamienie milowe i issues na GitHubie (#28–#70). Żaden nie jest jeszcze otwarty: `/10x-roadmap` otwiera następny, rozkłada jego issues na wycinki F-NN / S-NN (numeracja od F-07 i S-27) i przenosi go do `## Milestone`. Zakres można przy tym zawęzić; pominięte issues wracają do `Później` albo zostają zamknięte. Issues z etykietą `needs:decision` wymagają zmiany PRD lub decyzji projektowej przed `/10x-plan`.
+
+| Kamień milowy | Intencja | Issues | Gotowe, gdy |
+| ------------- | -------- | ------ | ----------- |
+| [M-5: Z planu do sklepu](https://github.com/sebastian-kostecki/menu-maker/milestone/1) | Lista zakupów działa w sklepie na telefonie, a szkic da się dopracować bez losowania wszystkiego od nowa. | [#28](https://github.com/sebastian-kostecki/menu-maker/issues/28) przypinanie, [#29](https://github.com/sebastian-kostecki/menu-maker/issues/29) pamięć tygodni, [#30](https://github.com/sebastian-kostecki/menu-maker/issues/30) lista na telefonie, [#31](https://github.com/sebastian-kostecki/menu-maker/issues/31) działy sklepu, [#32](https://github.com/sebastian-kostecki/menu-maker/issues/32) własne pozycje, [#33](https://github.com/sebastian-kostecki/menu-maker/issues/33) „mam w domu”, [#34](https://github.com/sebastian-kostecki/menu-maker/issues/34) udostępnianie | Rodzina robi tygodniowe zakupy z telefonu bez drukowania PDF-u. |
+| [M-6: Mądrzejsze losowanie](https://github.com/sebastian-kostecki/menu-maker/milestone/2) | Losowanie zna gusta i rytm rodziny. | [#35](https://github.com/sebastian-kostecki/menu-maker/issues/35) oceny i ulubione, [#36](https://github.com/sebastian-kostecki/menu-maker/issues/36) kopia planu, [#37](https://github.com/sebastian-kostecki/menu-maker/issues/37) tagi i czas, [#38](https://github.com/sebastian-kostecki/menu-maker/issues/38) szybkie dni robocze, [#39](https://github.com/sebastian-kostecki/menu-maker/issues/39) statystyki | Wylosowany szkic wymaga mniej ręcznych podmian niż dziś. |
+| [M-7: Przepisy bez przepisywania](https://github.com/sebastian-kostecki/menu-maker/milestone/3) | Przepis trafia do aplikacji bez ręcznego przepisywania, a strona przepisu jest bardziej użyteczna. | [#40](https://github.com/sebastian-kostecki/menu-maker/issues/40) import z URL, [#41](https://github.com/sebastian-kostecki/menu-maker/issues/41) tekst przez AI, [#42](https://github.com/sebastian-kostecki/menu-maker/issues/42) Markdown z UI, [#43](https://github.com/sebastian-kostecki/menu-maker/issues/43) przeliczenie dla rodziny, [#44](https://github.com/sebastian-kostecki/menu-maker/issues/44) kosz, [#45](https://github.com/sebastian-kostecki/menu-maker/issues/45) duplikat, [#46](https://github.com/sebastian-kostecki/menu-maker/issues/46) szukanie po składniku, [#47](https://github.com/sebastian-kostecki/menu-maker/issues/47) zdjęcie | Dodanie przepisu ze strony www trwa poniżej minuty. |
+| [M-8: W kuchni i na telefonie](https://github.com/sebastian-kostecki/menu-maker/milestone/4) | Aplikacja pomaga w dniu gotowania. | [#48](https://github.com/sebastian-kostecki/menu-maker/issues/48) tryb gotowania, [#49](https://github.com/sebastian-kostecki/menu-maker/issues/49) „Dziś gotujemy”, [#50](https://github.com/sebastian-kostecki/menu-maker/issues/50) PWA offline, [#51](https://github.com/sebastian-kostecki/menu-maker/issues/51) kalorie dnia, [#52](https://github.com/sebastian-kostecki/menu-maker/issues/52) e-maile, [#53](https://github.com/sebastian-kostecki/menu-maker/issues/53) ICS | Z telefonu da się przejść od „co dziś jemy” do ugotowania bez PDF-u. |
+| [M-9: Rodzina razem](https://github.com/sebastian-kostecki/menu-maker/milestone/5) | Plan uwzględnia każdą osobę i całe gospodarstwo. | [#54](https://github.com/sebastian-kostecki/menu-maker/issues/54) wspólne gospodarstwo, [#55](https://github.com/sebastian-kostecki/menu-maker/issues/55) kto je posiłek, [#56](https://github.com/sebastian-kostecki/menu-maker/issues/56) diety i alergie, [#57](https://github.com/sebastian-kostecki/menu-maker/issues/57) układ dnia | Dwie osoby planują ten sam tydzień, a ilości odpowiadają temu, kto faktycznie je. |
+| [Jakość i dług techniczny](https://github.com/sebastian-kostecki/menu-maker/milestone/6) | Ciągły kamień milowy, brany między funkcjonalnymi. | [#58](https://github.com/sebastian-kostecki/menu-maker/issues/58)–[#67](https://github.com/sebastian-kostecki/menu-maker/issues/67) | — |
+| [Później](https://github.com/sebastian-kostecki/menu-maker/milestone/7) | Pomysły odłożone do zmiany kontekstu lub decyzji. | [#68](https://github.com/sebastian-kostecki/menu-maker/issues/68) strona startowa, [#69](https://github.com/sebastian-kostecki/menu-maker/issues/69) tryb ciemny, [#70](https://github.com/sebastian-kostecki/menu-maker/issues/70) koszt tygodnia | — |
+
+Kolejność M-5 → M-9 jest propozycją. Decyzja o wspólnym gospodarstwie ([#54](https://github.com/sebastian-kostecki/menu-maker/issues/54)) zmienia zakres danych z `user_id` na gospodarstwo, więc warto ją podjąć, zanim powstanie więcej danych współdzielonych przez rodzinę; lista zakupów ([#30](https://github.com/sebastian-kostecki/menu-maker/issues/30)) trzyma stan przy planie, żeby nie blokować M-5.
+
 ## Parked
 
-- **Strona startowa Spiżarni (ekran 01 artefaktu) pod `/`** — Why parked: D-13 — osobna zmiana po M-4, odwracająca D-7 (dziś `/` przekierowuje na logowanie lub pulpit).
-- **Dark mode** — Why parked: D-1 (MVP tylko w trybie jasnym); D-14 rozstrzyga w F-05 tylko los bloku `.dark`, nie wdrożenie trybu ciemnego.
-- **Regeneracja starszych komponentów `ui/` i przejście na `@lucide/vue`** — Why parked: D-9 — osobna zmiana; F-06 dokłada warianty, nie regeneruje komponentów CLI.
+- **Strona startowa Spiżarni (ekran 01 artefaktu) pod `/`** — Why parked: D-13 — osobna zmiana po M-4, odwracająca D-7 (dziś `/` przekierowuje na logowanie lub pulpit). Issue: [#68](https://github.com/sebastian-kostecki/menu-maker/issues/68).
+- **Dark mode** — Why parked: D-1 (MVP tylko w trybie jasnym); D-14 rozstrzyga w F-05 tylko los bloku `.dark`, nie wdrożenie trybu ciemnego. Issue: [#69](https://github.com/sebastian-kostecki/menu-maker/issues/69).
+- **Regeneracja starszych komponentów `ui/` i przejście na `@lucide/vue`** — Why parked: D-9 — osobna zmiana; F-06 dokłada warianty, nie regeneruje komponentów CLI. Issue: [#67](https://github.com/sebastian-kostecki/menu-maker/issues/67).
 - **Edycja jadłospisu po wygenerowaniu (status `done`)** — Why parked: M-3 przenosi edycję do szkicu przed skalowaniem; edycja gotowego planu wymaga ponownego skalowania.
 - **Losowanie, które samo tworzy powtórki lub resztki** — Why parked: powtórka i resztki to świadomy wybór użytkownika w szkicu (M-3); losowanie nadal bez powtórzeń.
-- **Ujednolicenie stron `FamilyMembers` do konwencji `Index/Show/Form.vue`** — Why parked: dług techniczny bez efektu dla użytkownika (przeniesione z M-2).
-- **Import przepisów z URL** — Why parked: PRD §4.
-- **`PageHeader` na `text-page-title`** — `PageHeader` nadal używa `text-2xl font-semibold`, a nie `text-page-title` (§10.3, 36 px). Why parked: zmiana przesuwa wzorce zrzutów każdej strony, a S-23…S-26 szły równolegle; do zrobienia raz, po ich scaleniu.
-- **Zdjęcia i filmy przepisów** — Why parked: PRD §4.
+- **Ujednolicenie stron `FamilyMembers` do konwencji `Index/Show/Form.vue`** — Why parked: dług techniczny bez efektu dla użytkownika (przeniesione z M-2). Issue: [#66](https://github.com/sebastian-kostecki/menu-maker/issues/66).
+- **Import przepisów z URL** — Why parked: PRD §4. Issue: [#40](https://github.com/sebastian-kostecki/menu-maker/issues/40).
+- **`PageHeader` na `text-page-title`** — `PageHeader` nadal używa `text-2xl font-semibold`, a nie `text-page-title` (§10.3, 36 px). Why parked: zmiana przesuwa wzorce zrzutów każdej strony, a S-23…S-26 szły równolegle; do zrobienia raz, po ich scaleniu. Issue: [#60](https://github.com/sebastian-kostecki/menu-maker/issues/60).
+- **Zdjęcia i filmy przepisów** — Why parked: PRD §4. Issue: [#47](https://github.com/sebastian-kostecki/menu-maker/issues/47).
 - **Udostępnianie przepisów, funkcje społecznościowe, kopie zapasowe** — Why parked: PRD §4.
 - **Historia poprzednich wersji jadłospisu** — Why parked: US-009 kryterium 3 („Poprzednie wersje nie są zapisywane”).
 - **Limit generacji PDF i czyszczenie starych plików PDF** — Why parked: `.ai/core/api-plan.md` §3, poza wymaganiami PRD.

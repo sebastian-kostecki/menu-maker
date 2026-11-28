@@ -67,6 +67,8 @@ set_env MAIL_MAILER log
 set_env MAIL_HOST smoke.invalid
 set_env LOG_ALERT_MAIL_TO smoke@example.com
 set_env BACKUP_NOTIFICATION_MAIL smoke@example.com
+set_env PASSPORT_PRIVATE_KEY smoke-dummy-key
+set_env PASSPORT_PUBLIC_KEY smoke-dummy-key
 set_env AI_SCALING_DRIVER openrouter
 set_env OPENROUTER_API_KEY smoke-dummy-key
 set_env OPENROUTER_MODEL smoke/dummy-model

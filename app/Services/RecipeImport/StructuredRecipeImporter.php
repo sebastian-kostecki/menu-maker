@@ -124,6 +124,7 @@ final class StructuredRecipeImporter
         $validator = Validator::make($input, $rules, [
             ...$this->recipeFieldMessages(),
             ...$this->ingredientMessages(),
+            'calories.max' => 'Kaloryczność jest zbyt duża.',
             'ingredients.*.unit.required' => $unitMessage,
             'ingredients.*.unit.in' => $unitMessage,
         ]);

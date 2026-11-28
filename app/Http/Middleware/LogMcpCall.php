@@ -39,8 +39,8 @@ class LogMcpCall
 
         Log::channel('mcp')->info('mcp call', [
             'user_id' => $request->user()?->getAuthIdentifier(),
-            'method' => is_string($method) ? $method : null,
-            'tool' => is_string($toolName) ? $toolName : null,
+            'method' => $this->loggable($method),
+            'tool' => $this->loggable($toolName),
             'status' => $response->getStatusCode(),
             'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
             'tool_error' => $toolError,
@@ -48,6 +48,16 @@ class LogMcpCall
         ]);
 
         return $response;
+    }
+
+    /**
+     * A client-chosen value made safe for one log line: protocol name characters only, at most 100.
+     */
+    private function loggable(mixed $value): ?string
+    {
+        return is_string($value)
+            ? substr((string) preg_replace('/[^A-Za-z0-9_.\/-]/', '', $value), 0, 100)
+            : null;
     }
 
     /**

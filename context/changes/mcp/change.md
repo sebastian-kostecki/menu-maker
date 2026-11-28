@@ -1,7 +1,7 @@
 ---
 change_id: mcp
 title: Dodawanie przepisów z opisu lub adresu URL przez serwer MCP
-status: implemented
+status: impl_reviewed
 created: 2026-11-28
 updated: 2026-11-28
 archived_at: null

@@ -53,4 +53,5 @@ test('the local server refuses to boot without a configured, existing user', fun
     'not set' => [null],
     'blank' => ['  '],
     'unknown e-mail' => ['nobody@example.test'],
+    'unknown id' => ['999999'],
 ]);

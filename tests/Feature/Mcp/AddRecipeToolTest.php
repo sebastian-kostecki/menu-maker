@@ -118,7 +118,13 @@ test('input the recipe form would not accept is refused and nothing is stored', 
     expect(Recipe::query()->count())->toBe(0);
 })->with([
     'calories below 50' => [['calories' => 49], 'co najmniej 50 kcal'],
-    'calories above the column limit' => [['calories' => 1e12], 'calories'],
+    'calories above the column limit' => [['calories' => 1e12], 'Kaloryczność jest zbyt duża.'],
+    'too many servings' => [['servings' => 3_000_000_000], 'najwyżej 1000'],
+    'instructions too long' => [['instructions' => str_repeat('a', 20001)], 'maksymalnie 20 000'],
+    'too many ingredients' => [['ingredients' => array_map(
+        fn (int $i): array => ['name' => "Składnik {$i}", 'quantity' => 1, 'unit' => 'g'],
+        range(1, 101),
+    )], 'najwyżej 100'],
     'unknown category' => [['category' => 'lunch'], 'Kategoria musi być'],
     'unit word' => [['ingredients' => [['name' => 'Cukier', 'quantity' => 1, 'unit' => 'łyżka']]], 'g, kg, ml, l, szt'],
     'repeated ingredient' => [['ingredients' => [

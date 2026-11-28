@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\RecipeImport\StructuredRecipeImporter;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
@@ -27,8 +29,16 @@ function structuredRecipe(array $overrides = []): array
     ];
 }
 
-test('calories and quantities are rounded half-up to two decimals', function () {
-    $recipe = app(StructuredRecipeImporter::class)->import(User::factory()->create(), structuredRecipe([
+test('calories and quantities are rounded half-up before they reach the database', function () {
+    // PostgreSQL rounds decimal(10,2) itself, so look at what the importer sends, not at what is stored.
+    $sent = [];
+    DB::listen(function (QueryExecuted $query) use (&$sent): void {
+        if (str_starts_with($query->sql, 'insert into "recipe')) {
+            $sent = [...$sent, ...$query->bindings];
+        }
+    });
+
+    app(StructuredRecipeImporter::class)->import(User::factory()->create(), structuredRecipe([
         'calories' => 100.005,
         'ingredients' => [
             ['name' => 'Pomidory', 'quantity' => 0.125, 'unit' => 'kg'],
@@ -36,8 +46,7 @@ test('calories and quantities are rounded half-up to two decimals', function () 
         ],
     ]));
 
-    expect($recipe->calories)->toBe('100.01')
-        ->and($recipe->recipeIngredients()->orderBy('id')->pluck('quantity')->all())->toBe(['0.13', '15.00']);
+    expect($sent)->toContain('100.01', '0.13', '15.00');
 });
 
 test('the recipe and ingredient names are whitespace-normalized', function () {

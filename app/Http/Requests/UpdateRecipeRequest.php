@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesRecipeFields;
 use App\Http\Requests\Concerns\ValidatesRecipeIngredients;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,7 @@ use Illuminate\Validation\Validator;
 
 class UpdateRecipeRequest extends FormRequest
 {
+    use ValidatesRecipeFields;
     use ValidatesRecipeIngredients;
 
     /**
@@ -30,12 +32,9 @@ class UpdateRecipeRequest extends FormRequest
     {
         // Same rules as StoreRecipeRequest but all fields optional for PATCH
         return [
-            'name' => 'sometimes|required|string|max:255',
-            'category' => 'sometimes|required|in:breakfast,supper,dinner',
-            'instructions' => 'sometimes|required|string',
-            'calories' => 'sometimes|required|numeric|min:50',
-            'servings' => 'sometimes|required|integer|min:1',
-        ] + $this->ingredientRules();
+            ...array_map(fn (string $rule): string => 'sometimes|'.$rule, $this->recipeFieldRules()),
+            ...$this->ingredientRules(),
+        ];
     }
 
     /**
@@ -58,18 +57,9 @@ class UpdateRecipeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Podaj nazwę przepisu.',
-            'name.max' => 'Nazwa przepisu może mieć maksymalnie 255 znaków.',
-            'category.required' => 'Wybierz kategorię przepisu.',
-            'category.in' => 'Kategoria musi być śniadaniem, obiadem lub kolacją.',
-            'instructions.required' => 'Podaj instrukcję przygotowania.',
-            'calories.required' => 'Podaj kaloryczność.',
-            'calories.numeric' => 'Kaloryczność musi być liczbą.',
-            'calories.min' => 'Kaloryczność całkowita musi wynosić co najmniej 50 kcal.',
-            'servings.required' => 'Podaj liczbę porcji.',
-            'servings.integer' => 'Liczba porcji musi być liczbą całkowitą.',
-            'servings.min' => 'Liczba porcji musi wynosić co najmniej 1.',
-        ] + $this->ingredientMessages();
+            ...$this->recipeFieldMessages(),
+            ...$this->ingredientMessages(),
+        ];
     }
 
     /**

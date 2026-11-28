@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\Passport;
 
 class User extends Authenticatable implements OAuthenticatable
 {
@@ -77,5 +78,19 @@ class User extends Authenticatable implements OAuthenticatable
     public function mealPlans(): HasMany
     {
         return $this->hasMany(MealPlan::class);
+    }
+
+    /**
+     * Signs every connected OAuth client out: access tokens, their refresh tokens and unused auth codes.
+     */
+    public function revokeOAuthAccess(): void
+    {
+        $tokens = Passport::token()->newQuery()->where('user_id', $this->id);
+
+        Passport::refreshToken()->newQuery()
+            ->whereIn('access_token_id', (clone $tokens)->select('id'))
+            ->update(['revoked' => true]);
+        $tokens->update(['revoked' => true]);
+        Passport::authCode()->newQuery()->where('user_id', $this->id)->update(['revoked' => true]);
     }
 }

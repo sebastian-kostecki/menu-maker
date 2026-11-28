@@ -16,9 +16,9 @@ trait ValidatesRecipeFields
         return [
             'name' => 'required|string|max:255',
             'category' => 'required|in:breakfast,supper,dinner',
-            'instructions' => 'required|string',
+            'instructions' => 'required|string|max:20000',
             'calories' => 'required|numeric|min:50',
-            'servings' => 'required|integer|min:1',
+            'servings' => 'required|integer|min:1|max:1000',
         ];
     }
 
@@ -35,12 +35,14 @@ trait ValidatesRecipeFields
             'category.required' => 'Wybierz kategorię przepisu.',
             'category.in' => 'Kategoria musi być śniadaniem, obiadem lub kolacją.',
             'instructions.required' => 'Podaj instrukcję przygotowania.',
+            'instructions.max' => 'Instrukcja może mieć maksymalnie 20 000 znaków.',
             'calories.required' => 'Podaj kaloryczność.',
             'calories.numeric' => 'Kaloryczność musi być liczbą.',
             'calories.min' => 'Kaloryczność całkowita musi wynosić co najmniej 50 kcal.',
             'servings.required' => 'Podaj liczbę porcji.',
             'servings.integer' => 'Liczba porcji musi być liczbą całkowitą.',
             'servings.min' => 'Liczba porcji musi wynosić co najmniej 1.',
+            'servings.max' => 'Liczba porcji może wynosić najwyżej 1000.',
         ];
     }
 }

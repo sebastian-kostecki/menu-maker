@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ThrottleMcpByIp;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Passport\Passport;
 use League\OAuth2\Server\Exception\OAuthServerException;
 
@@ -160,4 +162,22 @@ test('a call without a token is logged with status 401 and no user', function ()
         'status' => 401,
         'tool_error' => null,
     ]);
+});
+
+test('a client-chosen method cannot forge or bloat a log line', function () {
+    $logged = captureMcpLogLine();
+
+    $this->postJson('/mcp', mcpRequest("x\n[2026-01-01] production.ERROR: forged".str_repeat('a', 500)));
+
+    expect($logged['method'])->toStartWith('x2026-01-01production.ERRORforged')->toHaveLength(100);
+});
+
+test('calls without a token are limited per IP', function () {
+    $this->freezeTime();
+
+    for ($call = 1; $call <= ThrottleMcpByIp::MAX_PER_MINUTE; $call++) {
+        RateLimiter::hit('mcp-ip:127.0.0.1');
+    }
+
+    $this->postJson('/mcp', mcpRequest('tools/list'))->assertTooManyRequests();
 });

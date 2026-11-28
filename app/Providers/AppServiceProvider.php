@@ -56,6 +56,9 @@ class AppServiceProvider extends ServiceProvider
                 default => throw new InvalidArgumentException("Unknown AI_SCALING_DRIVER [{$driver}]."),
             };
         });
+
+        // No client uses the device grant and it has no views. Set here: Passport registers its routes on boot.
+        Passport::$deviceCodeGrantEnabled = false;
     }
 
     /**

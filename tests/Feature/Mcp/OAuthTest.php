@@ -152,3 +152,20 @@ test('an approved authorization yields a short-lived token that /mcp accepts', f
         ->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'])
         ->assertOk();
 });
+
+test('the device grant is switched off', function (string $method, string $uri) {
+    $this->json($method, $uri)->assertNotFound();
+})->with([
+    ['GET', '/oauth/device'],
+    ['POST', '/oauth/device/code'],
+]);
+
+test('other throttled requests from the same IP do not use up the discovery limit', function () {
+    $this->freezeTime();
+
+    for ($call = 1; $call <= 10; $call++) {
+        $this->postJson('/oauth/token');
+    }
+
+    $this->getJson('/.well-known/oauth-protected-resource/mcp')->assertOk();
+});

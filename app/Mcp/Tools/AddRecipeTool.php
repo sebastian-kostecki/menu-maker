@@ -69,13 +69,13 @@ class AddRecipeTool extends Tool
             'name' => $schema->string()->max(255)->required()->description('Recipe name, in Polish.'),
             'category' => $schema->string()->enum(MealCategory::values())->required()->description('breakfast = śniadanie, supper = obiad, dinner = kolacja.'),
             'calories' => $schema->number()->min(50)->max(99999999.99)->required()->description('Total kcal of the whole recipe, not per serving.'),
-            'servings' => $schema->integer()->min(1)->required()->description('Number of servings the recipe makes.'),
-            'instructions' => $schema->string()->required()->description('Preparation steps, one per line.'),
+            'servings' => $schema->integer()->min(1)->max(1000)->required()->description('Number of servings the recipe makes.'),
+            'instructions' => $schema->string()->max(20000)->required()->description('Preparation steps, one per line.'),
             'ingredients' => $schema->array()->items($schema->object([
                 'name' => $schema->string()->required()->description('Ingredient name, in Polish; each ingredient once.'),
                 'quantity' => $schema->number()->min(0.01)->required()->description('Amount in the given unit.'),
                 'unit' => $schema->string()->enum(Unit::ALLOWED_CODES)->required()->description('szt for countable items.'),
-            ]))->min(1)->required(),
+            ]))->min(1)->max(100)->required(),
             'source_url' => $schema->string()->format('uri')->description('Address of the page the recipe comes from (http or https), optional.'),
         ];
     }

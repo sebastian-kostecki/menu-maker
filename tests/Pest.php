@@ -11,6 +11,11 @@ use App\Models\RecipeIngredient;
 use App\Models\Unit;
 use App\Models\User;
 use App\Services\IngredientScaling\MealIngredientScaler;
+use Illuminate\Support\Str;
+use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Passport;
+use Laravel\Passport\RefreshToken;
+use Laravel\Passport\Token;
 use Smalot\PdfParser\Parser;
 use Tests\TestCase;
 
@@ -88,4 +93,31 @@ function snapshotMealIngredients(MealPlan $plan): MealPlan
 function pdfText(string $bytes): string
 {
     return preg_replace('/\s+/u', ' ', (new Parser)->parseContent($bytes)->getText()) ?? '';
+}
+
+/**
+ * An access token and its refresh token, as an OAuth client of the user would hold them.
+ *
+ * @return array{access: Token, refresh: RefreshToken}
+ */
+function oauthGrantFor(User $user): array
+{
+    $client = app(ClientRepository::class)
+        ->createAuthorizationCodeGrantClient('Claude', ['http://localhost/callback'], false);
+    $access = Passport::token()->forceFill([
+        'id' => Str::random(80),
+        'user_id' => $user->id,
+        'client_id' => $client->getKey(),
+        'scopes' => ['mcp:use'],
+        'revoked' => false,
+    ]);
+    $access->save();
+    $refresh = Passport::refreshToken()->forceFill([
+        'id' => Str::random(80),
+        'access_token_id' => $access->id,
+        'revoked' => false,
+    ]);
+    $refresh->save();
+
+    return ['access' => $access, 'refresh' => $refresh];
 }

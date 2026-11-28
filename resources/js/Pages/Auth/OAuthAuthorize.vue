@@ -7,6 +7,7 @@ defineProps({
     client_name: { type: String, required: true },
     client_id: { type: String, required: true },
     scopes: { type: Array, required: true },
+    redirect_host: { type: String, required: true },
     auth_token: { type: String, required: true },
     state: { type: String, default: null },
     csrf_token: { type: String, required: true },
@@ -23,6 +24,11 @@ defineProps({
         <ul class="grid list-disc gap-1 pl-5">
             <li v-for="scope in scopes" :key="scope">{{ scope }}</li>
         </ul>
+
+        <p>
+            Po decyzji wrócisz na adres <strong>{{ redirect_host }}</strong>. Zezwól tylko, jeśli to aplikacja, którą sam
+            łączysz.
+        </p>
 
         <!-- Native forms: both answers are a 302 to the client's redirect_uri, which an Inertia visit cannot follow. -->
         <div class="grid gap-3">

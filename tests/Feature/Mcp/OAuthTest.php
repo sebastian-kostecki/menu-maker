@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Passport\ClientRepository;
@@ -104,6 +107,7 @@ test('the consent page gets its props, with the mcp scope even when none is requ
             ->where('client_name', 'Claude')
             ->where('client_id', $clientId)
             ->where('state', 'abc-state')
+            ->where('redirect_host', 'claude.ai')
             ->where('scopes', ['Dodawanie przepisów do Twojej bazy'])
             ->where('auth_token', session('authToken'))
             ->where('csrf_token', csrf_token()));
@@ -168,4 +172,19 @@ test('other throttled requests from the same IP do not use up the discovery limi
     }
 
     $this->getJson('/.well-known/oauth-protected-resource/mcp')->assertOk();
+});
+
+test('stale OAuth data is purged daily in production', function () {
+    // withSchedule() hooks into Artisan::starting(), which the test lifecycle resets between tests.
+    Artisan::all();
+
+    $purge = collect(app(Schedule::class)->events())
+        ->sole(fn (Event $event): bool => str_contains((string) $event->command, 'passport:purge'));
+
+    expect($purge->expression)->toBe('45 4 * * *')
+        ->and($purge->environments)->toBe(['production']);
+});
+
+test('no external MCP client is configured', function () {
+    expect(config('mcp.clients'))->toBe([]);
 });

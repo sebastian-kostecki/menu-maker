@@ -57,6 +57,14 @@ return Application::configure(basePath: dirname(__DIR__))
             ->onOneServer()
             ->evenInMaintenanceMode()
             ->environments(['production']);
+
+        // Revoked and expired OAuth tokens and auth codes of the MCP connector.
+        $schedule->command('passport:purge')
+            ->dailyAt('04:45')
+            ->timezone('Europe/Warsaw')
+            ->withoutOverlapping()
+            ->onOneServer()
+            ->environments(['production']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Passport reports every invalid or expired bearer token: an expected 401, which must not reach `mail_alert`.

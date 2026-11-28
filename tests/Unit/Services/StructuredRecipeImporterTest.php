@@ -83,3 +83,20 @@ test('a duplicate name is a validation error on name', function () {
 
     expect(Recipe::query()->count())->toBe(1);
 });
+
+test('the duplicate check and the insert run under a per-user lock', function () {
+    $user = User::factory()->create();
+    $queries = [];
+    DB::listen(function (QueryExecuted $query) use (&$queries): void {
+        $queries[] = match (true) {
+            str_contains($query->sql, 'pg_advisory_xact_lock') => 'lock '.$query->bindings[0],
+            str_contains($query->sql, 'regexp_replace') => 'check',
+            str_starts_with($query->sql, 'insert into "recipes"') => 'insert',
+            default => null,
+        };
+    });
+
+    app(StructuredRecipeImporter::class)->import($user, structuredRecipe());
+
+    expect(array_values(array_filter($queries)))->toBe(["lock recipe-import:{$user->id}", 'check', 'insert']);
+});

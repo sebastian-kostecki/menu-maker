@@ -80,24 +80,7 @@ return [
     |
     */
 
-    'clients' => [
-        'github' => [
-            'url' => env('MCP_GITHUB_URL', 'https://api.githubcopilot.com/mcp/'),
-            'token' => env('MCP_GITHUB_TOKEN'),
-            'headers' => [
-                'X-MCP-Readonly' => 'true',
-            ],
-        ],
-
-        'linear' => [
-            'url' => env('MCP_LINEAR_URL', 'https://mcp.linear.app/mcp'),
-            'token' => env('MCP_LINEAR_TOKEN'),
-        ],
-
-        'playwright' => [
-            'command' => 'npx',
-            'args' => ['-y', '@playwright/mcp@latest', '--headless'],
-        ],
-    ],
+    // The app connects to no external MCP server. Keep the key: without it the package's examples return.
+    'clients' => [],
 
 ];

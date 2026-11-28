@@ -125,7 +125,7 @@ modified and uncommitted; not part of this change). Manual rows 1.8-1.10, 2.10-2
 - **Location**: bootstrap/app.php (schedule), config/mcp.php:86
 - **Detail**: passport:purge is not scheduled; open registration accumulates clients. config/mcp.php keeps vendor example `clients` (github, linear, an npx playwright command) that nothing uses.
 - **Fix**: Schedule passport:purge daily and set `'clients' => []`.
-- **Decision**: PENDING
+- **Decision**: FIXED
 
 ### F9 — Consent page does not show the redirect host
 
@@ -135,7 +135,7 @@ modified and uncommitted; not part of this change). Manual rows 1.8-1.10, 2.10-2
 - **Location**: resources/js/Pages/Auth/OAuthAuthorize.vue:19
 - **Detail**: The client chooses its own name, so any client can call itself "Claude". The redirect allowlist limits the damage.
 - **Fix**: Show the redirect host under the client name.
-- **Decision**: PENDING
+- **Decision**: FIXED
 
 ### F10 — Duplicate-name check is not atomic
 
@@ -145,7 +145,7 @@ modified and uncommitted; not part of this change). Manual rows 1.8-1.10, 2.10-2
 - **Location**: app/Services/RecipeImport/StructuredRecipeImporter.php:44
 - **Detail**: Two parallel calls with the same name can both insert. Read from code, not reproduced.
 - **Fix**: Take a per-user advisory lock inside the import transaction around the check and insert.
-- **Decision**: PENDING
+- **Decision**: FIXED
 
 ## Rollout note
 
@@ -154,8 +154,13 @@ block the consent form's redirect to claude.ai. Not verified.
 
 ## Triage (2026-11-28)
 
-F1-F7 fixed (F5 and F6 via Fix A); F8-F10 left open. After the fixes: full suite 678, phpstan, pint,
+F1-F7 fixed first (F5 and F6 via Fix A), committed as 70dd6b1. After the fixes: full suite 678, phpstan, pint,
 deploy-script tests, config/route caching and E2E (36) pass; GET /oauth/device answers 404. E2E first
 failed 4 password tests because the development database lacked the oauth_* tables; passed after
 `artisan migrate`. No separate break-check was run on the new tests. Existing recipes above the new
 limits (1000 servings, 100 ingredients, 20 000 characters) were not looked for. Not committed.
+
+F8-F10 fixed afterwards: daily passport:purge, empty `mcp.clients`, redirect host on the consent page,
+per-user advisory lock around the duplicate check and insert. Build, full suite (681), phpstan, pint,
+lint:tokens and config/route caching pass. E2E was not rerun; the consent page was not viewed in a
+browser and parallel calls were not tried (the test checks the lock is taken before the check).

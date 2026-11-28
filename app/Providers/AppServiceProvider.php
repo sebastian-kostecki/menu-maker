@@ -97,10 +97,23 @@ class AppServiceProvider extends ServiceProvider
                     fn (Scope $scope): string => $scope->description,
                     $parameters['scopes'],
                 )),
+                'redirect_host' => $this->redirectHost($parameters['request'], $parameters['client']),
                 'auth_token' => $parameters['authToken'],
                 'state' => $parameters['request']->input('state'),
                 'csrf_token' => csrf_token(),
             ])->toResponse($parameters['request']),
         );
+    }
+
+    /**
+     * Where the answer of the consent page goes (host, with the port when given). The client chooses its own
+     * name, so this is what tells the user who really gets access.
+     */
+    private function redirectHost(Request $request, Client $client): string
+    {
+        $uri = (string) ($request->input('redirect_uri') ?: ($client->redirect_uris[0] ?? ''));
+        $port = parse_url($uri, PHP_URL_PORT);
+
+        return parse_url($uri, PHP_URL_HOST).($port ? ":{$port}" : '');
     }
 }

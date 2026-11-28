@@ -10,6 +10,7 @@ use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\Unit;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,35 +42,41 @@ final class StructuredRecipeImporter
     {
         $data = $this->validate($this->normalize($input));
 
-        $existing = $this->importer->findFor($user, $data['name']);
+        return DB::transaction(function () use ($user, $data): Recipe {
+            // One import per user at a time: otherwise two parallel calls both pass the duplicate check.
+            // PostgreSQL releases the lock when the transaction ends.
+            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["recipe-import:{$user->id}"]);
 
-        if ($existing !== null) {
-            throw ValidationException::withMessages([
-                'name' => "Masz już przepis „{$existing->name}”: ".route('recipes.show', $existing),
-            ]);
-        }
+            $existing = $this->importer->findFor($user, $data['name']);
 
-        $sourceUrl = $data['source_url'] ?? null;
+            if ($existing !== null) {
+                throw ValidationException::withMessages([
+                    'name' => "Masz już przepis „{$existing->name}”: ".route('recipes.show', $existing),
+                ]);
+            }
 
-        return $this->importer->import($user, new ParsedRecipe(
-            name: $data['name'],
-            category: $data['category'],
-            instructions: $sourceUrl === null || $sourceUrl === ''
-                ? $data['instructions']
-                : "{$data['instructions']}\n\nŹródło: {$sourceUrl}",
-            calories: $this->decimal($data['calories']),
-            servings: (int) $data['servings'],
-            ingredients: array_map(
-                fn (array $row): ParsedIngredient => new ParsedIngredient(
-                    $row['name'],
-                    $this->decimal($row['quantity']),
-                    $row['unit'],
+            $sourceUrl = $data['source_url'] ?? null;
+
+            return $this->importer->import($user, new ParsedRecipe(
+                name: $data['name'],
+                category: $data['category'],
+                instructions: $sourceUrl === null || $sourceUrl === ''
+                    ? $data['instructions']
+                    : "{$data['instructions']}\n\nŹródło: {$sourceUrl}",
+                calories: $this->decimal($data['calories']),
+                servings: (int) $data['servings'],
+                ingredients: array_map(
+                    fn (array $row): ParsedIngredient => new ParsedIngredient(
+                        $row['name'],
+                        $this->decimal($row['quantity']),
+                        $row['unit'],
+                    ),
+                    array_values($data['ingredients']),
                 ),
-                array_values($data['ingredients']),
-            ),
-            warnings: [],
-            errors: [],
-        ));
+                warnings: [],
+                errors: [],
+            ));
+        });
     }
 
     /**

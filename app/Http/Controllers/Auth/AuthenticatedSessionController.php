@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -10,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -26,12 +29,23 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     *
+     * A login that started at `/oauth/authorize` leaves the Inertia XHR with a full-page navigation: the
+     * authorization endpoint may redirect to an external `redirect_uri`, which an XHR cannot follow.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse|SymfonyResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        $intended = $request->session()->get('url.intended');
+
+        if (is_string($intended) && str_starts_with((string) parse_url($intended, PHP_URL_PATH), '/oauth/authorize')) {
+            $request->session()->forget('url.intended');
+
+            return Inertia::location($intended);
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

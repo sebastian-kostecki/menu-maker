@@ -426,13 +426,13 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Automated
 
-- [x] 1.1 `laravel/mcp` is listed under `require` in `composer.json`
-- [x] 1.2 New MCP tests pass
-- [x] 1.3 Recipe form validation is unchanged
-- [x] 1.4 Full suite passes
-- [x] 1.5 Larastan passes with no baseline additions
-- [x] 1.6 Pint passes
-- [x] 1.7 The local server starts and lists the tool
+- [x] 1.1 `laravel/mcp` is listed under `require` in `composer.json` — 8ad83b8
+- [x] 1.2 New MCP tests pass — 8ad83b8
+- [x] 1.3 Recipe form validation is unchanged — 8ad83b8
+- [x] 1.4 Full suite passes — 8ad83b8
+- [x] 1.5 Larastan passes with no baseline additions — 8ad83b8
+- [x] 1.6 Pint passes — 8ad83b8
+- [x] 1.7 The local server starts and lists the tool — 8ad83b8
 
 #### Manual
 
@@ -444,15 +444,15 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Automated
 
-- [ ] 2.1 Passport migrations apply on the testing database
-- [ ] 2.2 MCP and OAuth tests pass
-- [ ] 2.3 Full suite passes
-- [ ] 2.4 Larastan passes with no baseline additions
-- [ ] 2.5 Pint passes
-- [ ] 2.6 Client and SSR bundles build
-- [ ] 2.7 Token lint passes over the new page
-- [ ] 2.8 Route and config caching still work
-- [ ] 2.9 Existing E2E suite still passes
+- [x] 2.1 Passport migrations apply on the testing database
+- [x] 2.2 MCP and OAuth tests pass
+- [x] 2.3 Full suite passes
+- [x] 2.4 Larastan passes with no baseline additions
+- [x] 2.5 Pint passes
+- [x] 2.6 Client and SSR bundles build
+- [x] 2.7 Token lint passes over the new page
+- [x] 2.8 Route and config caching still work
+- [x] 2.9 Existing E2E suite still passes
 
 #### Manual
 

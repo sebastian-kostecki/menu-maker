@@ -10,6 +10,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use League\OAuth2\Server\Exception\OAuthServerException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -58,5 +59,11 @@ return Application::configure(basePath: dirname(__DIR__))
             ->environments(['production']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Passport reports every invalid or expired bearer token: an expected 401, which must not reach `mail_alert`.
+        $exceptions->dontReport(OAuthServerException::class);
+
+        // `/mcp` answers JSON even without a JSON Accept header: a guest gets 401, never a redirect to the login page.
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request): bool => $request->is('mcp') || $request->expectsJson(),
+        );
     })->create();

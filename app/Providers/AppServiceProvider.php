@@ -9,10 +9,19 @@ use App\Services\IngredientScaling\Drivers\AnthropicIngredientRefiner;
 use App\Services\IngredientScaling\Drivers\FakeIngredientRefiner;
 use App\Services\IngredientScaling\Drivers\OpenRouterIngredientRefiner;
 use App\Services\IngredientScaling\IngredientRefiner;
+use Carbon\CarbonInterval;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 use InvalidArgumentException;
+use Laravel\Passport\Client;
+use Laravel\Passport\Passport;
+use Laravel\Passport\Scope;
+use Symfony\Component\HttpFoundation\Response;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,5 +64,40 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        $this->configurePassport();
+
+        RateLimiter::for('mcp', fn (Request $request): Limit => Limit::perMinute(60)->by(
+            (string) ($request->user()?->getAuthIdentifier() ?? $request->ip()),
+        ));
+    }
+
+    /**
+     * Passport is the OAuth server of the remote MCP endpoint: short-lived tokens, Inertia consent page.
+     * `mcp:use` is the default scope, so a token request without `scope` still gets a token `/mcp` accepts.
+     */
+    private function configurePassport(): void
+    {
+        Passport::tokensCan(['mcp:use' => 'Dodawanie przepisów do Twojej bazy']);
+        Passport::defaultScopes(['mcp:use']);
+        Passport::tokensExpireIn(CarbonInterval::hour());
+        Passport::refreshTokensExpireIn(CarbonInterval::days(30));
+
+        Passport::authorizationView(
+            /**
+             * @param  array{client: Client, scopes: array<int, Scope>, request: Request, authToken: string}  $parameters
+             */
+            fn (array $parameters): Response => Inertia::render('Auth/OAuthAuthorize', [
+                'client_name' => $parameters['client']->name,
+                'client_id' => (string) $parameters['client']->getKey(),
+                'scopes' => array_values(array_map(
+                    fn (Scope $scope): string => $scope->description,
+                    $parameters['scopes'],
+                )),
+                'auth_token' => $parameters['authToken'],
+                'state' => $parameters['request']->input('state'),
+                'csrf_token' => csrf_token(),
+            ])->toResponse($parameters['request']),
+        );
     }
 }

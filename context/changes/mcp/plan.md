@@ -436,9 +436,9 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Manual
 
-- [ ] 1.8 Claude Code adds a recipe from pasted text with preview and approval
-- [ ] 1.9 URL with per-serving kcal saves the total; page without kcal gets a disclosed estimate
-- [ ] 1.10 Repeating the same recipe is refused with the link
+- [x] 1.8 Claude Code adds a recipe from pasted text with preview and approval
+- [x] 1.9 URL with per-serving kcal saves the total; page without kcal gets a disclosed estimate
+- [x] 1.10 Repeating the same recipe is refused with the link
 
 ### Phase 2: Remote /mcp behind Passport OAuth
 

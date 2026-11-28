@@ -17,14 +17,23 @@ use InvalidArgumentException;
 final class RecipeImporter
 {
     /**
-     * Whether the owner already has a (non-deleted) recipe with this name, ignoring case.
+     * Whether the owner already has a (non-deleted) recipe with this name, ignoring case and extra whitespace.
      */
     public function existsFor(User $user, string $name): bool
     {
+        return $this->findFor($user, $name) !== null;
+    }
+
+    /**
+     * The owner's (non-deleted) recipe with this name, ignoring case and extra whitespace.
+     */
+    public function findFor(User $user, string $name): ?Recipe
+    {
         return Recipe::query()
             ->forUser($user->id)
-            ->whereRaw('lower(name) = lower(?)', [$name])
-            ->exists();
+            ->whereRaw("lower(regexp_replace(btrim(name), '\s+', ' ', 'g')) = lower(?)", [Ingredient::normalizeName($name)])
+            ->orderBy('id')
+            ->first();
     }
 
     public function import(User $user, ParsedRecipe $parsed): Recipe

@@ -35,6 +35,11 @@ return [
         ],
     ],
 
+    'mcp' => [
+        // E-mail or id of the user the stdio MCP server acts as (local environment only).
+        'local_user' => env('MCP_LOCAL_USER'),
+    ],
+
     'ingredient_refiner' => [
         // openrouter | anthropic | fake
         'driver' => env('AI_SCALING_DRIVER', 'openrouter'),

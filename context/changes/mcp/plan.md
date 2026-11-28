@@ -464,8 +464,8 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Automated
 
-- [x] 3.1 Full suite still passes
-- [x] 3.2 PRD no longer contains the old sentence
+- [x] 3.1 Full suite still passes — 171595a
+- [x] 3.2 PRD no longer contains the old sentence — 171595a
 
 #### Manual
 

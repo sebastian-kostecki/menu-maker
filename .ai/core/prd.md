@@ -39,7 +39,7 @@ Rodziny często posiadają ograniczony czas na planowanie posiłków oraz trudno
 9.  Testy funkcjonalne pokrywające kluczowe ścieżki (rejestracja, logowanie, CRUD przepisów, generowanie jadłospisu).
 
 ## 4. Granice produktu
-- Brak importu przepisów z URL.
+- Aplikacja nie importuje przepisów z URL w swoim interfejsie ([#40](https://github.com/sebastian-kostecki/menu-maker/issues/40)); klient MCP (np. Claude) może jednak dodać przez narzędzie `add-recipe-tool` przepis, który sam odczytał z tekstu lub strony.
 - Brak obsługi multimediów (zdjęcia, filmy).
 - Brak udostępniania przepisów innym użytkownikom.
 - Brak funkcji społecznościowych i kopii zapasowych.
@@ -68,6 +68,7 @@ Rodziny często posiadają ograniczony czas na planowanie posiłków oraz trudno
 | US-016 | Obiad na dwa dni           | Jako użytkownik chcę ugotować obiad raz i zjeść go dwa dni z rzędu, aby gotować co drugi dzień.                                           | 1. W szkicu obiad dnia D+1 mogę ustawić „Jak wczoraj”. 2. Oba dni pokazują to samo danie z oznaczeniami „Na 2 dni” i „Z wczoraj”, na ekranie i w PDF. 3. Ilości dnia D są przeskalowane na oba obiady, a lista zakupów zawiera danie raz, w podwójnej ilości. 4. Zmiana przepisu w dniu D opróżnia obiad dnia D+1. |
 | US-017 | Kolacja na śniadanie       | Jako użytkownik chcę połączyć kolację ze śniadaniem następnego dnia, aby wykorzystać to, co zostanie z kolacji.                            | 1. W szkicu śniadanie dnia D+1 mogę ustawić jako resztkę kolacji z dnia D. 2. Śniadanie pokazuje danie z kolacji w kolorze śniadania, z dopiskiem „z kolacji”, na ekranie i w PDF. 3. Ilości kolacji są przeskalowane na oba posiłki, a śniadanie nie ma własnych składników. |
 | US-018 | Przeciąganie posiłków      | Jako użytkownik chcę przeciągać posiłki myszą w szkicu, aby szybko zamienić je miejscami lub przenieść na inny dzień.                        | 1. W szkicu (na urządzeniu z myszą) przeciągnięcie posiłku na inny posiłek zamienia oba przepisy, a na pusty posiłek przenosi przepis i opróżnia źródło. 2. Przeniesienie posiłku gotowanego opróżnia posiłek, który z niego korzysta, z informacją o tym; upuszczenie na własną parę, na ten sam posiłek lub na posiłek z tym samym przepisem niczego nie zmienia. 3. Przepis z innej kategorii niż pora dnia ma na ekranie oznaczenie kategorii. 4. Wynik zapisuje się od razu i przetrwa odświeżenie strony. |
+| US-019 | Dodawanie przepisu przez MCP | Jako użytkownik chcę w rozmowie z Claude podać tekst lub adres strony z przepisem, aby dodać go bez ręcznego przepisywania. | 1. Działa lokalnie (Claude Code) i przez konektor w claude.ai po zalogowaniu i wyrażeniu zgody. 2. Przed zapisem widzę podgląd w czacie i zatwierdzam go. 3. Przepis podlega tym samym limitom co formularz i trafia na moje konto. 4. Nazwa, którą już mam, jest odrzucana z linkiem do istniejącego przepisu. |
 
 ## 6. Metryki sukcesu
 - Średni czas generowania jadłospisu <1 min.

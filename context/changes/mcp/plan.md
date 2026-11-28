@@ -444,15 +444,15 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Automated
 
-- [x] 2.1 Passport migrations apply on the testing database
-- [x] 2.2 MCP and OAuth tests pass
-- [x] 2.3 Full suite passes
-- [x] 2.4 Larastan passes with no baseline additions
-- [x] 2.5 Pint passes
-- [x] 2.6 Client and SSR bundles build
-- [x] 2.7 Token lint passes over the new page
-- [x] 2.8 Route and config caching still work
-- [x] 2.9 Existing E2E suite still passes
+- [x] 2.1 Passport migrations apply on the testing database — 74ab069
+- [x] 2.2 MCP and OAuth tests pass — 74ab069
+- [x] 2.3 Full suite passes — 74ab069
+- [x] 2.4 Larastan passes with no baseline additions — 74ab069
+- [x] 2.5 Pint passes — 74ab069
+- [x] 2.6 Client and SSR bundles build — 74ab069
+- [x] 2.7 Token lint passes over the new page — 74ab069
+- [x] 2.8 Route and config caching still work — 74ab069
+- [x] 2.9 Existing E2E suite still passes — 74ab069
 
 #### Manual
 
@@ -464,8 +464,8 @@ One insert transaction per call, the same as the web form. The only new per-requ
 
 #### Automated
 
-- [ ] 3.1 Full suite still passes
-- [ ] 3.2 PRD no longer contains the old sentence
+- [x] 3.1 Full suite still passes
+- [x] 3.2 PRD no longer contains the old sentence
 
 #### Manual
 

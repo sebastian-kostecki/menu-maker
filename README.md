@@ -13,9 +13,10 @@ A web application that plans a family's week of meals from its own recipes, scal
 - [4. Available Scripts](#4-available-scripts)
 - [5. Testing \& Quality](#5-testing--quality)
 - [6. Deployment](#6-deployment)
-- [7. Project Scope](#7-project-scope)
-- [8. Project Status](#8-project-status)
-- [9. License](#9-license)
+- [7. Serwer MCP](#7-serwer-mcp)
+- [8. Project Scope](#8-project-scope)
+- [9. Project Status](#9-project-status)
+- [10. License](#10-license)
 
 ## 1. Project Description
 
@@ -141,7 +142,21 @@ CI (`.github/workflows/master.yml`) runs all of the above on pull requests into 
 
 Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dockerfile.prod`: nginx and PHP-FPM, the queue worker and the scheduler under supervisord, PostgreSQL 18 and encrypted nightly database backups. Copy `.env.prod.example` to `.env.prod`, fill it in and run `scripts/deploy.sh`. The script backs up the database, migrates inside a maintenance window and restarts the workers.
 
-## 7. Project Scope
+## 7. Serwer MCP
+
+An MCP client such as Claude can add recipes to your account through one tool, `add-recipe-tool`. The client reads the recipe from pasted text or a web page and shows it to you; the app itself calls no AI and fetches no URL.
+
+**Local (Claude Code, stdio).** Set `MCP_LOCAL_USER` in `.env` to the e-mail or id of the account to write to. The local server starts only with `APP_ENV=local` and needs the Sail containers running. From the project directory:
+
+```bash
+claude mcp add menu-maker --scope local -- vendor/bin/sail artisan mcp:start menu-maker
+```
+
+**Remote (claude.ai, OAuth).** On claude.ai open Settings → Connectors → Add custom connector, enter `https://menu.kostecki.dev/mcp`, then sign in to Menu Maker and approve access. The server needs the Passport keys (see `.env.prod.example`).
+
+**Tool rules.** The client is told to show a preview and get your approval before saving. `calories` is the total kcal of the whole recipe (at least 50), not per serving. Ingredient units are only `g`, `kg`, `ml`, `l` and `szt`, each ingredient appears once, and the other limits are those of the recipe form. A name you already have (ignoring case and extra spaces) is refused with a link to the existing recipe, and nothing is saved. The remote endpoint accepts 60 requests a minute per user.
+
+## 8. Project Scope
 
 ### Included
 
@@ -156,15 +171,15 @@ Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dock
 
 ### Out of Scope
 
-- Importing recipes from external URLs
+- Importing recipes from external URLs in the app's interface (an MCP client can add one, see [Serwer MCP](#7-serwer-mcp))
 - Images or videos
 - Sharing recipes with other users
 - Dark mode
 
-## 8. Project Status
+## 9. Project Status
 
 Version 1.1.0 is released and runs in production. Changes are listed in [`CHANGELOG.md`](CHANGELOG.md), and the milestones in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
 
-## 9. License
+## 10. License
 
 This project is licensed under the **MIT License**. See the [`LICENSE`](LICENSE) file for details.

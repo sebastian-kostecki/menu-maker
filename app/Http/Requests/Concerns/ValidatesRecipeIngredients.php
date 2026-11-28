@@ -19,14 +19,26 @@ trait ValidatesRecipeIngredients
     protected function ingredientRules(): array
     {
         return [
-            'ingredients' => ['required', 'array', 'min:1'],
-            'ingredients.*.name' => ['required', 'string', 'max:255'],
-            'ingredients.*.quantity' => ['required', 'numeric', 'min:0.01', 'max:99999999.99'],
+            ...$this->ingredientRowRules(),
             'ingredients.*.unit_id' => [
                 'required',
                 'integer',
                 Rule::exists('units', 'id')->whereIn('code', Unit::ALLOWED_CODES),
             ],
+        ];
+    }
+
+    /**
+     * Rules for the ingredient list and each row's name and quantity, whatever way the unit is given.
+     *
+     * @return array<string, array<int, string>>
+     */
+    protected function ingredientRowRules(): array
+    {
+        return [
+            'ingredients' => ['required', 'array', 'min:1', 'max:100'],
+            'ingredients.*.name' => ['required', 'string', 'max:255'],
+            'ingredients.*.quantity' => ['required', 'numeric', 'min:0.01', 'max:99999999.99'],
         ];
     }
 
@@ -41,6 +53,7 @@ trait ValidatesRecipeIngredients
             'ingredients.required' => 'Dodaj co najmniej jeden składnik.',
             'ingredients.array' => 'Składniki muszą być listą.',
             'ingredients.min' => 'Dodaj co najmniej jeden składnik.',
+            'ingredients.max' => 'Przepis może mieć najwyżej 100 składników.',
             'ingredients.*.name.required' => 'Podaj nazwę składnika.',
             'ingredients.*.name.string' => 'Nazwa składnika musi być tekstem.',
             'ingredients.*.name.max' => 'Nazwa składnika może mieć maksymalnie 255 znaków.',

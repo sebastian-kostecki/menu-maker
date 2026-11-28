@@ -119,11 +119,25 @@ CI ([`master.yml`](.github/workflows/master.yml)) uruchamia to wszystko na pull 
 
 Produkcja działa na VPS za Traefikiem z `docker-compose.prod.yml` i `Dockerfile.prod`: nginx i PHP-FPM, worker kolejki i harmonogram pod supervisordem, PostgreSQL 18 i szyfrowane nocne kopie bazy. Skopiuj `.env.prod.example` do `.env.prod`, uzupełnij i uruchom `scripts/deploy.sh`; skrypt robi kopię bazy, migruje w trybie serwisowym i restartuje workery.
 
+## Serwer MCP
+
+Klient MCP, na przykład Claude, może dodawać przepisy na Twoje konto przez jedno narzędzie `add-recipe-tool`. To klient czyta przepis z wklejonego tekstu albo ze strony i pokazuje go Tobie; sama aplikacja nie wywołuje AI i nie pobiera adresów.
+
+**Lokalnie (Claude Code, stdio).** Ustaw w `.env` `MCP_LOCAL_USER` na e-mail albo id konta, na które mają trafiać przepisy. Lokalny serwer startuje tylko przy `APP_ENV=local` i wymaga działających kontenerów Sail. W katalogu projektu:
+
+```bash
+claude mcp add menu-maker --scope local -- vendor/bin/sail artisan mcp:start menu-maker
+```
+
+**Zdalnie (claude.ai, OAuth).** W claude.ai otwórz Ustawienia → Konektory → Dodaj własny konektor, wpisz `https://menu.kostecki.dev/mcp`, zaloguj się do Menu Makera i zezwól na dostęp. Serwer wymaga kluczy Passport (zobacz `.env.prod.example`).
+
+**Zasady narzędzia.** Klient ma pokazać podgląd i poprosić o zgodę przed zapisem. `calories` to kcal całego przepisu (co najmniej 50), nie porcji. Jednostki składników to tylko `g`, `kg`, `ml`, `l` i `szt`, każdy składnik występuje raz, a pozostałe limity są takie jak w formularzu. Nazwa, którą już masz (bez względu na wielkość liter i spacje), jest odrzucana z linkiem do istniejącego przepisu i nic się nie zapisuje. Zdalny serwer przyjmuje 60 żądań na minutę od użytkownika.
+
 ## Zakres
 
 **W zakresie:** logowanie e-mailem z sesją 24 h · członkowie rodziny · przepisy z wyszukiwaniem i importem z Markdownu · tydzień losowany bez powtórzeń · edytowalny szkic · przeliczanie z AI z ilościami zapasowymi · zbiorcza lista zakupów · jeden eksport do PDF.
 
-**Poza zakresem:** import przepisów z adresów URL · zdjęcia i filmy · udostępnianie przepisów innym · tryb ciemny.
+**Poza zakresem:** import przepisów z adresów URL w interfejsie aplikacji (klient MCP może taki przepis dodać, zobacz [Serwer MCP](#serwer-mcp)) · zdjęcia i filmy · udostępnianie przepisów innym · tryb ciemny.
 
 ## Dokumentacja
 

@@ -5,6 +5,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 
 uses(RefreshDatabase::class);
 
@@ -129,4 +130,19 @@ it('renders the reset e-mail in Polish', function (): void {
 it('returns the Polish message for an unknown e-mail', function (): void {
     $this->post('/forgot-password', ['email' => 'nobody@example.com'])
         ->assertSessionHasErrors(['email' => 'Nie znaleziono użytkownika z takim adresem e-mail.']);
+});
+
+it('signs connected OAuth clients out when the password is reset', function (): void {
+    $user = User::factory()->create();
+    $grant = oauthGrantFor($user);
+
+    $this->post('/reset-password', [
+        'token' => Password::createToken($user),
+        'email' => $user->email,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertSessionHasNoErrors();
+
+    expect($grant['access']->fresh()->revoked)->toBeTrue()
+        ->and($grant['refresh']->fresh()->revoked)->toBeTrue();
 });

@@ -41,3 +41,20 @@ it('requires correct current password to update password', function (): void {
         ->assertSessionHasErrors('current_password')
         ->assertRedirect('/profile');
 });
+
+it('signs connected OAuth clients out when the password changes', function (): void {
+    $user = User::factory()->create();
+    $own = oauthGrantFor($user);
+    $other = oauthGrantFor(User::factory()->create());
+
+    $this->actingAs($user)->put('/password', [
+        'current_password' => 'password',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertSessionHasNoErrors();
+
+    expect($own['access']->fresh()->revoked)->toBeTrue()
+        ->and($own['refresh']->fresh()->revoked)->toBeTrue()
+        ->and($other['access']->fresh()->revoked)->toBeFalse()
+        ->and($other['refresh']->fresh()->revoked)->toBeFalse();
+});

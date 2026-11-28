@@ -87,7 +87,7 @@ production_assert_env_ready() {
     local env_file="$1"
     local key value driver
 
-    for key in APP_KEY DB_PASSWORD MAIL_HOST MAIL_FROM_ADDRESS LOG_ALERT_MAIL_TO BACKUP_ARCHIVE_PASSWORD BACKUP_NOTIFICATION_MAIL; do
+    for key in APP_KEY DB_PASSWORD MAIL_HOST MAIL_FROM_ADDRESS LOG_ALERT_MAIL_TO BACKUP_ARCHIVE_PASSWORD BACKUP_NOTIFICATION_MAIL PASSPORT_PRIVATE_KEY PASSPORT_PUBLIC_KEY; do
         _production_require_value "${env_file}" "${key}"
     done
 

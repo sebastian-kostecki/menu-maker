@@ -119,11 +119,25 @@ CI ([`master.yml`](.github/workflows/master.yml)) runs all of the above on pull 
 
 Production runs on a VPS behind Traefik with `docker-compose.prod.yml` and `Dockerfile.prod`: nginx and PHP-FPM, the queue worker and the scheduler under supervisord, PostgreSQL 18 and encrypted nightly database backups. Copy `.env.prod.example` to `.env.prod`, fill it in and run `scripts/deploy.sh`; it backs up the database, migrates inside a maintenance window and restarts the workers.
 
+## MCP server
+
+An MCP client such as Claude can add recipes to your account through one tool, `add-recipe-tool`. The client reads the recipe from pasted text or a web page and shows it to you; the app itself calls no AI and fetches no URL.
+
+**Local (Claude Code, stdio).** Set `MCP_LOCAL_USER` in `.env` to the e-mail or id of the account to write to. The local server starts only with `APP_ENV=local` and needs the Sail containers running. From the project directory:
+
+```bash
+claude mcp add menu-maker --scope local -- vendor/bin/sail artisan mcp:start menu-maker
+```
+
+**Remote (claude.ai, OAuth).** On claude.ai open Settings → Connectors → Add custom connector, enter `https://menu.kostecki.dev/mcp`, then sign in to Menu Maker and approve access. The server needs the Passport keys (see `.env.prod.example`).
+
+**Tool rules.** The client is told to show a preview and get your approval before saving. `calories` is the total kcal of the whole recipe (at least 50), not per serving. Ingredient units are only `g`, `kg`, `ml`, `l` and `szt`, each ingredient appears once, and the other limits are those of the recipe form. A name you already have (ignoring case and extra spaces) is refused with a link to the existing recipe, and nothing is saved. The remote endpoint accepts 60 requests a minute per user.
+
 ## Project scope
 
 **Included:** e-mail authentication with a 24-hour session · family members · recipe CRUD with search and Markdown import · weekly plan drawn without repeats · editable draft · AI-refined scaling with a fallback · consolidated shopping list · one PDF export.
 
-**Out of scope:** importing recipes from URLs · images or videos · sharing recipes between users · dark mode.
+**Out of scope:** importing recipes from URLs in the app's interface (an MCP client can add one, see [MCP server](#mcp-server)) · images or videos · sharing recipes between users · dark mode.
 
 ## Documentation
 

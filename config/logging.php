@@ -76,6 +76,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'mcp' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mcp.log'),
+            'level' => 'info',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
         'mail_alert' => [
             'driver' => 'custom',
             'via' => CreateMailAlertLogger::class,

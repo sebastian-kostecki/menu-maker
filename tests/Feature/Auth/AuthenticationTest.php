@@ -129,3 +129,27 @@ it('re-authenticates a remembered user after the session expired', function (): 
     $this->assertAuthenticatedAs($user);
     expect(Auth::viaRemember())->toBeTrue();
 });
+
+it('leaves the Inertia request with a full-page visit when login started at the OAuth authorization', function (): void {
+    $user = User::factory()->create();
+    $intended = url('/oauth/authorize?client_id=abc&state=xyz');
+
+    $response = $this->withSession(['url.intended' => $intended])
+        ->post('/login', ['email' => $user->email, 'password' => 'password'], ['X-Inertia' => 'true']);
+
+    $this->assertAuthenticatedAs($user);
+    $response->assertStatus(409)->assertHeader('X-Inertia-Location', $intended);
+    $response->assertSessionMissing('url.intended');
+});
+
+it('redirects an Inertia login with any other intended URL as before', function (?string $intended, string $target): void {
+    $user = User::factory()->create();
+
+    $response = $this->withSession($intended === null ? [] : ['url.intended' => url($intended)])
+        ->post('/login', ['email' => $user->email, 'password' => 'password'], ['X-Inertia' => 'true']);
+
+    $response->assertRedirect(url($target));
+})->with([
+    'none' => [null, '/dashboard'],
+    'another page' => ['/recipes', '/recipes'],
+]);
